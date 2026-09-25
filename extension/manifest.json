@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "Confluence to SharePoint",
+  "version": "0.3.12",
+  "description": "Copy the Confluence page you have open into a new SharePoint page draft, with its text, tables, links and pictures.",
+  "minimum_chrome_version": "127",
+  "permissions": [
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.atlassian.net/*",
+    "https://media-cdn.atlassian.com/*",
+    "https://*.sharepoint.com/*"
+  ],
+  "action": {
+    "default_title": "Confluence to SharePoint",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.atlassian.net/wiki/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://*.sharepoint.com/*"
+      ],
+      "exclude_globs": [
+        "https://*-my.sharepoint.com/*",
+        "https://*-admin.sharepoint.com/*"
+      ],
+      "js": [
+        "memory.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none';"
+  }
+}

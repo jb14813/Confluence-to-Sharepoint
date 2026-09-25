@@ -1,0 +1,38 @@
+:root{font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:#203447;background:#edf2f6;font-synthesis:none;font-size:13px;line-height:1.45;color-scheme:light;--blue:#245d97;--muted:#5f6c78;--line:#d0dbe4}
+*{box-sizing:border-box}body{margin:0;min-width:280px}button,input,select{font:inherit}button,select,input[type=checkbox],.file-picker{cursor:pointer}button{border-radius:3px}button:disabled{cursor:default;opacity:.48}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.file-picker:has(+input:focus-visible){outline:3px solid #94721f;outline-offset:3px}h1,h2,p{margin:0}h2{font-size:14px;font-weight:600}.subtle{color:var(--muted);font-size:12px;line-height:1.5}.app-header{display:flex;align-items:center;gap:12px;background:var(--blue);padding:20px 18px;color:#fff}.app-mark{flex:0 0 auto}.app-header h1{font-size:19px;line-height:1.2;letter-spacing:-.3px;font-weight:600}.app-header p{font-size:12px;margin-top:5px;color:#e4eef8}main{padding:0 16px 16px}.source-section,.target-section{padding:17px 0;border-bottom:1px solid var(--line)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.local-label{color:var(--muted);font-size:11px;white-space:nowrap}.file-picker{display:flex;align-items:center;gap:12px;justify-content:space-between;background:white;border:1px solid #aabac8;border-radius:3px;padding:10px 12px;min-height:43px}.file-picker>span:first-child{overflow-wrap:anywhere}.file-action{font-size:12px;color:var(--blue);font-weight:600;flex-shrink:0}.file-picker:has(+input:disabled){opacity:.6;cursor:default}#source-help{margin-top:7px}.source-stats{font-size:12px;margin-top:11px;color:#3b5368;line-height:1.7}button.text-button{background:none;border:0;color:var(--blue);padding:3px 0;font-size:12px;font-weight:600;text-align:left}.text-button:hover:not(:disabled){text-decoration:underline}details{margin-top:12px;font-size:12px}summary{cursor:pointer;color:#3f566b;font-weight:600}details ul{margin:8px 0 0;padding-left:18px;color:#596572}details li+li{margin-top:5px}.review-label{display:flex;align-items:flex-start;gap:7px;margin-top:12px;font-size:12px;cursor:pointer}.review-label input{margin:3px 0 0;accent-color:var(--blue)}.target-title{font-weight:600;font-size:13px;overflow-wrap:anywhere}#target-detail{margin-top:4px;overflow-wrap:anywhere}#insertion-point-field{margin-top:12px}#insertion-point-field label{display:block;font-size:12px;margin-bottom:5px}select{width:100%;padding:7px;background:white;border:1px solid #aabac8;border-radius:3px;color:#203447}.status-section{padding:16px 0 12px}.status-section h2{font-size:14px}.status-section p{font-size:12px;margin-top:4px}.status-section[data-tone=error] h2{color:#a4262c}.status-section[data-tone=success] h2{color:#216348}progress{display:block;width:100%;height:7px;margin:12px 0 7px;accent-color:var(--blue);border-radius:0}progress::-webkit-progress-bar{background:#d8e1e9}progress::-webkit-progress-value{background:var(--blue)}.actions{display:flex;gap:8px}.primary-button,.secondary-button{padding:10px 13px;border:1px solid var(--blue);font-weight:600;font-size:13px}.primary-button{background:var(--blue);color:white;flex:1}.primary-button:hover:not(:disabled){background:#194a7c}.secondary-button{color:var(--blue);background:white}.save-note{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.55}.recovery{border-left:3px solid #b68b32;padding:1px 0 1px 10px;margin:0 0 14px;font-size:12px}.recovery button{margin-top:6px}footer{border-top:1px solid var(--line);padding-top:12px;margin-top:17px;display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--muted)}.test-status{font-size:11px;font-weight:600}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}@media(min-width:600px){main{padding-left:24px;padding-right:24px}.app-header{padding-left:24px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.conversion-limit{margin-top:10px}
+
+/* Capture and import side panel: one card per step, shown only when it applies. */
+.transfer-panel{background:#f4f7f9;color:#183246}
+.transfer-panel .app-header{padding:12px 14px;background:#112e43;gap:10px}
+.transfer-panel .app-mark{width:32px;height:32px;flex-shrink:0}
+.transfer-panel .app-header h1{font-size:16px;line-height:1.25;letter-spacing:-.1px}
+.transfer-panel main{padding:12px;display:flex;flex-direction:column;gap:10px}
+.transfer-panel .card{display:flex;flex-direction:column;gap:5px;padding:14px;background:#fff;border:1px solid #dce5eb;border-radius:10px;box-shadow:0 2px 8px #193a500a}
+.transfer-panel .card-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+.transfer-panel .card-heading h2{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#40596b}
+.transfer-panel .step-number{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:#e7f2f6;color:#116677;font-size:11px;font-weight:700;flex-shrink:0}
+.transfer-panel .step-number.done{background:#e3f4ea;color:#1c6b42}
+.transfer-panel .card-title{font-size:14px;font-weight:600;line-height:1.35;color:#183246;overflow-wrap:anywhere}
+.transfer-panel .card-note{font-size:12px;line-height:1.45;color:#5b6f7d;overflow-wrap:anywhere}
+.transfer-panel details{margin-top:1px}
+.transfer-panel .primary-button,.transfer-panel .secondary-button{flex:none;margin-top:8px;min-height:36px;padding:8px 12px;border-radius:7px;font-size:13px;font-weight:600}
+.transfer-panel .primary-button{background:#0e6680;border:1px solid #0e6680;color:#fff}
+.transfer-panel .primary-button:hover:not(:disabled){background:#084d64}
+.transfer-panel .secondary-button{background:#fff;border:1px solid #9fc2cf;color:#0e6680}
+.transfer-panel .secondary-button:hover:not(:disabled){background:#eef6f9}
+.transfer-panel .text-button{color:#0e6680}
+.transfer-panel #save-note{font-size:11px}
+.transfer-panel .link-button{display:block;margin-top:8px;padding:8px 12px;border-radius:7px;background:#0e6680;color:#fff;font-weight:600;text-align:center;text-decoration:none}
+.transfer-panel .link-button:hover{background:#084d64}
+.transfer-panel .link-button:focus-visible{outline:3px solid #94721f;outline-offset:3px}
+.transfer-panel .status{padding:10px 12px;border-radius:8px;background:#eaf3f5}
+.transfer-panel .status[data-tone=idle]{padding:0;background:none}
+.transfer-panel .status h2{font-size:12px;color:#225367}
+.transfer-panel .status p{margin-top:3px;font-size:11px;color:#40596b}
+.transfer-panel .status progress{margin:8px 0 4px}
+.transfer-panel .status[data-tone=success]{background:#e6f4ed}
+.transfer-panel .status[data-tone=error]{background:#fff0ed}
+.transfer-panel .status[data-tone=error] h2{color:#a4262c}
+.transfer-panel .recovery{margin:0 2px}
+.transfer-panel .app-header p{margin-top:2px;font-size:11px}

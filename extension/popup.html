@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Confluence to SharePoint</title>
+  <link rel="stylesheet" href="panel.css">
+  <link rel="stylesheet" href="popup.css">
+  <script type="module" src="popup.js"></script>
+</head>
+<body class="transfer-panel popup" data-state="loading">
+  <header class="app-header">
+    <img class="app-mark" src="icons/logo.svg" width="28" height="28" alt="">
+    <h1>Confluence to SharePoint</h1>
+    <button id="sites-link" class="text-button header-link" type="button">Sites</button>
+  </header>
+  <main id="main-view">
+    <section id="access" class="card" hidden>
+      <h2 class="card-title">Allow site access</h2>
+      <p class="card-note">Chrome's site access for this extension is restricted, so it can't read the page or site it needs. Allow access to Confluence and SharePoint sites to capture and send pages.</p>
+      <button id="allow-access" class="primary-button" type="button">Allow access</button>
+    </section>
+    <section id="status" class="status" data-tone="idle" aria-live="polite" aria-atomic="true">
+      <h2 id="status-title"></h2>
+      <p id="status-detail" hidden></p>
+      <progress id="progress" max="1" aria-label="Progress" hidden></progress>
+      <p id="progress-counts" hidden></p>
+      <div class="status-actions">
+        <button id="show-tab" class="secondary-button" type="button" hidden>Show the site’s tab</button>
+        <a id="open-draft" class="link-button" target="_blank" rel="noopener noreferrer" hidden>Open draft</a>
+        <a id="site-pages" class="text-link" target="_blank" rel="noopener noreferrer" hidden>Review Site Pages</a>
+      </div>
+    </section>
+    <section id="page" class="card">
+      <div class="card-heading"><h2 id="page-step">Confluence page</h2><button id="clear" class="text-button" type="button" aria-label="Clear capture" hidden>Clear</button></div>
+      <p id="page-title" class="card-title">Checking this tab…</p>
+      <p id="page-note" class="card-note" hidden></p>
+      <p id="page-stats" class="card-note" hidden></p>
+      <ul id="losses" class="losses" aria-label="Not copied" hidden></ul>
+      <details id="notes" hidden><summary>Layout notes</summary><ul id="warnings"></ul></details>
+      <button id="capture" class="primary-button" type="button" hidden>Capture page</button>
+    </section>
+    <section id="send" class="card" hidden>
+      <div class="card-heading"><h2>Send to</h2></div>
+      <div id="destinations" role="radiogroup" aria-label="SharePoint site"></div>
+      <p id="no-sites" class="card-note" hidden>Visit a SharePoint site you want to send pages to; it appears here.</p>
+      <button id="send-button" class="primary-button" type="button" disabled>Create draft</button>
+      <p class="card-note">Creates an unpublished draft. You publish it in SharePoint.</p>
+    </section>
+  </main>
+  <main id="sites-view" hidden>
+    <section class="card">
+      <div class="card-heading"><h2>Remembered sites</h2><button id="back" class="text-button" type="button">Back</button></div>
+      <p class="card-note">SharePoint sites you visit are remembered here, in this browser only.</p>
+      <ul id="site-list" class="site-list"></ul>
+      <p id="sites-empty" class="card-note" hidden>No sites yet. Visit a SharePoint site to add it.</p>
+      <button id="forget" class="text-button" type="button" hidden>Forget all</button>
+    </section>
+  </main>
+</body>
+</html>

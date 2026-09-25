@@ -1,0 +1,29 @@
+/* Toolbar popup: the side panel's cards, sized for a popup. */
+.popup{width:360px;min-height:140px}
+.popup .app-header{padding:10px 12px}
+.popup .app-header h1{flex:1;font-size:15px}
+.popup .header-link{color:#fff;font-size:12px;padding:4px 6px}
+.popup #destinations{max-height:236px;overflow-y:auto;padding:0 2px 2px;margin:0 -2px}
+.popup .destination{display:flex;gap:8px;align-items:flex-start;padding:7px 8px;border:1px solid #dce5eb;border-radius:7px;margin-top:6px;cursor:pointer}
+.popup .destination:has(input:checked){border-color:#0e6680;background:#f0f8fa}
+.popup .destination[data-problem=true]{opacity:.75}
+.popup .destination input{margin:3px 0 0;accent-color:#0e6680}
+.popup .site-text{display:flex;flex-direction:column;min-width:0;flex:1}
+.popup .site-title{font-weight:600;overflow-wrap:anywhere}
+.popup .site-address{font-size:11px;color:#5b6f7d;overflow-wrap:anywhere}
+.popup .site-problem{font-size:11px;color:#a4262c;margin-top:2px}
+.popup .site-list{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.popup .site{display:flex;align-items:center;gap:10px;padding:7px 8px;border:1px solid #dce5eb;border-radius:7px}
+.popup .status-actions{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.popup .status-actions:not(:has(:not([hidden]))){display:none}
+.popup .text-link{font-size:12px;color:#0e6680;font-weight:600}
+/* What a capture did not copy, in view in the capture card. */
+.popup .losses{margin:8px 0 0;padding-left:18px;color:#a4262c;font-size:12px;line-height:1.45}
+.popup .losses li+li{margin-top:4px}
+/* A step without counts: a band sweeps the bar until the step is done; with reduced motion the bar stands still, striped. */
+@keyframes popup-busy{from{background-position:100% 0}to{background-position:0 0}}
+.popup progress:indeterminate{background:linear-gradient(90deg,#d8e1e9 40%,var(--blue) 40% 60%,#d8e1e9 60%) 0 0/250% 100%;animation:popup-busy 1.4s linear infinite}
+.popup progress:indeterminate::-webkit-progress-bar{background:transparent}
+@media(prefers-reduced-motion:reduce){.popup progress:indeterminate{animation:none;background:repeating-linear-gradient(135deg,#d8e1e9 0 6px,#aebfcd 6px 12px)}}
+/* The status comes first and is empty while nothing is happening; it stays in place for screen readers. */
+.popup .status[data-tone=idle]{margin-bottom:-10px}

@@ -1,0 +1,7 @@
+# Text files are stored and checked out with LF line endings on every system,
+# so a build is the same everywhere: the build copies some files as they are.
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.jpg binary
+*.zip binary
