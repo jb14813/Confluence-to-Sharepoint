@@ -17,7 +17,7 @@
   <main id="main-view">
     <section id="access" class="card" hidden>
       <h2 class="card-title">Allow site access</h2>
-      <p class="card-note">Chrome's site access for this extension is restricted, so it can't read the page or site it needs. Allow access to Confluence and SharePoint sites to capture and send pages.</p>
+      <p class="card-note">Chrome’s site access for this extension is restricted, so it can’t read the page or site it needs. Allow access to Confluence and SharePoint sites to capture and send pages.</p>
       <button id="allow-access" class="primary-button" type="button">Allow access</button>
     </section>
     <section id="status" class="status" data-tone="idle" aria-live="polite" aria-atomic="true">
@@ -38,20 +38,38 @@
       <p id="page-stats" class="card-note" hidden></p>
       <ul id="losses" class="losses" aria-label="Not copied" hidden></ul>
       <details id="notes" hidden><summary>Layout notes</summary><ul id="warnings"></ul></details>
+      <div id="sent-to" class="sent-to" hidden>
+        <h3 class="sent-heading">Sent to</h3>
+        <ul id="sent-list" class="sent-list" aria-label="SharePoint pages this page was sent to"></ul>
+        <p class="card-note">Update replaces what this Confluence page sent there with its current content, as an unpublished draft. A page made from it gets its title, byline and date again; the earlier version stays in the page’s history.</p>
+      </div>
       <button id="capture" class="primary-button" type="button" hidden>Capture page</button>
     </section>
     <section id="send" class="card" hidden>
       <div class="card-heading"><h2>Send to</h2></div>
       <div id="destinations" role="radiogroup" aria-label="SharePoint site"></div>
-      <p id="no-sites" class="card-note" hidden>Visit a SharePoint site you want to send pages to; it appears here.</p>
-      <button id="send-button" class="primary-button" type="button" disabled>Create draft</button>
-      <p class="card-note">Creates an unpublished draft. You publish it in SharePoint.</p>
+      <p id="no-sites" class="card-note" hidden>Open the SharePoint site you want to send to in a tab, or pin it in Sites.</p>
+      <div id="draft-choice" class="choice">
+        <button id="send-button" class="primary-button" type="button" disabled>Create draft</button>
+        <p id="draft-note" class="card-note">Creates an unpublished draft. You publish it in SharePoint.</p>
+      </div>
+      <div id="page-choice" class="choice" hidden>
+        <p id="page-question" class="card-title"></p>
+        <div class="choice-buttons">
+          <button id="add-button" class="secondary-button" type="button">Add to bottom</button>
+          <button id="overwrite-button" class="secondary-button" type="button">Overwrite</button>
+        </div>
+        <p id="page-warning" class="card-note page-warning" hidden></p>
+        <button id="cancel-page" class="text-button" type="button">Cancel</button>
+        <p id="page-modes" class="card-note">Add to bottom keeps the page and adds this below it. Overwrite replaces its content, title, byline and date; the earlier version stays in the page’s history. Either way the change is an unpublished draft.</p>
+      </div>
     </section>
   </main>
   <main id="sites-view" hidden>
     <section class="card">
       <div class="card-heading"><h2>Remembered sites</h2><button id="back" class="text-button" type="button">Back</button></div>
-      <p class="card-note">SharePoint sites you visit are remembered here, in this browser only.</p>
+      <p id="sites-problem" class="card-note page-warning" aria-live="polite" hidden></p>
+      <p class="card-note">SharePoint sites and pages you visit are listed here. Pinned sites are always offered under Send to; the others while they’re open in a tab. This list, and which Confluence pages you sent where, stays in this browser only. Removing a site or page, or Forget all, also forgets what was sent there, so Update is no longer offered for it.</p>
       <ul id="site-list" class="site-list"></ul>
       <p id="sites-empty" class="card-note" hidden>No sites yet. Visit a SharePoint site to add it.</p>
       <button id="forget" class="text-button" type="button" hidden>Forget all</button>

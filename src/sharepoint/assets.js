@@ -131,7 +131,8 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
             resource.startsWith('web/GetFolderByServerRelativePath(') ? 'import folder verification' : 'asset operation';
           const error = fail('sharepoint-http', withAnswer(`SharePoint ${phase} failed (HTTP ${response.status})`, await refusalDetail(response)), response.status);
           const retryAfter = response.headers.get('Retry-After');
-          error.retryAfter = retryAfter === null ? 250 : Math.max(0, Math.min(2000, Number(retryAfter) * 1000 || 0));
+          // The wait SharePoint asks for, at most 30 seconds, as for the page requests.
+          error.retryAfter = retryAfter === null ? 250 : Math.max(0, Math.min(30000, Number(retryAfter) * 1000 || 0));
           throw error;
         }
         if (format === 'none') return null;
@@ -149,7 +150,8 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
       } catch (error) {
         if (timedOut) throw fail('request-timeout', 'The SharePoint asset request timed out.');
         const network = !error.code && error instanceof TypeError;
-        if (method === 'GET' && attempt === 0 && (network || TRANSIENT.has(error.status))) {
+        // Reads, and the request token, which writes nothing, are asked for once more after a passing failure.
+        if ((method === 'GET' || resource === 'contextinfo') && attempt === 0 && (network || TRANSIENT.has(error.status))) {
           retryDelay = error.retryAfter ?? 250;
         } else if (network) {
           throw fail('request-network', 'The SharePoint asset request could not reach the server.');
@@ -296,20 +298,32 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
     const digest = await freshDigest();
     let writeError;
     let useLibraryRoot = false;
-    try {
-      // This tenant recognizes the legacy Files/add action when read through
-      // ResourcePath but returns HTTP 404 for its binary POST. Select the
-      // already verified folder through the classic URL accessor for upload;
-      // metadata and byte verification continue to use ResourcePath.
-      await request(`web/GetFolderByServerRelativeUrl('${odataPath(folderPath)}')/Files/add(url='${odataPath(filename)}',overwrite=false)`, {
-        method: 'POST', digest, body: bytes, format: 'none', size: bytes.length
-      });
-    } catch (error) {
-      if (error.status === 404) useLibraryRoot = true;
-      else {
-        if (!uncertain(error)) throw error;
-        writeError = error;
+    // An upload SharePoint was too busy for (429, 503) is made again after the wait it asks for, at most twice; with
+    // overwrite=false and a name that is the picture's own hash, a repeat can never write a second file. An upload
+    // whose answer was lost is never repeated: the read-back below decides.
+    for (let attempt = 0; ; attempt++) {
+      writeError = undefined;
+      try {
+        // This tenant recognizes the legacy Files/add action when read through
+        // ResourcePath but returns HTTP 404 for its binary POST. Select the
+        // already verified folder through the classic URL accessor for upload;
+        // metadata and byte verification continue to use ResourcePath.
+        await request(`web/GetFolderByServerRelativeUrl('${odataPath(folderPath)}')/Files/add(url='${odataPath(filename)}',overwrite=false)`, {
+          method: 'POST', digest, body: bytes, format: 'none', size: bytes.length
+        });
+      } catch (error) {
+        if (error.status === 404) useLibraryRoot = true;
+        else {
+          if (!uncertain(error)) throw error;
+          writeError = error;
+          if ([429, 503].includes(error.status) && attempt < 2) {
+            if (await verifiedFile(path, bytes, asset, hash)) break;
+            await new Promise(resolve => setTimeout(resolve, error.retryAfter ?? 1000 * 2 ** attempt));
+            continue;
+          }
+        }
       }
+      break;
     }
     if (useLibraryRoot) {
       // A 404 is a definite non-write. Some SharePoint tenants can resolve a

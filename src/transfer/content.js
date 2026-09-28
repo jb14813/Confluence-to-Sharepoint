@@ -4,6 +4,7 @@ import {checkCanvasBlock} from '../sharepoint/canvas.js';
 import {MAX_PICTURE_BYTES,PICTURE_PIECE_BYTES,base64ToBytes,bytesToBase64,sha256Hex} from './limits.js';
 import {confluenceRoute,confluenceSite,waitForConfluencePage} from '../confluence/detect.js';
 import {logoElement} from '../brand/logo.js';
+import {withinSite} from '../sharepoint/session.js';
 const CHANNEL='guide-transfer';
 const SHORTCUT_CHANNEL='guide-shortcut';
 const fail=(code,message)=>Object.assign(new Error(message),{code});
@@ -98,10 +99,28 @@ function validateModel(model){
 function publicError(error){
   const code=/^[a-z0-9-]{1,80}$/.test(error?.code??'')?error.code:'operation-failed';
   const message=typeof error?.message==='string'&&error.message.length<1500&&!/https?:|token=|signature=/i.test(error.message)?error.message:'The operation stopped. No automatic retry was made. Check the source images or review SharePoint before trying again.';
-  return {code,message,...(error?.draftMayExist?{draftMayExist:true}:{}),...(GUID.test(error?.attemptId??'')?{attemptId:error.attemptId}:{})};
+  return {code,message,...(error?.draftMayExist?{draftMayExist:true}:{}),...(error?.pageUnchanged?{pageUnchanged:true}:{}),...(error?.pageMayHaveChanged?{pageMayHaveChanged:true}:{}),
+    ...(GUID.test(error?.attemptId??'')?{attemptId:error.attemptId}:{}),
+    // The draft SharePoint made before the stop, by its server-relative path, so the popup can link to it; not after a
+    // save whose outcome is unknown, since the naming save may have moved the file.
+    ...(error?.draftMayExist&&!['save-unconfirmed','allocation-unconfirmed'].includes(code)&&typeof error.serverRelativeUrl==='string'&&/^\/[^?#]{1,1000}\.aspx$/i.test(error.serverRelativeUrl)&&!error.serverRelativeUrl.split('/').some(part=>part==='..')?{serverRelativeUrl:error.serverRelativeUrl}:{}),
+    // The controls a page send whose outcome is unknown may have written.
+    ...(error?.pageMayHaveChanged&&Array.isArray(error.part)&&error.part.length&&error.part.length<=2000&&error.part.every(id=>typeof id==='string'&&GUID.test(id))?{part:[...error.part]}:{})};
+}
+// The page an import writes when it writes an existing page: its server-relative path; add, overwrite, or update
+// with the part an earlier send of the same Confluence page wrote (its controls, whether it titles the page, and
+// whether it starts with a heading).
+function checkedTarget(page){
+  if(page===undefined)return null;
+  const part=page?.part;
+  if(!page||typeof page!=='object'||Array.isArray(page)||Object.keys(page).some(key=>!['path','mode','part'].includes(key))||typeof page.path!=='string'||
+    !/^\/[^\u0000-\u001f\u007f]{1,1499}$/.test(page.path)||!['add','overwrite','update'].includes(page.mode)||(page.mode==='update')!==(part!==undefined)||
+    part!==undefined&&(!part||typeof part!=='object'||Array.isArray(part)||Object.keys(part).sort().join()!=='controls,headed,titled'||typeof part.titled!=='boolean'||typeof part.headed!=='boolean'||
+      !Array.isArray(part.controls)||!part.controls.length||part.controls.length>4000||!part.controls.every(id=>typeof id==='string'&&GUID.test(id))))throw fail('invalid-message','Unsupported transfer fields.');
+  return {path:page.path,mode:page.mode,...(part?{part:{controls:[...part.controls],titled:part.titled,headed:part.headed}}:{})};
 }
 
-/** Isolated-world entry point. Only extension messages initiate a complete capture or new draft. */
+/** Isolated-world entry point. Only extension messages initiate a complete capture, a new draft or a send to a page. */
 export function createTransferHandler({
   getRuntimeId=()=>globalThis.chrome?.runtime?.id,getLocation=()=>globalThis.location,
   inspectSource=()=>waitForConfluencePage({location:getLocation()}),
@@ -109,9 +128,10 @@ export function createTransferHandler({
   captureSource=async options=>(await import('../confluence/capture.js')).captureConfluencePage(options),
   createAssetClient=defaultAssets,
   createDraftClient=async options=>(await import('../sharepoint/drafts.js')).createDraftClient(options),
+  createPageClient=async options=>(await import('../sharepoint/pages.js')).createPageClient(options),
   fetchImpl=(...args)=>globalThis.fetch(...args)
 }={}){
-  // `step` is how far creating the draft has got: preparing, page, then content.
+  // `step` is how far creating a draft has got (preparing, page, content, checkin), or writing a page (waiting, page, content, checkin).
   const state={stage:'idle',step:null,completedImages:0,totalImages:0,attemptId:null,result:null,error:null};
   let busy=false,attempted=false;
   // Pictures travel between this tab and the extension's background in pieces,
@@ -121,7 +141,7 @@ export function createTransferHandler({
   // With `detach`, capture and import answer at once and carry on here; `status`
   // follows them and `captured` hands over the finished capture. Chrome stops an
   // extension service worker whose single request lasts more than five minutes.
-  const PAYLOAD={capture:['detach'],import:['model','attemptId','siteUrl','detach'],picture:['id','offset'],stage:['id','size','offset','data']};
+  const PAYLOAD={capture:['detach'],import:['model','attemptId','siteUrl','detach','page'],picture:['id','offset'],stage:['id','size','offset','data']};
   function picturePiece({id,offset}){
     const bytes=captured?.get(id);
     if(!bytes||!Number.isSafeInteger(offset)||offset<0||offset>=bytes.length||offset%PICTURE_PIECE_BYTES)throw fail('picture-unavailable','The captured picture is no longer available in this tab. Capture the page again.');
@@ -172,7 +192,7 @@ export function createTransferHandler({
       if(busy)throw fail('operation-busy','A transfer operation is already running.');
       if(message.action==='picture')return {ok:true,result:picturePiece(payload)};
       if(message.action==='stage'){
-        if(attempted)throw fail('import-already-attempted','An import was already attempted in this tab. Review that draft before starting another.');
+        if(attempted)throw fail('import-already-attempted','A send was already started in this tab. Review the page before starting another.');
         return {ok:true,result:stagePiece(payload)};
       }
       if(message.action==='capture'){
@@ -192,19 +212,21 @@ export function createTransferHandler({
         if(payload.detach){running.catch(()=>{});return {ok:true,result:{started:true}};}
         return {ok:true,result:await running};
       }
-      if(attempted)throw fail('import-already-attempted','An import was already attempted in this tab. Review that draft before starting another.');
+      if(attempted)throw fail('import-already-attempted','A send was already started in this tab. Review the page before starting another.');
       const destination=await inspectDestination();
-      if(!destination?.supported||destination.kind!=='sharepoint'||destination.siteUrl!==payload.siteUrl)throw fail('target-changed','The SharePoint site changed before the draft was started. Send again.');
+      if(!destination?.supported||destination.kind!=='sharepoint'||destination.siteUrl!==payload.siteUrl)throw fail('target-changed','The SharePoint site changed before the send was started. Send again.');
       if(!GUID.test(payload.attemptId??''))throw fail('invalid-attempt','The import attempt identity is missing.');
+      const target=checkedTarget(payload.page);
       validateModel(payload.model);
       const pictures=await stagedPictures(payload.model);
       attempted=true;busy=true;state.attemptId=payload.attemptId;state.stage='checking';state.step=null;state.completedImages=0;state.totalImages=0;state.result=null;state.error=null;
-      const targetHref=getLocation().href;
-      const assertTarget=()=>{if(getLocation().href!==targetHref)throw fail('target-changed','The SharePoint page changed during import. Review any draft already created.');};
+      // SharePoint changes the tab's address within the site on its own (Site Pages moves to its default view
+      // after it loads); a tab that leaves the site stops the import.
+      const assertTarget=()=>{if(!withinSite(getLocation().href,destination.siteUrl))throw fail('target-changed','The SharePoint tab left the site during the import. Review the site before sending again.');};
       const guardedFetch=(...args)=>{assertTarget();return fetchImpl(...args);};
-      const running=(async()=>{try{
-        const client=await createDraftClient({siteUrl:destination.siteUrl,fetchImpl:guardedFetch});
-        await client.inspectSite();assertTarget();
+      const onStep=step=>{state.step=step;};
+      // The pictures go to the site's Site Assets before any page is written.
+      async function upload(){
         const receipts=[];state.totalImages=payload.model.assets.length;state.completedImages=0;
         if(state.totalImages){
           state.stage='uploading';
@@ -213,12 +235,34 @@ export function createTransferHandler({
           const folder=await assets.ensureImportFolder(library.serverRelativeUrl,`confluence-import-${payload.model.sourceHash.toLowerCase()}`);
           for(const asset of payload.model.assets){assertTarget();receipts.push(await assets.uploadAsset(folder,{...asset,bytes:pictures.get(asset.id)}));state.completedImages++;}
         }
-        assertTarget();state.stage='creating';state.step='preparing';
-        const slug=payload.model.title.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,55)||'page';
-        const result=await client.createDraft({attemptId:payload.attemptId,filenameStem:slug,model:payload.model,assetReceipts:receipts},{onStep:step=>{state.step=step;}});
-        if(result?.verified!==true||result?.publication!=='unpublished')throw fail('unverified-draft','SharePoint did not confirm an unpublished draft. Review the Site Pages library.');
+        return receipts;
+      }
+      let writing=false;
+      const running=(async()=>{try{
+        let result;
+        if(target){
+          const client=await createPageClient({siteUrl:destination.siteUrl,fetchImpl:guardedFetch});
+          await client.inspectSite();assertTarget();
+          await client.checkPage(target.path,{onStep,...(target.part?{part:target.part}:{})});state.step=null;
+          const receipts=await upload();
+          assertTarget();state.stage='writing';state.step=null;writing=true;
+          result=await client.sendToPage({attemptId:payload.attemptId,pagePath:target.path,mode:target.mode,model:payload.model,assetReceipts:receipts,...(target.part?{part:target.part}:{})},{onStep});
+          if(result?.verified!==true||result?.publication!=='draft')throw Object.assign(fail('unverified-page','SharePoint did not confirm the page’s new content.'),{pageMayHaveChanged:true});
+        }else{
+          const client=await createDraftClient({siteUrl:destination.siteUrl,fetchImpl:guardedFetch});
+          await client.inspectSite();assertTarget();
+          const receipts=await upload();
+          assertTarget();state.stage='creating';state.step='preparing';
+          const slug=payload.model.title.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,55)||'page';
+          result=await client.createDraft({attemptId:payload.attemptId,filenameStem:slug,model:payload.model,assetReceipts:receipts},{onStep});
+          if(result?.verified!==true||result?.publication!=='unpublished')throw Object.assign(fail('unverified-draft','SharePoint did not confirm an unpublished draft.'),{draftMayExist:true});
+        }
         state.result=clone(result);state.stage='complete';return result;
-      }catch(error){state.stage='failed';state.error=publicError(error);throw error;}finally{busy=false;staged=new Map();}})();
+      }catch(error){
+        // Before the page is written, nothing on it has changed.
+        if(target&&!writing&&error&&typeof error==='object'&&!error.pageMayHaveChanged)error.pageUnchanged=true;
+        state.stage='failed';state.error=publicError(error);throw error;
+      }finally{busy=false;staged=new Map();}})();
       if(payload.detach){running.catch(()=>{});return {ok:true,result:{started:true,attemptId:payload.attemptId}};}
       return {ok:true,result:await running};
     }catch(error){return {ok:false,error:publicError(error)};}

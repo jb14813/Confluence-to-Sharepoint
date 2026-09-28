@@ -1,5 +1,69 @@
 # Changelog
 
+## 0.4.5 - Unreleased
+
+Fixes from the completeness pass over 0.4.4; nothing new to learn.
+
+- A send SharePoint is too busy for keeps going: the request token, the check-out, the title, the check-in and the picture uploads are sent again after the wait SharePoint asks for (HTTP 429 and 503). Before, one such answer stopped the whole send, at times after the page had been created. Page creation is still never repeated, and a page save is read back instead.
+- A long or throttled send is followed to its end as long as its tab keeps reporting progress, instead of being given up after 15 minutes while it is still writing.
+- If the extension is updated or restarted while a send is writing, the popup says so afterwards ("A draft may already exist" or "The page may have changed", with the review link) instead of forgetting the send.
+- A draft SharePoint made before a stop is linked for review at its own address, and the message says it may be checked out to you.
+- The send's background tab is kept from Chrome's memory saver while the send uses it.
+- **Update** carries the look of the part's first section (background and audiences; the collapsible heading for one-section content), and the result says when a different look on another of the part's sections was not kept, or when a collapsible heading now appears twice because content was added inside the section in SharePoint.
+- Up to 29 sites can be pinned, so the site last visited always stays in the list.
+- After site access is granted, from the popup or from Chrome's extensions page, SharePoint pages already open are remembered at once.
+- An **Update** that finds its page renamed or moved says what to do there: **Overwrite** on a page made from the Confluence page, or remove the earlier copy first and **Add to bottom** on a page the part was added to.
+- Wording and the popup: a site tab that stops answering during a send no longer asks for a reload beside the review instruction, and the messages the review named lost their own instruction; "may still be checked out to you" is said only when it may be true; the **Allow site access** card no longer appears for users who granted only specific sites, and does appear when SharePoint access is withheld and a capture has nowhere to go; a closed tab is not offered to show, and the job's own report stays; the message that the popup window's tab was closed stays through a job's progress and the Sites view's actions; opening the Sites view and going back keeps the keyboard on the way back, and a refusal shown in the Sites view stays there.
+
+## 0.4.4 - Unreleased
+
+Fixes from a close review of 0.4.3; nothing new to learn.
+
+- **Add to bottom** works on a page that has no title yet. SharePoint reads an empty title back as nothing at all, which the check after the save took for a change, so every such send was undone with a misleading message.
+- **Update** keeps the look the part's section was given in SharePoint: its background, and its collapsible heading when the new content is one section (with several sections the heading is left out, and the result says so).
+- A second click on **Create draft** (or any command refused because a send is already running) no longer hides the running send and its **Open draft** link behind "Something went wrong" until the popup is reopened.
+- The note under **Update** and **Overwrite** describes those buttons; it described **Add to bottom**. The notes under **Sent to** and **Send to** say that a page made from the Confluence page gets its title, byline and date again, and that the earlier version stays in the page's history.
+- Closing the tab a capture or send was using reports that in plain words, instead of Chrome's own error text, and **Show the tab** is not offered for a closed tab. A save SharePoint did not confirm, undone with the send's own check-out, says the page was put back as it was; one whose check-out could not be undone says the page may still be checked out.
+- After the extension restarts during a send, the popup follows the send's remaining steps instead of keeping the step shown before the restart.
+- The popup page opened in a window of its own (where Chrome cannot show the toolbar popup) follows its tab to another page and says when the tab was closed.
+- Choosing a site or page with the arrow keys keeps the keyboard focus on it. **Pin** and **Unpin** name their site to screen readers, and **Remove** names a page's file when two pages share a title. A site with a problem keeps its problem text readable. A failed action in the Sites view is reported there. The header's **Sites** link is hidden while the Sites view is open. The Sites view says that removing a site or page, or **Forget all**, also forgets what was sent there.
+- With Chrome's site access withheld for SharePoint, the popup asks for access instead of listing nothing under **Send to**, and never offers a send over a tab it cannot read.
+- Wording: "pictures" throughout (the card said "images"); a page that was deleted, renamed or moved; a page the account cannot edit says what to do; a send that timed out no longer gives two different instructions; the note on drafts made without the Delete Items permission names the file and says the title is right; the same apostrophe everywhere.
+- The package notices no longer list JSZip, which the extension has not included since the Word import was retired.
+
+## 0.4.3 - Unreleased
+
+- No second copy of a Confluence page by accident. On a site that already has the captured page, **Send to** offers **Update “‹page›”** instead of **Create draft**, and a page that already has it offers **Update** instead of **Add to bottom**; the background refuses the new draft or the second add as well. Sending the page into another page of the same site stays possible, since a page can be wanted in more than one place, and the popup warns that it makes a second copy.
+
+## 0.4.2 - Unreleased
+
+- Draws the names of sites and pages in the popup at their intended size. Chrome gives an extension's pages a smaller base font (75%), so those names showed smaller than the addresses under them.
+- Pages under **Sent to** that share a title and a site, such as several pages made from one Confluence page, show their file names under the title, as **Send to** does, so each can be told apart.
+
+## 0.4.1 - Unreleased
+
+- **Send to** no longer lists every SharePoint site you have visited. It offers the sites you pin, always, and the other remembered sites while they're open in a tab, with a site's pages likewise while open. A site or page you choose stays listed until the popup closes. Every remembered site is still in the **Sites** view, to pin. Which tabs are open is read when the popup opens and is not stored.
+
+## 0.4.0 - Unreleased
+
+- Sends a capture into an existing SharePoint page, not only into a new draft. Under **Send to**, the chosen site lists the pages of it you have opened, created or sent to (up to 10, newest first; the site's home page is left out). Choosing one asks **Send to “…”?**:
+  - **Add to bottom** keeps everything on the page and adds the Confluence page below it, starting with its title as a heading, so several Confluence pages can be combined into one SharePoint page.
+  - **Overwrite** replaces the page's content, title, byline and date with the Confluence page's. Its banner picture and its address stay.
+
+  The page is checked out before it is read, so nothing changes between reading and saving it, then saved, read back and checked in as a minor version. The change is an unpublished draft: readers keep the published page until you publish, and the earlier version stays in the page's version history.
+- Every send ends with the page in front in its page view, where SharePoint shows you the draft with **Edit** and **Publish**. A tab already showing the page is reloaded instead of another opening. New drafts used to open in SharePoint's editor, which holds a page for about a minute after it closes and so would stop the next send to it.
+- New drafts are checked in as minor versions once saved: still unpublished, and like drafts made in SharePoint's own editor, ones others can co-author. Where the library needs a required column filled in first, SharePoint keeps the draft checked out to you, and the popup says why.
+- A page open in SharePoint's editor stops a send before anything happens. When it is open in this browser, **Show the tab** takes you to it. Just after you close the editor, SharePoint holds the page for about a minute; the send waits for it, saying so. Someone else editing the page, or having it checked out, stops the send with their name.
+- A send that stopped without changing anything can simply be sent again, without capturing again: before the page is written for a page, or before any page is created for a draft. Pictures already uploaded are reused.
+- SharePoint moving a site's Site Pages to its default view while a send starts no longer stops it with "A draft may already exist": the send now checks only that its tab stays on the site.
+- Pages that share a title, such as two drafts of one Confluence page, show their file names under the title.
+- Updates a SharePoint page from the Confluence page sent to it, in one click. Every send remembers, in this browser, which Confluence page went to which SharePoint page and which parts of the page it wrote. On a Confluence page sent before, the popup lists those pages under **Sent to**, each with **Update**. **Update** captures the page and puts it in place of what it sent there, as an unpublished draft:
+  - On a combined page, only that Confluence page's part is replaced, where it is; the other parts, and sections and web parts added in SharePoint, stay. Changes made in SharePoint to the part itself are replaced.
+  - A page made from the Confluence page also gets its title, byline and date again; an added part gets its heading again.
+  - If the part is no longer on the page, nothing changes and the page leaves the list.
+
+  SharePoint's editor keeps the identities of a page's parts when someone edits it, so the parts are found wherever they are. **Overwrite** replaces everything on a page, so the other Confluence pages sent to it leave its list. Removing a site or page in the **Sites** view, or **Forget all**, also forgets what was sent to it.
+
 ## 0.3.12 - Unreleased
 
 - Captured pages open in Confluence's editor, including drafts that were never published. Until now the extension read only a page's reading view. In the editor it said "Open a Confluence page in its normal reading view", and a new draft, which opens only in the editor, could not be captured at all. The SharePoint button now also appears beside Share in the editor. Capture copies what the editor shows: the draft Confluence saves while the editor is open, read through Confluence's REST API (`status=draft`). If Confluence has no draft of the page yet, capture reads the published page. The draft goes through the same conversion as live docs. Confluence saves as you type, so capture waits up to five seconds for the saved draft to match the editor, title included. If it still doesn't match, a note says so, and **Capture again** picks up the rest. The SharePoint byline names the page's creator. A draft never published names none, so the byline names the author of the draft's version. A new draft with no title yet asks for one, since a SharePoint page needs a title.

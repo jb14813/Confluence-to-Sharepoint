@@ -68,7 +68,7 @@ export function createTransferStore({session=globalThis.chrome?.storage?.session
       });
     },
     claimAttempt:attempt=>transaction(old=>{
-      if(!old||old.model.sourceHash!==attempt.sourceHash)throw fail('capture-changed','The captured guide changed. Reload the panel before importing.');
+      if(!old||old.model.sourceHash!==attempt.sourceHash)throw fail('capture-changed','The capture changed since this send started. Capture the page again, then send it.');
       if(old.attempt)throw fail('import-already-attempted','This capture already has an import attempt. Review that draft before starting another.');
       return {record:{...old,attempt:{...attempt,status:'started'}},result:undefined};
     }),
@@ -78,7 +78,7 @@ export function createTransferStore({session=globalThis.chrome?.storage?.session
       const {attempt,...record}=old;return {record,result:true};
     }),
     completeAttempt:result=>transaction(old=>{
-      if(!old?.attempt||result?.verified!==true||result?.publication!=='unpublished')throw fail('unverified-draft','An unpublished draft has not been verified.');
+      if(!old?.attempt||result?.verified!==true||!['unpublished','draft'].includes(result?.publication))throw fail('unverified-draft','A verified send has not been confirmed.');
       return {record:{...old,attempt:{...old.attempt,status:'complete',result}},result:undefined};
     }),
     clear:()=>transaction(()=>({record:null,result:undefined,files:new Map()}))

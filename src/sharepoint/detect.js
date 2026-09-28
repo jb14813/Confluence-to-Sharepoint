@@ -88,6 +88,8 @@ export function pageContext(texts){
       try{parsed=JSON.parse(object);}catch{/* A script literal is read member by member below. */}
       if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed)){
         for(const key of CONTEXT_KEYS)if(typeof parsed[key]==='string')values[key]=parsed[key];
+        // Whether this is the site's home page, which the site memory does not list as a page.
+        if(typeof parsed.isWebWelcomePage==='boolean')values.isWebWelcomePage=parsed.isWebWelcomePage;
       }else{
         for(const member of ownMembers(object).matchAll(MEMBER)){
           const key=member[1]??member[2]??member[3];

@@ -2,10 +2,10 @@
 
 <img src="assets/Confluence_Sharepoint.svg" alt="Confluence to SharePoint logo" width="96" height="96">
 
-Copy a Confluence page into SharePoint without retyping it. Open the page in Chrome, capture it, and send it to one of your SharePoint sites. You get a new, **unpublished** SharePoint page with the text, tables, links and pictures, ready for you to review and publish.
+Copy a Confluence page into SharePoint without retyping it. Open the page in Chrome, capture it, and send it to one of your SharePoint sites: as a new page, or into a page you already have, to update it or to combine several Confluence pages into one. You get an **unpublished** SharePoint page with the text, tables, links and pictures, ready for you to review and publish. When the Confluence page changes, one click updates the SharePoint page you sent it to.
 
 - Uses the Confluence and SharePoint accounts you are already signed in to. There is no extra sign-in, app registration, server or API key.
-- Never publishes anything and never changes an existing SharePoint page.
+- Never publishes anything. A page you send into keeps showing its readers the published version until you publish the changes.
 - Sends your content only to the SharePoint site you choose.
 
 ## Install
@@ -21,12 +21,12 @@ To keep it handy, pin it: select the puzzle-piece icon in Chrome's toolbar, then
 
    ![A Confluence page with the teal SharePoint button beside Share, and the popup offering Capture page](store/assets/screenshot-1-capture-1280x800.png)
 
-3. Under **Send to**, choose the SharePoint site to copy into.
-4. Select **Create draft in** and the site's name. The site opens in a background tab while the draft is created, then the draft comes to the front.
+3. Under **Send to**, choose the SharePoint site to copy into. It lists the sites you pinned and the SharePoint sites open in your tabs.
+4. Select **Create draft in** and the site's name. The site opens in a background tab while the draft is created, then the draft comes to the front, with SharePoint's **Edit** and **Publish** (**Submit for approval** on a site whose pages are approved).
 
    ![The popup after a capture: the captured page and its counts, the remembered sites under Send to, and Create draft in Guides](store/assets/screenshot-2-send-1280x800.png)
 
-5. Review and edit the draft, then publish it in SharePoint when you are ready.
+5. Review and edit the draft, then publish it in SharePoint when you are ready, or submit it for approval where the site's pages are approved.
 
    ![The new unpublished draft in SharePoint, with the popup reporting Draft created in Guides](store/assets/screenshot-3-review-1280x800.png)
 
@@ -34,11 +34,39 @@ The screenshots show illustrative sample pages, not real documents.
 
 You can close the popup while it works: the capture or the draft carries on, and opening the popup again shows how far it got.
 
+## Send into an existing page
+
+Under **Send to**, the chosen site lists its pages open in your tabs: open the page you want to send into, or keep open the draft you just made. Choose one, and the popup asks **Send to “…”?**:
+
+- **Add to bottom** keeps everything on the page and adds the Confluence page below it, starting with its title as a heading. To combine several Confluence pages into one SharePoint page, create a draft from the first, then add each of the others to it.
+- **Overwrite** replaces the page's content, title, byline and date with the Confluence page's. The banner picture and the page's address stay. Use it to update a page after its Confluence page changed.
+- **Cancel** goes back to the site.
+
+This browser remembers what it sent, so a Confluence page is not copied onto a site twice by accident. If the site already has it, **Send to** offers **Update “…”** in place of **Create draft**, and the page that has it offers **Update** in place of **Add to bottom**. You can still send it into another page of the same site, for example a combined page; the popup warns that this makes a second copy. Another browser, or one whose list was cleared, does not know what this one sent.
+
+Either way the change is an unpublished draft of the page: readers keep the published version until you publish, and the earlier version stays in the page's version history. When the send finishes, the page comes to the front; a tab already showing it is reloaded rather than opening another.
+
+A page open in SharePoint's editor holds it. If it is open in another tab, the send stops and **Show the tab** takes you there: close that tab, then send again. SharePoint takes about a minute to release a page after its editor closes, and the send waits for that. If someone else is editing the page or has it checked out, the popup names them.
+
+## Update a page you sent
+
+The extension remembers which Confluence page you sent to which SharePoint page. Open the popup on a Confluence page you sent before and, while no other page is captured, its card lists those pages under **Sent to**, each with **Update**.
+
+Select **Update**. The extension captures the Confluence page as it is now and puts it into the SharePoint page in place of what it sent there before. As with every send, the change is an unpublished draft and the page comes to the front.
+
+- On a page combined from several Confluence pages, only this page's part is replaced, where it is. The other parts stay, and so do sections and web parts added in SharePoint. Changes made in SharePoint to the part itself are replaced; the earlier version stays in the page's history.
+- A page made from this Confluence page, with **Create draft** or **Overwrite**, also gets its title, byline and date again. A part added with **Add to bottom** gets its heading again.
+- If what the Confluence page sent is no longer on the SharePoint page, or the page was renamed or moved, nothing changes and the page leaves the list. The capture is kept: to send it there again, choose the SharePoint page under **Send to** (open it in SharePoint first if it isn't listed), then **Add to bottom** or **Overwrite**. A page that was only renamed or moved still holds the earlier copy, so choose **Overwrite**, or remove that copy in SharePoint first; **Add to bottom** would add a second one.
+- **Overwrite** replaces everything on a page, so the other Confluence pages sent to it no longer list it.
+
+The list is kept in this browser only.
+
 ## Your SharePoint sites
 
-- The sites under **Send to** are the SharePoint sites you visit. Open a site in Chrome once and it appears there. Personal OneDrive and the SharePoint admin center are left out.
-- Up to 30 sites are remembered, the most recently used first. Select **Sites** in the popup to pin a site to the top, remove one, or forget them all.
-- Remembered sites are kept in this browser only and are never sent anywhere.
+- The SharePoint sites you visit are remembered and listed in the popup's **Sites** view: up to 30, the most recently used first. Personal OneDrive and the SharePoint admin center are left out.
+- **Send to** offers the sites you pin there, always, and any other remembered site while it's open in a tab. Pin the sites you send to often; select **Sites** to pin, unpin or remove a site, or forget them all. A site you choose stays in the list until the popup closes.
+- Each site also remembers up to 10 of its pages you opened or sent to. Under **Send to** a site lists the ones open in a tab. The site's home page is never listed. Remove a page in the **Sites** view.
+- Remembered sites and pages, and which Confluence pages you sent to them, are kept in this browser only and are never sent anywhere. **Forget all** clears them all, and removing a site or page also forgets what was sent to it.
 - If a site cannot take a draft, for example because its Site Pages library does not keep draft versions, the popup says why under the site's name.
 
 ## What gets copied
@@ -67,13 +95,13 @@ Some things change, and the popup lists each one under **Layout notes** so you k
 - **Live docs save as you type.** If your latest edits had not been saved when you captured, a note says so. Select **Capture again**.
 - **Chrome asks for site access.** If your Chrome settings limit the extension to certain sites, the popup shows **Allow site access**, on a page it cannot read or when a send needs a site it may not reach. Allow it for your Confluence and SharePoint sites.
 - **SharePoint asks you to sign in.** The popup says so. Select **Show the site’s tab**, sign in as usual, then select **Create draft** again. The extension never asks for your password.
-- **A send that stops part-way is not retried automatically**, because a draft or pictures may already exist: the popup says **A draft may already exist**. Select **Review Site Pages** to check, then select **Clear** and capture again. A send that stops before anything was written can simply be sent again.
+- **A send that stops part-way is not retried automatically**, because a draft or pictures may already exist: the popup says **A draft may already exist**, or **The page may have changed** for a page you sent into. Select **Review Site Pages** or **Review the page** to check, then select **Clear** and capture again. A send that stops before anything was written can simply be sent again.
 - **After an update** the extension refreshes its button on the Confluence pages you have open. If a button says **Reload this page**, reload it.
 - **What you need:** Chrome 127 or later, a Confluence Cloud page (on `atlassian.net`) you can view, and a SharePoint Online site (on `sharepoint.com`) where you can create pages and upload files. Confluence Data Center or Server, and custom domains, are not supported yet.
 
 ## Privacy
 
-Everything happens in your browser. A captured page stays in Chrome only until you close Chrome, and imported content goes only to the SharePoint site you choose. The addresses and names of the SharePoint sites you visit are remembered in this browser so you can send pages there; they are never sent anywhere. There is no server, analytics or tracking. When a page shows a picture from another website, the extension asks that website for the picture so it can copy it. See [PRIVACY.md](PRIVACY.md) for the full privacy policy and [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
+Everything happens in your browser. A captured page stays in Chrome only until you close Chrome, and imported content goes only to the SharePoint site you choose. The addresses and names of the SharePoint sites and pages you visit are remembered in this browser so you can send pages there, and so is which Confluence page you sent to which SharePoint page, so you can update it later; they are never sent anywhere. There is no server, analytics or tracking. When a page shows a picture from another website, the extension asks that website for the picture so it can copy it. See [PRIVACY.md](PRIVACY.md) for the full privacy policy and [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
 This is an independent tool and is not affiliated with Atlassian or Microsoft.
 

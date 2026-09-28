@@ -7,7 +7,7 @@
 export const MAX_PICTURE_BYTES=250*1024*1024;
 
 // Chrome refuses an extension message larger than 64 MiB, so pictures move
-// between the page and the side panel in pieces this size (base64 adds a third).
+// between the page and the background in pieces this size (base64 adds a third).
 // https://developer.chrome.com/docs/extensions/develop/concepts/messaging
 export const PICTURE_PIECE_BYTES=8*1024*1024;
 

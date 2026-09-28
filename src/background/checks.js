@@ -14,18 +14,20 @@ export function siteAddress(value){
   return `${url.origin}${path}`;
 }
 
-/** The edit address of a verified unpublished draft created by `attempt` in its site. */
-export function confirmedUrl(result,attempt){
-  if(result?.verified!==true||result.publication!=='unpublished'||result.attemptId&&result.attemptId!==attempt.attemptId)throw fail('unverified-draft','The new unpublished draft could not be verified. Review Site Pages.');
+/** The address of the page a verified send made or wrote in `attempt`'s site: a page in its Site Pages, without query. */
+export function confirmedPageUrl(result,attempt){
+  // A new draft is unpublished; a send to a page leaves a draft of it on top of what readers see.
+  const expected=attempt.page?'draft':'unpublished';
+  if(result?.verified!==true||result.publication!==expected||result.attemptId&&result.attemptId!==attempt.attemptId)throw fail('unverified-draft','The send could not be verified. Review the page in SharePoint.');
   const site=new URL(siteAddress(attempt.siteUrl));
   let url;
-  try{url=new URL(result.editUrl);}catch{throw fail('unverified-draft','SharePoint did not return a valid draft edit link.');}
+  try{url=new URL(result.pageUrl);}catch{throw fail('unverified-draft','SharePoint did not return a valid page address.');}
   const prefix=`${site.pathname.replace(/\/$/,'')}/SitePages/`.toLowerCase();
-  let leaf;
-  try{leaf=decodeURIComponent(url.pathname.slice(prefix.length));}catch{throw fail('unverified-draft','SharePoint did not return a valid draft edit link.');}
-  if(url.origin!==site.origin||url.username||url.password||url.hash||!url.pathname.toLowerCase().startsWith(prefix)||
-    !/^[^/\\\x00-\x1f?]+\.aspx$/i.test(leaf)||leaf==='..aspx'||url.searchParams.get('Mode')!=='Edit'||[...url.searchParams].length!==1){
-    throw fail('unverified-draft','SharePoint returned an unexpected draft edit link. Review Site Pages before continuing.');
+  let parts;
+  try{parts=url.pathname.slice(prefix.length).split('/').map(decodeURIComponent);}catch{throw fail('unverified-draft','SharePoint did not return a valid page address.');}
+  if(url.origin!==site.origin||url.username||url.password||url.hash||url.search||!url.pathname.toLowerCase().startsWith(prefix)||
+    parts.some(part=>!part||part==='.'||part==='..'||/[\\\x00-\x1f?]/.test(part))||!/\.aspx$/i.test(parts.at(-1))||parts.at(-1).toLowerCase()==='.aspx'){
+    throw fail('unverified-draft','SharePoint returned an unexpected page address. Review Site Pages before continuing.');
   }
   return url.href;
 }
@@ -43,12 +45,12 @@ export function validateCapture(model){
   if(model.blocks.some(block=>block.type==='image'&&!assets.has(block.assetId)))throw fail('incomplete-capture','A source picture is missing from the capture.');
 }
 
-/** What a capture holds, such as "3 images · 2 tables"; picture files are listed only when a picture repeats. */
+/** What a capture holds, such as "3 pictures · 2 tables"; picture files are listed only when a picture repeats. */
 export function captureStats(model){
   const images=Number.isInteger(model.stats?.images)?model.stats.images:model.blocks.filter(block=>block.type==='image').length;
   const tables=Number.isInteger(model.stats?.tables)?model.stats.tables:model.blocks.reduce((n,b)=>n+(b.type==='text'?(b.html.match(/<table(?:\s|>)/gi)??[]).length:0),0);
   const files=model.assets.length,count=(n,word)=>`${n} ${word}${n===1?'':'s'}`,parts=[];
-  if(images)parts.push(count(images,'image'));
+  if(images)parts.push(count(images,'picture'));
   if(tables)parts.push(count(tables,'table'));
   if(files!==images)parts.push(count(files,'picture file'));
   return parts.length?parts.join(' · '):'Text only';

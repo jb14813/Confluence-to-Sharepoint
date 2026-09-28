@@ -1,18 +1,16 @@
 {
-  "name": "sharepoint-docx-helper",
-  "version": "0.3.12",
+  "name": "confluence-to-sharepoint",
+  "version": "0.4.5",
   "private": true,
   "license": "MIT",
   "type": "module",
-  "description": "Copy the Confluence page you have open into a new, unpublished SharePoint page draft",
+  "description": "Copy the Confluence page you have open into a new or existing SharePoint page, as an unpublished draft",
   "scripts": {
     "build": "node scripts/build.mjs"
   },
-  "dependencies": {
-    "jszip": "3.10.1"
-  },
   "devDependencies": {
     "emojibase-data": "17.0.0",
-    "esbuild": "0.25.9"
+    "esbuild": "0.25.9",
+    "jszip": "3.10.1"
   }
 }
