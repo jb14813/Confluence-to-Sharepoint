@@ -34,7 +34,8 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   // `updateInstead`: the page Send to updates rather than make another draft; `addMode`: what the first page button does.
   // `problem` is what went wrong last, of kind 'command' (a refused command, replaced by the next job news), 'tab' (the
   // named tab is gone) or 'access' (site access refused); `closedTabs` are tabs a job named that turned out closed.
-  const state={tab:null,context:null,data:null,open:[],sharePoint:true,chosen:null,page:null,tabSite:null,view:'main',access:false,allAccess:true,problem:null,problemKind:null,closedTabs:new Set(),updateInstead:null,addMode:'add'};
+  // `accountPending`: the setting's state the user chose, shown until the background has it.
+  const state={tab:null,context:null,data:null,open:[],sharePoint:true,chosen:null,page:null,tabSite:null,view:'main',access:false,allAccess:true,problem:null,problemKind:null,closedTabs:new Set(),updateInstead:null,addMode:'add',accountPending:null};
   let destroyed=false;
   async function call(action,payload={}){
     const response=await chromeApi.runtime.sendMessage({channel:CHANNEL,action,payload});
@@ -81,6 +82,9 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
       // Only a Confluence page is read here; SharePoint sites are checked when a page is sent to them.
       let host='';try{host=new URL(state.tab?.url).hostname;}catch{/* Not a web page. */}
       state.context=!state.access&&/\.atlassian\.net$/i.test(host)?await call('inspect',{tabId:state.tab.id}).catch(()=>null):null;
+      // With Keep in my Confluence account on, the page's entries come from the account; the list redraws when they arrive.
+      if(state.data?.account?.enabled&&state.context?.kind==='confluence'&&state.context.pageId&&originOf(state.context.pageUrl))
+        void call('account-refresh',{origin:originOf(state.context.pageUrl),pageId:state.context.pageId}).catch(()=>{});
     }catch(error){state.problem=error.message;state.problemKind=error?.kind==='tab'?'tab':'command';}
     render();
   }
@@ -116,6 +120,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
       text.append(...name,where);
       const label=name.length>1?`Update ${title} (${name[1].textContent})`:`Update ${title}`;
       const update=document.createElement('button');update.type='button';update.className='secondary-button';update.textContent='Update';update.disabled=running||state.problemKind==='tab';update.setAttribute('aria-label',label);
+      update.dataset.key=`update ${link.siteUrl} ${link.path}`;
       update.addEventListener('click',()=>act(()=>call('update-page',{tabId:state.tab.id,siteUrl:link.siteUrl,pagePath:link.path,windowId:state.tab?.windowId??null})));
       row.append(text,update);return row;
     }));
@@ -162,15 +167,20 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
     state.updateInstead=here[0]?.path??null;state.addMode=holding?'update':'add';
     const already=here.length?linkTitle(here[0],state.data?.sites??[]):'';
     el('send-button').textContent=here.length?`Update ${quoted(already)}`:chosen?`Create draft in ${chosen.title||address(chosen.url)}`:'Create draft';
-    el('draft-note').textContent=here.length?`This Confluence page is already in ${quoted(already)}. Update replaces what it sent there with its current content, as an unpublished draft.`:'Creates an unpublished draft. You publish it in SharePoint.';
+    el('draft-note').textContent=here.length?`This Confluence page is already in ${quoted(already)}. Update replaces what it sent there, and any edits made to that in SharePoint, with this capture, as an unpublished draft. A page made from it gets its title, byline and date again; the earlier version stays in the page’s history.`:'Creates an unpublished draft. You publish it in SharePoint.';
     el('send-button').disabled=!chosen||running;
     el('page-question').textContent=page?`Send to ${quoted(page.title)}?`:'';
     el('add-button').textContent=holding?'Update':'Add to bottom';
     // The note under the buttons explains the buttons shown.
-    el('page-modes').textContent=holding?'Update replaces what this Confluence page sent here with its current content; the rest of the page stays. Overwrite replaces the page’s content, title, byline and date. Either way the change is an unpublished draft, and the earlier version stays in the page’s history.'
+    el('page-modes').textContent=holding?'Update replaces what this Confluence page sent here, and any edits made to that in SharePoint, with this capture; the rest of the page stays. Overwrite replaces the page’s content, title, byline and date. Either way the change is an unpublished draft, and the earlier version stays in the page’s history.'
       :'Add to bottom keeps the page and adds this below it. Overwrite replaces its content, title, byline and date; the earlier version stays in the page’s history. Either way the change is an unpublished draft.';
-    el('page-warning').textContent=elsewhere?`This Confluence page is already in ${quoted(linkTitle(elsewhere,state.data?.sites??[]))}. Sending it here makes a second copy.`:'';
-    el('page-warning').hidden=!elsewhere;
+    // Overwrite replaces everything on the page, so what other Confluence pages sent there goes too.
+    const others=page?new Set(all.filter(link=>link.siteUrl===chosen.url&&link.path.toLowerCase()===page.path.toLowerCase()&&!(source&&link.source?.origin===source.origin&&link.source?.pageId===source.pageId))
+      .map(link=>`${link.source?.origin}|${link.source?.pageId}`)).size:0;
+    const warnings=[elsewhere?`This Confluence page is already in ${quoted(linkTitle(elsewhere,state.data?.sites??[]))}. Sending it here makes a second copy.`:'',
+      others?`Overwrite also removes what ${others} other Confluence ${others===1?'page':'pages'} sent here.`:''].filter(Boolean);
+    el('page-warning').textContent=warnings.join(' ');
+    el('page-warning').hidden=!warnings.length;
     for(const id of ['add-button','overwrite-button'])el(id).disabled=running;
   }
   function renderStatus(job,sent){
@@ -186,7 +196,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
       showTab=Number.isInteger(job.tabId)&&!state.closedTabs.has(job.tabId)&&(TAB_HELP.has(job.error?.code)||mayHaveChanged);review=job.review?.pageUrl??null;reviewLabel='Review the page';
     }
     else if(job?.status==='failed'){
-      // After the import started a draft may exist, so the page must not simply be sent again.
+      // After the send started a draft may exist, so the page must not simply be sent again.
       const mayExist=job.kind==='send'&&(job.error?.draftMayExist===true||Boolean(job.review));
       tone='error';title=mayExist?'A draft may already exist':STOPPED[job.kind]??'Stopped';
       detail=mayExist?`${job.error?.message??''} Review ${job.review?.pageUrl?'the draft':'Site Pages'} before you send this page again.`.trim():job.error?.message??'';
@@ -220,9 +230,9 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
       const entry=document.createElement('li');entry.className='site-entry';
       const item=document.createElement('div');item.className='site';
       const pin=document.createElement('button');pin.type='button';pin.className='text-button';pin.textContent=site.pinned?'Unpin':'Pin';pin.setAttribute('aria-label',`${site.pinned?'Unpin':'Pin'} ${site.title||address(site.url)}`);
-      pin.addEventListener('click',()=>act(()=>call('pin',{url:site.url,pinned:!site.pinned})));
+      pin.dataset.key=`pin ${site.url}`;pin.addEventListener('click',()=>act(()=>call('pin',{url:site.url,pinned:!site.pinned})));
       const remove=document.createElement('button');remove.type='button';remove.className='text-button';remove.textContent='Remove';remove.setAttribute('aria-label',`Remove ${site.title||address(site.url)}`);
-      remove.addEventListener('click',()=>act(()=>call('remove',{url:site.url})));
+      remove.dataset.key=`remove ${site.url}`;remove.addEventListener('click',()=>act(()=>call('remove',{url:site.url})));
       item.append(siteText(site),pin,remove);entry.append(item);
       // The site's remembered pages, each of which can be removed.
       if(site.pages?.length){
@@ -231,7 +241,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
           const row=document.createElement('li');row.className='page-row';
           const parts=pageName(document,page,site.pages),name=document.createElement('span');name.className='page-text';name.title=page.path;name.append(...parts);
           const forget=document.createElement('button');forget.type='button';forget.className='text-button';forget.textContent='Remove';forget.setAttribute('aria-label',parts.length>1?`Remove ${page.title} (${parts[1].textContent})`:`Remove ${page.title}`);
-          forget.addEventListener('click',()=>act(()=>call('remove-page',{url:site.url,path:page.path})));
+          forget.dataset.key=`remove-page ${site.url} ${page.path}`;forget.addEventListener('click',()=>act(()=>call('remove-page',{url:site.url,path:page.path})));
           row.append(name,forget);return row;
         }));
         entry.append(pages);
@@ -239,6 +249,9 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
       return entry;
     }));
     el('sites-empty').hidden=sites.length>0;el('forget').hidden=!sites.length;
+    const account=state.data?.account??null;
+    el('account-sync').checked=state.accountPending??account?.enabled===true;el('account-sync').disabled=!state.data||state.accountPending!==null;
+    el('account-problem').textContent=account?.problem??'';
   }
   // Where Send to offers to send: the pinned sites and the sites open in a tab, each with its pages open in a tab. The
   // site and page chosen stay while the popup is open, so the list does not change under a choice or a send.
@@ -250,8 +263,10 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   }
   function render(){
     if(destroyed)return;
-    // A radio the keyboard is on is rebuilt with its list, so focus goes back to it afterwards.
-    const active=document.activeElement,focused=active?.tagName==='INPUT'&&active.type==='radio'?{name:active.name,value:active.value}:null;
+    // A radio or button the keyboard is on is rebuilt with its list, so focus goes back to it afterwards; one that is gone
+    // or disabled then (a removed site, an Update that started) hands it to the view's own place: the status, or Back.
+    const active=document.activeElement,escape=value=>globalThis.CSS?.escape?.(value)??value;
+    const focused=active?.tagName==='INPUT'&&active.type==='radio'?`input[name="${active.name}"][value="${escape(active.value)}"]`:active?.dataset?.key?`[data-key="${escape(active.dataset.key)}"]`:null;
     const {data,context}=state,sites=data?.sites??[],onConfluence=context?.kind==='confluence';
     const lastCapture=data?.capture??null,lastJob=data?.job??null,running=lastJob?.status==='running';
     // Whether this tab shows the captured page: by site and page id, or by title where the id is unknown.
@@ -271,7 +286,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
     el('main-view').hidden=state.view!=='main';el('sites-view').hidden=state.view!=='sites';
     // The header's Sites link opens the Sites view, which has its own way back.
     el('sites-link').hidden=state.view==='sites';
-    el('sites-problem').textContent=state.view==='sites'&&state.problem?state.problem:'';el('sites-problem').hidden=!(state.view==='sites'&&state.problem);
+    el('sites-problem').textContent=state.view==='sites'&&state.problem?state.problem:'';
     el('access').hidden=!accessNeeded;el('page').hidden=state.access||unanswered;
     // The captured page, or the Confluence page in this tab.
     el('page-step').textContent=capture?'Captured page':'Confluence page';
@@ -294,8 +309,13 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
     renderSent(links,sites,running);
     renderDestinations(offered,capture,running,running&&job?.page?.mode==='update');
     renderStatus(job,sent);
+    // An update whose page or part is gone offers a new page on the same site for the capture it kept.
+    // Not while the tab cannot be read, nor once this Confluence page is on that site again (the account copy may bring it back).
+    const onSite=Boolean(capture?.page)&&(data?.links??[]).some(link=>link.siteUrl===job?.siteUrl&&link.source?.origin===capture.page.origin&&link.source?.pageId===capture.page.pageId);
+    const offer=job?.status==='failed'&&job.error?.offer==='new-page'&&typeof job.siteUrl==='string'&&Boolean(capture)&&!capture.attempt&&!running&&state.problemKind!=='tab'&&!state.access&&!onSite;
+    el('new-page').hidden=!offer;state.newPageSite=offer?job.siteUrl:null;
     renderSites(sites);
-    if(focused){const escaped=globalThis.CSS?.escape?.(focused.value)??focused.value;document.querySelector(`input[name="${focused.name}"][value="${escaped}"]`)?.focus({preventScroll:true});}
+    if(focused){const again=document.querySelector(focused);if(again&&!again.disabled)again.focus({preventScroll:true});else if(!focused.startsWith('input'))el(state.view==='sites'?'back':'status').focus({preventScroll:true});}
   }
   const on=(id,handler)=>el(id).addEventListener('click',handler);
   on('capture',()=>act(()=>call('capture',{tabId:state.tab.id})));
@@ -304,8 +324,17 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   const sendPage=mode=>act(()=>call('send-page',{siteUrl:state.chosen,pagePath:state.page,mode,windowId:state.tab?.windowId??null}));
   on('add-button',()=>sendPage(state.addMode));
   on('overwrite-button',()=>sendPage('overwrite'));
-  on('cancel-page',()=>{state.page=null;render();});
+  on('cancel-page',()=>{const path=state.page;state.page=null;render();
+    const escape=value=>globalThis.CSS?.escape?.(value)??value;document.querySelector(`input[name="page"][value="${escape(path??'')}"]`)?.focus({preventScroll:true});});
   on('clear',()=>act(()=>call('clear')));
+  // The button goes with the send it starts, so the keyboard moves to the status, which reports the send.
+  on('new-page',()=>{const siteUrl=state.newPageSite;if(siteUrl)act(()=>call('send',{siteUrl,windowId:state.tab?.windowId??null})).then(()=>{if(el('new-page').hidden)el('status').focus({preventScroll:true});});});
+  // Keep in my Confluence account: on with the Confluence page in the tab, if any, whose entries then come back; or off.
+  el('account-sync').addEventListener('change',()=>{
+    const enabled=el('account-sync').checked,onConfluence=state.context?.kind==='confluence'&&Boolean(state.context.pageId)&&Boolean(originOf(state.context.pageUrl));
+    state.accountPending=enabled;render();
+    act(()=>call('account-sync',{enabled,origin:onConfluence?originOf(state.context.pageUrl):null,pageId:onConfluence?state.context.pageId:null})).finally(()=>{state.accountPending=null;render();el('account-sync').focus({preventScroll:true});});
+  });
   // A tab that turns out closed is no longer offered; the job's own report stays in view.
   on('show-tab',()=>{const tabId=state.data?.job?.tabId;act(async()=>{try{await call('show-tab',{tabId});}catch(error){if(error?.code!=='tab-closed')throw error;state.closedTabs.add(tabId);}});});
   // Switching views moves the keyboard to the other view's way back, since the control pressed is hidden with its view.
@@ -323,7 +352,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   });
   // A job's news is fresher than a refused command, so it takes the status back; a closed tab or refused access stays said.
   const changed=(changes,area)=>{if(area==='session'&&changes.job&&state.problemKind==='command'&&state.view==='main'){state.problem=null;state.problemKind=null;}
-    if(area==='session'&&changes.job||area==='local'&&(changes.sites||changes.links))void load().then(render,()=>{});};
+    if(area==='session'&&changes.job||area==='local'&&(changes.sites||changes.links||changes.account))void load().then(render,()=>{});};
   chromeApi.storage.onChanged.addListener(changed);
   // The popup page in a window of its own stays open while its tab moves on, so it follows the tab.
   const followed=(id,info)=>{if(id===namedTab&&info?.status==='complete')void refresh();};

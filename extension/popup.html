@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Confluence to SharePoint</title>
-  <link rel="stylesheet" href="panel.css">
   <link rel="stylesheet" href="popup.css">
   <script type="module" src="popup.js"></script>
 </head>
@@ -20,12 +19,13 @@
       <p class="card-note">Chrome’s site access for this extension is restricted, so it can’t read the page or site it needs. Allow access to Confluence and SharePoint sites to capture and send pages.</p>
       <button id="allow-access" class="primary-button" type="button">Allow access</button>
     </section>
-    <section id="status" class="status" data-tone="idle" aria-live="polite" aria-atomic="true">
+    <section id="status" class="status" data-tone="idle" aria-live="polite" aria-atomic="true" tabindex="-1">
       <h2 id="status-title"></h2>
       <p id="status-detail" hidden></p>
       <progress id="progress" max="1" aria-label="Progress" hidden></progress>
       <p id="progress-counts" hidden></p>
       <div class="status-actions">
+        <button id="new-page" class="primary-button" type="button" hidden>Create a new page</button>
         <button id="show-tab" class="secondary-button" type="button" hidden>Show the site’s tab</button>
         <a id="open-draft" class="link-button" target="_blank" rel="noopener noreferrer" hidden>Open draft</a>
         <a id="site-pages" class="text-link" target="_blank" rel="noopener noreferrer" hidden>Review Site Pages</a>
@@ -56,8 +56,8 @@
       <div id="page-choice" class="choice" hidden>
         <p id="page-question" class="card-title"></p>
         <div class="choice-buttons">
-          <button id="add-button" class="secondary-button" type="button">Add to bottom</button>
-          <button id="overwrite-button" class="secondary-button" type="button">Overwrite</button>
+          <button id="add-button" class="secondary-button" type="button" aria-describedby="page-warning page-modes">Add to bottom</button>
+          <button id="overwrite-button" class="secondary-button" type="button" aria-describedby="page-warning page-modes">Overwrite</button>
         </div>
         <p id="page-warning" class="card-note page-warning" hidden></p>
         <button id="cancel-page" class="text-button" type="button">Cancel</button>
@@ -68,11 +68,16 @@
   <main id="sites-view" hidden>
     <section class="card">
       <div class="card-heading"><h2>Remembered sites</h2><button id="back" class="text-button" type="button">Back</button></div>
-      <p id="sites-problem" class="card-note page-warning" aria-live="polite" hidden></p>
-      <p class="card-note">SharePoint sites and pages you visit are listed here. Pinned sites are always offered under Send to; the others while they’re open in a tab. This list, and which Confluence pages you sent where, stays in this browser only. Removing a site or page, or Forget all, also forgets what was sent there, so Update is no longer offered for it.</p>
+      <p id="sites-problem" class="card-note page-warning" aria-live="polite"></p>
+      <p class="card-note">SharePoint sites and pages you visit are listed here. Pinned sites are always offered under Send to; the others while they’re open in a tab. This list stays in this browser; pinned sites follow your Chrome sync if it is on, and which Confluence pages you sent where can also be kept in your Confluence account below. Removing a site or page, or Forget all, also forgets what was sent there, so Update is no longer offered for it.</p>
       <ul id="site-list" class="site-list"></ul>
       <p id="sites-empty" class="card-note" hidden>No sites yet. Visit a SharePoint site to add it.</p>
       <button id="forget" class="text-button" type="button" hidden>Forget all</button>
+      <div class="account">
+        <label class="account-toggle"><input id="account-sync" type="checkbox" aria-describedby="account-note"> Keep in my Confluence account</label>
+        <p id="account-note" class="card-note">Saves your sent pages privately to your Confluence account, so Update follows you to any computer. Turning this off turns it off on your other computers too and removes them from your account; so does Forget all.</p>
+        <p id="account-problem" class="card-note page-warning" aria-live="polite"></p>
+      </div>
     </section>
   </main>
 </body>

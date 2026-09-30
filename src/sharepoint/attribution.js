@@ -1,7 +1,11 @@
 // The Confluence page's author and date as a SharePoint title area shows them: the byline names the author's
 // account on the site when exactly one matches (by e-mail, else by name), else the signed-in user, and the topic
-// header is the date the Confluence page was last updated.
+// header is the date the Confluence page was last updated. A lookup SharePoint refuses, or answers with nothing
+// usable, leaves the byline as it is (`user: null`, `refused`), with the date; one that did not reach SharePoint, or
+// a tab that left the site, still stops the send.
 import { fail } from './session.js';
+
+const refused=error=>error?.code==='sharepoint-http'||['invalid-users','invalid-user','invalid-response'].includes(error?.code);
 
 export function sourceMetadata(model) {
   const value=model.sourceMetadata;
@@ -21,6 +25,13 @@ export function sourceMetadata(model) {
 export async function resolveAttribution(request, model) {
   const source=sourceMetadata(model);
   if(!source)return null;
+  const topicHeader=new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(source.lastUpdatedAt));
+  try{return {topicHeader,user:await author(request,source)};}
+  catch(error){if(!refused(error))throw error;return {topicHeader,user:null,refused:true};}
+}
+
+// The account the byline names.
+async function author(request, source) {
   const filter=`Title eq '${source.author.displayName.replace(/'/g,"''")}'${source.author.email?` or Email eq '${source.author.email.replace(/'/g,"''")}' or UserPrincipalName eq '${source.author.email.replace(/'/g,"''")}'`:''}`;
   const collection=await request(`web/siteusers?$select=Id,Title,Email,LoginName,UserPrincipalName,IsHiddenInUI&$filter=${encodeURIComponent(filter)}`);
   const users=collection?.value??collection?.results;
@@ -36,6 +47,5 @@ export async function resolveAttribution(request, model) {
     match=validUser(await request('web/currentuser?$select=Id,Title,Email,LoginName,UserPrincipalName,IsHiddenInUI'));
     if(!match)throw fail('invalid-user','SharePoint did not return a valid signed-in user for the page byline.');
   }
-  const date=new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(source.lastUpdatedAt));
-  return {topicHeader:date,user:{title:match.Title.trim(),loginName:match.LoginName,upn:match.UserPrincipalName}};
+  return {title:match.Title.trim(),loginName:match.LoginName,upn:match.UserPrincipalName};
 }

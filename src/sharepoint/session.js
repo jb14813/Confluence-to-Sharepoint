@@ -98,7 +98,7 @@ function purpose(resource, method) {
   if (/\/UndoCheckOut\(\)$/i.test(resource)) return 'to undo the page’s check-out';
   if (resource.endsWith('/ValidateUpdateListItem')) return 'to set the page’s title';
   if (/^sitepages\/pages\(\d+\)$/.test(resource)) return 'to read the page back';
-  if (resource.startsWith('web/GetFileByServerRelativePath(')) return 'to read the page’s file';
+  if (resource.startsWith('web/GetFileByServerRelativePath(') || resource.startsWith('web/GetFileById(')) return 'to read the page’s file';
   if (/^web\/siteusers\?/.test(resource)) return 'to look up the page’s author';
   if (/^web\/currentuser\?/.test(resource)) return 'to look up your account';
   return 'to read the site';
@@ -134,7 +134,7 @@ export function createSession({ siteUrl, fetchImpl = globalThis.fetch, allow }) 
   }
 
   async function requestOnce(resource, { method = 'GET', body, digest, missing = false, ignoreBody = false } = {}) {
-    if (!['GET', 'POST'].includes(method) || !allow(resource, method, body)) throw fail('forbidden-endpoint', 'Only the requests this import needs are allowed.');
+    if (!['GET', 'POST'].includes(method) || !allow(resource, method, body)) throw fail('forbidden-endpoint', 'Only the requests a send needs are allowed.');
     assertTarget();
     const controller = new AbortController();
     let timedOut = false;

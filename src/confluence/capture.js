@@ -1,12 +1,14 @@
-import {attachmentInfo,attachmentLink,fetchConfluenceImage,fetchExternalImage,isPicture,fail,pictureFileName,unsupportedPicture} from './images.js';
+import {attachmentInfo,attachmentLink,attachmentPage,fetchConfluenceImage,fetchExternalImage,isPicture,fail,lossReason,pictureFileName,unsupportedPicture} from './images.js';
 import {inspectConfluencePage,topLevelArticles} from './detect.js';
 import {captureStoredDocument} from './stored.js';
-import {captureHash,readAttachmentListing,readSourceMetadata} from './rest.js';
-import {HEADER_BACKGROUND,NUMBER_COLOR,NUMBER_COLUMN_WIDTH,PANEL_COLORS,SAFE_PANEL_COLOR,RULE_TEXT,badMetadata,codeBlockHtml,compact,drawsSomething,emojiHtml,emojiText,escape,headingSlug,inlineCodeHtml,labelText,panelHtml,panelIcon,sharePointColumns,standardPanelIcon,statusColors,taskIndent,taskMark} from './html.js';
+import {captureHash,readAttachmentListing,readSourceMetadata,readVersion} from './rest.js';
+import {HEADER_BACKGROUND,NUMBER_COLOR,NUMBER_COLUMN_WIDTH,PANEL_COLORS,SAFE_PANEL_COLOR,RULE_TEXT,badMetadata,clean,codeBlockHtml,compact,drawsSomething,emojiHtml,emojiText,escape,fitBlocks,headingSlug,inWords,inlineCodeHtml,labelText,macroName,macroTitle,namesInSentence,oneLine,panelHtml,panelIcon,pictureMarker,pictureShare,pictureSlot,picturesNotCopiedNote,settlePictures,unplacedNote,withoutUnplaced,sharePointColumns,standardPanelIcon,statusColors,taskIndent,taskMark} from './html.js';
 import {emojiName,omittedEmojiNote} from './emoji.js';
 import {drawnBackground,drawnHighlight,drawnTextColor} from './palette.js';
 import {NBSP,keepWhitespace} from './whitespace.js';
-import {roadmapHtml,roadmapSource} from './roadmap.js';
+import {roadmapCutNote,roadmapHtml,roadmapSource} from './roadmap.js';
+import {LIST_CONTINUED,cutList,listPictureCount,listPictures,numberingStyle} from './lists.js';
+import {checkCanvasBlock} from '../sharepoint/canvas.js';
 
 export {inspectConfluencePage};
 const SKIP='button,input,textarea,select,script,style,noscript,nav,footer,[data-testid="visually-hidden-heading-anchor"],.ds-line-number,.ak-editor-panel__icon';
@@ -15,12 +17,33 @@ const SKIP='button,input,textarea,select,script,style,noscript,nav,footer,[data-
 const SKIP_IN_LINES=SKIP.split(',').map(selector=>selector==='button'?'button:not([data-testid="user-profile-card-trigger-wrapper"])':selector).join(',');
 const TAGS=new Set('P H1 H2 H3 H4 H5 H6 SPAN STRONG B EM I U S SUP SUB BR OL UL LI TABLE THEAD TBODY TFOOT TR TD TH A BLOCKQUOTE PRE CODE'.split(' '));
 const BLOCKS=new Set('P H1 H2 H3 H4 H5 H6 OL UL TABLE BLOCKQUOTE PRE'.split(' '));
+// Text-level markup: outside a list item it needs a paragraph of its own.
+const INLINE=new Set('SPAN STRONG B EM I U S SUP SUB A CODE BR'.split(' '));
 const STYLES=['color','background-color','font-family','font-size','text-align','font-weight','font-style','vertical-align'];
+// The nearest value SharePoint takes for one it does not (canvas.js), by property. Font sizes are CSS's own for its
+// keywords at the 16 px default, and its larger and smaller step (1.2).
+const NEAREST_STYLE={'text-align':{start:'left',end:'right','-webkit-left':'left','-webkit-right':'right','-webkit-center':'center','justify-all':'justify'},
+  'font-weight':{bolder:'bold',lighter:'normal'},'vertical-align':{'text-top':'top','text-bottom':'bottom'},
+  'font-size':{'xx-small':'9px','x-small':'10px',small:'13px',medium:'16px',large:'18px','x-large':'24px','xx-large':'32px','xxx-large':'48px',larger:'120%',smaller:'83.3333%'}};
+const takes=(property,value)=>{try{checkCanvasBlock({type:'text',html:`<span style="${escape(`${property}:${value}`)}">x</span>`});return true;}catch{return false;}};
+// A style value as SharePoint takes it: as it is, else the nearest it takes; null when there is none.
+function nearestStyle(property,value) {
+  if(takes(property,value))return value;
+  const key=value.toLowerCase();let near=Object.hasOwn(NEAREST_STYLE[property]??{},key)?NEAREST_STYLE[property][key]:null;
+  if(property==='font-weight'&&/^\d+$/.test(value))near=String(Math.min(900,Math.max(100,Math.round(Number(value)/100)*100)));
+  if(property==='font-style'&&/^oblique\b/i.test(value))near='oblique';
+  // Of a list of fonts, those it takes.
+  if(property==='font-family')near=value.split(',').map(font=>font.trim()).filter(font=>font&&takes(property,font)).join(', ')||null;
+  return near&&takes(property,near)?near:null;
+}
+// Text raised or lowered is kept as superscript or subscript, the nearest SharePoint takes.
+const SCRIPT={super:'sup',sub:'sub'};
 // How a passage begins, for a note: whole up to 50 characters, else cut at a word near 45.
 const excerpt=value=>{if(value.length<=50)return value;const cut=value.lastIndexOf(' ',45);return `${(cut>0?value.slice(0,cut):value.slice(0,45)).replace(/[\s,;:.]+$/,'')}…`;};
-// Names in a sentence: "a, b and c", naming at most three.
-const inWords=items=>{const named=[...items.slice(0,3),...(items.length>3?[`${items.length-3} more`]:[])];return named.length<2?named.join(''):`${named.slice(0,-1).join(', ')} and ${named.at(-1)}`;};
-const alignment=node=>['left','center','right','justify'].find(value=>value===(node.getAttribute('data-align') || node.style?.textAlign));
+// A block's alignment, as Confluence marks it (data-align start, center or end, as the editor stores it) or styles it.
+const ALIGN={left:'left',start:'left',center:'center',right:'right',end:'right',justify:'justify'};
+const aligned=value=>Object.hasOwn(ALIGN,value??'')?ALIGN[value]:undefined;
+const alignment=node=>aligned(node.getAttribute('data-align'))??aligned(node.style?.textAlign);
 // Confluence draws an emoji as a picture, a sprite or, when its site cannot
 // draw it, a replacement character, inside an element carrying the emoji's
 // stored text, id and short name; the emoji is read from those, not the drawing.
@@ -37,11 +60,16 @@ const customPanelColor=panel=>tokenColor(panel.style?.getPropertyValue('--ak-ren
   [panel.getAttribute('data-panel-color'),panel.getAttribute('data-panel-bg-color'),panel.style?.backgroundColor].map(drawnBackground).find(value=>SAFE_PANEL_COLOR.test(value||''))??null;
 // Column layouts, as Confluence renders them now and as it did before.
 const LAYOUT_SECTION='[data-layout-section],[data-node-type="layoutSection"]',LAYOUT_COLUMN='[data-layout-column],[data-node-type="layoutColumn"]';
+// A macro as the reading view draws it: by its key or id, or in the frame an app's macro is drawn in.
+const MACRO='[data-macro-name],[data-macro-id],[data-fabric-macro]';
+// What shows a part of the page still loading: a busy region, a progress bar, or a spinner (Atlaskit's and the
+// earlier editor's) by its test id, class or label.
+const LOADING='[aria-busy="true"],[role="progressbar"],[data-testid*="spinner" i],[class*="spinner" i],aui-spinner,[aria-label^="loading" i]';
 
 async function hydrateDeferredText(article,expectedText,onProgress){
   if(!expectedText.length||!article.lastElementChild)return;
   const missing=()=>{
-    const visible=compact(article.textContent);
+    const visible=oneLine(article.textContent);
     return expectedText.filter(value=>!visible.includes(value)).length;
   };
   let remaining=missing();if(!remaining)return;
@@ -63,22 +91,27 @@ async function hydrateDeferredText(article,expectedText,onProgress){
   }finally{for(const [node,position] of positions){node.scrollLeft=position.left;node.scrollTop=position.top;}}
 }
 
-// Opens every collapsed section, so what it holds is captured; returns how many would not open.
+// Collapsed sections, nested ones included, and the button that opens one.
+const COLLAPSED='[data-node-type="expand"][data-expanded="false"],[data-node-type="nestedExpand"][data-expanded="false"]';
+const opener=section=>section.querySelector(':scope > button[aria-expanded="false"]');
+// Each section is tried once, so this bound is reached only by a page that keeps drawing new collapsed sections
+// as others open (after more than eight minutes, at 0.1 s a section); the sections left are noted as not opened.
+const MAX_SECTIONS=5_000;
+
+// Opens every collapsed section, nested ones as they show, so what they hold is captured; returns how many stay closed.
 async function openCollapsedExpansions(article,opened){
-  const stuck=new Set();
-  for(let index=0;index<200;index++){
-    const next=[...article.querySelectorAll('[data-node-type="expand"][data-expanded="false"]')]
-      .find(node=>!stuck.has(node)&&node.querySelector(':scope > button[aria-expanded="false"]')?.getClientRects().length);
-    if(!next)return stuck.size;
-    const button=next.querySelector(':scope > button[aria-expanded="false"]');
-    button.click();
+  const tried=new Set();let stuck=0;
+  for(let index=0;index<MAX_SECTIONS;index++){
+    const next=[...article.querySelectorAll(COLLAPSED)].find(node=>!tried.has(node)&&opener(node)?.getClientRects().length);
+    if(!next)return stuck;
+    tried.add(next);opener(next).click();
     for(let attempt=0;attempt<30&&next.getAttribute('data-expanded')!=='true';attempt++)
       await new Promise(resolve=>setTimeout(resolve,100));
-    if(next.getAttribute('data-expanded')!=='true'){stuck.add(next);continue;}
+    if(next.getAttribute('data-expanded')!=='true'){stuck++;continue;}
     opened.push(next);
     await new Promise(resolve=>setTimeout(resolve,100));
   }
-  fail('capture-limit','This Confluence page contains too many nested sections to capture safely.');
+  return stuck+[...article.querySelectorAll(COLLAPSED)].filter(node=>!tried.has(node)&&opener(node)?.getClientRects().length).length;
 }
 
 function restoreCollapsedExpansions(opened){
@@ -92,14 +125,19 @@ function restoreCollapsedExpansions(opened){
 const placeablePicture=wrapper=>wrapper.querySelectorAll('[data-node-type="media"]').length===1&&
   !wrapper.querySelector('[data-node-type="mediaSingle"]')&&wrapper.querySelectorAll('img').length<=1;
 
-// The snapshot is taken once every picture can be placed; a picture that stays in another form
-// after a few seconds is taken as it is, and is marked as not copied.
+// A link to a page is drawn with its address while Confluence looks up the page, in a view it marks as resolving, and
+// then with the page's title (measured live on 2026-09-27: about 1.4 s after it is drawn).
+const RESOLVING='[data-inline-card] [data-testid="inline-card-resolving-view"]';
+
+// The snapshot is taken once every picture can be placed and every link to a page shows its title; a picture that
+// stays in another form after a few seconds is taken as it is, and marked as not copied, and a link still looking up
+// its page keeps its address, which is noted.
 async function settledCopy(original) {
   const deadline=Date.now()+5_000;
   while(true) {
     // The check and the copy run together, so no change to the page comes between them. The copy is not
     // laid out, so the lines Confluence draws its text in are read from the page as it is copied.
-    if([...original.querySelectorAll('[data-node-type="mediaSingle"]')].every(placeablePicture)||Date.now()>=deadline) {
+    if([...original.querySelectorAll('[data-node-type="mediaSingle"]')].every(placeablePicture)&&!original.querySelector(RESOLVING)||Date.now()>=deadline) {
       const copy=original.cloneNode(true);
       // Should the page's lines not be readable, its text is copied as HTML would lay it out.
       try{keepWhitespace(original,copy,{ignore:SKIP_IN_LINES});}catch{/* The text itself is unchanged. */}
@@ -109,7 +147,9 @@ async function settledCopy(original) {
   }
 }
 
-async function hydrateLazyMedia(article,onProgress,expectedMediaCount=null) {
+// `own` tells the page's own pictures, which its stored copy counts, from another page's, as an include or a
+// synced block shows them; `changed` tells whether the page has a newer version than its stored copy.
+async function hydrateLazyMedia(article,onProgress,expectedMediaCount=null,{own=()=>true,changed=async()=>true}={}) {
   const positions=new Map(),remember=node=>{if(node&&!positions.has(node))positions.set(node,{left:node.scrollLeft,top:node.scrollTop})};
   remember(document.scrollingElement);
   for(let parent=article.parentElement;parent;parent=parent.parentElement)if(parent.scrollHeight>parent.clientHeight||parent.scrollWidth>parent.clientWidth)remember(parent);
@@ -117,20 +157,25 @@ async function hydrateLazyMedia(article,onProgress,expectedMediaCount=null) {
   try {
     let completed=0;
     while(true) {
-      const wrappers=[...article.querySelectorAll('[data-node-type="mediaSingle"]')];
-      if(expectedMediaCount!==null&&wrappers.length>expectedMediaCount)fail('capture-changed','The Confluence page changed while it was being captured. Try again after the page finishes updating.');
+      const wrappers=[...article.querySelectorAll('[data-node-type="mediaSingle"]')],shown=wrappers.filter(own).length;
+      if(expectedMediaCount!==null&&shown>expectedMediaCount) {
+        if(await changed())fail('capture-changed','The Confluence page changed while it was being captured. Try again after the page finishes updating.');
+        // The page is as stored, so none of its pictures is missing: some are only not told from another page's.
+        expectedMediaCount=null;
+      }
+      const total=Math.max(expectedMediaCount??0,wrappers.length);
       for(let index=0;index<wrappers.length;index++) {
         const wrapper=wrappers[index],media=wrapper.querySelector('[data-node-type="media"]');
         for(let parent=wrapper.parentElement;parent;parent=parent.parentElement)if(parent.scrollHeight>parent.clientHeight||parent.scrollWidth>parent.clientWidth)remember(parent);
         if(media?.querySelector('img[src]'))continue;
-        if(typeof onProgress==='function')onProgress({phase:'capture',completed,total:expectedMediaCount??wrappers.length,message:`Preparing image ${index+1} of ${expectedMediaCount??wrappers.length}.`});
+        if(typeof onProgress==='function')onProgress({phase:'capture',completed,total,message:`Preparing image ${index+1} of ${total}.`});
         wrapper.scrollIntoView({block:'center',inline:'nearest'});
         for(let attempt=0;attempt<40&&!media?.querySelector('img[src]');attempt++)await new Promise(resolve=>setTimeout(resolve,100));
         completed++;
       }
-      if(expectedMediaCount===null||wrappers.length===expectedMediaCount)return null;
+      if(expectedMediaCount===null||shown===expectedMediaCount)return null;
       // Pictures the page never shows cannot be captured; the caller notes them.
-      if(Date.now()>=deadline)return {shown:wrappers.length,expected:expectedMediaCount};
+      if(Date.now()>=deadline)return {shown,expected:expectedMediaCount};
       article.lastElementChild?.scrollIntoView({block:'end',inline:'nearest'});
       await new Promise(resolve=>setTimeout(resolve,250));
     }
@@ -161,24 +206,38 @@ export async function captureConfluencePage({document=globalThis.document,locati
   if(info.live||info.editing)return captureStoredDocument({document,info,fetchImpl,metadataFetchImpl,onProgress});
   const original=topLevelArticles(document)[0];
   const articleWidth=original.getBoundingClientRect().width;
-  const {sourceMetadata,expectedMediaCount,featureInventory,expectedText,macroText,textPlaces,externalPictures,adf}=await readSourceMetadata(info,metadataFetchImpl);
-  const opened=[],shownWidths=new WeakMap(),boxWidths=new WeakMap();
+  const {sourceMetadata,expectedMediaCount,featureInventory,expectedText,macroText,textPlaces,externalPictures,mediaContexts,mediaFiles,adf,unchecked}=await readSourceMetadata(info,metadataFetchImpl);
+  // The page's own pictures, which its stored copy counts: its files, and files it names on another page (a picture
+  // stored as another page's attachment). The Include Page and Excerpt Include macros and synced blocks draw
+  // another page's pictures, whose files the stored copy never names.
+  const ownPicture=wrapper=>{
+    if(wrapper.closest('[data-macro-name="include"],[data-macro-name="excerpt-include"]'))return false;
+    const media=wrapper.querySelector('[data-node-type="media"]'),context=attachmentPage(media);
+    return mediaFiles.has((media?.getAttribute('data-id')||'').toLowerCase())||!context||context===info.pageId||mediaContexts.has(context);
+  };
+  const changed=async()=>{try{return await readVersion(info,metadataFetchImpl)!==sourceMetadata.version;}catch{return true;}};
+  // Macros still loading, and the size each image is drawn at, as the page is copied (see below).
+  const opened=[],shownWidths=new WeakMap(),boxWidths=new WeakMap(),holderWidths=new WeakMap(),loading=new Set(),drawnSizes=new WeakMap();
   // Notes shown with the capture. One marked `lost` names something that was not copied: capture
   // keeps going when a piece cannot be read, verified or placed, and says so instead.
   const warnings=[];
   const warn=(code,message,lost=false)=>{if(!warnings.some(w=>w.code===code))warnings.push({code,message,...(lost?{lost:true}:{})})};
+  if(unchecked)warn('stored-copy-unread','This page’s stored copy is larger than capture can hold (64 MB), so the draft was taken from what the page shows alone: capture could not check that every passage and picture was copied, nor draw roadmaps as tables. Compare the draft with the Confluence page.',true);
   let article;
   try{
     const stuck=await openCollapsedExpansions(original,opened);
     if(stuck)warn('section-not-opened',stuck===1?'A collapsed section of the page could not be opened, so what it holds may not have been copied. Open it on the Confluence page and compare it with the draft.'
       :`${stuck} collapsed sections of the page could not be opened, so what they hold may not have been copied. Open them on the Confluence page and compare them with the draft.`,true);
     await hydrateDeferredText(original,expectedText,onProgress);
-    const unshown=await hydrateLazyMedia(original,onProgress,expectedMediaCount);
+    const unshown=await hydrateLazyMedia(original,onProgress,expectedMediaCount,{own:ownPicture,changed});
     if(unshown){const other=unshown.expected-unshown.shown;
       warn('pictures-not-shown',`Confluence showed ${unshown.shown} of this page’s ${unshown.expected} pictures; ${other===1?'the other was':`the other ${other} were`} not copied. Scroll through the page so it shows them all and capture again, or add them in SharePoint.`,true);}
     await hydrateLiveCards(original,featureInventory?.datasourceTableCount||0,onProgress);
     // A detached snapshot prevents asynchronous image downloads from mixing two page revisions.
     article=await settledCopy(original);
+    const untitled=article.querySelectorAll(RESOLVING).length;
+    if(untitled)warn('links-untitled',untitled===1?'A link to a page had not loaded its title when the page was captured, so it shows the page’s address. Capture again to get its title.'
+      :`${untitled} links to pages had not loaded their titles when the page was captured, so they show the pages’ addresses. Capture again to get their titles.`,true);
     // The snapshot is not laid out, so the width Confluence shows each picture at is read from the page now.
     const live=[...original.querySelectorAll('[data-node-type="mediaSingle"]')];
     [...article.querySelectorAll('[data-node-type="mediaSingle"]')].forEach((copy,index)=>{
@@ -187,16 +246,77 @@ export async function captureConfluencePage({document=globalThis.document,locati
       // The space Confluence gives the picture: its author's width, narrowed to fit a column or the page.
       const box=Math.round(live[index]?.getBoundingClientRect().width??0);
       if(box>0)boxWidths.set(copy,box);
+      // A picture kept in a table cell, panel or quote is shown at its share of the room it has there: its cell's,
+      // panel's or quote's, or its column's when a column layout there becomes a table (below).
+      const holder=live[index]?.closest(`td,th,.ak-editor-panel__content,.ak-editor-panel,blockquote,${LAYOUT_COLUMN}`);
+      if(holder) {
+        const style=getComputedStyle(holder),room=holder.getBoundingClientRect().width-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0);
+        if(room>0)holderWidths.set(copy,room);
+      }
     });
+    // A macro showing a spinner as the page is copied is still loading. Nothing tells when a legacy macro will have
+    // loaded (measured on 154 pages), so it is not waited for: what it would show is marked as not copied (below).
+    // A spinner belongs to the macro nearest it, which is the one loading.
+    const liveMacros=[...original.querySelectorAll(MACRO)],copyMacros=[...article.querySelectorAll(MACRO)];
+    if(liveMacros.length===copyMacros.length)for(const node of original.querySelectorAll(LOADING)) {
+      const index=liveMacros.indexOf(node.closest(MACRO));
+      // A table of contents is left out whatever it shows (below), so it is never said to be still loading.
+      if(index>=0&&node.getClientRects().length&&!copyMacros[index].matches('[data-macro-name="toc"]'))loading.add(copyMacros[index]);
+    }
+    // The size each image is drawn at, which tells an icon from a picture.
+    const liveImages=[...original.querySelectorAll('img')],copyImages=[...article.querySelectorAll('img')];
+    if(liveImages.length===copyImages.length)liveImages.forEach((image,index)=>{const box=image.getBoundingClientRect();if(box.width>0&&box.height>0)drawnSizes.set(copyImages[index],[box.width,box.height]);});
   }finally{restoreCollapsedExpansions(opened);}
+
+  // Macros the stored copy names, by local id, macro id and key, to name those the page shows; and its roadmaps' data.
+  const storedMacros=new Map(),storedRoadmaps=[];
+  (function stored(node){
+    if(!node||typeof node!=='object')return;
+    if(node.attrs?.extensionKey==='roadmap')storedRoadmaps.push({localId:node.attrs.localId,params:node.attrs.parameters?.macroParams});
+    if(/xtension$/.test(node.type??''))for(const key of [node.attrs?.localId,node.attrs?.parameters?.macroMetadata?.macroId?.value,node.attrs?.extensionKey])
+      if(typeof key==='string'&&key&&!storedMacros.has(key))storedMacros.set(key,node);
+    for(const child of Array.isArray(node.content)?node.content:[])stored(child);
+  })(adf);
+  // A macro the page shows as a marker and a note name it: the stored copy's title, else the title or key it is drawn with.
+  const macroOf=element=>{
+    const node=['data-local-id','data-macro-id','data-macro-name'].map(name=>storedMacros.get(element.getAttribute(name)??'')).find(Boolean);
+    if(node)return {title:macroTitle(node),name:macroName(node)};
+    const title=[compact(element.getAttribute('title')).replace(/\s+macro$/i,''),element.getAttribute('data-macro-name')].find(value=>value&&value.length<=60&&!badMetadata(value))??null;
+    return {title,name:title?`the “${title}” macro`:'a Confluence macro'};
+  };
+  // A marker left where something was not copied: a paragraph of its own, or words within a line of text.
+  const marker=(label,at)=>{const node=document.createElement(at.parentElement?.closest('p,li,td,th,h1,h2,h3,h4,h5,h6')?'span':'p');node.textContent=label;node.dataset.marker='';return node;};
+  const macroMarker=title=>`[Macro not copied${title?`: ${title}`:''}]`;
+  // A macro still loading is marked where its spinner was, and named in a note; what it already shows is kept.
+  const loadingMacros=[];
+  for(const macro of loading) {
+    const {title,name}=macroOf(macro);loadingMacros.push(name);
+    [...macro.querySelectorAll(LOADING)].filter(node=>node.closest(MACRO)===macro).forEach((node,index)=>index?node.remove():node.replaceWith(marker(macroMarker(title),macro)));
+  }
+  if(loadingMacros.length){const one=loadingMacros.length===1;
+    warn('macro-loading',`${namesInSentence(loadingMacros)} ${one?'was':'were'} still loading when the page was captured, so what ${one?'it shows':'they show'} was not copied. ${one?'It is':'Each is'} marked where it was in the draft; capture again once Confluence shows ${one?'it':'them'}, or add ${one?'it':'them'} in SharePoint.`,true);}
 
   // Convert structures whose rendered DOM is richer than SharePoint's Text part.
   // Static content remains editable; genuinely live widgets are reduced to a
   // normal source link when one exists, otherwise omitted. A form, such as the
-  // Live Search macro's box, is such a widget: its labels are not page text.
-  for(const live of article.querySelectorAll('iframe,object,embed,video,audio,canvas,form')) {
-    live.remove();warn('live-embed-omitted','Live embedded content was omitted because SharePoint cannot preserve its behavior.');
+  // Live Search macro's box, is such a widget: its labels are not page text. A
+  // frame or player, as an app's macro or a video is, is marked where it was and named.
+  const embeds=[],framed=new Set();
+  for(const live of [...article.querySelectorAll('iframe,object,embed,video,audio,canvas,form')]) {
+    if(!article.contains(live))continue;
+    // A card keeps its link (below), a media item is a picture or file, noted as such, and a macro still loading is noted above.
+    if(live.matches('form')||live.closest('[data-node-type="blockCard"],[data-node-type="embedCard"],[data-inline-card],[data-node-type="media"]')||[...loading].some(macro=>macro.contains(live))) {
+      live.remove();warn('live-embed-omitted','Live embedded content was omitted because SharePoint cannot preserve its behavior.');continue;
+    }
+    const macro=live.closest(MACRO),[kind,label]=live.matches('video')?['a video','Video']:live.matches('audio')?['an audio clip','Audio']:['an embedded frame','Embedded content'];
+    // One marker for a macro however many frames it draws.
+    if(macro&&framed.has(macro)){live.remove();continue;}
+    const {title,name}=macro?macroOf(macro):{title:null,name:kind};
+    if(macro)framed.add(macro);
+    embeds.push(name);live.replaceWith(marker(macro?macroMarker(title):`[${label} not copied]`,macro??live));
   }
+  if(embeds.length){const one=embeds.length===1;
+    warn('embeds-not-copied',`${namesInSentence(embeds)} ${one?'was':'were'} not copied, because SharePoint text cannot hold what ${one?'it shows':'they show'}. ${one?'It is':'Each is'} marked where it was in the draft; add ${one?'it':'them'} in SharePoint if ${one?'it is':'they are'} needed.`,true);}
   // An inline smart link shows the linked page's icon, its title, and a
   // hover-only "Preview" label. The link keeps the title, after the page's
   // emoji where that emoji has a character; other icons are left out.
@@ -229,15 +349,15 @@ export async function captureConfluencePage({document=globalThis.document,locati
       const cleanRow=document.createElement('tr');
       for(const cell of row.children) {
         if(!['TH','TD'].includes(cell.tagName))continue;
-        const clean=document.createElement(rowIndex===0?'th':'td');
+        const cleanCell=document.createElement(rowIndex===0?'th':'td');
         if(rowIndex===0) {
-          clean.setAttribute('scope','col');clean.textContent=compact(cell.querySelector('[id^="datasource-header-title-"]')?.textContent||cell.textContent.replace(/^Sort by\s+/i,''));
+          cleanCell.setAttribute('scope','col');cleanCell.textContent=compact(cell.querySelector('[id^="datasource-header-title-"]')?.textContent||cell.textContent.replace(/^Sort by\s+/i,''));
         } else {
-          for(const child of [...cell.childNodes])clean.append(child.cloneNode(true));
-          for(const control of clean.querySelectorAll('button,input,select,textarea'))control.remove();
-          for(const note of [...clean.querySelectorAll('span')])if(/^\s*\(opens in a new tab\)\s*$/i.test(note.textContent))note.remove();
+          for(const child of [...cell.childNodes])cleanCell.append(child.cloneNode(true));
+          for(const control of cleanCell.querySelectorAll('button,input,select,textarea'))control.remove();
+          for(const note of [...cleanCell.querySelectorAll('span')])if(/^\s*\(opens in a new tab\)\s*$/i.test(note.textContent))note.remove();
         }
-        cleanRow.append(clean);
+        cleanRow.append(cleanCell);
       }
       if(cleanRow.children.length)(rowIndex===0?head:body).append(cleanRow);
     }
@@ -252,7 +372,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
       const name=compact(media.getAttribute('data-file-name'));
       if(!name||name.length>255||/[\\/\u0000-\u001f\u007f]/u.test(name))continue;
       const paragraph=document.createElement('p'),link=document.createElement('a');
-      link.setAttribute('href',`${info.baseUrl}/download/attachments/${encodeURIComponent(info.pageId)}/${encodeURIComponent(name)}`);
+      link.setAttribute('href',`${info.baseUrl}/download/attachments/${encodeURIComponent(attachmentPage(media)||info.pageId)}/${encodeURIComponent(name)}`);
       link.textContent=name;paragraph.append(link);fragment.append(paragraph);
     }
     if(!fragment.childNodes.length) {
@@ -288,6 +408,15 @@ export async function captureConfluencePage({document=globalThis.document,locati
     return item.getAttribute('data-task-state')==='DONE'||item.getAttribute('data-state')==='DONE'||item.querySelector('input[type="checkbox"]')?.checked||item.querySelector('[aria-checked="true"]')?'done':'todo';
   };
   const markElement=kind=>{const [mark,color]=taskMark(kind);return color?labelSpan(mark,{color}):document.createTextNode(mark);};
+  // A copy of part of the snapshot keeps what was measured of its pictures on the page (above).
+  const measuredCopy=node=>{
+    const copy=node.cloneNode(true);
+    if(node.nodeType!==1)return copy;
+    const pictures=root=>[...(root.matches('[data-node-type="mediaSingle"]')?[root]:[]),...root.querySelectorAll('[data-node-type="mediaSingle"]')];
+    const copies=pictures(copy);
+    pictures(node).forEach((picture,index)=>{for(const sizes of [shownWidths,boxWidths,holderWidths])if(sizes.has(picture))sizes.set(copies[index],sizes.get(picture));});
+    return copy;
+  };
   // An item's own content, without its box and without task lists nested in it.
   const itemContent=item=>{
     const content=item.querySelector(':scope > [data-component="content"],:scope > * > [data-component="content"]');
@@ -333,7 +462,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
     for(const item of items) {
       const li=document.createElement('li');
       li.append(markElement(markOf(item)),' ');
-      for(const child of itemContent(item))li.append(child.cloneNode(true));
+      for(const child of itemContent(item))li.append(measuredCopy(child));
       list.append(li);
     }
     taskList.replaceWith(list);
@@ -350,7 +479,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
     if(columns.length<2)continue;
     if(section.parentElement?.closest(`table,li,blockquote,.ak-editor-panel,${LAYOUT_COLUMN}`)) {
       const table=document.createElement('table'),body=document.createElement('tbody'),row=document.createElement('tr');
-      for(const column of columns){const cell=document.createElement('td');for(const child of [...column.childNodes])cell.append(child.cloneNode(true));row.append(cell)}
+      for(const column of columns){const cell=document.createElement('td');for(const child of [...column.childNodes])cell.append(measuredCopy(child));row.append(cell)}
       body.append(row);table.append(body);section.replaceWith(table);
       warn('layout-mapped','A Confluence column layout inside a table, panel, list or quote was kept side by side in a table, because SharePoint columns cannot be placed there.');
       continue;
@@ -362,12 +491,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
   // A roadmap is drawn in a picture SharePoint text cannot hold; it becomes a table drawn from the data the page
   // stores for it (roadmap.js), paired with the page's roadmap by its local id, else by its place among them.
   // Content already drawn as SharePoint markup ({html, text}) in place of an element; see `render`.
-  const prepared=new WeakMap(),storedRoadmaps=[];
-  (function stored(node){
-    if(!node||typeof node!=='object')return;
-    if(node.attrs?.extensionKey==='roadmap')storedRoadmaps.push({localId:node.attrs.localId,params:node.attrs.parameters?.macroParams});
-    for(const child of Array.isArray(node.content)?node.content:[])stored(child);
-  })(adf);
+  const prepared=new WeakMap();
   const shownRoadmaps=[...article.querySelectorAll('[data-macro-name="roadmap"]')];
   shownRoadmaps.forEach((macro,index)=>{
     const localId=macro.getAttribute('data-local-id');
@@ -376,6 +500,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
     if(!table)return;
     const holder=document.createElement('div');prepared.set(holder,table);macro.replaceWith(holder);
     warn('roadmap-table','A Confluence roadmap became a table: its months as columns and each lane’s bars in the months they cover.');
+    const cut=roadmapCutNote(table.cut);if(cut)warn('roadmap-cut',cut,true);
   });
   // A rule in the page's flow becomes SharePoint's Divider (see `collect`); one inside a table, panel, list or
   // quote, where SharePoint has no divider, stays a line of text.
@@ -387,7 +512,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
     if(svg.getAttribute('role')==='presentation'||svg.closest('.ak-editor-panel__icon')||svg.parentElement?.querySelector('img'))svg.remove();
   }
   // A mention becomes the grey label Confluence draws for someone other than the reader.
-  const mentionLabel=mention=>{const name=compact(mention?.textContent);return name&&name.length<=255&&!badMetadata(name)?labelSpan(labelText(name),{'background-color':HEADER_BACKGROUND}):null;};
+  const mentionLabel=mention=>{const name=oneLine(mention?.textContent);return name&&name.length<=255?labelSpan(labelText(name),{'background-color':HEADER_BACKGROUND}):null;};
   for(const profile of [...article.querySelectorAll('button[data-testid="user-profile-card-trigger-wrapper"]')]) {
     const label=mentionLabel(profile.querySelector('[data-mention-id]'));
     if(label)profile.replaceWith(label);
@@ -400,8 +525,8 @@ export async function captureConfluencePage({document=globalThis.document,locati
   // becomes a bold paragraph before the expand's content, as in a live doc.
   for(const expand of [...article.querySelectorAll('[data-node-type="expand"],[data-node-type="nestedExpand"]')]) {
     const button=expand.querySelector(':scope > button');
-    const title=compact(expand.getAttribute('data-title')??button?.textContent);
-    if(!title||title.length>1000||badMetadata(title))continue;
+    const title=oneLine(expand.getAttribute('data-title')??button?.textContent);
+    if(!title||title.length>1000)continue;
     const paragraph=document.createElement('p'),strong=document.createElement('strong');
     strong.textContent=title;paragraph.append(strong);
     if(button)button.replaceWith(paragraph);else expand.prepend(paragraph);
@@ -445,7 +570,9 @@ export async function captureConfluencePage({document=globalThis.document,locati
     omittedToc=true;
   }
   for(const svg of [...article.querySelectorAll('svg')]) {svg.remove();warn('static-vector-omitted','A vector decoration without a safe static picture was omitted.');}
-  if(article.querySelector('[data-macro-name],[data-macro-id]'))warn('macro-static-content','Static visible macro content was retained. Live macro behavior was not copied.');
+  // Said only of a macro whose content was kept: not a marker left for what was not copied, nor a macro that drew nothing.
+  const keptMacro=macro=>{const copy=macro.cloneNode(true);for(const node of copy.querySelectorAll('[data-marker]'))node.remove();return Boolean(compact(copy.textContent)||copy.querySelector('img,table,[data-node-type="mediaSingle"]'));};
+  if([...article.querySelectorAll(MACRO)].some(keptMacro))warn('macro-static-content','Static visible macro content was retained. Live macro behavior was not copied.');
   for(const panel of article.querySelectorAll('.ak-editor-panel')) {
     const type=panel.getAttribute('data-panel-type'),custom=customPanelColor(panel);
     if((!Object.hasOwn(PANEL_COLORS,type)&&!(type==='custom'&&custom))||panel.querySelector('.ak-editor-panel:not([data-decision-box])')) {
@@ -461,7 +588,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
   // listing identifies the file; it is read once per page, only when needed.
   const undescribed=media=>{
     const fileId=(media.getAttribute('data-id')||'').toLowerCase();
-    const contextId=media.getAttribute('data-context-id')||/^contentId-(\d{1,20})$/.exec(media.getAttribute('data-collection')||'')?.[1]||info.pageId;
+    const contextId=attachmentPage(media)||info.pageId;
     return media.getAttribute('data-file-mime-type')||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(fileId)||!/^\d{1,20}$/.test(contextId)?null:{fileId,contextId};
   };
   const wanted=new Map(),unplaceable=new Set();
@@ -503,7 +630,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
     const visible=heading.cloneNode(true);
     for(const emoji of outerEmoji(visible))emoji.replaceWith(document.createTextNode(emojiText(emojiOf(emoji))));
     for(const lineBreak of visible.querySelectorAll('br'))lineBreak.replaceWith(' ');
-    const text=compact(visible.textContent);if(!text)continue;
+    const text=oneLine(visible.textContent);if(!text)continue;
     const sourceId=heading.getAttribute('id');
     let base=headingSlug(text);
     if(!base)base='section-heading';
@@ -518,7 +645,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
       if(value.startsWith('#')) {
         const originalId=decodeURIComponent(value.slice(1)),id=sourceIds.get(originalId)||originalId;
         if(!usedIds.has(id)&&!/^[A-Za-z][A-Za-z0-9_-]{0,200}$/.test(id))throw new Error();
-        if(!usedIds.has(id))warn('unresolved-link','An internal link has no matching captured heading. Review the link after import.');
+        if(!usedIds.has(id))warn('unresolved-link','An internal link has no matching captured heading. Check the link in the draft.');
         return `#${encodeURIComponent(id)}`;
       }
       const url=new URL(value,info.pageUrl);
@@ -543,7 +670,10 @@ export async function captureConfluencePage({document=globalThis.document,locati
       const token=/^var\(--[a-z0-9-]+,\s*(#[0-9a-f]{3,8}|rgba?\([\d.,%\s]+\))\)$/i.exec(value.trim());
       if(token)value=token[1];
       probe.style.cssText='';probe.style.setProperty(property,value);
-      const safe=probe.style.getPropertyValue(property);if(safe)values.set(property,safe.trim());
+      const safe=probe.style.getPropertyValue(property).trim();if(!safe)return;
+      const near=nearestStyle(property,safe);
+      if(near)values.set(property,near);
+      else if(!(property==='vertical-align'&&Object.hasOwn(SCRIPT,safe)))warn('unsupported-format','Some Confluence presentation markup was simplified while retaining its text.');
     };
     for(const property of STYLES)add(property,node.style?.getPropertyValue(property));
     // A picked text color or highlight is drawn from a variable holding today's color,
@@ -587,12 +717,13 @@ export async function captureConfluencePage({document=globalThis.document,locati
     const code=node.querySelector('code');
     // A code block drawn without its code element keeps the text it shows.
     if(!code){
-      const text=node.textContent.replace(/\r\n?/g,'\n').replace(/\n$/,'');if(!text.trim())return {html:codeBlockHtml(''),text:''};
+      const text=clean(node.textContent.replace(/\r\n?/g,'\n').replace(/\n$/,''));if(!text.trim())return {html:codeBlockHtml(''),text:''};
       warn('code-simplified','A code block was copied from the text it shows, because its code could not be read directly; check it in SharePoint.');
       return {html:codeBlockHtml(text),text};
     }
     const rows=[...code.querySelectorAll('[data-ds--code--row]')];
-    const text=rows.length?rows.map(row=>row.textContent.replace(/\r\n?/g,'\n').replace(/\n$/,'')).join('\n'):code.textContent.replace(/\r\n?/g,'\n').replace(/\n$/,'');
+    // Escape characters, as in a terminal's colored output, are left out; the reader does not see them either.
+    const text=clean(rows.length?rows.map(row=>row.textContent.replace(/\r\n?/g,'\n').replace(/\n$/,'')).join('\n'):code.textContent.replace(/\r\n?/g,'\n').replace(/\n$/,''));
     return {html:codeBlockHtml(text),text};
   }
   function panelItem(node,inheritedAlign) {
@@ -623,41 +754,64 @@ export async function captureConfluencePage({document=globalThis.document,locati
   // readable picture, too large, or shown in a way capture cannot place) leaves
   // a marker where it was, linked to its file when that address is known and
   // safe, and is named in one note. Only verified pictures are ever kept.
-  const lostPictures=[];
+  // Keyed by the node that showed the picture, so one rendered twice (as a step read again) is named once.
+  const lostPictures=new Map();
   // Custom emoji no standard emoji is similar to, by name (emojiName), for one note.
   const omittedEmoji=[];
-  const LOST_REASONS={'invalid-attachment':'file not found','attachment-fetch-failed':'download failed','unsupported-image':'not a readable PNG, JPEG, GIF, WebP or SVG',
-    'asset-too-large':'larger than SharePoint’s 250 MB limit','image-dimensions':'no width or height','unsupported-media':'shown in a way capture cannot place'};
   function pictureNotCopied(node,attachment,error) {
     const media=node.matches('[data-node-type="media"]')?node:node.querySelector('[data-node-type="media"]');
     const name=pictureFileName(media?.getAttribute('data-file-name'))??pictureFileName(attachment?.name);
     const address=safeLink(attachment?.url??attachmentLink(media,info.baseUrl));
-    lostPictures.push({name,reason:LOST_REASONS[error?.code]??'could not be copied'});
-    const label=`[Picture not copied${name?`: ${name}`:''}]`;
-    const caption=compact(node.querySelector('[data-media-caption="true"],[data-testid="media-caption"]')?.textContent);
-    return {html:`<p>${address?`<a href="${escape(address)}">${escape(label)}</a>`:escape(label)}</p>${caption?`<p>${escape(caption)}</p>`:''}`,text:` ${label} ${caption} `};
+    lostPictures.set(node,{name,reason:lossReason(error)});
+    return pictureMarker(name,address,oneLine(node.querySelector('[data-media-caption="true"],[data-testid="media-caption"]')?.textContent));
   }
-  // A picture inside text, such as a table cell, a panel or a list, becomes a
-  // link to its file followed by its caption, as in a live doc, because
-  // capture places pictures only as their own SharePoint image controls.
-  const linkedPictures=new Set();
+  // An icon keeps its text: an emoticon, a person's avatar (its text is their name), an icon in a live data table, or
+  // an image drawn no larger than 32 px each way (Confluence's icons are 16 to 24 px), by its size on the page, else its own.
+  const icon=image=>image.matches('.emoticon,[data-emoticon-name],.userLogo,[class*="avatar" i]')||Boolean(image.closest('table[data-confluence-static-snapshot="table"]'))||
+    (([width,height])=>width>0&&width<=32&&height<=32)(drawnSizes.get(image)??[Number(image.getAttribute('width'))||0,Number(image.getAttribute('height'))||0]);
+  // A picture drawn as a plain image, as legacy macros draw theirs, is not one capture can place: it is marked where it
+  // was, linked to its file when that is an attachment on this site, and named, with the macro drawing it, in the note.
+  function imageNotCopied(image,inLink) {
+    let name=null,address=null;
+    try {
+      const url=new URL(image.getAttribute('src')??'',document.baseURI),file=decodeURIComponent(url.pathname.split('/').at(-1));
+      if(/^https?:$/.test(url.protocol)&&/\.[A-Za-z0-9]{2,5}$/.test(file))name=pictureFileName(file);
+      const page=url.origin===info.origin&&url.pathname.startsWith(`${new URL(info.baseUrl).pathname.replace(/\/$/,'')}/download/`)&&/\/download\/(?:attachments|thumbnails)\/(\d{1,20})\/[^/]+$/.exec(url.pathname)?.[1];
+      if(page&&name)address=safeLink(`${info.baseUrl}/download/attachments/${page}/${encodeURIComponent(name)}`);
+    } catch {/* No address to name it by. */}
+    name??=pictureFileName(oneLine(image.getAttribute('alt')));
+    const macro=image.closest(MACRO);
+    lostPictures.set(image,{name,reason:macro?`drawn by ${macroOf(macro).name}`:lossReason({code:'unsupported-media'})});
+    const label=`[Picture not copied${name?`: ${name}`:''}]`,html=inLink||!address?escape(label):`<a href="${escape(address)}">${escape(label)}</a>`;
+    return {html:image.parentElement?.closest('p,li,td,th,h1,h2,h3,h4,h5,h6,a,span,strong,em,b,i,u,s,sup,sub,code,blockquote')?html:`<p>${html}</p>`,text:` ${label} `};
+  }
+  // A picture inside text that is not kept there becomes a link to its file
+  // followed by its caption, as in a live doc (a list is cut at its pictures instead).
+  const linkedPictures=new Set(),inlineWaiting=[];
+  // A picture in a table cell, a panel or a quote stays in it, as SharePoint's own inline picture, as its editor places
+  // and keeps one there (measured 2026-09-28): a slot now, the file downloaded once the page is read (below), and the
+  // link it would otherwise be when it cannot be copied. One capture cannot place stays a link.
+  const inlineable=wrapper=>Boolean(wrapper.closest('td,th,.ak-editor-panel,blockquote'))&&!unplaceable.has(wrapper)&&!attachments.get(wrapper)?.error;
   function linkedPicture(wrapper) {
+    if(inlineable(wrapper)){inlineWaiting.push(wrapper);return {html:pictureSlot(inlineWaiting.length-1),text:''};}
     linkedPictures.add(wrapper);
     const media=wrapper.querySelector('[data-node-type="media"]'),attachment=attachments.get(wrapper)??{};
-    const name=compact(media?.getAttribute('data-file-name')),context=media?.getAttribute('data-context-id')||info.pageId;
+    const name=compact(media?.getAttribute('data-file-name')),context=attachmentPage(media)||info.pageId;
     const file=attachment.external?{name:'',url:attachment.external}:attachment.url?attachment
       :name&&name!=='file'&&name.length<=255&&!/[\\/\x00-\x1f\x7f]/.test(name)&&/^\d{1,20}$/.test(context)
         ?{name,url:`${info.baseUrl}/download/attachments/${encodeURIComponent(context)}/${encodeURIComponent(name)}`}:{};
     // Without a file to link to, the picture is marked as not copied.
     if(!file.url)return pictureNotCopied(wrapper,attachment,attachment.error??{code:'invalid-attachment'});
-    const alt=compact(media?.querySelector('img')?.getAttribute('alt')),label=alt||file.name||file.url;
-    const caption=compact(wrapper.querySelector('[data-media-caption="true"],[data-testid="media-caption"]')?.textContent);
+    const alt=oneLine(media?.querySelector('img')?.getAttribute('alt')),label=alt||file.name||file.url;
+    const caption=oneLine(wrapper.querySelector('[data-media-caption="true"],[data-testid="media-caption"]')?.textContent);
     const href=file.url?safeLink(file.url):null;
-    warn('nested-image-linked','A picture inside a table, panel, list, or column became a link to its file, because capture places pictures only as their own SharePoint image controls.');
+    // Its note says why, as the stored document's capture does: its format, or where or how it is shown.
+    if(attachment.error?.code==='unsupported-image')warn('image-format-linked','A picture in a format other than PNG, JPEG, GIF, WebP or SVG became a link to its Confluence attachment.');
+    else warn('nested-image-linked','A picture inside a table, panel, quote or list became a link to its file, because capture could not place it there as a picture.');
     return {html:`<p>${href?`<a href="${escape(href)}">${escape(label)}</a>`:escape(label)}</p>${caption?`<p>${escape(caption)}</p>`:''}`,text:` ${label} ${caption} `};
   }
   function render(node,inheritedAlign) {
-    if(node.nodeType===3)return {html:escape(node.textContent),text:node.textContent};
+    if(node.nodeType===3){const value=clean(node.textContent);return {html:escape(value),text:value};}
     if(prepared.has(node)){model.stats.tables++;return prepared.get(node);}
     if(node.nodeType!==1)return {html:'',text:''};
     if(node.matches(SKIP))return {html:'',text:''};
@@ -671,10 +825,14 @@ export async function captureConfluencePage({document=globalThis.document,locati
       return {html:'',text:''};
     }
     if(node.matches('img')) {
-      const alt=compact(node.getAttribute('alt'));
-      if(alt&&node.closest('table[data-confluence-static-snapshot="table"]'))return {html:`<span>${escape(alt)}</span>`,text:alt};
-      if(alt&&!node.closest('a[href]'))return {html:`<span>${escape(alt)}</span>`,text:alt};
-      return {html:'',text:''};
+      const alt=oneLine(node.getAttribute('alt')),link=node.closest('a[href]');
+      if(icon(node)) {
+        if(alt&&node.closest('table[data-confluence-static-snapshot="table"]'))return {html:`<span>${escape(alt)}</span>`,text:alt};
+        return alt&&!link?{html:`<span>${escape(alt)}</span>`,text:alt}:{html:'',text:''};
+      }
+      // A picture in a link's text, such as a linked page's icon, goes with the link's other decorations.
+      if(link&&compact(link.textContent))return {html:'',text:''};
+      return imageNotCopied(node,Boolean(link));
     }
     if(node.matches('[data-node-type="mediaSingle"]'))return linkedPicture(node);
     if(node.matches('[data-node-type="media"]'))return pictureNotCopied(node,null,{code:'unsupported-media'});
@@ -711,9 +869,20 @@ export async function captureConfluencePage({document=globalThis.document,locati
     // Inline code, outside preformatted text, keeps the grey Confluence gives it.
     if(tag==='code'&&!node.closest('pre'))return {html:inlineCodeHtml(html),text};
     // An empty list item still shows its number or bullet; a no-break space keeps it in SharePoint's editor.
-    const inner=tag==='li'&&!drawsSomething(html,text)?NBSP:html;
+    let inner=tag==='li'&&!drawsSomething(html,text)?NBSP:html;
+    const raised=node.style?.getPropertyValue('vertical-align');
+    if(['span','strong','b','em','i','u','s','a'].includes(tag)&&Object.hasOwn(SCRIPT,raised??''))inner=`<${SCRIPT[raised]}>${inner}</${SCRIPT[raised]}>`;
     return {html:`<${tag}${attributes.length?' '+attributes.join(' '):''}>${inner}</${tag}>`,text:boundary?` ${text} `:text};
   }
+  // A list whose steps hold pictures capture can place is cut at them (lists.js), wherever the list is in the page's
+  // flow; a picture in a table or panel stays a link.
+  const listShape={
+    list:node=>node?.nodeType===1&&(node.tagName==='OL'||node.tagName==='UL')?{ordered:node.tagName==='OL',
+      start:node.tagName==='OL'&&/^\d{1,7}$/.test(node.getAttribute('start')??'')?Number(node.getAttribute('start')):1,items:[...node.children].filter(child=>child.tagName==='LI')}:null,
+    children:item=>[...item.childNodes],
+    // One whose file capture cannot use (such as a BMP) stays in its step as a link to it.
+    isPicture:node=>node.nodeType===1&&node.matches('[data-node-type="mediaSingle"]')&&!unplaceable.has(node)&&!attachments.get(node)?.error,
+  };
   // Each item's `place` is the SharePoint section column it goes in ({id, factors, column}),
   // or undefined for the page's own column.
   const items=[];let sectionCount=0;
@@ -737,14 +906,15 @@ export async function captureConfluencePage({document=globalThis.document,locati
     if(prepared.has(node)) {push('text');return;}
     if(node.matches('img')) {push('text');return;}
     if(node.matches('.ak-editor-panel')) {push('text');return;}
+    if(listPictures(node,listShape)) {push('list');return;}
     if(BLOCKS.has(node.tagName)||node.matches('[data-testid="renderer-code-block"]')) {push('text');return;}
     if(TAGS.has(node.tagName)&&node.tagName!=='SPAN') {push('text');return;}
     for(const child of node.childNodes)collect(child,align,place);
   }
   for(const child of article.childNodes)collect(child);
   const samePlace=(a,b)=>a===b||Boolean(a&&b&&a.id===b.id&&a.column===b.column);
-  // Pictures inside text become links, so only pictures in the page flow are downloaded.
-  const placedPictures=items.filter(item=>item.kind==='image').length;
+  // Pictures in the page flow and in list steps are downloaded; those inside other text become links.
+  const placedPictures=items.reduce((count,item)=>count+(item.kind==='image'?1:item.kind==='list'?listPictureCount(item.node,listShape):0),0)+mediaWrappers.filter(inlineable).length;
   progress({phase:'capture',completed:0,total:placedPictures,message:'Reading the Confluence article.'});
   function isCaption(item) {
     const text=compact(item?.node?.textContent);
@@ -793,10 +963,91 @@ export async function captureConfluencePage({document=globalThis.document,locati
     if(item.kind==='text'&&item.node.nodeType===1&&/^H[1-6]$/.test(item.node.tagName))commitCandidateSteps();
   }
   commitCandidateSteps();
-  const assets=new Map(),downloads=new Map(),stalledHosts=new Set();let completed=0,pending=[],pendingPlace,previousTextWasList=false;
+  // `displayCopies`: pictures copied from the copy Confluence shows, by id, with their names.
+  const assets=new Map(),downloads=new Map(),stalledHosts=new Set(),displayCopies=new Map();let completed=0,pending=[],pendingPlace,previousTextWasList=false;
   const add=block=>model.blocks.push({id:`block-${model.blocks.length+1}`,...block});
   const placed=place=>place?{section:{id:place.id,factors:[...place.factors],column:place.column}}:{};
   const flush=()=>{if(pending.length)add({type:'text',html:pending.map(item=>item.html).join(''),text:compact(pending.map(item=>item.text).join(' ')),...placed(pendingPlace)});pending=[];};
+  // A picture's file, downloaded once per file at the width Confluence shows it, with its text and its own link; one
+  // that cannot be copied comes back as the marker or link that takes its place (`failed`).
+  async function downloadPicture(node) {
+    const attachment=attachments.get(node);
+    if(!attachment||attachment.error){completed++;return {failed:pictureNotCopied(node,attachment,attachment?.error??{code:'invalid-attachment'})};}
+    progress({phase:'images',completed,total:placedPictures,message:`Downloading image ${completed+1} of ${placedPictures}.`});
+    // The width Confluence shows the picture at: the author's pixel width within the space the page gives it, else as laid out on the page.
+    const declared=node.getAttribute('data-width-type')==='pixel'?Math.round(Number(node.getAttribute('data-width'))):0;
+    const key=attachment.external?`external ${attachment.external}`:`file ${attachment.url??attachment.fallbackUrl} ${attachment.mime}`,displayWidth=declared>0?Math.min(declared,boxWidths.get(node)||declared):shownWidths.get(node);
+    if(!downloads.has(key))downloads.set(key,attachment.external
+      ?await fetchExternalImage({url:attachment.external,displayWidth},{fetchImpl,stalledHosts}).catch(()=>null)
+      :await fetchConfluenceImage({...attachment,displayWidth},{fetchImpl}).catch(error=>({error})));
+    const asset=downloads.get(key);
+    if(asset?.error){completed++;return {failed:pictureNotCopied(node,attachment,asset.error)};}
+    const alt=oneLine(node.querySelector('img')?.getAttribute('alt'));
+    const nativeCaption=node.querySelector('[data-media-caption="true"],[data-testid="media-caption"]');
+    if(!asset) {
+      // A picture another website does not let capture copy becomes a link to it, followed by its caption.
+      const href=safeLink(attachment.external),label=alt||attachment.external,captionText=oneLine(nativeCaption?.textContent);
+      warn('external-image-linked','A picture shown from another website became a link to it, because it could not be copied from that website.');
+      completed++;
+      return {failed:{html:`<p>${href?`<a href="${escape(href)}">${escape(label)}</a>`:escape(label)}</p>${captionText?`<p>${escape(captionText)}</p>`:''}`,text:` ${label} ${captionText} `}};
+    }
+    if(!assets.has(asset.id)){assets.set(asset.id,asset);model.assets.push(asset)}
+    if(asset.scaledFrom)warn('picture-scaled','Pictures wider than SharePoint can show were scaled to 2,408 pixels wide, twice the width of a SharePoint column, before upload.');
+    if(asset.displayCopy)displayCopies.set(asset.id,pictureFileName(attachment.name));
+    if(attachment.external)warn('external-image-copied','A picture shown from another website was copied into SharePoint. Check that you may reuse it.');
+    if(!alt)warn('missing-alt','Some images have no authored alternative text. Review their captions and add alternative text in SharePoint.');
+    // The picture's own link, as the reading view draws it around its media, kept when it is a web address.
+    const anchor=node.querySelector('[data-node-type="media"]')?.closest('a[href]')??node.querySelector('a[href][data-block-link]');
+    const link=anchor&&!anchor.closest('[data-media-caption="true"],[data-testid="media-caption"]')?safeLink(anchor.getAttribute('href')):null;
+    return {asset,alt,nativeCaption,displayWidth,link:link&&/^https?:/i.test(link)?link:null};
+  }
+  // A picture placed as its own image part, in the page's flow or cut out of a list. `next`: the item after it, taken
+  // as its caption when it is one (returns whether it was).
+  async function placeImage(node,place,next) {
+    const got=await downloadPicture(node);
+    if(got.failed){pending.push(got.failed);return false;}
+    flush();
+    const {asset,alt,nativeCaption,displayWidth,link}=got;
+    let caption=oneLine(nativeCaption?.textContent),usedNext=false;
+    if(caption.length>1000)caption='';
+    // A centered paragraph right after a picture without a caption of its own is its caption; after one with a caption, it stays text.
+    if(!caption&&isCaption(next)&&samePlace(next.place,place)){caption=compact(render(next.node).text);usedNext=true;}
+    if(!caption)warn('missing-caption','One or more images have no immediately following centered caption.');
+    let widthRatio=1;
+    const declaredWidth=Number(node.getAttribute('data-width'));
+    if(displayWidth&&articleWidth>0)widthRatio=Math.min(1,displayWidth/articleWidth);
+    else if(node.getAttribute('data-width-type')==='pixel'&&declaredWidth>0&&articleWidth>0)widthRatio=Math.min(1,declaredWidth/articleWidth);
+    else if(node.hasAttribute('data-width'))warn('image-width-review','An image width could not be mapped to the article width. Review its width in SharePoint.');
+    add({type:'image',assetId:asset.id,caption,alt,widthRatio,...(displayWidth?{displayWidth}:{}),...(link?{link}:{}),...placed(place)});model.stats.images++;completed++;
+    return usedNext;
+  }
+  // How a list with pictures in its steps is read and written for cutList: its steps' blocks rendered as a list's
+  // would be, with the alignment they inherit, and each list's opening tag as `render` writes it.
+  function listAdapter(item) {
+    const alignFor=node=>{
+      if(node===item.node)return item.align;
+      for(let at=node.parentElement;at;at=at.parentElement){const align=alignment(at);if(align)return align;if(at===item.node)break;}
+      return item.align;
+    };
+    return {...listShape,
+      inline:node=>node.nodeType===3||node.nodeType===1&&INLINE.has(node.tagName),
+      render:node=>render(node,alignFor(node)),
+      open(node,{start,fresh,depth}) {
+        const tag=node.tagName.toLowerCase(),attributes=[];
+        if(tag==='ol') {
+          const from=node.getAttribute('start'),type=node.getAttribute('type');
+          // SharePoint takes a start of at most seven digits; past it the piece restarts.
+          if(fresh&&from!==null&&!/^\d{1,7}$/.test(from)||!fresh&&start>9_999_999||type!==null&&!/^[1aAiI]$/.test(type))warn('list-simplified','A list’s unusual numbering was replaced with standard numbering; check it in SharePoint.');
+          if(!fresh){if(start<=9_999_999)attributes.push(`start="${start}"`);}else if(from!==null&&/^\d{1,7}$/.test(from))attributes.push(`start="${from}"`);
+          if(type!==null&&/^[1aAiI]$/.test(type))attributes.push(`type="${type}"`);
+        }
+        const css=[styles(node,alignFor(node)),depth?`list-style-type:${numberingStyle(tag==='ol',depth)}`:''].filter(Boolean).join(';');
+        if(css)attributes.push(`style="${escape(css)}"`);
+        return `<${tag}${attributes.length?' '+attributes.join(' '):''}>`;
+      },
+      counted:list=>{model.stats[list.ordered?'numbered':'bullets']++;},
+    };
+  }
   for(let index=0;index<items.length;index++) {
     const item=items[index];
     // Text never runs from one column into another.
@@ -835,51 +1086,44 @@ export async function captureConfluencePage({document=globalThis.document,locati
     }
     // A rule is SharePoint's Divider between the text around it.
     if(item.kind==='divider'){flush();add({type:'divider',...placed(item.place)});previousTextWasList=false;continue;}
-    previousTextWasList=false;const attachment=attachments.get(item.node);
-    if(!attachment||attachment.error){pending.push(pictureNotCopied(item.node,attachment,attachment?.error??{code:'invalid-attachment'}));completed++;continue;}
-    progress({phase:'images',completed,total:placedPictures,message:`Downloading image ${completed+1} of ${placedPictures}.`});
-    // The width Confluence shows the picture at: the author's pixel width within the space the page gives it, else as laid out on the page.
-    const declared=item.node.getAttribute('data-width-type')==='pixel'?Math.round(Number(item.node.getAttribute('data-width'))):0;
-    const key=attachment.external?`external ${attachment.external}`:`file ${attachment.url??attachment.fallbackUrl} ${attachment.mime}`,displayWidth=declared>0?Math.min(declared,boxWidths.get(item.node)||declared):shownWidths.get(item.node);
-    if(!downloads.has(key))downloads.set(key,attachment.external
-      ?await fetchExternalImage({url:attachment.external,displayWidth},{fetchImpl,stalledHosts}).catch(()=>null)
-      :await fetchConfluenceImage({...attachment,displayWidth},{fetchImpl}).catch(error=>({error})));
-    const asset=downloads.get(key);
-    if(asset?.error){pending.push(pictureNotCopied(item.node,attachment,asset.error));completed++;continue;}
-    const alt=compact(item.node.querySelector('img')?.getAttribute('alt'));
-    const nativeCaption=item.node.querySelector('[data-media-caption="true"],[data-testid="media-caption"]');
-    if(!asset) {
-      // A picture another website does not let capture copy becomes a link to it, followed by its caption.
-      const href=safeLink(attachment.external),label=alt||attachment.external,captionText=compact(nativeCaption?.textContent);
-      pending.push({html:`<p>${href?`<a href="${escape(href)}">${escape(label)}</a>`:escape(label)}</p>${captionText?`<p>${escape(captionText)}</p>`:''}`,text:` ${label} ${captionText} `});
-      warn('external-image-linked','A picture shown from another website became a link to it, because it could not be copied from that website.');
-      completed++;continue;
+    if(item.kind==='list') {
+      // A list with pictures in its steps, cut at them: its pieces are text, its pictures picture parts (lists.js).
+      let endsWithList=false;
+      for(const piece of cutList(item.node,listAdapter(item))) {
+        if(piece.kind==='picture'){await placeImage(piece.node,item.place,null);endsWithList=false;continue;}
+        if(piece.continued)warn('list-steps-continued',LIST_CONTINUED);
+        pending.push({html:piece.html,text:piece.text});endsWithList=/<\/(?:ul|ol)>$/.test(piece.html);
+      }
+      previousTextWasList=endsWithList;continue;
     }
-    flush();
-    if(!assets.has(asset.id)){assets.set(asset.id,asset);model.assets.push(asset)}
-    if(asset.scaledFrom)warn('picture-scaled','Pictures wider than SharePoint can show were scaled to 2,408 pixels wide, twice the width of a SharePoint column, before upload.');
-    if(attachment.external)warn('external-image-copied','A picture shown from another website was copied into SharePoint. Check that you may reuse it.');
-    if(!alt)warn('missing-alt','Some images have no authored alternative text. Review their captions and add alternative text in SharePoint.');
-    let caption=compact(nativeCaption?.textContent);
-    if(caption.length>1000)caption='';
-    if(isCaption(items[index+1])&&samePlace(items[index+1].place,item.place)) {
-      const adjacent=compact(render(items[++index].node).text);
-      if(!caption)caption=adjacent;
-    }
-    if(!caption)warn('missing-caption','One or more images have no immediately following centered caption.');
-    let widthRatio=1;
-    const declaredWidth=Number(item.node.getAttribute('data-width'));
-    if(displayWidth&&articleWidth>0)widthRatio=Math.min(1,displayWidth/articleWidth);
-    else if(item.node.getAttribute('data-width-type')==='pixel'&&declaredWidth>0&&articleWidth>0)widthRatio=Math.min(1,declaredWidth/articleWidth);
-    else if(item.node.hasAttribute('data-width'))warn('image-width-review','An image width could not be mapped to the article width. Review its width in SharePoint.');
-    add({type:'image',assetId:asset.id,caption,alt,widthRatio,...(displayWidth?{displayWidth}:{}),...placed(item.place)});model.stats.images++;completed++;
+    previousTextWasList=false;
+    if(await placeImage(item.node,item.place,items[index+1]))index++;
   }
   flush();
-  if(!model.blocks.length)fail('empty-document','The Confluence article contains no supported body content.');
-  if(lostPictures.length){
-    const one=lostPictures.length===1,entries=lostPictures.map(({name,reason})=>name?`${name} (${reason})`:`an unnamed picture (${reason})`);
-    warn('pictures-not-copied',`${one?lostPictures[0].name?`A picture was not copied: ${entries[0]}.`:`A picture was not copied (${lostPictures[0].reason}).`:`${lostPictures.length} pictures were not copied: ${inWords(entries)}.`} ${one?'It is':'Each is'} marked “[Picture not copied]” in the draft; add ${one?'it':'them'} in SharePoint if ${one?'it is':'they are'} needed.`,true);
+  // Pictures kept in table cells, panels and quotes: each file downloaded, each slot numbered in its text block's `pictures`,
+  // or the marker or link it would have been in its place when the picture cannot be copied.
+  if(inlineWaiting.length) {
+    const settled=new Map();
+    for(const [key,wrapper] of inlineWaiting.entries()) {
+      const got=await downloadPicture(wrapper);
+      if(got.failed){settled.set(key,got.failed);continue;}
+      const {asset,alt,nativeCaption,displayWidth,link}=got,caption=oneLine(nativeCaption?.textContent).slice(0,1000);
+      // As wide as Confluence shows it: that share of the room SharePoint gives its cell (html.js).
+      const width=Math.max(1,Math.round(displayWidth||asset.width)),room=holderWidths.get(wrapper);
+      settled.set(key,{picture:{assetId:asset.id,alt,caption,...(link?{link}:{}),displayWidth:width,share:pictureShare(width,room&&articleWidth>0?room/articleWidth:1)}});
+      model.stats.images++;completed++;
+    }
+    settlePictures(model.blocks,key=>settled.get(key));
   }
+  fitBlocks(model.blocks,warn);
+  // A picture copied without its place in the page is left out and named, rather than making SharePoint refuse the send.
+  const unplaced=withoutUnplaced(model.blocks,model.assets);
+  if(unplaced.length){model.stats.images=Math.max(0,model.stats.images-unplaced.length);warn('pictures-unplaced',unplacedNote(unplaced.map(asset=>pictureFileName(asset.name))),true);}
+  if(!model.blocks.length)fail('empty-document','The Confluence article contains no supported body content.');
+  if(lostPictures.size)warn('pictures-not-copied',picturesNotCopiedNote([...lostPictures.values()]),true);
+  if(displayCopies.size){const names=[...displayCopies.values()].filter(Boolean);
+    warn('display-copy-used',displayCopies.size===1?`The original file of a picture${names.length?` (${names[0]})`:''} could not be downloaded, so the copy Confluence shows on the page was used; it may be smaller. Replace it in SharePoint if you need the original.`
+      :`The original files of ${displayCopies.size} pictures${names.length?` (${inWords(names)})`:''} could not be downloaded, so the copies Confluence shows on the page were used; they may be smaller. Replace them in SharePoint if you need the originals.`,true);}
   if(omittedEmoji.length)warn('emoji-omitted',omittedEmojiNote(omittedEmoji),true);
   if(completed+linkedPictures.size!==mediaWrappers.length)warn('pictures-not-placed','Not every picture on the page could be placed in the draft. Compare the draft with the Confluence page.',true);
   const capturedText=compact([...model.blocks.map(block=>{
@@ -888,7 +1132,8 @@ export async function captureConfluencePage({document=globalThis.document,locati
     // A line break separates the words either side of it, as a stored line break does.
     const wrapper=document.createElement('div');wrapper.innerHTML=block.html;
     for(const lineBreak of wrapper.querySelectorAll('br'))lineBreak.replaceWith(' ');
-    return wrapper.textContent;
+    // A picture kept in a cell holds its caption and alternative text.
+    return `${wrapper.textContent} ${(block.pictures??[]).map(picture=>`${picture.caption} ${picture.alt}`).join(' ')}`;
   }),...numberedSteps].join(' '));
   const shown=value=>!value||capturedText.includes(value)||omittedLabels.has(value);
   // Text in a macro's body that Confluence does not show as page text cannot be captured from the page; it is noted.

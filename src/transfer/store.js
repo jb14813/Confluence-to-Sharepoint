@@ -69,7 +69,7 @@ export function createTransferStore({session=globalThis.chrome?.storage?.session
     },
     claimAttempt:attempt=>transaction(old=>{
       if(!old||old.model.sourceHash!==attempt.sourceHash)throw fail('capture-changed','The capture changed since this send started. Capture the page again, then send it.');
-      if(old.attempt)throw fail('import-already-attempted','This capture already has an import attempt. Review that draft before starting another.');
+      if(old.attempt)throw fail('import-already-attempted','This capture was already sent. Review that draft before sending it again.');
       return {record:{...old,attempt:{...attempt,status:'started'}},result:undefined};
     }),
     /** Releases a claim the site's tab refused before starting, so nothing was written and the capture can be sent again. */

@@ -16,7 +16,8 @@ export const ADF_MARK_STRATEGIES=Object.freeze({
 // Confluence's editor nests far less deeply; the limit keeps every recursive walk of the document safe.
 const MAX_DEPTH=200;
 
-export function inventoryAdf(adf,{limit=100000}={}) {
+// The number of nodes is bounded only by the answer that carried the document (rest.js).
+export function inventoryAdf(adf,{limit=Infinity}={}) {
   if(!adf||typeof adf!=='object'||Array.isArray(adf)||adf.type!=='doc'||!Array.isArray(adf.content))throw new Error('Invalid ADF document.');
   const nodeTypes={},markTypes={},unknownNodeTypes=new Set(),unknownMarkTypes=new Set();let nodeCount=0,expectedMediaCount=0,datasourceTableCount=0;
   const visit=(node,depth=0)=>{

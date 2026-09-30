@@ -10,6 +10,10 @@ export const isPicture = mime => PICTURE_TYPES.has(mime);
 // Chrome's own limits for a canvas: 32,767 pixels a side and 268,435,456 in all.
 const MAX_CANVAS_SIDE = 32_767, MAX_CANVAS_PIXELS = 268_435_456;
 export const unsupportedPicture = name => fail('unsupported-image', `A picture on this page (${name}) is not PNG, JPEG, GIF, WebP or SVG, which capture supports.`);
+// Why a picture was not copied, in the words of its note, by the problem that stopped it.
+const LOST_REASONS = {'invalid-attachment':'file not found','attachment-fetch-failed':'download failed','unsupported-image':'not a readable PNG, JPEG, GIF, WebP or SVG',
+  'asset-too-large':'larger than SharePoint’s 250 MB limit','image-dimensions':'no width or height','unsupported-media':'shown in a way capture cannot place'};
+export const lossReason = error => LOST_REASONS[error?.code] ?? 'could not be copied';
 
 export function fail(code, message) { throw Object.assign(new Error(message), {code}); }
 export const sha256 = sha256Hex;
@@ -43,16 +47,27 @@ export function pictureFileName(value) {
     !/[\\/\u0000-\u001f\u007f]/.test(value) && value !== '.' && value !== '..' ? value : null;
 }
 
+/**
+ * The id of the page holding a media item's file: the collection its markup names (contentId-<id>), as for a
+ * picture stored as another page's attachment, else the page Confluence shows it on (data-context-id); null
+ * without either. Only the id is taken: the file is read through the page's own site.
+ */
+export function attachmentPage(media) {
+  const collection = value => /^contentId-(\d{1,20})$/.exec(value ?? '')?.[1] ?? null, shown = media?.getAttribute('data-context-id') || '';
+  return collection(media?.getAttribute('data-collection')) ?? collection(media?.querySelector('img[data-filecollection]')?.getAttribute('data-filecollection')) ??
+    (/^\d{1,20}$/.test(shown) ? shown : null);
+}
+
 /** The original-attachment address of a picture's file, to link to when the picture cannot be copied; null without a safe name. */
 export function attachmentLink(media, baseUrl) {
-  const contextId = media?.getAttribute('data-context-id') || '', name = pictureFileName(media?.getAttribute('data-file-name'));
+  const contextId = attachmentPage(media) || '', name = pictureFileName(media?.getAttribute('data-file-name'));
   if (!/^\d+$/.test(contextId) || !name) return null;
   try { return downloadUrl(attachmentRoot(baseUrl), contextId, name); } catch { return null; }
 }
 
 /** `baseUrl` is the Confluence application root: its origin plus context path, such as /wiki. */
 export function attachmentInfo(media, baseUrl) {
-  const contextId = media.getAttribute('data-context-id') || '';
+  const contextId = attachmentPage(media) || '';
   const name = media.getAttribute('data-file-name') || '';
   const mime = (media.getAttribute('data-file-mime-type') || '').toLowerCase();
   const incomplete=name==='file'&&!mime;
@@ -77,7 +92,9 @@ export function attachmentInfo(media, baseUrl) {
       /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(fileId)&&
       /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(blobId)&&
       blobMeta.get('media-blob-url')==='true'&&blobMeta.get('id')===fileId&&blobMeta.get('collection')===expectedCollection&&
-      blobMeta.get('contextId')===contextId&&(!blobMeta.has('mimeType')||blobMeta.get('mimeType')===mime)&&
+      // Its context is the page holding the file or, for another page's, the page showing it.
+      (blobMeta.get('contextId')===contextId||!!media.getAttribute('data-context-id')&&blobMeta.get('contextId')===media.getAttribute('data-context-id'))&&
+      (!blobMeta.has('mimeType')||blobMeta.get('mimeType')===mime)&&
       (!blobMeta.has('name')||blobMeta.get('name')===name)&&(!blobMeta.has('size')||/^\d{1,9}$/.test(blobMeta.get('size')||''))&&
       /^\d{1,6}$/.test(blobMeta.get('width')||'')&&/^\d{1,6}$/.test(blobMeta.get('height')||'')&&
       /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(blobMeta.get('clientId')||'')&&
@@ -197,15 +214,16 @@ async function rasterizeSvg(bytes, displayWidth) {
  * Returns the picture's bytes with its identity (SHA-256), name, type and size.
  */
 export async function fetchConfluenceImage(info, {fetchImpl=globalThis.fetch}={}) {
-  let response;
+  let response,displayCopy=false;
   // The route is on the page's own origin and redirects to Atlassian's media
   // service with a signed address. Cookies go only to Confluence: the media
   // service answers any origin (Access-Control-Allow-Origin: *), which browsers
   // refuse for requests that include credentials.
   if(info.url)try { response=await fetchImpl(info.url,{credentials:'same-origin',method:'GET',headers:{Accept:info.mime}}); }
   catch {/* A content blocker can reject Confluence's download route before an HTTP response exists. */}
+  // Else the copy Confluence shows on the page, which may be smaller than the original: the picture says so (`displayCopy`).
   if(!response?.ok && info.fallbackUrl) {
-    try { response=await fetchImpl(info.fallbackUrl,{credentials:'omit',method:'GET',headers:{Accept:info.mime||'image/png,image/jpeg,image/gif,image/webp'}}); }
+    try { response=await fetchImpl(info.fallbackUrl,{credentials:'omit',method:'GET',headers:{Accept:info.mime||'image/png,image/jpeg,image/gif,image/webp'}});displayCopy=true; }
     catch { response=null; }
   }
   if(!response?.ok) fail('attachment-fetch-failed', 'An original Confluence image could not be downloaded. Keep the source page signed in and retry capture.');
@@ -216,7 +234,7 @@ export async function fetchConfluenceImage(info, {fetchImpl=globalThis.fetch}={}
   catch(error) { if(typeof error?.code==='string') throw error;fail('attachment-fetch-failed', 'A Confluence image download ended before it could be verified.'); }
   const picture=await preparePicture(bytes,source,info.displayWidth);
   const name=!info.mime?`${info.name}.${EXTENSIONS[picture.mime]}`:source===SVG?`${info.name.replace(/\.svg$/i,'')}.png`:info.name;
-  return {id:picture.id,name,...picture};
+  return {id:picture.id,name,...picture,...(displayCopy?{displayCopy:true}:{})};
 }
 
 // A picture from another website that sends nothing for this long is linked instead.
@@ -285,8 +303,11 @@ async function preparePicture(bytes, source, displayWidth) {
   if(!size.width || !size.height) fail('image-dimensions', 'A Confluence picture has no width or height.');
   try {
     const bitmap=await globalThis.createImageBitmap(new Blob([bytes],{type:mime}));
-    const matches=bitmap.width===size.width && bitmap.height===size.height;bitmap.close();
-    if(!matches) throw new Error('Image dimensions disagree.');
+    const shown={width:bitmap.width,height:bitmap.height};bitmap.close();
+    // A photo may store its pixels turned (EXIF orientation 5 to 8, as phones store portrait photos), which
+    // browsers show turned back: its sides are then swapped, and it is kept at the size it is shown.
+    if(!(shown.width===size.width && shown.height===size.height || shown.width===size.height && shown.height===size.width)) throw new Error('Image dimensions disagree.');
+    Object.assign(size,shown);
   } catch { fail('unsupported-image', 'A Confluence picture is damaged, or too large for this browser to open.'); }
   const scaled=await scaleToSharePoint(bytes,mime,size);
   if(scaled){bytes=scaled.bytes;Object.assign(size,scaled.size);}
@@ -297,8 +318,9 @@ async function preparePicture(bytes, source, displayWidth) {
  * SharePoint shows a picture at most as wide as a one-column section, twice
  * that on high-density screens, so pixels beyond that width only cost upload
  * time and storage. A wider picture is scaled to that width in its own format
- * (JPEG and WebP at high quality). Animated GIFs keep their frames, and a
- * picture is kept as it was if scaling would not make it smaller.
+ * (JPEG and WebP at high quality), turned as it is shown (`size`, see
+ * preparePicture). Animated GIFs keep their frames, and a picture is kept as it
+ * was if scaling would not make it smaller.
  */
 async function scaleToSharePoint(bytes,mime,size) {
   const width=2*SHAREPOINT_COLUMN_WIDTH;

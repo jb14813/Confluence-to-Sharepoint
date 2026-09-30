@@ -32,17 +32,35 @@ const refused = error => error?.code === 'sharepoint-http' && error.status === 4
 const NAME_NOTE = 'Your permission on this site does not include deleting pages, which SharePoint needs to name a page’s file after its title, so the draft keeps the file name SharePoint gave it (as in its address, such as Page(3).aspx). Its title is the Confluence page’s.';
 const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 
-// The document with each picture replaced by a marker, linked to the picture's uploaded copy on the site.
-function withoutPictures(model, receipts, origin) {
+/**
+ * The document with each picture replaced by a marker, linked to the picture's uploaded copy on the site; `kept`, the
+ * pictures (by asset id, in lower case) that stay, as when Site Assets took only some of them.
+ */
+export function withoutPictures(model, receipts, origin, kept = new Set()) {
   const copies = new Map((receipts ?? []).map(receipt => [String(receipt?.assetId ?? '').toLowerCase(), receipt]));
   const names = new Map((model.assets ?? []).map(asset => [String(asset?.id ?? '').toLowerCase(), asset?.name]));
-  return { ...model, blocks: model.blocks.map(block => {
-    if (block.type !== 'image') return block;
-    const key = String(block.assetId ?? '').toLowerCase(), name = names.get(key), address = copies.get(key)?.absoluteUrl;
+  const marker = picture => {
+    const key = String(picture.assetId ?? '').toLowerCase(), name = names.get(key), address = copies.get(key)?.absoluteUrl;
     const label = escapeHtml(`[Picture not placed${typeof name === 'string' && name.trim() ? `: ${name.trim()}` : ''}]`);
     const link = typeof address === 'string' && address.startsWith(`${origin}/`) ? address : null;
-    const caption = typeof block.caption === 'string' && block.caption.trim() ? `<p>${escapeHtml(block.caption.trim())}</p>` : '';
-    return { id: block.id, type: 'text', html: `<p>${link ? `<a href="${escapeHtml(link)}">${label}</a>` : label}</p>${caption}`, ...(block.section ? { section: block.section } : {}) };
+    const caption = typeof picture.caption === 'string' && picture.caption.trim() ? `<p>${escapeHtml(picture.caption.trim())}</p>` : '';
+    return `<p>${link ? `<a href="${escapeHtml(link)}">${label}</a>` : label}</p>${caption}`;
+  };
+  return { ...model, blocks: model.blocks.map(block => {
+    // A picture kept in a table cell, panel or quote is marked in its place; those that stay are numbered again.
+    if (block.type === 'text' && Array.isArray(block.pictures) && block.pictures.length) {
+      const { pictures: listed, ...rest } = block, pictures = [];
+      const html = block.html.replace(/<div class="c2sPicture" data-picture="(\d{1,4})"><\/div>/g, (slot, index) => {
+        const picture = listed[Number(index)];
+        if (!picture) return slot;
+        if (!kept.has(String(picture.assetId ?? '').toLowerCase())) return marker(picture);
+        pictures.push(picture);
+        return `<div class="c2sPicture" data-picture="${pictures.length - 1}"></div>`;
+      });
+      return pictures.length ? { ...rest, html, pictures } : { ...rest, html };
+    }
+    if (block.type !== 'image' || kept.has(String(block.assetId ?? '').toLowerCase())) return block;
+    return { id: block.id, type: 'text', html: marker(block), ...(block.section ? { section: block.section } : {}) };
   }) };
 }
 
@@ -75,7 +93,7 @@ function validatedInput(value) {
     throw fail('invalid-input', 'Only attemptId, filenameStem, model and assetReceipts arguments are accepted.');
   }
   if (!GUID.test(value.attemptId ?? '') || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.filenameStem ?? '') || value.filenameStem.length > 80) {
-    throw fail('invalid-input', 'Use an import attempt UUID and a filename stem of at most 80 lowercase letters, digits, or hyphens.');
+    throw fail('invalid-input', 'Use an attempt UUID and a filename stem of at most 80 lowercase letters, digits, or hyphens.');
   }
   if (typeof value.model?.title !== 'string' || !value.model.title.trim() || value.model.title.length > 255 || /[\u0000-\u001f\u007f]/.test(value.model.title) ||
       !Array.isArray(value.model.blocks) || !value.model.blocks.length || !Array.isArray(value.model.assets) || !Array.isArray(value.assetReceipts)) {
@@ -91,11 +109,11 @@ export function createDraftClient({ siteUrl, fetchImpl = globalThis.fetch, crypt
   const attempts = new Set();
   let busy = false;
   let owned;
-  // Only this import's requests: reading the site and its users, creating one page, and that page's check-out,
+  // Only this send's requests: reading the site and its users, creating one page, and that page's check-out,
   // saves, title and minor check-in.
   function allow(resource, method, body) {
     if (method === 'GET') return /^(?:site\?|web\?|web\/lists\?|web\/siteusers\?|web\/currentuser\?|web\/GetFileByServerRelativePath\()/.test(resource) || Boolean(owned) && resource === `sitepages/pages(${owned.pageId})`;
-    // The one list item update is the title of the page this import created, and nothing else.
+    // The one list item update is the title of the page this send created, and nothing else.
     const titleUpdate = Boolean(owned) && resource === `web/lists(guid'${owned.listId}')/items(${owned.pageId})/ValidateUpdateListItem` &&
       body?.bNewDocumentUpdate === false && Object.keys(body).length === 2 && Array.isArray(body.formValues) && body.formValues.length === 1 &&
       body.formValues[0]?.FieldName === 'Title' && typeof body.formValues[0].FieldValue === 'string' && Object.keys(body.formValues[0]).length === 2;
@@ -184,7 +202,7 @@ export function createDraftClient({ siteUrl, fetchImpl = globalThis.fetch, crypt
     const tries = [{ canvas: canvasContent, byline: attribution, notes: [] }];
     const bylineOff = attribution?.user ? { ...attribution, user: null } : null;
     if (bylineOff) tries.push({ canvas: canvasContent, byline: bylineOff, notes: [BYLINE_NOTE] });
-    if (model.blocks.some(block => block.type === 'image')) {
+    if (model.blocks.some(block => block.type === 'image' || block.type === 'text' && block.pictures?.length)) {
       const marked = (await serializer(withoutPictures(model, receipts, site.origin), [], metadata, { idFactory: () => cryptoImpl.randomUUID() })).CanvasContent1;
       tries.push({ canvas: marked, byline: attribution, notes: [PICTURES_NOTE] });
       if (bylineOff) tries.push({ canvas: marked, byline: bylineOff, notes: [BYLINE_NOTE, PICTURES_NOTE] });
@@ -235,7 +253,7 @@ export function createDraftClient({ siteUrl, fetchImpl = globalThis.fetch, crypt
     return confirmed;
   }
 
-  // A save sets the whole page, and the page is this import's own, so the same save may safely be made again. One
+  // A save sets the whole page, and the page is this send's own, so the same save may safely be made again. One
   // SharePoint was too busy for, or whose answer was lost, is read back, and made once more if it did not land.
   async function save(page, body, metadata, expectedPath) {
     page = await checkedOut(page, metadata);
@@ -268,7 +286,7 @@ export function createDraftClient({ siteUrl, fetchImpl = globalThis.fetch, crypt
     const input = validatedInput(value);
     const attemptId = input.attemptId.toLowerCase();
     if (busy) throw fail('draft-busy', 'A new draft is already being created.');
-    if (attempts.has(attemptId)) throw fail('attempt-used', 'This import attempt was already started. Inspect its result before starting another import.');
+    if (attempts.has(attemptId)) throw fail('attempt-used', 'This attempt was already started. Review its result before starting another.');
     busy = true;
     owned = null;
     let allocationStarted = false;
@@ -291,6 +309,11 @@ export function createDraftClient({ siteUrl, fetchImpl = globalThis.fetch, crypt
       let allocated;
       try { allocated = await request('sitepages/pages', { method: 'POST', body: { PageLayoutType: 'Article', PromotedState: 0 }, digest }); }
       catch (error) {
+        // Too busy to take it (429, 503: throttled), SharePoint made no page; any other answer lost or unclear may hide one.
+        if ([429, 503].includes(error.status)) {
+          allocationStarted = false;
+          throw Object.assign(error, { message: `SharePoint was too busy to create the page (HTTP ${error.status}), so no draft was created. Send again in a moment.` });
+        }
         if (uncertain(error)) throw fail('allocation-unconfirmed', 'SharePoint did not answer when the page was created, and a new draft may exist.');
         allocationStarted = false;
         throw error;
@@ -311,7 +334,8 @@ export function createDraftClient({ siteUrl, fetchImpl = globalThis.fetch, crypt
       // can co-author, on which an open editor holds a lock that stops a later send instead of writing over it.
       report('checkin');
       const checkin = await checkInMinor({ request, freshDigest }, expectedPath, 'draft');
-      const notes = [...renames ? [] : [NAME_NOTE], ...saved.notes, ...checkin.note ? [checkin.note] : []];
+      // An author lookup SharePoint refused left the byline as SharePoint made it (see attribution.js).
+      const notes = [...renames ? [] : [NAME_NOTE], ...attribution?.refused ? [BYLINE_NOTE] : [], ...saved.notes, ...checkin.note ? [checkin.note] : []];
       // The controls the draft was saved with, which a later update from the same Confluence page replaces.
       const part = jsonArray(saved.canvas, 'canvas').filter(control => control?.position && typeof control.id === 'string').map(control => control.id.toLowerCase());
       return { attemptId, pageId: owned.pageId, uniqueId: owned.uniqueId, serverRelativeUrl: expectedPath,

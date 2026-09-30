@@ -40,15 +40,15 @@ const text=value=>String(value??'').replace(/[\u0000-\u001f\u007f]/g,' ').trim()
 const color=value=>COLOR.test(value??'')?value:null;
 
 /**
- * The roadmap laid out as months: {labels, lanes:[{title, lane, bar, text, rows:[[{title, first, last}]]}], markers:[{column, titles}]},
- * or null when it has no months.
+ * The roadmap laid out as months: {labels, lanes:[{title, lane, bar, text, rows:[[{title, first, last}]]}], markers:[{column, titles}],
+ * cut:{bars, markers}}, `cut` counting what its timeline holds after the months laid out; null when it has no months.
  */
 export function roadmapLayout(source) {
   const start=dateParts(source?.timeline?.startDate),end=dateParts(source?.timeline?.endDate);
   if(!start||!end)return null;
   const months=(end.y-start.y)*12+(end.mo-start.mo)+1;
   if(months<1)return null;
-  const count=Math.min(months,MAX_MONTHS);
+  const count=Math.min(months,MAX_MONTHS),cut={bars:0,markers:0};
   const labels=Array.from({length:count},(unused,index)=>{
     const month=(start.mo-1+index)%12,year=start.y+Math.floor((start.mo-1+index)/12);
     return index===0||month===0?`${MONTHS[month]} ${year}`:MONTHS[month];
@@ -58,6 +58,7 @@ export function roadmapLayout(source) {
       const at=dateParts(bar?.startDate),duration=Number(bar?.duration);
       if(!at||!Number.isFinite(duration)||duration<=0)return null;
       const from=position(at,start),to=from+duration;
+      if(from>=count&&from<months)cut.bars++;
       if(to<=0||from>=count)return null;
       const first=Math.max(0,Math.floor(from));
       return {title:text(bar.title),row:Number.isInteger(bar.rowIndex)&&bar.rowIndex>=0?bar.rowIndex:0,first,last:Math.min(count-1,Math.max(first,Math.ceil(to)-1))};
@@ -76,14 +77,21 @@ export function roadmapLayout(source) {
   for(const marker of Array.isArray(source.markers)?source.markers:[]) {
     const at=dateParts(marker?.markerDate);if(!at)continue;
     const column=Math.floor(position(at,start));
+    if(column>=count&&column<months)cut.markers++;
     if(column<0||column>=count)continue;
     if(!columns.has(column))columns.set(column,[]);
     columns.get(column).push(text(marker.title));
   }
-  return {labels,lanes,markers:[...columns].sort((a,b)=>a[0]-b[0]).map(([column,titles])=>({column,titles}))};
+  return {labels,lanes,markers:[...columns].sort((a,b)=>a[0]-b[0]).map(([column,titles])=>({column,titles})),cut};
 }
 
-/** The roadmap as a SharePoint table, {html, text}, or null when it has no months. */
+/** The note for a roadmap whose bars and markers after the months its table shows were left out (`cut`), or null. */
+export function roadmapCutNote({bars=0,markers=0}={}) {
+  const counted=[bars&&`${bars} bar${bars===1?'':'s'}`,markers&&`${markers} marker${markers===1?'':'s'}`].filter(Boolean),one=bars+markers===1;
+  return counted.length?`A Confluence roadmap runs past the ${MAX_MONTHS} months (five years) its table shows, so ${counted.join(' and ')} after them ${one?'was':'were'} left out. Add ${one?'it':'them'} in SharePoint if ${one?'it is':'they are'} needed.`:null;
+}
+
+/** The roadmap as a SharePoint table, {html, text, cut} (see roadmapLayout), or null when it has no months. */
 export function roadmapHtml(source) {
   const layout=roadmapLayout(source);
   if(!layout)return null;
@@ -117,5 +125,5 @@ export function roadmapHtml(source) {
     }
     html+='</tr>';
   }
-  return {html:`<table style="width:100%;table-layout:fixed"><tbody>${html}</tbody></table>`,text:words.filter(Boolean).join(' ')};
+  return {html:`<table style="width:100%;table-layout:fixed"><tbody>${html}</tbody></table>`,text:words.filter(Boolean).join(' '),cut:layout.cut};
 }

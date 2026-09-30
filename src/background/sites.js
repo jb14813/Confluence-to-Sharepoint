@@ -1,6 +1,7 @@
 // SharePoint sites the user visits, remembered in chrome.storage.local and
 // offered as destinations, each with the pages of it the user opens or the
-// extension writes. The list never leaves the browser.
+// extension writes. The list stays in the browser; which sites are pinned also
+// follows Chrome sync (pins.js).
 import {fail,siteAddress} from './checks.js';
 
 const KEY='sites',LIMIT=30,PAGES=10;
@@ -18,7 +19,8 @@ export function siteKey(value){
 /** A page's server-relative path as it is remembered: a page in the site's own Site Pages (not one of its views or templates), or null. */
 export function pageKey(siteUrl,path){
   const site=siteKey(siteUrl);
-  if(!site||typeof path!=='string'||path.length>1500||!path.startsWith('/')||/[\\\x00-\x1f\x7f?#]/.test(path))return null;
+  // A folder or file name may hold "#" (SharePoint Online allows it); every address made from a path encodes it.
+  if(!site||typeof path!=='string'||path.length>1500||!path.startsWith('/')||/[\\\x00-\x1f\x7f?]/.test(path))return null;
   const sitePath=decoded(new URL(site).pathname.replace(/\/$/,''));
   if(sitePath===null)return null;
   const prefix=`${sitePath}/SitePages/`;
@@ -84,6 +86,17 @@ export function createSites({storage=globalThis.chrome?.storage?.local,now=()=>D
       const key=siteKey(url);
       if(pinned===true&&list.filter(site=>site.pinned&&site.url!==key).length>=LIMIT-1)throw fail('too-many-pins',`Up to ${LIMIT-1} sites can be pinned. Unpin one first.`);
       return list.map(site=>site.url===key?{...site,pinned:pinned===true}:site);
+    }),
+    /**
+     * The pins Chrome sync keeps (pins.js), which decide which sites are pinned here: a pinned site this browser does
+     * not know is added with its title. At most 29, as pinning allows.
+     */
+    applyPins:pins=>change(list=>{
+      const wanted=new Map();
+      for(const pin of Array.isArray(pins)?pins:[]){const key=siteKey(pin?.url);if(key&&!wanted.has(key)&&wanted.size<LIMIT-1)wanted.set(key,text(pin?.title));}
+      const known=new Set(list.map(site=>site.url));
+      return [...list.map(site=>({...site,pinned:wanted.has(site.url)})),
+        ...[...wanted].filter(([url])=>!known.has(url)).map(([url,title])=>({url,title,visitedAt:null,usedAt:null,pinned:true,problem:null,pages:[]}))];
     }),
     remove:url=>{const key=siteKey(url);return change(list=>list.filter(site=>site.url!==key));},
     forget:()=>change(()=>[])

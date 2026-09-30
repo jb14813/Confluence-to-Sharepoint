@@ -1,6 +1,58 @@
 # Changelog
 
-## 0.4.5 - Unreleased
+## 0.5.0 - 2026-09-29
+
+What is new since 0.4.5, the previous version in the Chrome Web Store. Versions 0.4.6 to 0.4.11 were test builds, never released; their entries below give the detail.
+
+- **Keep in my Confluence account**, a new setting in the **Sites** view, off until you turn it on, keeps the list of pages you sent where as private settings of your own account on the Confluence sites you send pages from, so **Sent to** and **Update** come back on another computer or after Chrome is reset. No server of the developer's is involved. Turning it off removes that copy; turn it off before uninstalling if you want it gone.
+- **Your pinned sites, and that setting, follow Chrome sync** to your other Chrome browsers. The pins you had are kept.
+- **Update finds a page renamed or moved** within its Site Pages, by the permanent ID SharePoint gives it. A deleted page is crossed off, with **Create a new page** offered. A page sent with 0.4.5 is followed this way after its next Update.
+- **Pictures stay where they were:** inside numbered and bulleted steps (the numbering goes on after them), and inside table cells, panels and quotes, as SharePoint's own pictures there, with their alternative text, caption and link, at about the size Confluence shows them. A picture that cannot be copied is a link to its file, and its note says why.
+- **Overwrite warns** when a page holds content sent from other Confluence pages.
+- **Capture keeps more and names what it could not copy**, sends work with Site Assets libraries that require check-out, keep drafts or need approval, and there are reliability, wording and keyboard fixes.
+- The extension no longer asks for access to `media-cdn.atlassian.com`, which it did not need.
+
+## 0.4.11 - 2026-09-28 (test build, not released)
+
+- **Pictures inside tables, panels and quotes stay in them.** A picture in a table cell, in an info, note or other panel, or in a quote was sent as a link to its file; it is now in its cell, panel or quote, as SharePoint's own picture inside text, the way SharePoint's editor places a picture there, with its alternative text, caption and link, at about the size Confluence shows it. A picture in a list inside a cell stays there too. A picture that cannot be copied is still a link, and its note now gives the reason, such as its format.
+
+## 0.4.10 - 2026-09-28 (test build, not released)
+
+- **Pictures inside list steps come over as pictures.** A screenshot inside a numbered or bulleted step was sent as a link to its file; it is now a SharePoint picture under its step, as pictures between paragraphs are, and the list goes on with the next number after it. Text that follows a picture inside the same step, or sub-steps after it, go on after the picture without the list's indent, with a layout note; sub-steps keep their lettering. Pictures inside tables and panels are still links.
+
+## 0.4.9 - 2026-09-27 (test build, not released)
+
+- **Keep in my Confluence account is one setting for all your Chrome browsers:** turning it on or off in one does the same in every Chrome signed in to your Google account with Chrome sync on. Turning it off also leaves a small note in your Confluence account, so a computer without Chrome sync turns it off as well the next time it saves or reads there, and says so in its Sites view; turning it on again removes the note.
+- **Pinned sites follow Chrome sync** to your other Chrome browsers, whether or not Keep in my Confluence account is on; the Confluence copy now holds only the sent list. Pins you had before are kept. Forget all unpins them everywhere.
+- A table of contents caught while it was still drawing is no longer said to be "still loading, not copied": it is left out by design, as before.
+
+## 0.4.8 - 2026-09-27 (test build, not released)
+
+- **A capture is kept under the page it was taken from.** Moving to another Confluence page just as a capture or Update starts now stops it, so one page's content can never be written in another page's part; a page reloaded during a capture stops it at once.
+- **Pictures:** pictures a page shows from another page's attachments are copied; portrait phone photos, stored turned, are accepted; a picture's own web link is kept. In a Site Assets library that requires check-out, the pictures are checked in; where it keeps drafts or needs approval, a note says readers won't see them until they are published or approved there. A site without a usable Site Assets library gets the page without the pictures, each marked where it was, with a note, instead of stopping.
+- **Capture keeps more, and says what it could not keep:** right-aligned text, a centred line under a captioned picture, pages with more pictures than their stored copy (includes, synced blocks), very large pages and many collapsed sections, nested collapsed sections, lists numbered from 0, and text with control characters are captured; formatting SharePoint refuses gets the nearest it takes. Macros still loading, frames, videos, macros an editor capture cannot copy, and pictures Confluence could only give as its display copy are named in the list of what was not copied.
+- **Sending into a page:** a page you had checked out stays checked out to you, as it was. Add to bottom is refused on a page this Confluence page was sent to and that was renamed since (use its Update). An author lookup SharePoint refuses keeps the date and says so. A save SharePoint had not finished when the send stopped waiting is neither repeated nor undone, and the page is reported as possibly changed. A page SharePoint was too busy to create leaves the capture ready to send again. Sites whose address has ( ) ' or ! work.
+- **The popup** keeps the keyboard on the control you used, announces refusals, says Update sends this capture (and replaces edits made to what it sent), and says Forget all removes the copy in your Confluence account too.
+- **Keep in my Confluence account:** a page renamed or moved in SharePoint reaches the other computers' lists with its new address, for every Confluence page sent to it.
+- A send that restarts with the extension keeps its tab its own until it ends, a very large picture's upload is waited for as long as it may take, and the previous browser session's capture is discarded when the browser starts.
+
+## 0.4.7 - 2026-09-27 (test build, not released)
+
+- **Keep in my Confluence account**, a new setting at the foot of the **Sites** view, off until you turn it on. It saves which Confluence pages you sent where, and your pinned sites, as private settings of your own account on the Confluence sites you send pages from (Atlassian documents that only that account can read them); no other server is involved. After Chrome is reset, or on another computer, turning it on brings **Sent to**, **Update** and the pins back as soon as the popup opens on a Confluence page. The account holds what every computer with the setting on sent, and a removal made on one reaches the others. Turning it off removes the copy from the account (turn it off on each computer, and before uninstalling); **Forget all** also turns it off.
+- **Update follows a page that was renamed, or moved to a folder of its Site Pages,** by the permanent ID SharePoint gives the page, writes it at its new address, and remembers that address. A different page given the old address is never written.
+- **A page or part that is gone is crossed off, and the popup offers Create a new page** (unless the Confluence page is also in another page of that site): one click sends the capture the update just made to the same site as a new draft. The advice to overwrite a renamed page, or to remove its earlier copy by hand, is gone. A page sent before 0.4.7 is known only by its address until its next successful Update, so a rename made before then cannot be followed, and the message says so.
+- **Overwrite warns on a combined page:** choosing a page that holds content sent from other Confluence pages says that Overwrite removes it too.
+
+## 0.4.6 - 2026-09-26 (test build, not released)
+
+Housekeeping after 0.4.5; no change in what the extension does.
+
+- The popup's styles are one file. The second stylesheet, left from the side panel the toolbar popup replaced in 0.3.0, carried rules nothing used any more.
+- Messages that still called a send an "import" say "send", and the note on a picture that became a link no longer names columns, whose pictures have stayed in place since 0.3.9.
+- The note under **Send to**'s **Update** says, as the note under **Sent to** does, that a page made from the Confluence page gets its title, byline and date again.
+- The privacy policy and the permission texts are completed: **Update** captures the page too; on install, update or when site access is granted, the extension adds its scripts to the Confluence and SharePoint pages already open; what is stored for a remembered site, page and record is listed.
+
+## 0.4.5 - 2026-09-26
 
 Fixes from the completeness pass over 0.4.4; nothing new to learn.
 

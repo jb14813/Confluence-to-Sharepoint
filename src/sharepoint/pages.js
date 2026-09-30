@@ -22,8 +22,17 @@ const SHAREPOINT_APP = /(?:^|\|)app@sharepoint$/i;
 const FILE_FIELDS = '$select=Exists,UniqueId,ListId,Name,ServerRelativeUrl,ServerRelativePath,UIVersionLabel,Level,CheckOutType,ListItemAllFields/Id,CheckedOutByUser/Title,CheckedOutByUser/LoginName,LockedByUser/Title,LockedByUser/LoginName&$expand=ListItemAllFields,CheckedOutByUser,LockedByUser';
 const UNSUPPORTED = 'This is not a page Confluence content can go into, so it was removed from the list. Choose another page.';
 const MISSING = 'This page is no longer at its address (deleted, renamed or moved), so it was removed from the list. If it still exists, open it in SharePoint to list it again.';
+// A page known by its permanent ID (UniqueId), which SharePoint keeps through a rename or a move within Site Pages
+// (measured 2026-09-27), and which no longer answers to it there.
+const GONE = 'This page was deleted or moved out of this site’s Site Pages, so it was removed from the list.';
 const PART_MISSING = 'The content this Confluence page sent is no longer on the page, so there is nothing to replace. To send it there again, choose the page under Send to; if it isn’t listed, open it in SharePoint first.';
 const LOCKED = 'This page is still open in SharePoint’s editor, perhaps in another window or on another computer. Close the editor, then send again.';
+const ALREADY = 'This page already has this Confluence page’s content. Update it instead of adding it again.';
+// A check-out the user already had is theirs: it may hold changes of their own, or be of a page never checked in, which
+// a check-in would show to co-authors. It stays as it was.
+const KEPT_OUT = 'The page was checked out to you before the send, so it was left checked out to you, as it was. Until you publish it or check it in, others can’t edit it.';
+// An author lookup SharePoint refused leaves the page's byline as it was (see attribution.js).
+const BYLINE_NOTE = 'SharePoint refused to show the Confluence page’s author in the byline, so the page keeps its byline.';
 const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const nameOf = user => String(user?.Title ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 100) || 'Someone';
 // A stop that left the page as it was, so the capture can be sent again; and a failure after the page may have been saved.
@@ -33,6 +42,10 @@ const mayHaveChanged = error => Object.assign(error, { pageMayHaveChanged: true 
 const RESTORED = { 'save-unconfirmed': 'SharePoint did not confirm the save, so the page was put back as it was. Send again.',
   'content-unconfirmed': 'The page read back was not what was saved, so it was put back as it was. Send again.' };
 const restored = error => Object.hasOwn(RESTORED, error.code) ? Object.assign(error, { message: RESTORED[error.code] }) : error;
+// A write that timed out, here (20 seconds) or at SharePoint's gateway (504), may still be running there and land at any
+// moment. It is neither made again nor undone, since a later save or undo could cross it: the page may have changed.
+const stillRunning = error => error?.code === 'request-timeout' || error?.status === 504;
+const running = (error, message) => Object.assign(error, { running: true }, message ? { message } : {});
 
 // What an update replaces: the controls an earlier send of the same Confluence page wrote (with those a send whose
 // outcome was unknown may have written); whether the page takes its title, byline and date from that Confluence page
@@ -51,10 +64,31 @@ const written = merged => merged.added.filter(control => typeof control.id === '
 const holds = (page, part) => jsonArray(page.CanvasContent1 == null || page.CanvasContent1 === '' ? '[]' : page.CanvasContent1, 'canvas')
   .some(control => typeof control?.id === 'string' && part.controls.includes(control.id.toLowerCase()));
 
+// A page's permanent ID, as an entry of the sent list keeps it, in lower case; undefined when none is given.
+function checkedId(uniqueId) {
+  if (uniqueId === undefined) return undefined;
+  if (typeof uniqueId !== 'string' || !GUID.test(uniqueId)) throw fail('invalid-input', 'A page’s ID must be the GUID SharePoint gives it.');
+  return uniqueId.toLowerCase();
+}
+const idOf = file => typeof file?.UniqueId === 'string' && GUID.test(file.UniqueId) ? { uniqueId: file.UniqueId.toLowerCase() } : {};
+// The permanent IDs of the pages this Confluence page was sent to on the site, which an add is refused on: an add
+// finds its page by its address, and a page renamed in SharePoint since keeps its ID but not the address its link has.
+function checkedSent(sentIds) {
+  if (sentIds === undefined) return undefined;
+  if (!Array.isArray(sentIds) || sentIds.length > 200 || !sentIds.every(id => typeof id === 'string' && GUID.test(id))) throw fail('invalid-input', 'The pages sent to are named by at most 200 page IDs.');
+  return sentIds.map(id => id.toLowerCase());
+}
+// Refused before anything is written: the page already has this Confluence page's content.
+const holdsSent = (file, sent) => Boolean(sent) && typeof file?.UniqueId === 'string' && sent.includes(file.UniqueId.toLowerCase());
+
 function validatedInput(value) {
-  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['attemptId', 'pagePath', 'mode', 'model', 'assetReceipts', 'part'].includes(key))) {
-    throw fail('invalid-input', 'Only attemptId, pagePath, mode, model, assetReceipts and part arguments are accepted.');
+  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['attemptId', 'pagePath', 'mode', 'model', 'assetReceipts', 'part', 'uniqueId', 'sentIds'].includes(key))) {
+    throw fail('invalid-input', 'Only attemptId, pagePath, mode, model, assetReceipts, part, uniqueId and sentIds arguments are accepted.');
   }
+  checkedId(value.uniqueId);
+  if (value.uniqueId !== undefined && value.mode !== 'update') throw fail('invalid-input', 'Only an update names the page’s ID.');
+  checkedSent(value.sentIds);
+  if (value.sentIds !== undefined && value.mode !== 'add') throw fail('invalid-input', 'Only an add names the pages sent to.');
   if (!GUID.test(value.attemptId ?? '') || !MODES.has(value.mode)) throw fail('invalid-input', 'Use a send attempt UUID, and add, overwrite or update.');
   if (value.mode === 'update') checkedPart(value.part);
   else if (value.part !== undefined) throw fail('invalid-input', 'Only an update names a part to replace.');
@@ -66,6 +100,8 @@ function validatedInput(value) {
   sourceMetadata(value.model);
   let copy;
   try { copy = structuredClone(value); } catch { throw fail('invalid-model', 'The reviewed document must contain serializable data.'); }
+  if (copy.uniqueId !== undefined) copy.uniqueId = checkedId(copy.uniqueId);
+  if (copy.sentIds !== undefined) copy.sentIds = checkedSent(copy.sentIds);
   return value.mode === 'update' ? { ...copy, part: checkedPart(value.part) } : copy;
 }
 
@@ -99,7 +135,7 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
   // Only what a send to one page needs: reading the site, its users and the page, then that page's check-out,
   // save, title and check-in, or undoing its check-out.
   function allow(resource, method, body) {
-    if (method === 'GET') return /^(?:site\?|web\?|web\/lists\?|web\/siteusers\?|web\/currentuser\?|web\/GetFileByServerRelativePath\()/.test(resource) || Boolean(target) && resource === `sitepages/pages(${target.pageId})`;
+    if (method === 'GET') return /^(?:site\?|web\?|web\/lists\?|web\/siteusers\?|web\/currentuser\?|web\/GetFileByServerRelativePath\(|web\/GetFileById\('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'\)\?)/.test(resource) || Boolean(target) && resource === `sitepages/pages(${target.pageId})`;
     if (resource === 'contextinfo') return true;
     if (!target) return false;
     const titleUpdate = resource === `web/lists(guid'${target.listId}')/items(${target.pageId})/ValidateUpdateListItem` &&
@@ -113,18 +149,38 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
   const readFile = path => request(`${fileResource(path)}?${FILE_FIELDS}`, { missing: true });
   const readPage = () => request(`sitepages/pages(${target.pageId})`);
 
+  // A page of this site's Site Pages that content can go into: an .aspx page inside the library, not a form or template.
+  const inLibrary = (path, library) => path.toLowerCase().startsWith(`${library.toLowerCase()}/`) && /\.aspx$/i.test(path) && !/^(?:forms|templates)\//i.test(path.slice(library.length + 1));
+  // The page's file at `path`; given its permanent ID, the file with that ID, looked up by ID when the address no
+  // longer answers or another file has it (a rename or a move within Site Pages keeps the ID), and taken only in this
+  // site's Site Pages. `taken`: another file now answers at the address.
+  async function locate(path, uniqueId, listId, library) {
+    let file = await readFile(path);
+    const exists = Boolean(file) && file.Exists !== false;
+    if (!uniqueId || exists && same(file.UniqueId, uniqueId)) return { file: exists ? file : null, path, taken: false };
+    file = await request(`web/GetFileById('${uniqueId}')?${FILE_FIELDS}`, { missing: true });
+    let found = null;
+    try { found = file && file.Exists !== false && same(file.UniqueId, uniqueId) ? checkedPath(file.ServerRelativePath?.DecodedUrl ?? file.ServerRelativeUrl) : null; } catch { /* Gone below. */ }
+    const gone = !found || !same(file.ListId, listId) || !inLibrary(found, library);
+    return { file: gone ? null : file, path: gone ? path : found, taken: exists, gone };
+  }
+
   // The page at `pagePath`: one of this site's Site Pages that content can go into and the signed-in user may edit.
-  async function findPage(pagePath, metadata) {
+  // Given the page's permanent ID, the page is the one with that ID, wherever it now is in Site Pages; a page that took
+  // its address is never taken for it.
+  async function findPage(pagePath, metadata, uniqueId) {
     target = null;
-    const path = checkedPath(pagePath), library = metadata.pagesLibrary.serverRelativeUrl;
-    if (!path.toLowerCase().startsWith(`${library.toLowerCase()}/`) || !/\.aspx$/i.test(path) || /^(?:forms|templates)\//i.test(path.slice(library.length + 1))) throw unchanged(fail('page-unsupported', UNSUPPORTED));
-    const file = await readFile(path);
-    if (!file || file.Exists === false) throw unchanged(fail('page-missing', MISSING));
+    const library = metadata.pagesLibrary.serverRelativeUrl, listId = metadata.pagesLibrary.listId;
+    const asked = checkedPath(pagePath);
+    if (!inLibrary(asked, library)) throw unchanged(fail('page-unsupported', UNSUPPORTED));
+    const { file, path, taken, gone } = await locate(asked, uniqueId, listId, library);
+    if (gone) throw unchanged(Object.assign(fail('page-missing', GONE), { addressTaken: taken }));
+    if (!file) throw unchanged(fail('page-missing', MISSING));
     const pageId = file.ListItemAllFields?.Id;
     let actual = null;
     try { actual = checkedPath(file.ServerRelativePath?.DecodedUrl ?? file.ServerRelativeUrl); } catch { /* Refused below. */ }
     if (!same(file.ListId, metadata.pagesLibrary.listId) || !Number.isSafeInteger(pageId) || pageId < 1 || !actual || !same(actual, path)) throw unchanged(fail('page-unsupported', UNSUPPORTED));
-    target = { path: actual, pageId, listId: metadata.pagesLibrary.listId };
+    target = { path: actual, pageId, listId, library, ...(uniqueId ? { uniqueId } : {}), taken };
     const page = await readPage();
     if (page?.Id !== pageId || page.PageLayoutType !== 'Article') throw unchanged(fail('page-unsupported', UNSUPPORTED));
     if (page.IsWebWelcomePage === true) throw unchanged(fail('page-home', 'This is the site’s home page, which Confluence content does not go into, so it was removed from the list. Choose another page.'));
@@ -149,27 +205,35 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
       if (now() >= deadline) throw unchanged(fail('page-locked', LOCKED));
       report('waiting');
       await sleep(LOCK_CHECK_MS);
-      file = await readFile(target.path);
-      if (!file || file.Exists === false) throw unchanged(fail('page-missing', MISSING));
+      // Renamed or moved while the lock was waited out: found again by its ID.
+      const found = await locate(target.path, target.uniqueId, target.listId, target.library);
+      if (found.gone) throw unchanged(Object.assign(fail('page-missing', GONE), { addressTaken: found.taken }));
+      if (!found.file) throw unchanged(fail('page-missing', MISSING));
+      file = found.file; target.path = found.path;
     }
   }
 
   /**
    * Read-only: whether the page can take the capture now, waiting while the user's own closed editor still holds it;
-   * for an update, also whether what it replaces is still on the page.
+   * for an update, also whether what it replaces is still on the page; for an add, whether it is not one of `sentIds`.
    */
-  async function checkPage(pagePath, { onStep, part } = {}) {
+  async function checkPage(pagePath, { onStep, part, uniqueId, sentIds } = {}) {
     const report = step => { try { onStep?.(step); } catch { /* Progress only. */ } };
     if (busy) throw fail('page-busy', 'A page is already being written.');
-    busy = true;
     try {
-      const replacing = part === undefined ? null : checkedPart(part);
-      const { file, page } = await findPage(pagePath, await inspectSite());
-      if (replacing && !holds(page, replacing)) throw fail('part-missing', PART_MISSING);
-      await available(file, report);
-      return { title: page.Title ?? '' };
+      const replacing = part === undefined ? null : checkedPart(part), id = checkedId(uniqueId), sent = checkedSent(sentIds);
+      if (id && !replacing) throw fail('invalid-input', 'Only an update names the page’s ID.');
+      if (sent && replacing) throw fail('invalid-input', 'Only an add names the pages sent to.');
+      busy = true;
+      try {
+        const { file, page } = await findPage(pagePath, await inspectSite(), id);
+        if (holdsSent(file, sent)) throw fail('already-on-page', ALREADY);
+        if (replacing && !holds(page, replacing)) throw fail('part-missing', PART_MISSING);
+        await available(file, report);
+        // Where the page is now, which the send then writes, its ID, and whether another page has its old address.
+        return { title: page.Title ?? '', path: target.path, ...idOf(file), ...(target.taken ? { addressTaken: true } : {}) };
+      } finally { busy = false; }
     } catch (error) { throw unchanged(error); }
-    finally { busy = false; }
   }
 
   // What SharePoint kept: the title; every kept control, in order; none of the replaced ones; the capture's controls
@@ -206,7 +270,8 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
   }
 
   // A save sets the whole page, so the same save may safely be made again: one SharePoint was too busy for, or whose
-  // answer was lost, is read back, and made once more if it did not land.
+  // answer was lost, is read back, and made once more if it did not land. One that timed out and has not landed may
+  // still be running (see stillRunning).
   async function save(body, merged, titled, done) {
     const digest = await freshDigest();
     for (let attempt = 0; ; attempt++) {
@@ -216,11 +281,12 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
       let confirmed;
       try { confirmed = await readPage(); }
       catch (error) {
-        if (writeError) throw fail('save-unconfirmed', 'The page may have been saved, but reading it back failed.');
+        if (writeError) throw Object.assign(fail('save-unconfirmed', 'The page may have been saved, but reading it back failed.'), stillRunning(writeError) ? { running: true } : {});
         throw error;
       }
       if (keeps(confirmed, body, merged, titled)) return confirmed;
       if (!writeError) throw fail('content-unconfirmed', 'The page read back differs from what was saved. No save was repeated.');
+      if (stillRunning(writeError)) throw running(fail('save-unconfirmed', 'SharePoint had not finished saving the page when the send stopped waiting for it, and may still save it.'));
       if (attempt) throw fail('content-unconfirmed', 'The page read back differs from what was saved, also after saving it again.');
       await sleep(writeError.retryAfter ?? 1000);
     }
@@ -242,7 +308,8 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
     let merged;
     try {
       const metadata = await inspectSite();
-      const { file, page: found } = await findPage(input.pagePath, metadata);
+      const { file, page: found } = await findPage(input.pagePath, metadata, input.uniqueId);
+      if (holdsSent(file, input.sentIds)) throw fail('already-on-page', ALREADY);
       if (input.part && !holds(found, input.part)) throw fail('part-missing', PART_MISSING);
       const held = await available(file, report);
       // Overwrite, and an update of a page made from the Confluence page, give it the Confluence title, byline and
@@ -275,7 +342,8 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
       // SharePoint renames a page's file on the first save that gives it a title.
       if (titled && !String(page.Title ?? '').trim()) {
         done.wrote = true;
-        const answer = await request(`web/lists(guid'${target.listId}')/items(${target.pageId})/ValidateUpdateListItem`, { method: 'POST', body: { formValues: [{ FieldName: 'Title', FieldValue: body.Title }], bNewDocumentUpdate: false }, digest: await freshDigest() });
+        const answer = await request(`web/lists(guid'${target.listId}')/items(${target.pageId})/ValidateUpdateListItem`, { method: 'POST', body: { formValues: [{ FieldName: 'Title', FieldValue: body.Title }], bNewDocumentUpdate: false }, digest: await freshDigest() })
+          .catch(error => { throw stillRunning(error) ? running(error, 'SharePoint had not finished setting the page’s title when the send stopped waiting for it, and may still set it.') : error; });
         const values = answer?.value ?? answer?.ValidateUpdateListItem?.results ?? answer?.results;
         const field = Array.isArray(values) ? values.find(entry => entry?.FieldName === 'Title') : null;
         if (!field || field.HasException !== false) throw fail('title-refused', 'SharePoint did not accept the page’s title.');
@@ -283,18 +351,19 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
       report('content');
       const confirmed = await save(body, merged, titled, done);
       done.saved = true;
-      report('checkin');
-      const checkin = await checkInMinor({ request, freshDigest }, target.path);
-      return { attemptId, kind: 'page', mode: input.mode, pageId: target.pageId, serverRelativeUrl: target.path, pageUrl: pageUrlFor(site.origin, target.path),
+      if (!held.checkedOutToMe) report('checkin');
+      const checkin = held.checkedOutToMe ? { checkedIn: false, note: KEPT_OUT } : await checkInMinor({ request, freshDigest }, target.path);
+      const notes = [...merged.notes, attribution?.refused && BYLINE_NOTE, checkin.note].filter(Boolean);
+      return { attemptId, kind: 'page', mode: input.mode, pageId: target.pageId, ...idOf(file), serverRelativeUrl: target.path, pageUrl: pageUrlFor(site.origin, target.path),
         title: confirmed.Title, version: checkin.version ?? confirmed.Version, publication: 'draft', verified: true, checkedIn: checkin.checkedIn,
         // The controls this send wrote, which a later update of the same Confluence page replaces.
-        part: written(merged), ...([...merged.notes, checkin.note].some(Boolean) ? { notes: [...merged.notes, checkin.note].filter(Boolean) } : {}) };
+        part: written(merged), ...(notes.length ? { notes } : {}) };
     } catch (error) {
       if (error.pageUnchanged || error.pageMayHaveChanged) throw error;
       // A check-out this send made is undone, so the page is exactly as it was; a check-out the user already had
       // never is. Only one the file shows as the user's is undone: a check-out whose answer was lost may have met
-      // someone else's, which undoing (as a site owner may) would throw away.
-      if (done.checkedOut && !done.saved) {
+      // someone else's, which undoing (as a site owner may) would throw away. Never while a write may still land.
+      if (done.checkedOut && !done.saved && !error.running) {
         const file = await readFile(target.path).catch(() => null);
         const mine = Boolean(file) && same(file.CheckedOutByUser?.LoginName, me?.LoginName);
         if (mine && await undoCheckOut({ request, freshDigest }, target.path)) throw unchanged(restored(error));
@@ -302,6 +371,7 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
         // The check-out this send made could not be undone (or the file could not be read), so the page may still be held.
         if (!file || mine) error.message = `${error.message} The page may still be checked out to you.`;
       }
+      if (error.running && done.checkedOut) error.message = `${error.message} The page may still be checked out to you.`;
       if (!done.wrote && !done.checkedOut) throw unchanged(error);
       // What the page may now hold, so a later update can still find this Confluence page's part.
       throw Object.assign(mayHaveChanged(error), merged ? { part: written(merged) } : {});

@@ -13,6 +13,11 @@ const SLOW_BYTES_PER_SECOND = 200_000;
 const TRANSIENT = new Set([408, 429, 500, 502, 503, 504]);
 const EXTENSIONS = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/gif': 'gif', 'image/webp': 'webp' };
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// What readers still need before they see pictures the send placed, the most pressing first; the send notes one.
+const HIDDEN = [
+  ['checked-out', 'SharePoint left the pictures checked out in the site’s Site Assets, so readers won’t see them until they are checked in there.'],
+  ['approval', 'The site’s Site Assets holds the pictures for approval, so readers won’t see them until they are approved there.'],
+  ['draft', 'The site’s Site Assets keeps the pictures as drafts, so readers won’t see them until they are published there.']];
 
 function fail(code, message, status) {
   const error = new Error(message);
@@ -77,8 +82,10 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
   const site = checkedSite(siteUrl);
   if (typeof fetchImpl !== 'function') throw fail('fetch-unavailable', 'Browser requests are unavailable.');
   const browserBound = Boolean(globalThis.location?.href);
-  let library;
-  const folders = new Set();
+  // `versions`: how the library keeps files (minor versions, approval, whether readers see drafts); `me`: the signed-in
+  // account; `states`: each placed picture's check-out and level as last read; `hidden`: why readers cannot see some.
+  let library, versions, me;
+  const folders = new Set(), states = new Map(), hidden = new Set();
 
   function assertBrowserSite() {
     if (!browserBound) return; // Dependency-injected Node tests have no page location.
@@ -96,8 +103,8 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
   async function request(resource, { method = 'GET', body, digest, format = 'json', missing = false, size = 0 } = {}) {
     // Only private callers construct these resources. This allowlist is an
     // additional guard against accidentally adding page actions to this client.
-    const allowedRead = /^web\/(?:lists\?|GetFolderByServerRelativePath\(|GetFileByServerRelativePath\()/;
-    const allowedWrite = /^(?:web\/GetFolderByServerRelativePath\(.*\)\/Folders\/add\(|web\/GetFolderByServerRelativeUrl\(.*\)\/Files\/add\(|web\/lists\(guid'[0-9a-f-]{36}'\)\/RootFolder\/Files\/add\()/i;
+    const allowedRead = /^web\/(?:lists\?|currentuser\?|GetFolderByServerRelativePath\(|GetFileByServerRelativePath\()/;
+    const allowedWrite = /^(?:web\/GetFolderByServerRelativePath\(.*\)\/Folders\/add\(|web\/GetFolderByServerRelativeUrl\(.*\)\/Files\/add\(|web\/lists\(guid'[0-9a-f-]{36}'\)\/RootFolder\/Files\/add\(|web\/GetFileByServerRelativePath\(decodedUrl='[^']*'\)\/CheckIn\(comment='',checkintype=[01]\)$)/i;
     if (!(method === 'GET' && allowedRead.test(resource)) &&
         !(method === 'POST' && (resource === 'contextinfo' || allowedWrite.test(resource)))) {
       throw fail('forbidden-endpoint', 'Only asset file, folder, library metadata, and contextinfo requests are allowed.');
@@ -124,11 +131,13 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
         if (!response.ok) {
           const phase = resource === 'contextinfo' ? 'request digest' :
             resource.startsWith('web/lists?') ? 'asset library lookup' :
-            /\/Folders\/add\(/.test(resource) ? 'import folder creation' :
+            /\/Folders\/add\(/.test(resource) ? 'picture folder creation' :
             /\/Files\/add\(/.test(resource) ? 'picture upload' :
+            /\/CheckIn\(/.test(resource) ? 'picture check-in' :
+            resource.startsWith('web/currentuser?') ? 'account lookup' :
             resource.endsWith('/$value') ? 'picture byte verification' :
             resource.startsWith('web/GetFileByServerRelativePath(') ? 'picture metadata verification' :
-            resource.startsWith('web/GetFolderByServerRelativePath(') ? 'import folder verification' : 'asset operation';
+            resource.startsWith('web/GetFolderByServerRelativePath(') ? 'picture folder verification' : 'asset operation';
           const error = fail('sharepoint-http', withAnswer(`SharePoint ${phase} failed (HTTP ${response.status})`, await refusalDetail(response)), response.status);
           const retryAfter = response.headers.get('Retry-After');
           // The wait SharePoint asks for, at most 30 seconds, as for the page requests.
@@ -183,20 +192,20 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
   function assertFolder(path) {
     checkedPath(path);
     if (!library || !below(path, library.serverRelativeUrl) || !folders.has(path)) {
-      throw fail('unprepared-folder', 'The asset folder must be prepared by this import in the discovered library.');
+      throw fail('unprepared-folder', 'The picture folder must be prepared by this send in the discovered library.');
     }
   }
 
   function verifyMetadataPath(item, expected) {
     const path = checkedPath(decodedMetadataPath(item));
-    if (!samePath(path, expected)) throw fail('unexpected-path', 'SharePoint returned an asset path that does not match this import.');
+    if (!samePath(path, expected)) throw fail('unexpected-path', 'SharePoint returned an asset path that does not match this send.');
     return path;
   }
 
   async function discoverLibrary() {
     assertBrowserSite();
     if (library) return { ...library };
-    const result = await request('web/lists?$select=Id,Title,BaseTemplate,IsSiteAssetsLibrary,RootFolder/ServerRelativeUrl,RootFolder/ServerRelativePath&$expand=RootFolder&$filter=BaseTemplate%20eq%20101');
+    const result = await request('web/lists?$select=Id,Title,BaseTemplate,IsSiteAssetsLibrary,EnableMinorVersions,EnableModeration,DraftVersionVisibility,RootFolder/ServerRelativeUrl,RootFolder/ServerRelativePath&$expand=RootFolder&$filter=BaseTemplate%20eq%20101');
     const data = unwrap(result);
     if (data?.['odata.nextLink'] || data?.['@odata.nextLink'] || data?.__next) {
       throw fail('ambiguous-library', 'Asset library discovery was incomplete. This site needs a narrower supported library lookup.');
@@ -216,6 +225,8 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
       throw fail('unsafe-library', 'The discovered asset library has an invalid identity or lies outside the selected site.');
     }
     library = { listId: selected.Id, title: String(selected.Title ?? 'Site Assets'), serverRelativeUrl: path };
+    // DraftVersionVisibility 0: anyone who can read the library sees its drafts and files awaiting approval.
+    versions = { minor: typeof selected.EnableMinorVersions === 'boolean' ? selected.EnableMinorVersions : null, moderated: selected.EnableModeration === true, draftsShown: selected.DraftVersionVisibility === 0 };
     return { ...library };
   }
 
@@ -229,13 +240,13 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
   async function ensureImportFolder(libraryPath, folderName) {
     assertBrowserSite();
     assertLibrary(libraryPath);
-    if (!safeSegment(folderName)) throw fail('unsafe-folder', 'The import folder name must be one safe path segment.');
+    if (!safeSegment(folderName)) throw fail('unsafe-folder', 'The picture folder name must be one safe path segment.');
     const path = `${library.serverRelativeUrl}/${folderName}`;
     if (await readFolder(path)) { folders.add(path); return path; }
     const digest = await freshDigest();
     let writeError;
     try {
-      // Generated import names are a single validated segment. Use the
+      // Generated folder names are a single validated segment. Use the
       // parent FolderCollection's broadly supported Add action; this tenant
       // advertises AddUsingPath but returns HTTP 404 when it is invoked.
       await request(`web/GetFolderByServerRelativePath(decodedUrl='${odataPath(library.serverRelativeUrl)}')/Folders/add('${odataPath(folderName)}')`, { method: 'POST', digest, format: 'none' });
@@ -245,8 +256,8 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
     }
     let confirmed;
     try { confirmed = await readFolder(path); }
-    catch { throw fail('folder-unconfirmed', 'Import folder creation could not be confirmed. Inspect the asset library before retrying.'); }
-    if (!confirmed) throw fail('folder-unconfirmed', writeError ? 'Import folder creation is uncertain. Inspect the asset library before retrying.' : 'SharePoint did not confirm the new import folder.');
+    catch { throw fail('folder-unconfirmed', 'The picture folder in Site Assets could not be confirmed.'); }
+    if (!confirmed) throw fail('folder-unconfirmed', writeError ? 'The picture folder in Site Assets may or may not have been created.' : 'SharePoint did not confirm the new picture folder.');
     folders.add(path);
     return path;
   }
@@ -271,7 +282,7 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
 
   async function verifiedFile(path, bytes, asset, hash) {
     const endpoint = `web/GetFileByServerRelativePath(decodedUrl='${odataPath(path)}')`;
-    const response = await request(`${endpoint}?$select=ServerRelativeUrl,ServerRelativePath,UniqueId,Length`, { missing: true });
+    const response = await request(`${endpoint}?$select=ServerRelativeUrl,ServerRelativePath,UniqueId,Length,CheckOutType,Level`, { missing: true });
     if (!response) return null;
     const file = unwrap(response);
     const confirmedPath = verifyMetadataPath(file, path);
@@ -281,6 +292,7 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
     if (existing.length !== bytes.length || !existing.every((value, index) => value === bytes[index])) {
       throw fail('asset-collision', 'An existing asset has different content. No file was overwritten.');
     }
+    states.set(confirmedPath.toLowerCase(), { out: file.CheckOutType, level: file.Level });
     return {
       assetId: hash, serverRelativeUrl: confirmedPath,
       absoluteUrl: `${site.origin}${confirmedPath.split('/').map(encode).join('/')}`,
@@ -288,7 +300,56 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
     };
   }
 
+  // Whether the file is checked out to the signed-in account: another account's check-out is never checked in.
+  async function outToMe(endpoint) {
+    try {
+      const file = unwrap(await request(`${endpoint}?$select=CheckOutType,CheckedOutByUser/LoginName&$expand=CheckedOutByUser`));
+      me ??= unwrap(await request('web/currentuser?$select=LoginName'))?.LoginName;
+      return typeof me === 'string' && Boolean(me) && typeof file?.CheckedOutByUser?.LoginName === 'string' && file.CheckedOutByUser.LoginName.toLowerCase() === me.toLowerCase();
+    } catch (error) { if (error.code === 'target-changed') throw error; return false; }
+  }
+
+  // SharePoint's own upload leaves a picture checked in. One this send finds checked out to the user (a library that
+  // requires check-out) is checked in, as a minor version where the library keeps them, else as its only kind of
+  // version, and read again; a check-in SharePoint was too busy for (429, 503) is made again after the wait it asks
+  // for, at most twice, and one refused leaves it as it is. A picture readers still cannot see, checked out, a draft
+  // or awaiting approval, is noted. Files in Site Assets only: pages are never checked in here.
+  async function readable(path) {
+    let { out, level } = states.get(path.toLowerCase()) ?? {};
+    const endpoint = `web/GetFileByServerRelativePath(decodedUrl='${odataPath(path)}')`;
+    const checkedOut = () => out === 0 || out === 1 || level === 255;
+    if (checkedOut() && typeof versions?.minor === 'boolean' && below(path, library.serverRelativeUrl) && await outToMe(endpoint)) {
+      try {
+        const digest = await freshDigest();
+        for (let attempt = 0; ; attempt++) {
+          try { await request(`${endpoint}/CheckIn(comment='',checkintype=${versions.minor ? 0 : 1})`, { method: 'POST', digest, format: 'none' }); break; }
+          catch (error) {
+            if (![429, 503].includes(error.status) || attempt >= 2) throw error;
+            await new Promise(resolve => setTimeout(resolve, error.retryAfter ?? 1000 * 2 ** attempt));
+          }
+        }
+      } catch (error) { if (error.code === 'target-changed') throw error; }
+      try { ({ CheckOutType: out, Level: level } = unwrap(await request(`${endpoint}?$select=CheckOutType,Level`)) ?? {}); }
+      catch (error) { if (error.code === 'target-changed') throw error; out = 0; /* Not confirmed checked in. */ }
+    }
+    if (checkedOut()) hidden.add('checked-out');
+    else if (level === 2 && !versions?.draftsShown) hidden.add(versions?.moderated ? 'approval' : 'draft');
+  }
+
+  /** Places the picture in Site Assets, or finds it there, and returns its verified receipt. */
   async function uploadAsset(folderPath, asset) {
+    const receipt = await placedAsset(folderPath, asset);
+    await readable(receipt.serverRelativeUrl);
+    return receipt;
+  }
+
+  /** What readers still need before they see the pictures placed so far: one note, or none. */
+  function notes() {
+    const found = HIDDEN.find(([state]) => hidden.has(state));
+    return found ? [found[1]] : [];
+  }
+
+  async function placedAsset(folderPath, asset) {
     assertBrowserSite();
     assertFolder(folderPath);
     const { bytes, hash, filename } = await decodeAsset(asset);
@@ -363,5 +424,5 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
     return confirmed;
   }
 
-  return { discoverLibrary, ensureImportFolder, uploadAsset };
+  return { discoverLibrary, ensureImportFolder, uploadAsset, notes };
 }

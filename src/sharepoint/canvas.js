@@ -16,10 +16,12 @@ const HASH = /^[0-9a-f]{64}$/i;
 const NIL = '00000000-0000-0000-0000-000000000000';
 const MIME = {'image/png':'png','image/jpeg':'jpg','image/gif':'gif','image/webp':'webp'};
 const TAGS = new Set('p h1 h2 h3 h4 h5 h6 span strong b em i u s sup sub br ol ul li table thead tbody tfoot tr td th a blockquote pre code div'.split(' '));
-const ATTRS = new Set('id href style start type scope colspan rowspan class'.split(' '));
+const ATTRS = new Set('id href style start type scope colspan rowspan class data-picture'.split(' '));
 // SharePoint's own markup for a table without borders, as its editor writes it:
 // two wrapper divs and the table style. A div must be one of them; no other class is accepted.
-const CLASSES = {div:new Set(['canvasRteResponsiveTable','tableCenterAlign tableWrapper']),table:new Set(['noBorderTableStyleNeutral'])};
+// A picture kept in a table cell, a panel or a quote is written by the capture as an empty slot, `c2sPicture`, numbered in its
+// block's `pictures` (checkPictures); serializeCanvas turns it into SharePoint's own inline picture.
+const CLASSES = {div:new Set(['canvasRteResponsiveTable','tableCenterAlign tableWrapper','c2sPicture']),table:new Set(['noBorderTableStyleNeutral'])};
 const ENTITIES = {amp:'&',lt:'<',gt:'>',quot:'"',apos:"'",nbsp:'\u00a0'};
 const badControl = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u;
 // Match the characters the Confluence heading slugger can emit, plus legacy
@@ -82,6 +84,8 @@ function checkStyle(value,tag) {
     'vertical-align':/^(?:top|middle|bottom|baseline)$/i,
     'white-space':/^(?:pre|pre-wrap)$/i,
     'table-layout':/^fixed$/i,
+    // A list's own numbering style, when sub-steps go on after a picture outside their step (lists.js).
+    'list-style-type':/^(?:decimal|lower-latin|lower-roman|disc|circle|square)$/i,
     overflow:/^visible$/i,
     width:/^(?:100|[1-9]?\d(?:\.\d{1,4})?)%$/
   };
@@ -92,7 +96,7 @@ function checkStyle(value,tag) {
       fail('unsafe-content','Unsupported inline formatting was found.');
     }
     if(match[1].toLowerCase()==='table-layout'&&tag!=='table'||
-       match[1].toLowerCase()==='overflow'&&!['ul','ol'].includes(tag))fail('unsafe-content','Unsupported inline formatting was found.');
+       ['overflow','list-style-type'].includes(match[1].toLowerCase())&&!['ul','ol'].includes(tag))fail('unsafe-content','Unsupported inline formatting was found.');
   }
 }
 function checkHref(value) {
@@ -110,6 +114,12 @@ function checkHref(value) {
     fail('unsafe-content','A document link uses an unsupported or credential-bearing address.');
   }
 }
+// A picture's own link, the Image web part's linkUrl: a web address, as a document link is checked.
+function pictureLink(value) {
+  if (value===undefined) return true;
+  if (typeof value!=='string'||!/^https?:\/\//i.test(value)) return false;
+  try { checkHref(value); return true; } catch { return false; }
+}
 function checkAttribute(tag,name,value) {
   if (!ATTRS.has(name)||badControl.test(value)) fail('unsafe-content','Unsupported HTML attribute.');
   if (name==='id'&&!HEADING_ID.test(value)) fail('unsafe-content','Invalid heading identifier.');
@@ -120,11 +130,13 @@ function checkAttribute(tag,name,value) {
   if (name==='type'&&(tag!=='ol'||!/^[1aAiI]$/.test(value))) fail('unsafe-content','Invalid ordered-list type.');
   if (name==='scope'&&(tag!=='th'||!['row','col'].includes(value))) fail('unsafe-content','Invalid table header scope.');
   if (['colspan','rowspan'].includes(name)&&(!['td','th'].includes(tag)||!/^\d{1,4}$/.test(value)||Number(value)<1)) fail('unsafe-content','Invalid table cell span.');
+  if (name==='data-picture'&&(tag!=='div'||!/^\d{1,4}$/.test(value))) fail('unsafe-content','Invalid picture slot.');
 }
 function safeHtml(html) {
   if (typeof html!=='string'||!html.trim()||html.length>2_000_000||badControl.test(html)) fail('unsafe-content','Text HTML is empty, too large, or contains control characters.');
   const stack=[];
-  let pos=0,hasCode=false;
+  // Picture slots, by their own marks: a div of class c2sPicture or one with data-picture (checkPictures).
+  let pos=0,hasCode=false,marked=0;
   while (pos<html.length) {
     const start=html.indexOf('<',pos);
     if (start<0) break;
@@ -136,16 +148,18 @@ function safeHtml(html) {
       if (rawAttrs.trim()||selfClosing||stack.pop()!==tag) fail('unsafe-content','Text HTML contains mismatched closing tags.');
     } else {
       const names=new Set();
-      let remaining=rawAttrs;
+      let remaining=rawAttrs,slotClass=false;
       while (remaining.trim()) {
         const attr=/^\s+([a-z][a-z0-9-]*)\s*=\s*(?:"([^"<>]*)"|'([^'<>]*)')/i.exec(remaining);
         if (!attr) fail('unsafe-content','HTML attributes must be explicitly quoted and supported.');
-        const name=attr[1].toLowerCase();
+        const name=attr[1].toLowerCase(),value=attributeValue(attr[2]??attr[3]);
         if(names.has(name)) fail('unsafe-content','Duplicate HTML attributes are not supported.');
-        names.add(name); checkAttribute(tag,name,attributeValue(attr[2]??attr[3]));
+        names.add(name); checkAttribute(tag,name,value);
+        if(name==='class'&&value==='c2sPicture') slotClass=true;
         remaining=remaining.slice(attr[0].length);
       }
       if (tag==='div'&&!names.has('class')) fail('unsafe-content','Unsupported HTML element.');
+      if (slotClass||names.has('data-picture')) marked++;
       if (tag!=='br') {
         if(selfClosing) fail('unsafe-content','Only line breaks can be self-closing.');
         stack.push(tag);
@@ -157,7 +171,36 @@ function safeHtml(html) {
   if(stack.length) fail('unsafe-content','Text HTML has unclosed elements.');
   // Return the validated markup unchanged so source words, escapes and spacing
   // survive. This accepts normalized HTML, not arbitrary Confluence DOM.
-  return {html,hasCode};
+  return {html,hasCode,marked};
+}
+
+// A text block's pictures kept in table cells or panels: {assetId, alt, caption, link?, displayWidth (px, as Confluence
+// shows it), share (% of its cell's width)}, one for each slot of its HTML, in order, and nothing else.
+const SLOT=/<div class="c2sPicture" data-picture="(\d{1,4})"><\/div>/g;
+const PICTURE_KEYS=new Set(['assetId','alt','caption','link','displayWidth','share']);
+// `marked`: how many elements safeHtml found marked as a slot, so one not in the exact form is refused.
+function checkPictures(block,marked) {
+  const pictures=block.pictures??[];
+  if(!Array.isArray(pictures)) fail('invalid-model','A text block’s pictures must be a list.');
+  if(pictures.length>2000) fail('invalid-model','A text block holds more than 2,000 pictures.');
+  const slots=[...block.html.matchAll(SLOT)].map(match=>Number(match[1]));
+  if(marked!==slots.length||slots.length!==pictures.length||slots.some((slot,index)=>slot!==index)) fail('invalid-model','A text block’s pictures must match its picture slots, in order.');
+  for(const picture of pictures) {
+    if(!picture||typeof picture!=='object'||Object.keys(picture).some(key=>!PICTURE_KEYS.has(key))||typeof picture.assetId!=='string'||!HASH.test(picture.assetId)||
+       ![picture.caption??'',picture.alt??''].every(v=>typeof v==='string'&&v.length<=100_000&&!badControl.test(v))||
+       !Number.isInteger(picture.displayWidth)||picture.displayWidth<1||picture.displayWidth>100_000||
+       !Number.isFinite(picture.share)||picture.share<=0||picture.share>100||!pictureLink(picture.link)) fail('invalid-model','A picture in a text block has an invalid file, caption, alternative text, link or width.');
+  }
+  return pictures;
+}
+const escapeAttribute=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]);
+// SharePoint's own inline picture, as its editor stores one put in a table cell (measured 2026-09-28; alternative text,
+// caption and link as `data-alttext`, `data-captiontext`, `data-linkurl`, which its view draws and its editor keeps).
+function inlinePicture(picture,r,site) {
+  return `<div class="imagePlugin" style="background-color:transparent;position:relative;" data-alignment="Center" data-imageurl="${escapeAttribute(r.serverRelativeUrl)}" data-uploading="0" `+
+    `data-width="${picture.displayWidth}" data-height="${picture.displayWidth*r.height/r.width}" data-imagenaturalheight="${r.height}" data-imagenaturalwidth="${r.width}" `+
+    `data-webid="${site.webId}" data-siteid="${site.siteId}" data-listid="${r.listId.toLowerCase()}" data-uniqueid="${r.uniqueId.toLowerCase()}" data-widthpercentage="${picture.share}"`+
+    `${picture.alt?` data-alttext="${escapeAttribute(picture.alt)}"`:''}${picture.caption?` data-captiontext="${escapeAttribute(picture.caption)}"`:''}${picture.link?` data-linkurl="${escapeAttribute(picture.link)}"`:''}></div>`;
 }
 
 function receiptMap(model,receipts,site) {
@@ -168,7 +211,8 @@ function receiptMap(model,receipts,site) {
        !Object.hasOwn(MIME,asset.mime)||!dimensions(asset.width,asset.height)) fail('invalid-model','Each source image requires a unique SHA256 identity, supported MIME type, and natural dimensions.');
     assets.set(asset.id.toLowerCase(),asset);
   }
-  const used=new Set(model.blocks.filter(b=>b.type==='image').map(b=>typeof b.assetId==='string'?b.assetId.toLowerCase():''));
+  const used=new Set([...model.blocks.filter(b=>b.type==='image').map(b=>b.assetId),...model.blocks.filter(b=>b.type==='text').flatMap(b=>(b.pictures??[]).map(p=>p?.assetId))]
+    .map(id=>typeof id==='string'?id.toLowerCase():''));
   if([...used].some(id=>!assets.has(id))) fail('invalid-model','An image block references an undeclared source asset.');
   for(const r of receipts) {
     const key=typeof r?.assetId==='string'?r.assetId.toLowerCase():'';
@@ -213,11 +257,11 @@ function checkSection(section) {
  */
 export function checkCanvasBlock(block) {
   checkSection(block?.section);
-  if(block?.type==='text') { safeHtml(block.html); return; }
+  if(block?.type==='text') { checkPictures(block,safeHtml(block.html).marked); return; }
   if(block?.type==='divider') { if(Object.keys(block).some(key=>!['id','type','section'].includes(key))) fail('invalid-model','A divider holds nothing but its place.'); return; }
   if(block?.type!=='image'||![block.caption??'',block.alt??''].every(v=>typeof v==='string'&&v.length<=100_000&&!badControl.test(v))||
      (block.widthRatio!==undefined&&(!Number.isFinite(block.widthRatio)||block.widthRatio<=0||block.widthRatio>1))||
-     (block.displayWidth!==undefined&&(!Number.isInteger(block.displayWidth)||block.displayWidth<1||block.displayWidth>100_000))) fail('invalid-model','Image references, captions, alternative text, or proportional widths are invalid.');
+     (block.displayWidth!==undefined&&(!Number.isInteger(block.displayWidth)||block.displayWidth<1||block.displayWidth>100_000))||!pictureLink(block.link)) fail('invalid-model','Image references, captions, alternative text, links, or proportional widths are invalid.');
 }
 
 /** Pure serialization. Upload receipts must originate from the retained asset client. */
@@ -232,8 +276,8 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     blockIds.add(block.id);
     checkSection(block.section);
     if(block.type==='text') {
-      const checked=safeHtml(block.html);
-      expanded.push({type:'text',html:checked.html,section:block.section});totalHtml+=checked.html.length;textCount++;
+      const checked=safeHtml(block.html),pictures=checkPictures(block,checked.marked);
+      expanded.push({type:'text',html:checked.html,pictures,section:block.section});totalHtml+=checked.html.length;textCount++;
     } else if(block.type==='divider') {
       checkCanvasBlock(block);
       expanded.push({type:'divider',section:block.section});dividerCount++;
@@ -241,7 +285,7 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
       if(typeof block.assetId!=='string'||!HASH.test(block.assetId)||
          ![block.caption??'',block.alt??''].every(v=>typeof v==='string'&&v.length<=100_000&&!badControl.test(v))||
          (block.widthRatio!==undefined&&(!Number.isFinite(block.widthRatio)||block.widthRatio<=0||block.widthRatio>1))||
-     (block.displayWidth!==undefined&&(!Number.isInteger(block.displayWidth)||block.displayWidth<1||block.displayWidth>100_000))) fail('invalid-model','Image references, captions, alternative text, or proportional widths are invalid.');
+     (block.displayWidth!==undefined&&(!Number.isInteger(block.displayWidth)||block.displayWidth<1||block.displayWidth>100_000))||!pictureLink(block.link)) fail('invalid-model','Image references, captions, alternative text, links, or proportional widths are invalid.');
       expanded.push({type:'image',block,section:block.section}); imageCount++;
     }
   }
@@ -284,7 +328,9 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     const id=freshId();
     const base={position,id,controlType:entry.type==='text'?4:3,isFromSectionTemplate:false,addedFromPersistedData:true};
     if(entry.type==='text') {
-      return {...base,contentVersion:5,innerHTML:entry.html};
+      // Each picture slot becomes the picture, from its upload.
+      const html=entry.pictures.length?entry.html.replace(SLOT,(slot,index)=>{const picture=entry.pictures[Number(index)];return inlinePicture(picture,uploaded.get(picture.assetId.toLowerCase()),site);}):entry.html;
+      return {...base,contentVersion:5,innerHTML:html};
     }
     if(entry.type==='divider') {
       return {...base,webPartId:DIVIDER_PART,reservedWidth:Math.round(SHAREPOINT_COLUMN_WIDTH*factor/12),reservedHeight:1,webPartData:dividerData(id)};
@@ -303,7 +349,7 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     return {...base,webPartId:IMAGE_PART,reservedWidth,reservedHeight:resize?resize.resizeDesiredHeight:reservedWidth*r.height/r.width,webPartData:{
       id:IMAGE_PART,instanceId:id,title:'Image',description:'Image',audiences:[],hideOn:{mobile:false},
       serverProcessedContent:{htmlStrings:{},searchablePlainTexts:{captionText:block.caption??''},imageSources:{imageSource:r.serverRelativeUrl},links:{},customMetadata:{imageSource}},
-      dataVersion:'1.13',properties:{imageSourceType:2,isCaptionEnabled:!!block.caption,altText:block.alt??'',linkUrl:'',overlayText:'',
+      dataVersion:'1.13',properties:{imageSourceType:2,isCaptionEnabled:!!block.caption,altText:block.alt??'',linkUrl:block.link??'',overlayText:'',
         fileName:r.serverRelativeUrl.split('/').at(-1),siteId:site.siteId,webId:site.webId,listId:r.listId.toLowerCase(),uniqueId:r.uniqueId.toLowerCase(),
         isStretchEnabled:false,imgWidth:r.width,imgHeight:r.height,isCaptionHeightMigrated:true,...resize},containsDynamicDataSource:false
     }};

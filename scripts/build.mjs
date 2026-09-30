@@ -12,7 +12,6 @@ await copyFile('extension/manifest.json', path.join(out, 'manifest.json'));
 await copyFile('extension/popup.html', path.join(out, 'popup.html'));
 // A developer page, copied where it exists.
 if (existsSync('extension/operator.html')) await copyFile('extension/operator.html', path.join(out, 'operator.html'));
-await copyFile('src/panel/panel.css', path.join(out, 'panel.css'));
 await copyFile('src/popup/popup.css', path.join(out, 'popup.css'));
 await mkdir(path.join(out, 'icons'), { recursive: true });
 for (const size of [16,32,48,128]) await copyFile(`extension/icons/icon${size}.png`, path.join(out, 'icons', `icon${size}.png`));

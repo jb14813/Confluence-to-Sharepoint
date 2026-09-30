@@ -13,12 +13,33 @@ const PANEL_ICONS={info:'ℹ️',note:'📄',success:'✅',tip:'✅',hint:'✅',
 export const standardPanelIcon=type=>Object.hasOwn(PANEL_ICONS,type??'')?{text:PANEL_ICONS[type],html:escape(PANEL_ICONS[type])}:null;
 export const SAFE_PANEL_COLOR=/^(?:#[0-9a-f]{3,8}|[a-z]+|rgba?\([\d.,% ]+\))$/i;
 export const compact=text=>String(text??'').normalize('NFC').replace(/[\u200b\ufeff]/gu,'').replace(/\s+/gu,' ').trim();
+// SharePoint text accepts tabs and line breaks but no other control characters, which readers do not see either.
+export const clean=value=>typeof value==='string'?value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g,''):'';
+/** Text of one line, such as a caption, as SharePoint takes it: its white space collapsed, without control characters. */
+export const oneLine=value=>compact(clean(compact(value)));
+// Names in a sentence: "a, b and c", naming at most three.
+export const inWords=items=>{const named=[...items.slice(0,3),...(items.length>3?[`${items.length-3} more`]:[])];return named.length<2?named.join(''):`${named.slice(0,-1).join(', ')} and ${named.at(-1)}`;};
+/** Names beginning a sentence, each once with how often it came: "2 “Jira” macros, a video and 3 synced blocks". */
+export const namesInSentence=names=>{
+  const counts=new Map();for(const name of names)counts.set(name,(counts.get(name)??0)+1);
+  const text=inWords([...counts].map(([name,count])=>count===1?name:/^the (“.+”) macro$/.test(name)?`${count} ${name.slice(4)}s`:/^an? /.test(name)?`${count} ${name.replace(/^an? /,'')}s`:`${name} (${count} times)`));
+  return text.charAt(0).toUpperCase()+text.slice(1);
+};
+/** A macro's title as its app gives it (Forge, then Connect and Confluence's own), else its key; never its content; null without one. */
+export function macroTitle(node){
+  const parameters=node?.attrs?.parameters,key=node?.attrs?.extensionKey;
+  const title=[parameters?.extensionTitle,parameters?.macroMetadata?.title,node?.attrs?.text,/^[A-Za-z][\w.-]{0,59}$/.test(key??'')?key:null].find(value=>typeof value==='string'&&compact(value));
+  return title&&compact(title).length<=60&&!badMetadata(title)?compact(title):null;
+}
+/** A macro as a note names it: the “Title” macro, or a synced block. */
+export const macroName=node=>node?.type==='bodiedSyncBlock'||node?.type==='syncBlock'?'a synced block':(title=>title?`the “${title}” macro`:'a Confluence macro')(macroTitle(node));
 /**
  * Whether markup draws something, as Confluence draws it: text, a line break, a
- * no-break space holding a blank line, a table's grid even with empty cells, or
- * list items, whose numbers or bullets show even when the items are empty.
+ * no-break space holding a blank line, a table's grid even with empty cells,
+ * list items, whose numbers or bullets show even when the items are empty, or a
+ * picture kept in its place (its slot, which has no text of its own).
  */
-export const drawsSomething=(html,text)=>Boolean(compact(text))||html.includes(NBSP)||/<br>|<table[\s>]|<li[\s>]/.test(html);
+export const drawsSomething=(html,text)=>Boolean(compact(text))||html.includes(NBSP)||/<br>|<table[\s>]|<li[\s>]|<div class="c2sPicture"/.test(html);
 /** An emoji ({text, id, shortName} as Confluence stores it) as its character, or '' when nothing similar exists. */
 export const emojiText=emoji=>emojiParts(emoji)?.character??'';
 /** An emoji as markup: its character, in its color when it has one (Atlassian's numbers and stars). */
@@ -45,6 +66,19 @@ export const labelText=text=>`${NBSP}${text}${NBSP}`;
 export const statusHtml=(text,color)=>{
   const [background,foreground]=statusColors(color);
   return `<span style="background-color:${background};color:${foreground};font-size:12px">${escape(labelText(text))}</span>`;
+};
+/**
+ * The marker a picture that could not be copied leaves where it was, "[Picture not copied: name]", linked to its
+ * file when that address is known, and followed by its caption.
+ */
+export const pictureMarker=(name,href,caption='')=>{
+  const label=`[Picture not copied${name?`: ${name}`:''}]`;
+  return {html:`<p>${href?`<a href="${escape(href)}">${escape(label)}</a>`:escape(label)}</p>${caption?`<p>${escape(caption)}</p>`:''}`,text:` ${label} ${caption} `};
+};
+/** The note naming the pictures ({name, reason}) that were not copied, each marked in the draft. */
+export const picturesNotCopiedNote=lost=>{
+  const one=lost.length===1,entries=lost.map(({name,reason})=>name?`${name} (${reason})`:`an unnamed picture (${reason})`);
+  return `${one?lost[0].name?`A picture was not copied: ${entries[0]}.`:`A picture was not copied (${lost[0].reason}).`:`${lost.length} pictures were not copied: ${inWords(entries)}.`} ${one?'It is':'Each is'} marked “[Picture not copied]” in the draft; add ${one?'it':'them'} in SharePoint if ${one?'it is':'they are'} needed.`;
 };
 /** A Confluence date as the grey label Confluence shows. */
 export const dateHtml=text=>`<span style="background-color:${HEADER_BACKGROUND}">${escape(labelText(text))}</span>`;
@@ -101,6 +135,77 @@ export const inlineCodeHtml=html=>`<span style="background-color:${HEADER_BACKGR
  * no known color.
  */
 export const panelHtml=(html,color)=>color?`<div class="canvasRteResponsiveTable"><div class="tableCenterAlign tableWrapper"><table class="noBorderTableStyleNeutral" style="width:100%"><tbody><tr><td style="background-color:${color}">${html}</td></tr></tbody></table></div></div>`:`<blockquote>${html}</blockquote>`;
+// A picture kept in a table cell, panel or quote is written as a slot where it goes, keyed while the page is read, then
+// numbered in its text block's `pictures` once its file is in; canvas.js turns it into SharePoint's own inline picture.
+export const pictureSlot=key=>`<div class="c2sPicture" data-picture="${key}"></div>`;
+// SharePoint sizes such a picture as a share of the room its cell has (data-widthpercentage; measured 2026-09-28: at
+// 100 it fills its cell, and without it is drawn about a quarter as wide). Its editor put a 239.79 px picture in a
+// one-column table at 20.71 %, so its text is 1158 px wide there; a cell has that share of it the cell had of
+// Confluence's page.
+export const SHAREPOINT_TEXT_WIDTH=1158;
+/** A picture's share of its SharePoint cell, for the width Confluence shows it at in a cell with `cellShare` of the page. */
+export const pictureShare=(width,cellShare=1)=>Math.round(Math.min(100,Math.max(1,width/(SHAREPOINT_TEXT_WIDTH*Math.min(1,Math.max(0.01,cellShare)))*100))*10_000)/10_000;
+const SLOT=/<div class="c2sPicture" data-picture="(\d{1,9})"><\/div>/g;
+/**
+ * Numbers each text block's picture slots in its `pictures`, from `settled(key)`: {picture} to keep, or {html, text}
+ * to put in its place (the marker or link it would have been), in order.
+ */
+export function settlePictures(blocks,settled) {
+  for(const block of blocks) {
+    if(block.type!=='text'||!block.html.includes('c2sPicture'))continue;
+    const pictures=[];let text=block.text??'';
+    block.html=block.html.replace(SLOT,(slot,key)=>{
+      const outcome=settled(Number(key));
+      if(outcome?.picture){pictures.push(outcome.picture);return pictureSlot(pictures.length-1);}
+      text=`${text} ${outcome?.text??''}`;return outcome?.html??'';
+    });
+    block.text=compact(text);
+    if(pictures.length)block.pictures=pictures;else delete block.pictures;
+  }
+}
+/**
+ * Takes out of `assets` the pictures no block uses, and returns them: a picture whose place in the page was lost on
+ * the way would make SharePoint refuse the whole send, so it is left out and named with the pictures not copied.
+ */
+export function withoutUnplaced(blocks,assets) {
+  const used=new Set(blocks.flatMap(block=>block.type==='image'?[block.assetId]:(block.pictures??[]).map(picture=>picture.assetId)));
+  const unplaced=assets.filter(asset=>!used.has(asset.id));
+  for(const asset of unplaced)assets.splice(assets.indexOf(asset),1);
+  return unplaced;
+}
+/** The note on pictures left out by withoutUnplaced, by their file names where known. */
+export const unplacedNote=names=>{
+  const known=names.filter(Boolean);
+  return names.length===1?`A picture${known.length?` (${known[0]})`:''} was left out, because its place in the page was lost. Add it in SharePoint if it is needed.`
+    :`${names.length} pictures${known.length?` (${inWords(known)})`:''} were left out, because their places in the page were lost. Add them in SharePoint if they are needed.`;
+};
+// Two text blocks as one, their pictures numbered in order.
+function joinText(first,second) {
+  const offset=first.pictures?.length??0,pictures=[...(first.pictures??[]),...(second.pictures??[])];
+  const html=second.html.replace(SLOT,(slot,index)=>pictureSlot(Number(index)+offset));
+  return {...first,html:first.html+html,text:compact(`${first.text} ${second.text}`),...(pictures.length?{pictures}:{})};
+}
+
+// The most blocks (runs of text, pictures and dividers) SharePoint page assembly places on one page (serializeCanvas in canvas.js).
+export const MAX_BLOCKS=2000;
+const TOO_MANY_BLOCKS='This page has more than the 2,000 parts (pictures, dividers and the runs of text between them) the extension places on one SharePoint page. Split it into shorter pages in Confluence and capture each.';
+/**
+ * Fits a capture's blocks into one SharePoint page: past MAX_BLOCKS, each divider becomes the line of text a
+ * rule inside text is, joined with the text around it in its column. `warn` records the note; a page still
+ * too long stops capture.
+ */
+export function fitBlocks(blocks,warn) {
+  if(blocks.length<=MAX_BLOCKS)return;
+  const samePlace=(a,b)=>a===b||Boolean(a&&b&&a.id===b.id&&a.column===b.column),fitted=[];
+  for(const block of blocks) {
+    const part=block.type==='divider'?{type:'text',html:`<p>${RULE_TEXT}</p>`,text:RULE_TEXT,...(block.section?{section:block.section}:{})}:block,last=fitted.at(-1);
+    if(part.type==='text'&&last?.type==='text'&&samePlace(last.section,part.section))fitted[fitted.length-1]=joinText(last,part);
+    else fitted.push(part);
+  }
+  blocks.splice(0,blocks.length,...fitted.map((block,index)=>({...block,id:`block-${index+1}`})));
+  warn('dividers-as-text','This page has more parts than the extension places on one SharePoint page (2,000 pictures, dividers and runs of text between them), so its dividers became lines of text.');
+  if(blocks.length>MAX_BLOCKS)throw Object.assign(new Error(TOO_MANY_BLOCKS),{code:'capture-limit'});
+}
 // SharePoint sections have one column, two (halves, or a third beside two
 // thirds) or three equal columns, measured in twelfths. A Confluence layout
 // gets the nearest; one with more columns is split into rows of up to three.

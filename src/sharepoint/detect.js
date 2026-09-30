@@ -28,7 +28,7 @@ const NO_SITE='This address is not inside a site that could be identified. Visit
 const PAGES_PROBLEMS={
   'no-pages':'This SharePoint site does not have one Site Pages library for new pages. Choose another site.',
   'no-permission':'Your account cannot add and edit pages in this SharePoint site. Choose a site where you can create pages.',
-  'no-drafts':'This site’s Site Pages library does not keep draft versions, so a new page could not stay unpublished. Ask a site owner to turn on major and minor versions, or choose another site.'
+  'no-drafts':'This site’s Site Pages library does not keep draft versions, so nothing can be sent here as an unpublished draft. Ask a site owner to turn on major and minor versions, or choose another site.'
 };
 
 const same=(a,b)=>a.toLowerCase()===b.toLowerCase();

@@ -2,23 +2,45 @@
 // session and answered by the page's own origin.
 import {inventoryAdf} from './features.js';
 import {listedAttachment,sha256,fail} from './images.js';
-import {badMetadata,compact} from './html.js';
+import {badMetadata,compact,macroName,oneLine} from './html.js';
 
+// A request that receives nothing for this long has failed.
 const REQUEST_TIMEOUT_MS=10_000;
+// The most of one answer capture reads. It only protects the tab's memory: the answer, the stored document it
+// carries and that document read are all held at once, several times the answer's size in all.
+const MAX_ANSWER_BYTES=64*1024*1024;
+const TOO_LARGE='Confluence returned more page metadata than capture can hold.';
 // Macro bodies, whose text Confluence may show elsewhere than the page, and the places named when page text is missing.
 const MACRO_BODIES=new Set(['bodiedExtension','multiBodiedExtension','extensionFrame','bodiedSyncBlock','syncBlock']);
 const PLACES={table:'a table',expand:'an expand section',nestedExpand:'an expand section',panel:'a panel',codeBlock:'a code block',
   layoutSection:'a column layout',blockquote:'a quote',taskList:'a task list',decisionList:'a decision list',bulletList:'a list',orderedList:'a list'};
-// A macro by the name its app gives it (Forge, then Connect and Confluence's own), never by its content.
-function macroName(node){
-  if(node.type==='bodiedSyncBlock'||node.type==='syncBlock')return 'a synced block';
-  const title=[node.attrs?.parameters?.extensionTitle,node.attrs?.parameters?.macroMetadata?.title,node.attrs?.text].find(value=>typeof value==='string'&&compact(value));
-  return title&&compact(title).length<=60&&!badMetadata(title)?`the “${compact(title)}” macro`:'a Confluence macro';
+
+// An answer's text, read as it arrives up to MAX_ANSWER_BYTES; `received` is called as each part arrives.
+async function answerText(response,received) {
+  if(!response.body?.getReader) {
+    const text=await response.text();
+    if(text.length>MAX_ANSWER_BYTES)fail('metadata-too-large',TOO_LARGE);
+    return text;
+  }
+  const reader=response.body.getReader(),decoder=new TextDecoder();let size=0,text='';
+  try {
+    while(true) {
+      const {done,value}=await reader.read();if(done)break;
+      received();size+=value.byteLength;
+      if(size>MAX_ANSWER_BYTES)fail('metadata-too-large',TOO_LARGE);
+      text+=decoder.decode(value,{stream:true});
+    }
+  } catch(error) { try { await reader.cancel(); } catch {} throw error; }
+  finally { reader.releaseLock(); }
+  return text+decoder.decode();
 }
 
 // With `optional`, a resource Confluence reports as not found reads as null.
 export async function readJson(address,info,fetchImpl,problem,{optional=false}={}) {
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT_MS);
+  const controller=new AbortController();let timer;
+  // A large answer takes as long as it takes to arrive; only one that stops arriving fails.
+  const waiting=()=>{clearTimeout(timer);timer=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT_MS);};
+  waiting();
   try {
     let response;
     try { response=await fetchImpl(address,{credentials:'include',headers:{Accept:'application/json'},redirect:'error',cache:'no-store',signal:controller.signal}); }
@@ -27,10 +49,9 @@ export async function readJson(address,info,fetchImpl,problem,{optional=false}={
     if(!response?.ok||response.redirected||response.url&&new URL(response.url).origin!==info.origin||!/application\/json/i.test(response.headers.get('Content-Type')||'')) {
       fail('metadata-fetch-failed',problem);
     }
-    if(Number(response.headers.get('Content-Length'))>1_000_000)fail('metadata-invalid','Confluence returned oversized page metadata.');
+    if(Number(response.headers.get('Content-Length'))>MAX_ANSWER_BYTES)fail('metadata-too-large',TOO_LARGE);
     let text;
-    try { text=await response.text(); } catch { fail('metadata-fetch-failed',problem); }
-    if(text.length>1_000_000)fail('metadata-invalid','Confluence returned oversized page metadata.');
+    try { text=await answerText(response,waiting); } catch(error) { if(error?.code==='metadata-too-large')throw error;fail('metadata-fetch-failed',problem); }
     try{return JSON.parse(text)}catch{fail('metadata-invalid','Confluence returned invalid page metadata.');}
   } finally { clearTimeout(timer); }
 }
@@ -47,7 +68,15 @@ export async function readSourceMetadata(info,fetchImpl) {
   const problem='Confluence page author and update metadata could not be read.';
   // Only a page Confluence reports having no draft of is read as published: a draft that cannot be read
   // stops capture rather than copying a version the editor does not show.
-  const data=info.editing&&await readJson(`${address}?status=draft&${expand}`,info,fetchImpl,problem,{optional:true})||await readJson(`${address}?${expand}`,info,fetchImpl,problem);
+  let data,unchecked=false;
+  try { data=info.editing&&await readJson(`${address}?status=draft&${expand}`,info,fetchImpl,problem,{optional:true})||await readJson(`${address}?${expand}`,info,fetchImpl,problem); }
+  catch(error) {
+    if(error?.code!=='metadata-too-large')throw error;
+    // A live doc or a page in the editor is copied from its stored copy, so one too large to hold stops capture.
+    if(info.live||info.editing)fail('capture-limit',`This Confluence ${info.live?'live doc':'page'}’s stored copy is larger than capture can hold (64 MB).`);
+    // The reading view is copied from the page: it is read without the checks its stored copy allows (`unchecked`).
+    data=await readJson(`${address}?expand=history,version`,info,fetchImpl,problem);unchecked=true;
+  }
   // A draft never published names no creator: the author of its version wrote it.
   const author=data?.history?.createdBy??data?.version?.by,updated=data?.version?.when,version=data?.version?.number;
   const displayName=compact(author?.displayName),email=compact(author?.email);
@@ -55,25 +84,30 @@ export async function readSourceMetadata(info,fetchImpl) {
      email&&(email.length>254||badMetadata(email)||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))||
      typeof updated!=='string'||updated.length>40||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(updated)||!Number.isFinite(Date.parse(updated))||
      !Number.isSafeInteger(version)||version<1) fail('metadata-invalid','Confluence page author or update metadata is incomplete.');
-  let expectedMediaCount=null,featureInventory=null,expectedText=[],macroText=[],adf=null;const externalPictures=new Set(),textPlaces=new Map();
+  let expectedMediaCount=null,featureInventory=null,expectedText=[],macroText=[],adf=null;const externalPictures=new Set(),textPlaces=new Map(),mediaContexts=new Set(),mediaFiles=new Set();
   const adfValue=data?.body?.atlas_doc_format?.value;
   if(adfValue!==undefined) {
-    if(typeof adfValue!=='string'||adfValue.length>800_000)fail('metadata-invalid','Confluence returned invalid page structure metadata.');
+    // Its size is bounded by the answer's (MAX_ANSWER_BYTES), its depth by inventoryAdf.
+    if(typeof adfValue!=='string')fail('metadata-invalid','Confluence returned invalid page structure metadata.');
     try{adf=JSON.parse(adfValue)}catch{fail('metadata-invalid','Confluence returned invalid page structure metadata.');}
     if(adf?.type!=='doc'||!Array.isArray(adf.content))fail('metadata-invalid','Confluence returned invalid page structure metadata.');
     featureInventory=inventoryAdf(adf);
-    expectedMediaCount=0;let nodeCount=0;
+    expectedMediaCount=0;
     // Page text Confluence shows is expected in the capture, with the kind of place it sits in. Text in a
     // macro's body is kept apart: apps draw their macros in frames of their own, a tabs macro shows one
     // tab and a synced block shows its source's text, so that text may never appear as page text.
     const visit=(node,place=null,macro=null)=>{
-      if(!node||typeof node!=='object'||Array.isArray(node)||++nodeCount>100_000)fail('metadata-invalid','Confluence returned invalid page structure metadata.');
+      if(!node||typeof node!=='object'||Array.isArray(node))fail('metadata-invalid','Confluence returned invalid page structure metadata.');
       if(node.type==='mediaSingle')expectedMediaCount++;
       if(node.type==='media'&&node.attrs?.type==='external'&&typeof node.attrs.url==='string')try{externalPictures.add(new URL(node.attrs.url,info.pageUrl).href)}catch{/* Not an address. */}
+      // The files the page shows, and the pages holding them: its own, and any other a picture was stored from.
+      if(node.type==='media'&&typeof node.attrs?.id==='string')mediaFiles.add(node.attrs.id.toLowerCase());
+      const context=node.type==='media'?/^contentId-(\d{1,20})$/.exec(node.attrs?.collection??'')?.[1]:null;if(context)mediaContexts.add(context);
       // An expand's title is an attribute, not a text node, and is shown like text.
       const shown=node.type==='text'?node.text:(node.type==='expand'||node.type==='nestedExpand')?node.attrs?.title:null;
-      if(typeof shown==='string'&&compact(shown).length>=8){
-        const value=compact(shown);
+      // As capture keeps it: without the control characters SharePoint text refuses.
+      if(typeof shown==='string'&&oneLine(shown).length>=8){
+        const value=oneLine(shown);
         if(macro)macroText.push({value,macro});
         else{expectedText.push(value);if(!textPlaces.has(value))textPlaces.set(value,node.type==='text'?place??'the body of the page':PLACES[node.type]);}
       }
@@ -87,7 +121,13 @@ export async function readSourceMetadata(info,fetchImpl) {
     if(expectedMediaCount>2000)fail('capture-limit','This Confluence page contains too many images to capture safely.');
   }
   return {sourceMetadata:{author:{displayName,email:email||null},lastUpdatedAt:updated,version},expectedMediaCount,featureInventory,expectedText:[...new Set(expectedText)],macroText,textPlaces,
-    externalPictures,adf,title:compact(data?.title)};
+    externalPictures,mediaContexts,mediaFiles,adf,unchecked,title:compact(data?.title)};
+}
+
+/** The page's version number now, to tell a page that changed during capture from one that did not. */
+export async function readVersion(info,fetchImpl) {
+  const data=await readJson(`${info.baseUrl}/rest/api/content/${encodeURIComponent(info.pageId)}?expand=version`,info,fetchImpl,'Confluence page update metadata could not be read.');
+  return data?.version?.number;
 }
 
 /**

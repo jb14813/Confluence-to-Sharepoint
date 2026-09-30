@@ -4,16 +4,17 @@
 // documented page format, instead of from rendered markup:
 // https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/
 // Output follows the same markup conventions as the reading-view capture.
-import {HEADER_BACKGROUND,NUMBER_COLOR,NUMBER_COLUMN_WIDTH,PANEL_COLORS,SAFE_PANEL_COLOR,RULE_TEXT,badMetadata,codeBlockHtml,compact,dateHtml,drawsSomething,emojiHtml,mentionHtml,emojiText,escape,headingSlug,inlineText,inlineCodeHtml,panelHtml,panelIcon,sharePointColumns,standardPanelIcon,statusHtml,taskIndent,taskMarkHtml} from './html.js';
+import {HEADER_BACKGROUND,NUMBER_COLOR,NUMBER_COLUMN_WIDTH,PANEL_COLORS,SAFE_PANEL_COLOR,RULE_TEXT,badMetadata,clean,codeBlockHtml,compact,dateHtml,drawsSomething,emojiHtml,mentionHtml,emojiText,escape,headingSlug,inlineText,inlineCodeHtml,macroName,macroTitle,namesInSentence,panelHtml,panelIcon,pictureMarker,pictureShare,pictureSlot,sharePointColumns,standardPanelIcon,statusHtml,taskIndent,taskMarkHtml} from './html.js';
 import {emojiName,omittedEmojiNote} from './emoji.js';
 import {drawnBackground,drawnHighlight,drawnTextColor} from './palette.js';
-import {isPicture} from './images.js';
+import {isPicture,lossReason,pictureFileName} from './images.js';
 import {NBSP,displayedText} from './whitespace.js';
-import {roadmapHtml,roadmapSource} from './roadmap.js';
+import {LIST_CONTINUED,cutList,listPictures,numberingStyle} from './lists.js';
+import {roadmapCutNote,roadmapHtml,roadmapSource} from './roadmap.js';
 
 const EMPTY=Object.freeze({html:'',text:''});
 // Confluence's default content width, which pixel-sized pictures are measured against.
-const CONTENT_WIDTH=760;
+export const CONTENT_WIDTH=760;
 // The space between Confluence's layout columns: in a 760 px page, thirds are 221 px wide and halves 356 px (measured).
 const COLUMN_GAP=48;
 const ALIGN={center:'center',end:'right',right:'right',start:'left',left:'left',justify:'justify'};
@@ -22,11 +23,9 @@ const dateFormat=new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',ye
 const dateText=value=>{const date=new Date(Number(value));return Number.isFinite(date.getTime())?dateFormat.format(date):'';};
 const children=node=>Array.isArray(node?.content)?node.content:[];
 const isToc=node=>node?.type==='extension'&&node.attrs?.extensionKey==='toc';
-const NESTED_LINKED='A picture inside a table, panel, list, or column became a link to its file, because capture places pictures only as their own SharePoint image controls.';
+const NESTED_LINKED='A picture inside a table, panel, quote or list became a link to its file, because capture could not place it there as a picture.';
 const FORMAT_LINKED='A picture in a format other than PNG, JPEG, GIF, WebP or SVG became a link to its Confluence attachment.';
 const EXTERNAL_LINKED='A picture shown from another website became a link to it, because it could not be copied from that website.';
-// SharePoint text accepts tabs and line breaks but no other control characters.
-const clean=value=>typeof value==='string'?value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g,''):'';
 
 const emojiOf=node=>({text:clean(node.attrs?.text),id:node.attrs?.id,shortName:clean(node.attrs?.shortName)});
 /** Visible text of a node, as the reader sees it. */
@@ -53,7 +52,7 @@ const withoutTocLabels=nodes=>nodes.filter((node,index)=>!(node?.type==='paragra
  * @param {string} options.pageUrl Page address, for resolving relative links.
  * @param {(fileId:string)=>({name:string,mime:string,url:string}|null)} options.attachment The page attachment holding a media file.
  * @param {(code:string,message:string,lost?:boolean)=>void} options.warn Records a conversion note once per code; `lost` marks content left out.
- * @returns {{parts:Array<{kind:'html',html:string,text:string}|{kind:'divider'}|{kind:'image',fileId?:string,url?:string,link?:{html:string,text:string},alt:string,caption:string,widthRatio:number,displayWidth?:number}>,headings:Array<{id:string,level:number,text:string}>,stats:object}}
+ * @returns {{parts:Array<{kind:'html',html:string,text:string}|{kind:'divider'}|{kind:'image',fileId?:string,url?:string,link?:{html:string,text:string},alt:string,caption:string,widthRatio:number,displayWidth?:number}>,headings:Array<{id:string,level:number,text:string}>,stats:object,lostPictures:Array<{name:string|null,reason:string}>}}
  */
 export function convertAdf(doc,{pageUrl,attachment,warn}){
   if(doc?.type!=='doc'||!Array.isArray(doc.content))throw Object.assign(new Error('Confluence returned an invalid page document.'),{code:'metadata-invalid'});
@@ -61,7 +60,16 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
   const headings=[],headingIds=new Map(),used=new Set();
   // Custom emoji no standard emoji is similar to, by name (emojiName), for one note.
   const omittedEmoji=[];
-  let cellDepth=0;
+  // Pictures marked as not copied ({name, reason}), for the note the capture writes with its own.
+  const lostPictures=[];
+  // Macros and synced blocks left out, by name (macroName), for one note, and mentions without a stored name.
+  const omittedMacros=[];let unnamedMentions=0;
+  let cellDepth=0,panelDepth=0,quoteDepth=0;
+  // Pictures kept in table cells, panels and quotes, by the key of their slot, and the room each cell being read has, in
+  // Confluence's pixels: its stored column widths, else its share of the room its table has.
+  const slotted=[],cellRooms=[];
+  // The room a picture has in the text being read: its cell's, else its page column's, else the page's.
+  const roomHere=()=>cellRooms.at(-1)??columnWidth??CONTENT_WIDTH;
 
   // Heading anchors first, so internal links can point at any heading.
   (function collect(nodes){
@@ -98,6 +106,8 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
   }
   const alignStyle=node=>{const value=node.marks?.find(mark=>mark?.type==='alignment')?.attrs?.align,align=Object.hasOwn(ALIGN,value??'')?ALIGN[value]:null;return align?` style="text-align:${align}"`:'';};
   const listStyle=()=>cellDepth?' style="overflow:visible"':'';
+  // Numbering may start at 0, as a list continuing a count can.
+  const listOrder=node=>Number.isInteger(node.attrs?.order)&&node.attrs.order>=0&&node.attrs.order<10_000_000?node.attrs.order:1;
   const link=(href,label)=>href?`<a href="${escape(href)}">${escape(label)}</a>`:escape(label);
 
   // `lines` are the pieces the text is drawn in (whitespace.js), null for a line break.
@@ -148,14 +158,18 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
       case 'placeholder':return EMPTY;
       case 'status':{const label=compact(plain(node));return label?{html:statusHtml(label,node.attrs?.color),text:label}:EMPTY;}
       case 'date':{const label=plain(node);return label?{html:dateHtml(label),text:label}:EMPTY;}
-      case 'mention':{const label=compact(plain(node));return label?{html:mentionHtml(label),text:label}:EMPTY;}
+      case 'mention':{
+        const label=compact(plain(node));if(label)return {html:mentionHtml(label),text:label};
+        // A mention whose name the page does not store keeps its place as "@", and is noted.
+        unnamedMentions++;return {html:mentionHtml('@'),text:'@'};
+      }
       case 'inlineCard':{const href=safeHref(node.attrs?.url);return href?{html:link(href,href),text:href}:EMPTY;}
       case 'mediaInline':{
         warn('inline-media-simplified','An inline Confluence file or media item was retained as concise editable text when a useful label was available.');
         const file=typeof node.attrs?.id==='string'?attachment(node.attrs.id):null;
         return file?{html:link(file.url,file.name),text:file.name}:EMPTY;
       }
-      case 'inlineExtension':return omittedMacro(node);
+      case 'inlineExtension':return omittedMacro(node,true);
       default:
         warn('unknown-adf-feature','Unrecognized future Confluence features were captured from their visible static content where possible.');
         return node?.content?inline(children(node)):words(clean(node?.attrs?.text),before,after);
@@ -167,10 +181,14 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
     for(const node of withoutTocLabels(nodes)){const part=block(node);html+=part.html;value+=` ${part.text} `;}
     return {html,text:value};
   }
-  function omittedMacro(node){
-    if(isToc(node))warn('toc-omitted','The Confluence table of contents was omitted because its links do not become a functional SharePoint table of contents.');
-    else warn('macro-omitted','A Confluence macro was omitted because the page stores only its settings, not its displayed content. Add an equivalent in SharePoint if needed.');
-    return EMPTY;
+  // A macro or synced block whose content the page does not store is marked where it was (inline, within a
+  // line of text) and named in one note; a table of contents is left out, as is an anchor, which draws nothing.
+  function omittedMacro(node,inline=false){
+    if(isToc(node)){warn('toc-omitted','The Confluence table of contents was omitted because its links do not become a functional SharePoint table of contents.');return EMPTY;}
+    if(node?.attrs?.extensionKey==='anchor')return EMPTY;
+    omittedMacros.push(macroName(node));
+    const title=macroTitle(node),label=node?.type==='syncBlock'?'[Synced block not copied]':`[Macro not copied${title?`: ${title}`:''}]`;
+    return inline?{html:escape(label),text:label}:{html:`<p>${escape(label)}</p>`,text:label};
   }
   function listItems(list,counter){
     let html='',value='';
@@ -217,7 +235,8 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
   // Pictures and files that cannot become SharePoint Image controls link to
   // their source instead, followed by any caption; `note` explains why, given
   // the Confluence attachment or, for a picture from another website, `{external}`.
-  function mediaLinks(node,note){
+  // A picture (`picture`, a mediaSingle's) whose attachment is not found is marked where it was.
+  function mediaLinks(node,note,picture=false){
     let html='',value='';
     for(const media of children(node).filter(child=>child?.type==='media')){
       let href=null,label=compact(clean(media.attrs?.alt));
@@ -226,7 +245,12 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
       }else{
         const file=typeof media.attrs?.id==='string'?attachment(media.attrs.id):null;
         if(file){href=file.url;label=file.name;note(file);}
-        else warn('missing-attachment','A picture or file whose Confluence attachment could not be found was left out; its description was kept when it had one.');
+        else if(picture){
+          // Named by its description, the nearest to a name the stored page gives it.
+          const name=pictureFileName(label),marker=pictureMarker(name,null);
+          lostPictures.push({name,reason:lossReason({code:'invalid-attachment'})});html+=marker.html;value+=marker.text;continue;
+        }
+        else warn('missing-attachment','A file in an attachment group was not copied, because its Confluence attachment could not be found; its description was kept when it had one. Add it in SharePoint if it is needed.',true);
       }
       if(label){html+=`<p>${link(href,label)}</p>`;value+=` ${label} `;}
     }
@@ -234,6 +258,8 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
     if(caption){html+=`<p>${escape(caption)}</p>`;value+=` ${caption} `;}
     return {html,text:value};
   }
+  // Why a picture capture cannot copy became a link: the website it is shown from, or its format.
+  const unplaced=file=>'external' in file?warn('external-image-linked',EXTERNAL_LINKED):warn('image-format-linked',FORMAT_LINKED);
   function table(node){
     const rows=children(node).filter(row=>row?.type==='tableRow');
     const cellsOf=row=>children(row).filter(cell=>cell?.type==='tableHeader'||cell?.type==='tableCell');
@@ -252,6 +278,8 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         if(macroOnly>=0&&TOC_LABEL.test(compact(plain(cells[1-macroOnly])))){omittedMacro(children(cells[macroOnly]).find(isToc));continue;}
       }
       const widths=cells.map(widthOf),total=widths.every(width=>width!==null)?widths.reduce((sum,width)=>sum+width,numbered?NUMBER_COLUMN_WIDTH:0):0;
+      // Without stored widths a row's columns share the room the table has, by how many each cell spans.
+      const spans=cells.map(cell=>Number.isInteger(cell.attrs?.colspan)&&cell.attrs.colspan>1?cell.attrs.colspan:1),columns=spans.reduce((sum,span)=>sum+span,0)||1,tableRoom=roomHere();
       if(total)warn('table-width-review','Table text, cell formatting, and source column proportions were captured; review responsive widths in SharePoint.');
       let cellsHtml='';
       if(numbered&&cells.length){
@@ -269,7 +297,7 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         // Confluence draws a cell's content from its top (measured); SharePoint centers it unless told.
         styles.push('vertical-align:top');
         attributes.push(`style="${styles.join(';')}"`);
-        cellDepth++;const part=blocks(children(cell));cellDepth--;
+        cellDepth++;cellRooms.push(widths[index]??tableRoom*spans[index]/columns);const part=blocks(children(cell));cellRooms.pop();cellDepth--;
         const tag=header?'th':'td';
         cellsHtml+=`<${tag}${attributes.length?' '+attributes.join(' '):''}>${part.html}</${tag}>`;
         value+=` ${part.text} `;
@@ -294,9 +322,8 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
       }
       case 'bulletList':{const part=listItems(node,'bullets');return part.html?{html:`<ul${listStyle()}>${part.html}</ul>`,text:part.text}:EMPTY;}
       case 'orderedList':{
-        const order=Number.isInteger(node.attrs?.order)&&node.attrs.order>1&&node.attrs.order<10_000_000?node.attrs.order:1;
-        const part=listItems(node,'numbered');
-        return part.html?{html:`<ol${order>1?` start="${order}"`:''}${listStyle()}>${part.html}</ol>`,text:part.text}:EMPTY;
+        const order=listOrder(node),part=listItems(node,'numbered');
+        return part.html?{html:`<ol${order!==1?` start="${order}"`:''}${listStyle()}>${part.html}</ol>`,text:part.text}:EMPTY;
       }
       case 'taskList':case 'decisionList':{
         const lines=checklistLines(node,0);
@@ -311,11 +338,11 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         }
         const part=checklist(node);return part.html?{html:`<ul${listStyle()}>${part.html}</ul>`,text:part.text}:EMPTY;
       }
-      case 'blockquote':{const part=blocks(children(node));return part.html?{html:`<blockquote>${part.html}</blockquote>`,text:part.text}:EMPTY;}
+      case 'blockquote':{quoteDepth++;const part=blocks(children(node));quoteDepth--;return part.html?{html:`<blockquote>${part.html}</blockquote>`,text:part.text}:EMPTY;}
       case 'codeBlock':{const code=children(node).map(child=>clean(child?.text)).join('');return {html:codeBlockHtml(code),text:code};}
       case 'rule':return {html:`<p>${RULE_TEXT}</p>`,text:RULE_TEXT};
       case 'panel':{
-        const type=node.attrs?.panelType,part=blocks(children(node));
+        panelDepth++;const type=node.attrs?.panelType,part=blocks(children(node));panelDepth--;
         // An empty panel is still drawn: its color and icon, one line tall.
         let html=drawsSomething(part.html,part.text)?part.html:`<p>${NBSP}</p>`,value=part.text;
         const icon=type==='custom'?panelIcon({text:node.attrs?.panelIconText,id:node.attrs?.panelIconId,shortName:node.attrs?.panelIcon}):standardPanelIcon(type);
@@ -342,7 +369,7 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         let html='',value='';
         cellDepth++;
         for(const column of columns){
-          const width=Number(column.attrs?.width),part=blocks(children(column));
+          const width=Number(column.attrs?.width);cellRooms.push(roomHere()*(width>0&&width<100?width/100:1/columns.length));const part=blocks(children(column));cellRooms.pop();
           html+=`<td style="${width>0&&width<100?`width:${Math.round(width*10_000)/10_000}%;`:''}vertical-align:top">${part.html}</td>`;value+=` ${part.text} `;
         }
         cellDepth--;
@@ -354,6 +381,7 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         const table=node.type==='extension'&&node.attrs?.extensionKey==='roadmap'?roadmapHtml(roadmapSource(node.attrs?.parameters?.macroParams)):null;
         if(!table)return omittedMacro(node);
         warn('roadmap-table','A Confluence roadmap became a table: its months as columns and each lane’s bars in the months they cover.');
+        const cut=roadmapCutNote(table.cut);if(cut)warn('roadmap-cut',cut,true);
         stats.tables++;
         return table;
       }
@@ -369,8 +397,15 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
       case 'mediaGroup':
         return mediaLinks(node,()=>warn('media-group-simplified','A Confluence attachment group was preserved as ordinary authenticated file links. Card controls and dates were omitted.'));
       // Reached only inside text: `flow` places or links pictures in the page flow.
-      case 'mediaSingle':
-        return mediaLinks(node,file=>'external' in file||isPicture(file.mime)?warn('nested-image-linked',NESTED_LINKED):warn('image-format-linked',FORMAT_LINKED));
+      case 'mediaSingle':{
+        // In a table cell, a panel or a quote, a picture capture can place stays there, as SharePoint's own inline
+        // picture: a slot here, its file copied with the page's pictures (stored.js). Otherwise it is a link, its note
+        // saying why: where it is, or, as in the page's flow, where it is shown from or its format.
+        const kept=cellDepth||panelDepth||quoteDepth?inlinePicture(node):null;
+        if(kept){slotted.push(kept);return {html:pictureSlot(slotted.length-1),text:''};}
+        const placeable=pictureSource(node).placeable;
+        return mediaLinks(node,file=>placeable?warn('nested-image-linked',NESTED_LINKED):unplaced(file),true);
+      }
       default:
         warn('unknown-adf-feature','Unrecognized future Confluence features were captured from their visible static content where possible.');
         return node?.content?blocks(children(node)):EMPTY;
@@ -380,11 +415,33 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
   // reading-view capture. Null leaves it to be linked by `block`. A picture
   // shown from another website carries its address, and the link that
   // replaces it if that website does not let capture copy it.
-  function picture(node){
+  // What a picture shows: its media, and its file or its (made safe) address on another website; placeable when capture
+  // can make it a picture part: a picture file, or an address over https.
+  function pictureSource(node){
     const media=children(node).find(child=>child?.type==='media');
     const file=media?.attrs?.type==='file'&&typeof media.attrs.id==='string'?attachment(media.attrs.id):null;
     const external=media?.attrs?.type==='external'?safeHref(media.attrs.url):null;
-    if(!external?.startsWith('https:')&&(!file||!isPicture(file.mime)))return null;
+    return {media,file,external,placeable:Boolean(external?.startsWith('https:')||file&&isPicture(file.mime))};
+  }
+  // A picture kept in a table cell, panel or quote, to be copied with the page's pictures: its file or address, its text,
+  // the width Confluence shows it at and that share of the room it has (null when only its file tells), and that room.
+  function inlinePicture(node){
+    const {media,file,external,placeable}=pictureSource(node);
+    if(!placeable)return null;
+    const alt=Array.from(compact(clean(media.attrs.alt))).slice(0,1000).join(''),caption=compact(plain(children(node).find(child=>child?.type==='caption'))).slice(0,1000);
+    if(file&&!alt)warn('missing-alt','Some images have no authored alternative text. Review their captions and add alternative text in SharePoint.');
+    const width=Number(node.attrs?.width),room=roomHere();
+    const href=safeHref(media.marks?.find(mark=>mark?.type==='link')?.attrs?.href);
+    // The width Confluence shows it at, no wider than the room it has: set in pixels, or as a share of that room; with
+    // none, its file's own, once copied (stored.js). SharePoint shows it at that share of the room it gives (html.js).
+    const displayWidth=width>0?Math.max(1,Math.round(Math.min(room,node.attrs?.widthType==='pixel'?width:width<=100?width/100*room:room))):null;
+    return {...(file?{fileId:media.attrs.id}:{url:external,link:{html:`<p>${link(external,alt||external)}</p>${caption?`<p>${escape(caption)}</p>`:''}`,text:compact(`${alt||external} ${caption}`)}}),
+      alt,caption,displayWidth,share:displayWidth?pictureShare(displayWidth,room/CONTENT_WIDTH):null,room,
+      ...(href&&/^https?:/i.test(href)?{href}:{})};
+  }
+  function picture(node){
+    const {media,file,external,placeable}=pictureSource(node);
+    if(!placeable)return null;
     const alt=Array.from(compact(clean(media.attrs.alt))).slice(0,1000).join(''),caption=compact(plain(children(node).find(child=>child?.type==='caption')));
     const notes=[];
     if(media.marks?.some(mark=>mark?.type==='border'))notes.push(['media-border-simplified','A Confluence media border was simplified because SharePoint image controls do not preserve that border style.']);
@@ -398,7 +455,9 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
     const set=node.attrs?.widthType==='pixel'&&width>0?Math.round(width):width>0&&width<=100?Math.round(width/100*CONTENT_WIDTH):null;
     const displayWidth=set&&columnWidth?Math.min(set,columnWidth):set;
     const source=file?{fileId:media.attrs.id}:{url:external,link:{html:`<p>${link(external,alt||external)}</p>${caption?`<p>${escape(caption)}</p>`:''}`,text:compact(`${alt||external} ${caption}`)},notes};
-    return {kind:'image',...source,alt,caption:caption.length<=1000?caption:'',widthRatio,...(displayWidth?{displayWidth}:{})};
+    // The picture's own link, kept on its Image web part when it is a web address.
+    const href=safeHref(media.marks?.find(mark=>mark?.type==='link')?.attrs?.href);
+    return {kind:'image',...source,alt,caption:caption.length<=1000?caption:'',widthRatio,...(displayWidth?{displayWidth}:{}),...(href&&/^https?:/i.test(href)?{href}:{})};
   }
 
   // `place` is the SharePoint section column the parts being read go in ({id, factors, column}), as in the reading-view capture.
@@ -414,16 +473,46 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
     pending.text+=` ${part.text} `;
     afterList=/^<(?:ul|ol)[\s>]/.test(part.html);
   };
+  const placePicture=node=>{
+    const image=picture(node);
+    if(image){flush();parts.push({...image,...placed()});afterList=false;}
+    // A picture capture cannot place: another format, or an address that is not secure.
+    else append(mediaLinks(node,unplaced,true),node.type);
+  };
+  // A list with pictures in its steps is cut at them (lists.js), as the reading-view capture cuts it; a picture
+  // `picture` cannot place stays in its step as a link.
+  const listItemsOf=node=>children(node).filter(item=>item?.type==='listItem');
+  const lists={
+    list:node=>node?.type==='orderedList'?{ordered:true,start:listOrder(node),items:listItemsOf(node)}:node?.type==='bulletList'?{ordered:false,start:1,items:listItemsOf(node)}:null,
+    children:item=>withoutTocLabels(children(item)),
+    isPicture:node=>node?.type==='mediaSingle'&&pictureSource(node).placeable,
+    inline:()=>false,
+    render:node=>block(node),
+    open(node,{start,fresh,depth}){
+      const ordered=node.type==='orderedList',from=fresh?listOrder(node):start,style=depth?` style="list-style-type:${numberingStyle(ordered,depth)}"`:'';
+      // SharePoint takes a start of at most seven digits; past it the piece restarts.
+      if(from>9_999_999)warn('list-simplified','A list’s unusual numbering was replaced with standard numbering; check it in SharePoint.');
+      return ordered?`<ol${from!==1&&from<=9_999_999?` start="${from}"`:''}${style}>`:`<ul${style}>`;
+    },
+    counted:list=>{stats[list.ordered?'numbered':'bullets']++;},
+  };
   (function flow(nodes){
     for(const node of withoutTocLabels(nodes)){
       // A rule in the page's flow is SharePoint's Divider; inside text (`block`) it stays a line of text.
       if(node?.type==='rule'){flush();parts.push({kind:'divider',...placed()});afterList=false;continue;}
-      if(node?.type==='mediaSingle'){
-        const image=picture(node);
-        if(image){flush();parts.push({...image,...placed()});afterList=false;}
-        // A picture capture cannot place: another format, or an address that is not secure.
-        else append(mediaLinks(node,file=>'external' in file?warn('external-image-linked',EXTERNAL_LINKED):warn('image-format-linked',FORMAT_LINKED)),node.type);
+      if(node?.type==='mediaSingle'){placePicture(node);continue;}
+      if(listPictures(node,lists)){
+        for(const piece of cutList(node,lists)){
+          if(piece.kind==='picture'){placePicture(piece.node);continue;}
+          if(piece.continued)warn('list-steps-continued',LIST_CONTINUED);
+          append(piece,'list');afterList=/<\/(?:ul|ol)>$/.test(piece.html);
+        }
         continue;
+      }
+      // A macro's body, as an excerpt's, is in the page's flow, as the reading view shows it, so its pictures remain pictures.
+      if(['bodiedExtension','bodiedSyncBlock','extensionFrame','multiBodiedExtension'].includes(node?.type)){
+        if(node.type!=='multiBodiedExtension')warn('macro-static-content','Static visible macro content was retained. Live macro behavior was not copied.');
+        flow(children(node));continue;
       }
       // Expanded sections and single columns stay in the page flow, so their pictures remain pictures.
       if(node?.type==='expand'){
@@ -452,5 +541,9 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
   })(doc.content);
   flush();
   if(omittedEmoji.length)warn('emoji-omitted',omittedEmojiNote(omittedEmoji),true);
-  return {parts,headings,stats};
+  if(unnamedMentions)warn('mention-unnamed',unnamedMentions===1?'A mention whose name the page does not store was kept as “@”; add the person’s name in SharePoint.'
+    :`${unnamedMentions} mentions whose names the page does not store were kept as “@”; add the people’s names in SharePoint.`,true);
+  if(omittedMacros.length){const one=omittedMacros.length===1;
+    warn('macro-omitted',`${namesInSentence(omittedMacros)} ${one?'was':'were'} not copied, because the page does not store what ${one?'it shows':'they show'}. ${one?'It is':'Each is'} marked where it was in the draft; add ${one?'an equivalent':'equivalents'} in SharePoint if ${one?'it is':'they are'} needed.`,true);}
+  return {parts,headings,stats,lostPictures,inline:slotted};
 }
