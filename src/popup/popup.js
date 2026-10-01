@@ -16,17 +16,21 @@ function pageName(document,page,pages){
   const file=document.createElement('span');file.className='page-file';file.textContent=page.path.slice(page.path.lastIndexOf('/')+1);
   return [title,file];
 }
+// A path segment decoded; one that does not decode (a stray "%") as it is, so the others are still compared decoded.
+const segment=text=>{try{return decodeURIComponent(text);}catch{return text;}};
 // A page's place as tabs and remembered pages are compared: origin and decoded path, in lower case.
-function place(origin,path){try{return `${origin}${path.split('/').map(decodeURIComponent).join('/')}`.toLowerCase();}catch{return null;}}
-// The remembered site a tab's address belongs to, the most specific first; the tenant root only outside /sites/ and /teams/.
+const place=(origin,path)=>`${origin}${path.split('/').map(segment).join('/')}`.toLowerCase();
+const placePath=path=>place('',path);
+// The remembered site a tab's address belongs to, the longest decoded path first; the tenant root only outside /sites/ and /teams/.
+// Compared decoded: a site's remembered address escapes ( ) ' ! (detect.js siteUrlFor) that Chrome shows a tab's address with.
 function siteOfTab(sites,tabUrl){
   let url;try{url=new URL(tabUrl);}catch{return null;}
-  const path=url.pathname.toLowerCase();
-  return sites.filter(site=>{
-    let at;try{at=new URL(site.url);}catch{return false;}
-    const base=at.pathname.replace(/\/$/,'').toLowerCase();
-    return at.origin===url.origin&&(base?path===base||path.startsWith(`${base}/`):!/^\/(?:sites|teams)\//.test(path));
-  }).sort((a,b)=>b.url.length-a.url.length)[0]??null;
+  const path=placePath(url.pathname);
+  return sites.map(site=>{
+    let at;try{at=new URL(site.url);}catch{return null;}
+    const base=placePath(at.pathname.replace(/\/$/,''));
+    return at.origin===url.origin&&(base?path===base||path.startsWith(`${base}/`):!/^\/(?:sites|teams)\//.test(path))?{site,base}:null;
+  }).filter(Boolean).sort((a,b)=>b.base.length-a.base.length)[0]?.site??null;
 }
 
 export function createPopup({document=globalThis.document,chromeApi=globalThis.chrome,location=globalThis.location}={}){
@@ -248,7 +252,11 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
       }
       return entry;
     }));
-    el('sites-empty').hidden=sites.length>0;el('forget').hidden=!sites.length;
+    // Forget all is offered while this browser remembers a site or a sent page: the sent list can hold pages of sites no
+    // longer remembered (at most 30 are), or brought from the Confluence account.
+    const sent=(state.data?.links??[]).length>0;
+    el('sites-empty').hidden=sites.length>0;el('forget').hidden=!sites.length&&!sent;
+    el('sites-empty').textContent=`No sites yet. Visit a SharePoint site to add it.${sent?' This browser still remembers where you sent Confluence pages; Forget all forgets that too.':''}`;
     const account=state.data?.account??null;
     el('account-sync').checked=state.accountPending??account?.enabled===true;el('account-sync').disabled=!state.data||state.accountPending!==null;
     el('account-problem').textContent=account?.problem??'';

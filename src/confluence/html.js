@@ -173,6 +173,11 @@ export function withoutUnplaced(blocks,assets) {
   for(const asset of unplaced)assets.splice(assets.indexOf(asset),1);
   return unplaced;
 }
+// The most of a picture's caption capture keeps, as for its alternative text; a longer one is cut there, with this note.
+export const CAPTION_LIMIT=1000;
+export const CAPTION_SHORTENED=['caption-shortened','A picture caption longer than 1,000 characters was shortened to its first 1,000 characters. Add the rest in SharePoint if it is needed.',true];
+/** A caption as capture keeps it: its first CAPTION_LIMIT characters (code points, so an emoji is never cut in two). */
+export const shortCaption=text=>Array.from(text).slice(0,CAPTION_LIMIT).join('');
 /** The note on pictures left out by withoutUnplaced, by their file names where known. */
 export const unplacedNote=names=>{
   const known=names.filter(Boolean);
@@ -188,18 +193,68 @@ function joinText(first,second) {
 
 // The most blocks (runs of text, pictures and dividers) SharePoint page assembly places on one page (serializeCanvas in canvas.js).
 export const MAX_BLOCKS=2000;
+// The most HTML one text block holds: the extension's own limit for a SharePoint text part (safeHtml in canvas.js).
+export const MAX_TEXT_HTML=2_000_000;
 const TOO_MANY_BLOCKS='This page has more than the 2,000 parts (pictures, dividers and the runs of text between them) the extension places on one SharePoint page. Split it into shorter pages in Confluence and capture each.';
+// A text block's top-level elements, in order, as pieces of its HTML (the markup capture writes: every element
+// closed, `<` in text escaped, and a line break the only element without an end).
+function topLevel(html) {
+  const pieces=[];let depth=0,start=0;
+  for(const match of html.matchAll(/<(\/?)([a-z][a-z0-9]*)\b[^>]*>/gi)) {
+    if(match[2].toLowerCase()!=='br')depth+=match[1]?-1:1;
+    const end=match.index+match[0].length;
+    if(!depth){pieces.push(html.slice(start,end));start=end;}
+  }
+  if(start<html.length)pieces.push(html.slice(start));
+  return pieces;
+}
+// The text a piece of markup shows, for its block's `text` and a note: text-level elements join their words, others separate them.
+const ENTITIES={amp:'&',lt:'<',gt:'>',quot:'"','#39':'\''};
+const shownText=html=>compact(html.replace(/<\/?(?:span|strong|b|em|i|u|s|sup|sub|a|code)\b[^>]*>/gi,'').replace(/<[^>]*>/g,' ').replace(/&(amp|lt|gt|quot|#39);/g,(entity,name)=>ENTITIES[name]));
+// What a piece left out is called in its marker and note, by its element.
+const KINDS={table:'table',ol:'list',ul:'list',pre:'code block',blockquote:'quote',div:'panel',h1:'heading',h2:'heading',h3:'heading',h4:'heading',h5:'heading',h6:'heading'};
+const kindOf=piece=>KINDS[/^<([a-z0-9]+)/i.exec(piece)?.[1].toLowerCase()]??'paragraph';
 /**
- * Fits a capture's blocks into one SharePoint page: past MAX_BLOCKS, each divider becomes the line of text a
- * rule inside text is, joined with the text around it in its column. `warn` records the note; a page still
- * too long stops capture.
+ * Splits a text block holding more HTML than the extension writes in one SharePoint text part into several blocks,
+ * between its top-level elements, each keeping its pictures, numbered anew. One element larger than that alone is
+ * left out, marked where it was, and named in a note.
+ */
+function splitLargeText(blocks,warn) {
+  if(!blocks.some(block=>block.type==='text'&&block.html.length>MAX_TEXT_HTML))return;
+  const fitted=[],left=[];
+  for(const block of blocks) {
+    if(block.type!=='text'||block.html.length<=MAX_TEXT_HTML){fitted.push(block);continue;}
+    const {pictures=[],...rest}=block;let piece=null;
+    const close=()=>{if(piece){const {pictures:own,...kept}=piece;fitted.push({...kept,text:shownText(kept.html),...(own.length?{pictures:own}:{})});}piece=null;};
+    for(let part of topLevel(block.html)) {
+      if(part.length>MAX_TEXT_HTML) {
+        const kind=kindOf(part),text=shownText(part);
+        left.push({kind,text:text.length<=50?text:`${text.slice(0,45).replace(/\s+\S*$/,'')}…`});
+        part=`<p>${escape(`[${kind.charAt(0).toUpperCase()+kind.slice(1)} not copied]`)}</p>`;
+      }
+      if(piece&&piece.html.length+part.length>MAX_TEXT_HTML)close();
+      piece??={...rest,html:'',pictures:[]};
+      piece.html+=part.replace(SLOT,(slot,key)=>{piece.pictures.push(pictures[Number(key)]);return pictureSlot(piece.pictures.length-1);});
+    }
+    close();
+  }
+  blocks.splice(0,blocks.length,...fitted.map((block,index)=>({...block,id:`block-${index+1}`})));
+  if(left.length)warn('part-too-large',`${left.length===1?`A ${left[0].kind}${left[0].text?` beginning “${left[0].text}”`:''} was left out, because it is`
+    :`${left.length} parts of the page (${inWords(left.map(({kind,text})=>`a ${kind}${text?` beginning “${text}”`:''}`))}) were left out, because each is`} larger than the extension writes as one part of a SharePoint page (2,000,000 characters with its formatting). ${left.length===1?'It is':'Each is'} marked where it was in the draft; split ${left.length===1?'it':'them'} in Confluence and capture again, or add ${left.length===1?'it':'them'} in SharePoint.`,true);
+}
+/**
+ * Fits a capture's blocks into one SharePoint page: a run of text larger than one text part takes is split
+ * (splitLargeText); past MAX_BLOCKS, each divider becomes the line of text a rule inside text is, joined with the
+ * text around it in its column while the text part can hold it. `warn` records the notes; a page still too long
+ * stops capture.
  */
 export function fitBlocks(blocks,warn) {
+  splitLargeText(blocks,warn);
   if(blocks.length<=MAX_BLOCKS)return;
   const samePlace=(a,b)=>a===b||Boolean(a&&b&&a.id===b.id&&a.column===b.column),fitted=[];
   for(const block of blocks) {
     const part=block.type==='divider'?{type:'text',html:`<p>${RULE_TEXT}</p>`,text:RULE_TEXT,...(block.section?{section:block.section}:{})}:block,last=fitted.at(-1);
-    if(part.type==='text'&&last?.type==='text'&&samePlace(last.section,part.section))fitted[fitted.length-1]=joinText(last,part);
+    if(part.type==='text'&&last?.type==='text'&&samePlace(last.section,part.section)&&last.html.length+part.html.length<=MAX_TEXT_HTML)fitted[fitted.length-1]=joinText(last,part);
     else fitted.push(part);
   }
   blocks.splice(0,blocks.length,...fitted.map((block,index)=>({...block,id:`block-${index+1}`})));

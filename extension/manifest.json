@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Confluence to SharePoint",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Copy the Confluence page you have open into a new or existing SharePoint page as a draft, with its text, tables, links and pictures.",
   "minimum_chrome_version": "127",
   "permissions": [

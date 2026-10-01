@@ -90,8 +90,9 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
       if(key)await pins.record(key,site?.title??'',pinned);
     },
     // A site or page the user removes takes its links with it, in the account too (a dated mark, so the other
-    // computers' copies go as well), and a removed site's pin with it. Forget all clears this browser's lists, unpins
-    // the synced pins, and turns Keep in my Confluence account off, which removes the account's copy.
+    // computers' copies go as well), and a removed site's pin with it. Forget all turns Keep in my Confluence account
+    // off, which removes the account's copy, then clears this browser's lists and unpins the synced pins: turned off
+    // first, while the list still names what this browser put in the account, so the removal is made only there.
     remove:async({url})=>{
       const key=siteKey(url),site=(await sites.list()).find(entry=>entry.url===key);
       await sites.remove(url);await links.removeSite(url);
@@ -103,7 +104,7 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
       await sites.removePage(url,path);await links.removePage(url,path);
       if(key)await account.queue([{op:'forget',kind:'page',siteUrl:key,path,...(ids.length?{uniqueIds:[...new Set(ids)]}:{})}]);
     },
-    forget:async()=>{await sites.forget();await links.forget();await pins.forget();await account.disable();},
+    forget:async()=>{await account.disable();await sites.forget();await links.forget();await pins.forget();},
     // Keep in my Confluence account: on, with the Confluence page in the tab if there is one, or off.
     'account-sync':async({enabled,origin,pageId})=>{if(enabled)await account.enable({origin,pageId});else await account.disable();return account.state();},
     // The popup, open over a Confluence page, takes that page's entries from the account; the list redraws when they arrive.

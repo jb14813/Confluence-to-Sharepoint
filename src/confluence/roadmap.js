@@ -41,14 +41,15 @@ const color=value=>COLOR.test(value??'')?value:null;
 
 /**
  * The roadmap laid out as months: {labels, lanes:[{title, lane, bar, text, rows:[[{title, first, last}]]}], markers:[{column, titles}],
- * cut:{bars, markers}}, `cut` counting what its timeline holds after the months laid out; null when it has no months.
+ * cut:{bars, markers, partial}}, `cut` counting what its timeline holds after the months laid out, and the bars running on past
+ * them (`partial`), which the table shows ending in its last month; null when it has no months.
  */
 export function roadmapLayout(source) {
   const start=dateParts(source?.timeline?.startDate),end=dateParts(source?.timeline?.endDate);
   if(!start||!end)return null;
   const months=(end.y-start.y)*12+(end.mo-start.mo)+1;
   if(months<1)return null;
-  const count=Math.min(months,MAX_MONTHS),cut={bars:0,markers:0};
+  const count=Math.min(months,MAX_MONTHS),cut={bars:0,markers:0,partial:0};
   const labels=Array.from({length:count},(unused,index)=>{
     const month=(start.mo-1+index)%12,year=start.y+Math.floor((start.mo-1+index)/12);
     return index===0||month===0?`${MONTHS[month]} ${year}`:MONTHS[month];
@@ -59,6 +60,8 @@ export function roadmapLayout(source) {
       if(!at||!Number.isFinite(duration)||duration<=0)return null;
       const from=position(at,start),to=from+duration;
       if(from>=count&&from<months)cut.bars++;
+      // Past the months shown but inside the timeline, which Confluence draws: cut off at the table's edge.
+      if(from<count&&to>count&&months>count)cut.partial++;
       if(to<=0||from>=count)return null;
       const first=Math.max(0,Math.floor(from));
       return {title:text(bar.title),row:Number.isInteger(bar.rowIndex)&&bar.rowIndex>=0?bar.rowIndex:0,first,last:Math.min(count-1,Math.max(first,Math.ceil(to)-1))};
@@ -85,10 +88,15 @@ export function roadmapLayout(source) {
   return {labels,lanes,markers:[...columns].sort((a,b)=>a[0]-b[0]).map(([column,titles])=>({column,titles})),cut};
 }
 
-/** The note for a roadmap whose bars and markers after the months its table shows were left out (`cut`), or null. */
-export function roadmapCutNote({bars=0,markers=0}={}) {
-  const counted=[bars&&`${bars} bar${bars===1?'':'s'}`,markers&&`${markers} marker${markers===1?'':'s'}`].filter(Boolean),one=bars+markers===1;
-  return counted.length?`A Confluence roadmap runs past the ${MAX_MONTHS} months (five years) its table shows, so ${counted.join(' and ')} after them ${one?'was':'were'} left out. Add ${one?'it':'them'} in SharePoint if ${one?'it is':'they are'} needed.`:null;
+/**
+ * The note for a roadmap whose bars and markers after the months its table shows were left out, or part of whose bars
+ * running on past them was (`cut`), or null.
+ */
+export function roadmapCutNote({bars=0,markers=0,partial=0}={}) {
+  const counted=[bars&&`${bars} bar${bars===1?'':'s'}`,markers&&`${markers} marker${markers===1?'':'s'}`].filter(Boolean),one=bars+markers+partial===1;
+  const left=[counted.length&&`${counted.join(' and ')} after them ${bars+markers===1?'was':'were'} left out`,
+    partial&&`part of ${partial} bar${partial===1?'':'s'} running on past them was left out, the table showing ${partial===1?'it':'them'} ending in its last month`].filter(Boolean);
+  return left.length?`A Confluence roadmap runs past the ${MAX_MONTHS} months (five years) its table shows, so ${left.join(', and ')}. Add ${one?'it':'them'} in SharePoint if ${one?'it is':'they are'} needed.`:null;
 }
 
 /** The roadmap as a SharePoint table, {html, text, cut} (see roadmapLayout), or null when it has no months. */

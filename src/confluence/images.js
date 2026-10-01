@@ -11,7 +11,7 @@ export const isPicture = mime => PICTURE_TYPES.has(mime);
 const MAX_CANVAS_SIDE = 32_767, MAX_CANVAS_PIXELS = 268_435_456;
 export const unsupportedPicture = name => fail('unsupported-image', `A picture on this page (${name}) is not PNG, JPEG, GIF, WebP or SVG, which capture supports.`);
 // Why a picture was not copied, in the words of its note, by the problem that stopped it.
-const LOST_REASONS = {'invalid-attachment':'file not found','attachment-fetch-failed':'download failed','unsupported-image':'not a readable PNG, JPEG, GIF, WebP or SVG',
+const LOST_REASONS = {'invalid-attachment':'file not found','attachment-fetch-failed':'download failed','attachment-stalled':'download stopped answering','unsupported-image':'not a readable PNG, JPEG, GIF, WebP or SVG',
   'asset-too-large':'larger than SharePoint’s 250 MB limit','image-dimensions':'no width or height','unsupported-media':'shown in a way capture cannot place'};
 export const lossReason = error => LOST_REASONS[error?.code] ?? 'could not be copied';
 
@@ -152,8 +152,8 @@ function checkSize(length) {
   if(length>MAX_PICTURE_BYTES) fail('asset-too-large', 'A picture on this page is larger than 250 MB, the most SharePoint accepts in one upload.');
 }
 
-// `received` is called as each part of the file arrives.
-async function readBytes(response, received = () => {}) {
+// `received` is called as each part of the file arrives; `guard` gives up a part that does not come (see stallGuard).
+async function readBytes(response, received = () => {}, guard = part => part) {
   const declared = response.headers.get('content-length');
   if(declared && /^\d+$/.test(declared)) checkSize(Number(declared));
   let bytes;
@@ -161,7 +161,7 @@ async function readBytes(response, received = () => {}) {
     const reader=response.body.getReader();const chunks=[];let length=0;
     try {
       while(true) {
-        const {done,value}=await reader.read();if(done) break;
+        const {done,value}=await guard(reader.read());if(done) break;
         received();length+=value.byteLength;checkSize(length);chunks.push(value);
       }
     } catch(error) { try { await reader.cancel(); } catch {} throw error; }
@@ -169,7 +169,7 @@ async function readBytes(response, received = () => {}) {
     bytes=new Uint8Array(length);let offset=0;
     for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength}
   } else {
-    bytes=new Uint8Array(await response.arrayBuffer());checkSize(bytes.byteLength);
+    bytes=new Uint8Array(await guard(response.arrayBuffer()));checkSize(bytes.byteLength);
   }
   return bytes;
 }
@@ -209,36 +209,68 @@ async function rasterizeSvg(bytes, displayWidth) {
   } finally { URL.revokeObjectURL(url); }
 }
 
+// A download that sends nothing for this long is given up: one picture must not hold the capture until its time limit.
+// The same for a Confluence attachment and a picture from another website.
+const STALL_MS = 30_000;
+
+/**
+ * A request given up once nothing has arrived for `stallMs`: `signal` aborts it, and `guard(promise)` rejects with
+ * `stalled` set even where the request does not heed its signal. `waiting()` starts the time again, as data arrives.
+ */
+function stallGuard(stallMs) {
+  const controller = new AbortController();
+  let timer, stop;
+  const stalled = new Promise((resolve, reject) => { stop = reject; });
+  stalled.catch(() => {});
+  const waiting = () => { clearTimeout(timer); timer = setTimeout(() => { controller.abort(); stop(Object.assign(new Error('The download stopped answering.'), {stalled:true})); }, stallMs); };
+  waiting();
+  return {signal:controller.signal, waiting, guard:promise => Promise.race([promise, stalled]), done:() => clearTimeout(timer)};
+}
+
 /**
  * Fetch the stable original-attachment route; signed display URLs never enter the model.
- * Returns the picture's bytes with its identity (SHA-256), name, type and size.
+ * Returns the picture's bytes with its identity (SHA-256), name, type and size. A download
+ * that stops answering is given up after `stallMs` without data, as one that fails.
  */
-export async function fetchConfluenceImage(info, {fetchImpl=globalThis.fetch}={}) {
-  let response,displayCopy=false;
+export async function fetchConfluenceImage(info, {fetchImpl=globalThis.fetch, stallMs=STALL_MS}={}) {
+  let stalled=false;
+  // One download: its answer and bytes; null when it fails or stops answering before an answer that can be read.
+  const download = async (url, options) => {
+    // The reason given is the last download's: a display copy not found after a stalled original failed.
+    stalled=false;
+    const {signal, waiting, guard, done} = stallGuard(stallMs);
+    try {
+      const response = await guard(fetchImpl(url, {...options, signal}));
+      if(!response?.ok) return null;
+      waiting();
+      const source=(response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+      if(info.mime&&source!==info.mime || !PICTURE_TYPES.has(source)) fail('unsupported-image', 'A Confluence image download returned an unexpected file type, possibly a sign-in page.');
+      return {source, bytes:await readBytes(response, waiting, guard)};
+    } catch(error) {
+      if(typeof error?.code==='string') throw error;
+      if(error?.stalled) stalled=true;
+      // A content blocker can reject Confluence's download route before an HTTP response exists, and a body can stop.
+      return null;
+    } finally { done(); }
+  };
+  let got=null,displayCopy=false;
   // The route is on the page's own origin and redirects to Atlassian's media
   // service with a signed address. Cookies go only to Confluence: the media
   // service answers any origin (Access-Control-Allow-Origin: *), which browsers
   // refuse for requests that include credentials.
-  if(info.url)try { response=await fetchImpl(info.url,{credentials:'same-origin',method:'GET',headers:{Accept:info.mime}}); }
-  catch {/* A content blocker can reject Confluence's download route before an HTTP response exists. */}
+  if(info.url) got=await download(info.url,{credentials:'same-origin',method:'GET',headers:{Accept:info.mime}});
   // Else the copy Confluence shows on the page, which may be smaller than the original: the picture says so (`displayCopy`).
-  if(!response?.ok && info.fallbackUrl) {
-    try { response=await fetchImpl(info.fallbackUrl,{credentials:'omit',method:'GET',headers:{Accept:info.mime||'image/png,image/jpeg,image/gif,image/webp'}});displayCopy=true; }
-    catch { response=null; }
+  if(!got && info.fallbackUrl) {
+    got=await download(info.fallbackUrl,{credentials:'omit',method:'GET',headers:{Accept:info.mime||'image/png,image/jpeg,image/gif,image/webp'}});displayCopy=true;
   }
-  if(!response?.ok) fail('attachment-fetch-failed', 'An original Confluence image could not be downloaded. Keep the source page signed in and retry capture.');
-  const source=(response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
-  if(info.mime&&source!==info.mime || !PICTURE_TYPES.has(source)) fail('unsupported-image', 'A Confluence image download returned an unexpected file type, possibly a sign-in page.');
-  let bytes;
-  try { bytes=await readBytes(response); }
-  catch(error) { if(typeof error?.code==='string') throw error;fail('attachment-fetch-failed', 'A Confluence image download ended before it could be verified.'); }
+  if(!got&&stalled) fail('attachment-stalled', 'A Confluence image download stopped answering.');
+  if(!got) fail('attachment-fetch-failed', 'An original Confluence image could not be downloaded. Keep the source page signed in and retry capture.');
+  const {source,bytes}=got;
   const picture=await preparePicture(bytes,source,info.displayWidth);
   const name=!info.mime?`${info.name}.${EXTENSIONS[picture.mime]}`:source===SVG?`${info.name.replace(/\.svg$/i,'')}.png`:info.name;
   return {id:picture.id,name,...picture,...(displayCopy?{displayCopy:true}:{})};
 }
 
-// A picture from another website that sends nothing for this long is linked instead.
-const EXTERNAL_STALL_MS = 30_000;
 
 /** The picture type a file's first bytes declare. Websites often send pictures with a generic type. */
 function sniffPicture(bytes) {
@@ -259,7 +291,7 @@ function sniffPicture(bytes) {
  * (CORS). Throws when it cannot be copied; the caller then links to it.
  * `stalledHosts`, shared by one capture, skips a website that stopped sending.
  */
-export async function fetchExternalImage({url, displayWidth}, {fetchImpl=globalThis.fetch, stallMs=EXTERNAL_STALL_MS, stalledHosts=null}={}) {
+export async function fetchExternalImage({url, displayWidth}, {fetchImpl=globalThis.fetch, stallMs=STALL_MS, stalledHosts=null}={}) {
   const unavailable = () => fail('external-image-unavailable', 'A picture from another website could not be copied.');
   let address;
   try { address = new URL(url); } catch { unavailable(); }

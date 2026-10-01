@@ -319,7 +319,8 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
       // The capture's canvas and its attribution are ready before the page is first touched.
       const serializer = serializeCanvasImpl ?? (await import('./canvas.js')).serializeCanvas;
       const blocks = headed ? [{ id: `title-${cryptoImpl.randomUUID()}`, type: 'text', html: `<h1>${escapeHtml(input.model.title)}</h1>` }, ...input.model.blocks] : input.model.blocks;
-      const capture = jsonArray((await serializer({ ...input.model, blocks }, input.assetReceipts, metadata, { idFactory: () => cryptoImpl.randomUUID() }))?.CanvasContent1, 'canvas');
+      // The heading is put in front of a capture the extension accepted, so it does not count against the capture's blocks.
+      const capture = jsonArray((await serializer({ ...input.model, blocks }, input.assetReceipts, metadata, { idFactory: () => cryptoImpl.randomUUID(), headed }))?.CanvasContent1, 'canvas');
       const attribution = titled ? await resolveAttribution(request, input.model) : null;
       report('page');
       if (!held.checkedOutToMe) {

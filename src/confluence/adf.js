@@ -4,7 +4,7 @@
 // documented page format, instead of from rendered markup:
 // https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/
 // Output follows the same markup conventions as the reading-view capture.
-import {HEADER_BACKGROUND,NUMBER_COLOR,NUMBER_COLUMN_WIDTH,PANEL_COLORS,SAFE_PANEL_COLOR,RULE_TEXT,badMetadata,clean,codeBlockHtml,compact,dateHtml,drawsSomething,emojiHtml,mentionHtml,emojiText,escape,headingSlug,inlineText,inlineCodeHtml,macroName,macroTitle,namesInSentence,panelHtml,panelIcon,pictureMarker,pictureShare,pictureSlot,sharePointColumns,standardPanelIcon,statusHtml,taskIndent,taskMarkHtml} from './html.js';
+import {HEADER_BACKGROUND,NUMBER_COLOR,NUMBER_COLUMN_WIDTH,PANEL_COLORS,SAFE_PANEL_COLOR,RULE_TEXT,badMetadata,clean,codeBlockHtml,compact,dateHtml,drawsSomething,emojiHtml,mentionHtml,emojiText,escape,headingSlug,inlineText,inlineCodeHtml,macroName,macroTitle,namesInSentence,panelHtml,panelIcon,pictureMarker,pictureShare,pictureSlot,sharePointColumns,standardPanelIcon,statusHtml,taskIndent,taskMarkHtml,CAPTION_SHORTENED,shortCaption} from './html.js';
 import {emojiName,omittedEmojiNote} from './emoji.js';
 import {drawnBackground,drawnHighlight,drawnTextColor} from './palette.js';
 import {isPicture,lossReason,pictureFileName} from './images.js';
@@ -52,7 +52,7 @@ const withoutTocLabels=nodes=>nodes.filter((node,index)=>!(node?.type==='paragra
  * @param {string} options.pageUrl Page address, for resolving relative links.
  * @param {(fileId:string)=>({name:string,mime:string,url:string}|null)} options.attachment The page attachment holding a media file.
  * @param {(code:string,message:string,lost?:boolean)=>void} options.warn Records a conversion note once per code; `lost` marks content left out.
- * @returns {{parts:Array<{kind:'html',html:string,text:string}|{kind:'divider'}|{kind:'image',fileId?:string,url?:string,link?:{html:string,text:string},alt:string,caption:string,widthRatio:number,displayWidth?:number}>,headings:Array<{id:string,level:number,text:string}>,stats:object,lostPictures:Array<{name:string|null,reason:string}>}}
+ * @returns {{parts:Array<{kind:'html',html:string,text:string}|{kind:'divider'}|{kind:'image',fileId?:string,url?:string,link?:{html:string,text:string},alt:string,caption:string,widthRatio:number,displayWidth?:number,room?:number}>,headings:Array<{id:string,level:number,text:string}>,stats:object,lostPictures:Array<{name:string|null,reason:string}>}}
  */
 export function convertAdf(doc,{pageUrl,attachment,warn}){
   if(doc?.type!=='doc'||!Array.isArray(doc.content))throw Object.assign(new Error('Confluence returned an invalid page document.'),{code:'metadata-invalid'});
@@ -201,20 +201,22 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
     return {html,text:value};
   }
   const markOf=item=>item.type==='decisionItem'?(item.attrs?.state==='DECIDED'?'decided':'undecided'):item.attrs?.state==='DONE'?'done':'todo';
-  // A task or decision list's items as lines ({mark, depth, html, text}), nested
-  // lists' items one level deeper; null when an item holds a block other than
-  // text, which cannot sit in a line.
+  const isChecklist=node=>node?.type==='taskList'||node?.type==='decisionList';
+  // Whether every item of a task or decision list holds only text, which can sit in a line. Decided before any item is
+  // read, since reading one counts its omitted macros, unnamed mentions and emoji for the notes.
+  const inLines=list=>children(list).every(item=>isChecklist(item)?inLines(item):item?.type!=='blockTaskItem'||
+    children(item).every(child=>isChecklist(child)?inLines(child):child?.type==='paragraph'||child?.type==='heading'));
+  // A task or decision list's items as lines ({mark, depth, html, text}), nested lists' items one level deeper.
   function checklistLines(list,depth){
     const lines=[];
     for(const item of children(list)){
-      if(item?.type==='taskList'||item?.type==='decisionList'){const nested=checklistLines(item,depth+1);if(!nested)return null;lines.push(...nested);continue;}
+      if(isChecklist(item)){lines.push(...checklistLines(item,depth+1));continue;}
       if(!['taskItem','blockTaskItem','decisionItem'].includes(item?.type))continue;
       if(item.type!=='blockTaskItem'){lines.push({mark:markOf(item),depth,...inline(children(item))});continue;}
       const nested=[],pieces=[];
       for(const child of children(item)){
-        if(child?.type==='taskList'||child?.type==='decisionList'){const inner=checklistLines(child,depth+1);if(!inner)return null;nested.push(...inner);}
-        else if(child?.type==='paragraph'||child?.type==='heading'){const piece=inline(children(child));if(drawsSomething(piece.html,piece.text))pieces.push(piece);}
-        else return null;
+        if(isChecklist(child))nested.push(...checklistLines(child,depth+1));
+        else{const piece=inline(children(child));if(drawsSomething(piece.html,piece.text))pieces.push(piece);}
       }
       lines.push({mark:markOf(item),depth,html:pieces.map(piece=>piece.html).join('<br>'),text:pieces.map(piece=>piece.text).join(' ')},...nested);
     }
@@ -268,7 +270,9 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
     // A numbered table shows a number before each row that is not a header row, in a 42 px column.
     const numbered=node.attrs?.isNumberColumnEnabled===true;let number=0;
     const firstRow=rows.length?cellsOf(rows[0]):[];
-    const fixed=firstRow.length+(numbered?1:0)>1&&firstRow.every(cell=>widthOf(cell)!==null);
+    // Confluence lays every table out fixed: stored widths give the columns, else they are equal and the number
+    // column its 42 px (measured 2026-09-30); SharePoint would size unmeasured columns by their content.
+    const fixed=firstRow.length+(numbered?1:0)>1;
     let html='',value='';
     for(const row of rows){
       const cells=cellsOf(row);
@@ -280,11 +284,13 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
       const widths=cells.map(widthOf),total=widths.every(width=>width!==null)?widths.reduce((sum,width)=>sum+width,numbered?NUMBER_COLUMN_WIDTH:0):0;
       // Without stored widths a row's columns share the room the table has, by how many each cell spans.
       const spans=cells.map(cell=>Number.isInteger(cell.attrs?.colspan)&&cell.attrs.colspan>1?cell.attrs.colspan:1),columns=spans.reduce((sum,span)=>sum+span,0)||1,tableRoom=roomHere();
+      // Without stored widths the columns are equal, after the number column's share of the room.
+      const equal=!total&&fixed,numberShare=numbered?NUMBER_COLUMN_WIDTH/tableRoom:0,percent=share=>`${Math.round(share*1_000_000)/10_000}%`;
       if(total)warn('table-width-review','Table text, cell formatting, and source column proportions were captured; review responsive widths in SharePoint.');
       let cellsHtml='';
       if(numbered&&cells.length){
         const header=cells.every(cell=>cell.type==='tableHeader'),label=header?'':String(++number);
-        cellsHtml+=`<td style="background-color:${HEADER_BACKGROUND};color:${NUMBER_COLOR}${total?`;width:${Math.round(NUMBER_COLUMN_WIDTH/total*1_000_000)/10_000}%`:''};text-align:center;vertical-align:top">${label}</td>`;
+        cellsHtml+=`<td style="background-color:${HEADER_BACKGROUND};color:${NUMBER_COLOR}${total?`;width:${percent(NUMBER_COLUMN_WIDTH/total)}`:equal?`;width:${percent(numberShare)}`:''};text-align:center;vertical-align:top">${label}</td>`;
         if(label)value+=` ${label} `;
       }
       cells.forEach((cell,index)=>{
@@ -292,7 +298,8 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         for(const name of ['colspan','rowspan'])if(Number.isInteger(cell.attrs?.[name])&&cell.attrs[name]>1&&cell.attrs[name]<=1000)attributes.push(`${name}="${cell.attrs[name]}"`);
         if(SAFE_PANEL_COLOR.test(cell.attrs?.background||''))styles.push(`background-color:${drawnBackground(cell.attrs.background)}`);
         else if(header)styles.push(`background-color:${HEADER_BACKGROUND}`);
-        if(total)styles.push(`width:${Math.round(widths[index]/total*1_000_000)/10_000}%`);
+        if(total)styles.push(`width:${percent(widths[index]/total)}`);
+        else if(equal)styles.push(`width:${percent((1-numberShare)*spans[index]/columns)}`);
         if(header)styles.push('text-align:left');
         // Confluence draws a cell's content from its top (measured); SharePoint centers it unless told.
         styles.push('vertical-align:top');
@@ -326,8 +333,8 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         return part.html?{html:`<ol${order!==1?` start="${order}"`:''}${listStyle()}>${part.html}</ol>`,text:part.text}:EMPTY;
       }
       case 'taskList':case 'decisionList':{
-        const lines=checklistLines(node,0);
-        if(lines){
+        if(inLines(node)){
+          const lines=checklistLines(node,0);
           if(!lines.length)return EMPTY;
           stats.bullets+=lines.length;
           const paragraph=`<p>${lines.map(line=>`${taskIndent(line.depth)}${taskMarkHtml(line.mark)} ${line.html}`).join('<br>')}</p>`,value=lines.map(line=>line.text).join(' ');
@@ -347,7 +354,9 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         let html=drawsSomething(part.html,part.text)?part.html:`<p>${NBSP}</p>`,value=part.text;
         const icon=type==='custom'?panelIcon({text:node.attrs?.panelIconText,id:node.attrs?.panelIconId,shortName:node.attrs?.panelIcon}):standardPanelIcon(type);
         if(icon&&!compact(value).startsWith(icon.text)){
-          const decorated=html.replace(/<(p|h[1-6])([^>]*)>/i,`<$1$2>${icon.html} `);
+          // Into the first paragraph or heading (the tag name ends there, so never a <pre>), else before the content; a
+          // function inserts the icon as it is, where a replacement string would expand "$&", "$1", "$'" or "$`" in it.
+          const decorated=html.replace(/<(?:p|h[1-6])(?:\s[^>]*)?>/i,tag=>`${tag}${icon.html} `);
           html=decorated===html?`${icon.html} ${html}`:decorated;value=`${icon.text} ${value}`;
         }
         const custom=SAFE_PANEL_COLOR.test(node.attrs?.panelColor||'')?drawnBackground(node.attrs.panelColor):null;
@@ -423,41 +432,55 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
     const external=media?.attrs?.type==='external'?safeHref(media.attrs.url):null;
     return {media,file,external,placeable:Boolean(external?.startsWith('https:')||file&&isPicture(file.mime))};
   }
+  // A picture's own width as its media stores it (its file's, in pixels), or null: Confluence draws a picture stored
+  // without a width at that width, no wider than the room it has.
+  const ownWidth=media=>{const width=Number(media?.attrs?.width);return width>0&&width<=100_000?width:null;};
+  // A picture's caption as Confluence shows it (`full`), the part of it capture keeps, and the note when that is not all of it.
+  function captionOf(node){
+    const full=compact(plain(children(node).find(child=>child?.type==='caption'))),caption=shortCaption(full);
+    return {full,caption,notes:caption===full?[]:[CAPTION_SHORTENED]};
+  }
   // A picture kept in a table cell, panel or quote, to be copied with the page's pictures: its file or address, its text,
   // the width Confluence shows it at and that share of the room it has (null when only its file tells), and that room.
   function inlinePicture(node){
     const {media,file,external,placeable}=pictureSource(node);
     if(!placeable)return null;
-    const alt=Array.from(compact(clean(media.attrs.alt))).slice(0,1000).join(''),caption=compact(plain(children(node).find(child=>child?.type==='caption'))).slice(0,1000);
+    const alt=Array.from(compact(clean(media.attrs.alt))).slice(0,1000).join(''),{full,caption,notes}=captionOf(node);
     if(file&&!alt)warn('missing-alt','Some images have no authored alternative text. Review their captions and add alternative text in SharePoint.');
-    const width=Number(node.attrs?.width),room=roomHere();
+    // A picture from another website may become a link instead, which keeps the whole caption, so its notes wait for its download.
+    if(file)for(const note of notes)warn(...note);
+    const width=Number(node.attrs?.width),room=roomHere(),own=ownWidth(media);
     const href=safeHref(media.marks?.find(mark=>mark?.type==='link')?.attrs?.href);
     // The width Confluence shows it at, no wider than the room it has: set in pixels, or as a share of that room; with
-    // none, its file's own, once copied (stored.js). SharePoint shows it at that share of the room it gives (html.js).
-    const displayWidth=width>0?Math.max(1,Math.round(Math.min(room,node.attrs?.widthType==='pixel'?width:width<=100?width/100*room:room))):null;
-    return {...(file?{fileId:media.attrs.id}:{url:external,link:{html:`<p>${link(external,alt||external)}</p>${caption?`<p>${escape(caption)}</p>`:''}`,text:compact(`${alt||external} ${caption}`)}}),
+    // none, its media's own, or with none stored there its file's, once copied (stored.js). SharePoint shows it at that
+    // share of the room it gives (html.js).
+    const displayWidth=width>0||own?Math.max(1,Math.round(Math.min(room,!(width>0)?own:node.attrs?.widthType==='pixel'?width:width<=100?width/100*room:room))):null;
+    return {...(file?{fileId:media.attrs.id}:{url:external,link:{html:`<p>${link(external,alt||external)}</p>${full?`<p>${escape(full)}</p>`:''}`,text:compact(`${alt||external} ${full}`)},notes}),
       alt,caption,displayWidth,share:displayWidth?pictureShare(displayWidth,room/CONTENT_WIDTH):null,room,
       ...(href&&/^https?:/i.test(href)?{href}:{})};
   }
   function picture(node){
     const {media,file,external,placeable}=pictureSource(node);
     if(!placeable)return null;
-    const alt=Array.from(compact(clean(media.attrs.alt))).slice(0,1000).join(''),caption=compact(plain(children(node).find(child=>child?.type==='caption')));
-    const notes=[];
+    const alt=Array.from(compact(clean(media.attrs.alt))).slice(0,1000).join(''),{full,caption,notes}=captionOf(node);
     if(media.marks?.some(mark=>mark?.type==='border'))notes.push(['media-border-simplified','A Confluence media border was simplified because SharePoint image controls do not preserve that border style.']);
     if(!alt)notes.push(['missing-alt','Some images have no authored alternative text. Review their captions and add alternative text in SharePoint.']);
     if(!caption)notes.push(['missing-caption','One or more images have no immediately following centered caption.']);
     // A picture from another website may become a link instead, so its notes wait for its download.
-    if(file)for(const [code,message] of notes)warn(code,message);
-    const width=Number(node.attrs?.width);
+    if(file)for(const note of notes)warn(...note);
+    const width=Number(node.attrs?.width),own=ownWidth(media);
     const widthRatio=node.attrs?.widthType==='pixel'&&width>0?Math.min(1,width/CONTENT_WIDTH):width>0&&width<=100?width/100:1;
-    // The width Confluence shows the picture at: set in pixels, or as a share of its content width, and no wider than its column.
-    const set=node.attrs?.widthType==='pixel'&&width>0?Math.round(width):width>0&&width<=100?Math.round(width/100*CONTENT_WIDTH):null;
+    // The room a picture set without a width has: its column, else the page's content width, except for a wide or
+    // full-width picture, which Confluence lays out past the text's width (Atlassian's mediaSingle layouts).
+    const room=columnWidth??(['wide','full-width'].includes(node.attrs?.layout)?null:CONTENT_WIDTH);
+    // The width Confluence shows the picture at: set in pixels, or as a share of its content width, and no wider than its
+    // column; with none, its media's own, no wider than its room, or with none stored there its file's, once copied (stored.js).
+    const set=node.attrs?.widthType==='pixel'&&width>0?Math.round(width):width>0&&width<=100?Math.round(width/100*CONTENT_WIDTH):own?Math.max(1,Math.round(Math.min(own,room??own))):null;
     const displayWidth=set&&columnWidth?Math.min(set,columnWidth):set;
-    const source=file?{fileId:media.attrs.id}:{url:external,link:{html:`<p>${link(external,alt||external)}</p>${caption?`<p>${escape(caption)}</p>`:''}`,text:compact(`${alt||external} ${caption}`)},notes};
+    const source=file?{fileId:media.attrs.id}:{url:external,link:{html:`<p>${link(external,alt||external)}</p>${full?`<p>${escape(full)}</p>`:''}`,text:compact(`${alt||external} ${full}`)},notes};
     // The picture's own link, kept on its Image web part when it is a web address.
     const href=safeHref(media.marks?.find(mark=>mark?.type==='link')?.attrs?.href);
-    return {kind:'image',...source,alt,caption:caption.length<=1000?caption:'',widthRatio,...(displayWidth?{displayWidth}:{}),...(href&&/^https?:/i.test(href)?{href}:{})};
+    return {kind:'image',...source,alt,caption,widthRatio,...(displayWidth?{displayWidth}:room?{room}:{}),...(href&&/^https?:/i.test(href)?{href}:{})};
   }
 
   // `place` is the SharePoint section column the parts being read go in ({id, factors, column}), as in the reading-view capture.

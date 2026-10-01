@@ -17,6 +17,10 @@ const SAVE_CHECKS=5;
 // nodes (around a collaborator's cursor, for example) or space it differently.
 const letters=text=>String(text??'').normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'');
 
+// A picture stored with no width at all is shown at its file's own, no wider than the room it has (adf.js). An SVG is
+// drawn to a PNG twice its own width when no width is given (images.js), so its own is half the PNG's.
+const ownWidth=(asset,file,room)=>Math.max(1,Math.round(Math.min(file?.mime==='image/svg+xml'?asset.width/2:asset.width,room??Infinity)));
+
 // A live doc's title field, and a page's in the editor.
 const TITLE_FIELDS='textarea[id^="livepages-title-"],textarea[name="editpages-title"]';
 
@@ -47,18 +51,22 @@ export async function captureStoredDocument({document,info,fetchImpl,metadataFet
   const warn=(code,message,lost=false)=>{if(!warnings.some(w=>w.code===code))warnings.push({code,message,...(lost?{lost:true}:{})})};
   const progress=value=>{if(typeof onProgress==='function')onProgress(value)};
   const content=source=>{if(!source.adf)fail('metadata-invalid',`Confluence did not return the content of this ${what}.`);return source;};
-  progress({phase:'capture',completed:0,total:1,message:`Reading the Confluence ${what}.`});
+  // No picture count on these steps: the popup shows a count only for pictures.
+  progress({phase:'capture',completed:0,total:0,message:`Reading the Confluence ${what}.`});
   let source=content(await readSourceMetadata(info,metadataFetchImpl));
+  const unsaved=()=>warn('edits-unsaved',`Confluence had not saved the latest edits to this ${what} when it was captured. Capture again in a few seconds to include them.`);
   for(let check=1;;check++) {
     const shown=editorText(document),stored=storedText(source);
     if(!shown||shown.title===stored.title&&shown.body===stored.body)break;
-    if(check>SAVE_CHECKS) {
-      warn('edits-unsaved',`Confluence had not saved the latest edits to this ${what} when it was captured. Capture again in a few seconds to include them.`);
-      break;
-    }
-    progress({phase:'capture',completed:0,total:1,message:'Waiting for Confluence to save the latest edits.'});
+    if(check>SAVE_CHECKS){unsaved();break;}
+    progress({phase:'capture',completed:0,total:0,message:'Waiting for Confluence to save the latest edits.'});
     await new Promise(resolve=>setTimeout(resolve,1000));
-    source=content(await readSourceMetadata(info,metadataFetchImpl));
+    // A re-read lost on its way (thrown, refused, redirected, timed out or stalled: readJson's metadata-fetch-failed) ends
+    // the wait, the copy already read and checked captured with the note, as after five re-reads that lag the editor.
+    // A re-read that answers with something capture cannot use still stops it.
+    const next=await readSourceMetadata(info,metadataFetchImpl).catch(error=>{if(error?.code!=='metadata-fetch-failed')throw error;return null;});
+    if(!next){unsaved();break;}
+    source=content(next);
   }
   if(!source.title||source.title.length>255||badMetadata(source.title))fail('metadata-invalid',`The Confluence ${what} title is missing or exceeds the supported length.`);
   const files=await readAttachments(info,source.adf,metadataFetchImpl);
@@ -99,8 +107,8 @@ export async function captureStoredDocument({document,info,fetchImpl,metadataFet
     if(!assets.has(asset.id)){assets.set(asset.id,asset);model.assets.push(asset)}
     if(asset.scaledFrom)warn('picture-scaled','Pictures wider than SharePoint can show were scaled to 2,408 pixels wide, twice the width of a SharePoint column, before upload.');
     if(part.url)warn('external-image-copied','A picture shown from another website was copied into SharePoint. Check that you may reuse it.');
-    for(const [code,message] of part.notes??[])warn(code,message);
-    add({type:'image',assetId:asset.id,caption:part.caption,alt:part.alt,widthRatio:part.widthRatio,...(part.displayWidth?{displayWidth:part.displayWidth}:{}),...(part.href?{link:part.href}:{}),...placed(part.place)});model.stats.images++;completed++;
+    for(const note of part.notes??[])warn(...note);
+    add({type:'image',assetId:asset.id,caption:part.caption,alt:part.alt,widthRatio:part.widthRatio,displayWidth:part.displayWidth??ownWidth(asset,file,part.room),...(part.href?{link:part.href}:{}),...placed(part.place)});model.stats.images++;completed++;
   }
   flush();
   // Pictures kept in table cells, panels and quotes: each file copied as the page's pictures are, each slot numbered in its
@@ -127,8 +135,8 @@ export async function captureStoredDocument({document,info,fetchImpl,metadataFet
       if(spec.url)warn('external-image-copied','A picture shown from another website was copied into SharePoint. Check that you may reuse it.');
       // Its notes wait for its download, as for a picture from another website in the page's flow (adf.js).
       if(spec.url&&!spec.alt)warn('missing-alt','Some images have no authored alternative text. Review their captions and add alternative text in SharePoint.');
-      // A picture stored without a width is shown at its file's own, no wider than the room it has (adf.js).
-      const width=spec.displayWidth??Math.max(1,Math.round(Math.min(asset.width,spec.room)));
+      for(const note of spec.notes??[])warn(...note);
+      const width=spec.displayWidth??ownWidth(asset,file,spec.room);
       settled.set(key,{picture:{assetId:asset.id,alt:spec.alt,caption:spec.caption,...(spec.href?{link:spec.href}:{}),displayWidth:width,share:spec.share??pictureShare(width,spec.room/CONTENT_WIDTH)}});
       model.stats.images++;
     }

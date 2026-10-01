@@ -5,6 +5,8 @@ import {MAX_PICTURE_BYTES,PICTURE_PIECE_BYTES,base64ToBytes,bytesToBase64,sha256
 import {confluenceRoute,confluenceSite,waitForConfluencePage} from '../confluence/detect.js';
 import {logoElement} from '../brand/logo.js';
 import {withinSite} from '../sharepoint/session.js';
+// The most HTML one text part holds: the extension's own limit (safeHtml in canvas.js; MAX_TEXT_HTML in confluence/html.js).
+const MAX_TEXT_HTML=2_000_000;
 const CHANNEL='guide-transfer';
 const SHORTCUT_CHANNEL='guide-shortcut';
 const fail=(code,message)=>Object.assign(new Error(message),{code});
@@ -75,6 +77,15 @@ export function installConfluenceShortcut({document=globalThis.document,location
   return {host,destroy(){observer.disconnect();host.remove()}};
 }
 
+// The Confluence page an address shows: its site, its route and its page (the id in its path, or the pageId of the
+// older route), as the background compares a capture's page (jobs.js). A link to a heading (#Steps), a comment opened
+// (?focusedCommentId=) or the page's title rewritten in its address leaves the tab on the same page.
+function pageOf(href){
+  try{
+    const url=new URL(href);
+    return `${url.origin}${url.pathname.replace(/(\/pages\/(?:edit-v2\/)?\d{1,20})(?:\/.*)?$/,'$1')}?${url.searchParams.get('pageId')??''}`;
+  }catch{return null;}
+}
 // A captured picture as it travels with the page model: identity and size, not its bytes.
 const pictureInfo=({id,name,mime,width,height,size})=>({id,name,mime,width,height,size});
 const PICTURE_ID=/^[a-f0-9]{64}$/;
@@ -93,7 +104,10 @@ function validateModel(model){
   if(model.blocks.some(block=>block.type==='image'&&!pictures.has(block.assetId)||block.type==='text'&&Array.isArray(block.pictures)&&block.pictures.some(picture=>!pictures.has(picture?.assetId))))
     throw fail('invalid-capture','A captured picture is missing. Capture the page again.');
   if(JSON.stringify(model.blocks).length>8_000_000)throw fail('capture-too-large','This page exceeds the capture size limit.');
-  // The same rules SharePoint page assembly applies, checked before anything is uploaded.
+  // The same rules SharePoint page assembly applies, checked before anything is uploaded. The size of a text part is the
+  // extension's own limit (safeHtml in canvas.js), which capture splits its runs of text to fit (fitBlocks).
+  if(model.blocks.some(block=>block?.type==='text'&&typeof block.html==='string'&&block.html.length>MAX_TEXT_HTML))
+    throw fail('capture-limit','Part of this capture is larger than the extension writes as one part of a SharePoint page (2,000,000 characters with its formatting). Break that part of the Confluence page into smaller ones and capture it again.');
   for(const block of model.blocks){
     try{checkCanvasBlock(block);}
     catch(error){throw fail('unsupported-content',`Part of this page could not be converted into content SharePoint accepts. ${error.message}`);}
@@ -112,7 +126,7 @@ function publicError(error){
     // The address an update found its page at, when it stopped after that: the review and the sent list use it.
     ...(typeof error?.movedTo==='string'&&/^\/[^?\u0000-\u001f\u007f]{1,1000}\.aspx$/i.test(error.movedTo)&&!error.movedTo.split('/').some(part=>part==='..')?{movedTo:error.movedTo}:{}),
     // The controls a page send whose outcome is unknown may have written.
-    ...(error?.pageMayHaveChanged&&Array.isArray(error.part)&&error.part.length&&error.part.length<=2000&&error.part.every(id=>typeof id==='string'&&GUID.test(id))?{part:[...error.part]}:{})};
+    ...(error?.pageMayHaveChanged&&Array.isArray(error.part)&&error.part.length&&error.part.length<=4000&&error.part.every(id=>typeof id==='string'&&GUID.test(id))?{part:[...error.part]}:{})};
 }
 // The page a send writes when it writes an existing page: its server-relative path; add, overwrite, or update
 // with the part an earlier send of the same Confluence page wrote (its controls, whether it titles the page, and
@@ -216,13 +230,13 @@ export function createTransferHandler({
         // The page captured is the page checked here: one left while it was being checked, or during the capture, stops it.
         const source=await inspectSource(),sourceHref=getLocation().href;
         if(!source.supported)throw fail('unsupported-source','Open a Confluence page before capturing.');
-        if(sourceHref!==source.pageUrl)throw fail('source-changed','The page changed during capture. Open the page you want and capture it again.');
+        if(pageOf(sourceHref)!==pageOf(source.pageUrl))throw fail('source-changed','The page changed during capture. Open the page you want and capture it again.');
         busy=true;state.stage='capture';state.completedImages=0;state.totalImages=0;state.error=null;state.source={pageUrl:source.pageUrl,pageId:source.pageId};
         const running=(async()=>{
           try{
             captured=null;capturedModel=null;
             const model=await captureSource({onProgress:progress=>{state.stage=progress.phase;state.completedImages=progress.completed;state.totalImages=progress.total;}});
-            if(getLocation().href!==sourceHref)throw fail('source-changed','The page changed during capture. Open the page you want and capture it again.');
+            if(pageOf(getLocation().href)!==pageOf(sourceHref))throw fail('source-changed','The page changed during capture. Open the page you want and capture it again.');
             const pictures=new Map(model.assets.map(asset=>[asset.id,asset.bytes]));
             model.assets=model.assets.map(pictureInfo);
             validateModel(model);captured=pictures;capturedModel=model;state.stage='ready';return model;

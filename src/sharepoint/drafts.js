@@ -255,13 +255,16 @@ export function createDraftClient({ siteUrl, fetchImpl = globalThis.fetch, crypt
 
   // A save sets the whole page, and the page is this send's own, so the same save may safely be made again. One
   // SharePoint was too busy for, or whose answer was lost, is read back, and made once more if it did not land.
+  // The naming save renames the file (its path differs from the page's): once SharePoint accepted it the page is at the
+  // new path, whatever the read after it shows; while its outcome is unknown, a stop names no path, as the old one may be gone.
   async function save(page, body, metadata, expectedPath) {
     page = await checkedOut(page, metadata);
     const digest = await freshDigest();
+    const renames = !same(owned.path, expectedPath);
     for (let attempt = 0; ; attempt++) {
       let writeError;
-      try { await request(`sitepages/pages(${owned.pageId})/savepage`, { method: 'POST', body, digest, ignoreBody: true }); }
-      catch (error) { if (!uncertain(error)) throw error; writeError = error; }
+      try { await request(`sitepages/pages(${owned.pageId})/savepage`, { method: 'POST', body, digest, ignoreBody: true }); if (renames) owned.path = expectedPath; }
+      catch (error) { if (!uncertain(error)) throw error; writeError = error; if (renames) owned.path = null; }
       let confirmed;
       try { confirmed = await readOwned(metadata, expectedPath); }
       catch (error) {

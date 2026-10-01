@@ -13,6 +13,10 @@ const dividerData = instanceId => ({id:DIVIDER_PART,instanceId,title:'Divider',d
   serverProcessedContent:{htmlStrings:{},searchablePlainTexts:{},imageSources:{},links:{}},dataVersion:'1.2',properties:{minimumLayoutWidth:1,length:100,weight:1},containsDynamicDataSource:false});
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HASH = /^[0-9a-f]{64}$/i;
+// The blocks of one capture the extension places on a page (MAX_BLOCKS in confluence/html.js, which a capture keeps
+// within); a part added below a page, or updated as one, also has its Confluence title as a heading in front, which is
+// not one of the capture's blocks.
+const MAX_BLOCKS = 2000;
 const NIL = '00000000-0000-0000-0000-000000000000';
 const MIME = {'image/png':'png','image/jpeg':'jpg','image/gif':'gif','image/webp':'webp'};
 const TAGS = new Set('p h1 h2 h3 h4 h5 h6 span strong b em i u s sup sub br ol ul li table thead tbody tfoot tr td th a blockquote pre code div'.split(' '));
@@ -51,7 +55,8 @@ function siteInfo(metadata) {
   } catch { fail('invalid-site','A valid HTTPS SharePoint site URL is required.'); }
   if (url.protocol!=='https:' ||
       url.port || url.username || url.password || url.search || url.hash || /[\\\u0000-\u0020\u007f]/u.test(metadata.siteUrl) ||
-      path.split('/').some(p=>/^(?:_api|_layouts|SitePages|Pages)$/i.test(p)||/\.aspx$/i.test(p))) {
+      // A web named "pages" is a site, as session.js checkedSite takes it.
+      path.split('/').some(p=>/^(?:_api|_layouts|SitePages)$/i.test(p)||/\.aspx$/i.test(p))) {
     fail('invalid-site','The destination must be a SharePoint site URL, not a page, API, or external address.');
   }
   return {origin:url.origin,path,siteId:metadata.siteId.toLowerCase(),webId:metadata.webId.toLowerCase()};
@@ -265,10 +270,10 @@ export function checkCanvasBlock(block) {
 }
 
 /** Pure serialization. Upload receipts must originate from the retained asset client. */
-export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>globalThis.crypto.randomUUID()}={}) {
+export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>globalThis.crypto.randomUUID(),headed=false}={}) {
   const site=siteInfo(siteMetadata);
   if(!model||typeof model.title!=='string'||!model.title.trim()||model.title.length>255||badControl.test(model.title)||
-     !Array.isArray(model.blocks)||!model.blocks.length||model.blocks.length>2000||typeof idFactory!=='function') fail('invalid-model','A titled document with 1–2000 ordered text, image or divider blocks is required.');
+     !Array.isArray(model.blocks)||!model.blocks.length||model.blocks.length>MAX_BLOCKS+(headed===true?1:0)||typeof idFactory!=='function') fail('invalid-model','A titled document with 1–2000 ordered text, image or divider blocks is required.');
   const blockIds=new Set(),expanded=[];
   let textCount=0,imageCount=0,dividerCount=0,totalHtml=0;
   for(const block of model.blocks) {
@@ -328,8 +333,11 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     const id=freshId();
     const base={position,id,controlType:entry.type==='text'?4:3,isFromSectionTemplate:false,addedFromPersistedData:true};
     if(entry.type==='text') {
-      // Each picture slot becomes the picture, from its upload.
-      const html=entry.pictures.length?entry.html.replace(SLOT,(slot,index)=>{const picture=entry.pictures[Number(index)];return inlinePicture(picture,uploaded.get(picture.assetId.toLowerCase()),site);}):entry.html;
+      // Each picture slot becomes the picture, from its upload. SharePoint draws a list item's bullet or number below
+      // a picture that starts the item (measured 2026-09-30), so such an item first gets a line of its own for the
+      // marker, a paragraph holding one zero-width space, which puts the marker above the picture.
+      const html=entry.pictures.length?entry.html.replace(/<li>(?=<div class="c2sPicture" data-picture="\d{1,4}"><\/div>)/g,'<li><p>​</p>')
+        .replace(SLOT,(slot,index)=>{const picture=entry.pictures[Number(index)];return inlinePicture(picture,uploaded.get(picture.assetId.toLowerCase()),site);}):entry.html;
       return {...base,contentVersion:5,innerHTML:html};
     }
     if(entry.type==='divider') {

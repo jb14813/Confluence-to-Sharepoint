@@ -62,7 +62,9 @@ export function checkedSite(value) {
   if (originalPath) checkedPath(originalPath);
   const path = decodedPath(url.pathname);
   if (path) checkedPath(path);
-  if (path.split('/').some(part => /^(?:_api|_layouts|sitepages|pages)$/i.test(part) || /\.aspx$/i.test(part))) {
+  // A web may be named "pages" (a site /sites/Pages, a subsite /sites/Team/pages): the tab's detection and the
+  // background's siteAddress take it as a site, so only SharePoint's own API, layouts and Site Pages parts are refused.
+  if (path.split('/').some(part => /^(?:_api|_layouts|sitepages)$/i.test(part) || /\.aspx$/i.test(part))) {
     throw fail('invalid-site', 'Use the site URL, not a page or API URL.');
   }
   return { origin: url.origin, path, url: `${url.origin}${encodedPath(path)}` };

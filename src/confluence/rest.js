@@ -84,7 +84,7 @@ export async function readSourceMetadata(info,fetchImpl) {
      email&&(email.length>254||badMetadata(email)||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))||
      typeof updated!=='string'||updated.length>40||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(updated)||!Number.isFinite(Date.parse(updated))||
      !Number.isSafeInteger(version)||version<1) fail('metadata-invalid','Confluence page author or update metadata is incomplete.');
-  let expectedMediaCount=null,featureInventory=null,expectedText=[],macroText=[],adf=null;const externalPictures=new Set(),textPlaces=new Map(),mediaContexts=new Set(),mediaFiles=new Set();
+  let expectedMediaCount=null,featureInventory=null,expectedText=[],macroText=[],macroMedia=[],adf=null;const externalPictures=new Set(),textPlaces=new Map(),mediaContexts=new Set(),mediaFiles=new Set();
   const adfValue=data?.body?.atlas_doc_format?.value;
   if(adfValue!==undefined) {
     // Its size is bounded by the answer's (MAX_ANSWER_BYTES), its depth by inventoryAdf.
@@ -95,10 +95,12 @@ export async function readSourceMetadata(info,fetchImpl) {
     expectedMediaCount=0;
     // Page text Confluence shows is expected in the capture, with the kind of place it sits in. Text in a
     // macro's body is kept apart: apps draw their macros in frames of their own, a tabs macro shows one
-    // tab and a synced block shows its source's text, so that text may never appear as page text.
-    const visit=(node,place=null,macro=null)=>{
+    // tab and a synced block shows its source's text, so that text may never appear as page text. So are
+    // pictures there, each with the macro holding it (`body`), by the keys the reading view draws it with.
+    const named=value=>typeof value==='string'&&value?value:null;
+    const visit=(node,place=null,macro=null,body=null)=>{
       if(!node||typeof node!=='object'||Array.isArray(node))fail('metadata-invalid','Confluence returned invalid page structure metadata.');
-      if(node.type==='mediaSingle')expectedMediaCount++;
+      if(node.type==='mediaSingle'){if(!body)expectedMediaCount++;else macroMedia.push({macro,localId:named(body.attrs?.localId),macroId:named(body.attrs?.parameters?.macroMetadata?.macroId?.value),key:named(body.attrs?.extensionKey)});}
       if(node.type==='media'&&node.attrs?.type==='external'&&typeof node.attrs.url==='string')try{externalPictures.add(new URL(node.attrs.url,info.pageUrl).href)}catch{/* Not an address. */}
       // The files the page shows, and the pages holding them: its own, and any other a picture was stored from.
       if(node.type==='media'&&typeof node.attrs?.id==='string')mediaFiles.add(node.attrs.id.toLowerCase());
@@ -113,14 +115,14 @@ export async function readSourceMetadata(info,fetchImpl) {
       }
       if(node.content!==undefined) {
         if(!Array.isArray(node.content))fail('metadata-invalid','Confluence returned invalid page structure metadata.');
-        const within=macro??(MACRO_BODIES.has(node.type)?macroName(node):null),where=PLACES[node.type]??place;
-        for(const child of node.content)visit(child,where,within);
+        const within=macro??(MACRO_BODIES.has(node.type)?macroName(node):null),where=PLACES[node.type]??place,holder=body??(MACRO_BODIES.has(node.type)?node:null);
+        for(const child of node.content)visit(child,where,within,holder);
       }
     };
     visit(adf);
-    if(expectedMediaCount>2000)fail('capture-limit','This Confluence page contains too many images to capture safely.');
+    if(expectedMediaCount+macroMedia.length>2000)fail('capture-limit','This Confluence page contains too many images to capture safely.');
   }
-  return {sourceMetadata:{author:{displayName,email:email||null},lastUpdatedAt:updated,version},expectedMediaCount,featureInventory,expectedText:[...new Set(expectedText)],macroText,textPlaces,
+  return {sourceMetadata:{author:{displayName,email:email||null},lastUpdatedAt:updated,version},expectedMediaCount,featureInventory,expectedText:[...new Set(expectedText)],macroText,macroMedia,textPlaces,
     externalPictures,mediaContexts,mediaFiles,adf,unchecked,title:compact(data?.title)};
 }
 

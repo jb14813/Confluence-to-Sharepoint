@@ -71,7 +71,8 @@ function checkedSite(siteUrl) {
   try { path = url.pathname.split('/').map(decodeURIComponent).join('/').replace(/\/$/, ''); }
   catch { throw fail('invalid-site', 'The site URL contains invalid path encoding.'); }
   if (path) checkedPath(path);
-  if (path.split('/').some(part => /^(?:_api|_layouts|sitepages|pages)$/i.test(part) || /\.aspx$/i.test(part))) {
+  // A web named "pages" is a site, as session.js checkedSite takes it.
+  if (path.split('/').some(part => /^(?:_api|_layouts|sitepages)$/i.test(part) || /\.aspx$/i.test(part))) {
     throw fail('invalid-site', 'Supply the site URL, not a page or API path.');
   }
   return { origin: url.origin, path, url: `${url.origin}${path.split('/').map(encode).join('/')}` };
@@ -140,8 +141,9 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
             resource.startsWith('web/GetFolderByServerRelativePath(') ? 'picture folder verification' : 'asset operation';
           const error = fail('sharepoint-http', withAnswer(`SharePoint ${phase} failed (HTTP ${response.status})`, await refusalDetail(response)), response.status);
           const retryAfter = response.headers.get('Retry-After');
-          // The wait SharePoint asks for, at most 30 seconds, as for the page requests.
-          error.retryAfter = retryAfter === null ? 250 : Math.max(0, Math.min(30000, Number(retryAfter) * 1000 || 0));
+          // The wait SharePoint asks for, at most 30 seconds, as for the page requests. Without one none is set, so each
+          // caller's own wait applies: 1 and then 2 seconds for an upload or check-in, 250 ms for a read.
+          if (retryAfter !== null && /^\s*\d+\s*$/.test(retryAfter)) error.retryAfter = Math.min(30000, Number(retryAfter) * 1000);
           throw error;
         }
         if (format === 'none') return null;
