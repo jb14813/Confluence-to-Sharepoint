@@ -399,7 +399,7 @@ export function convertAdf(doc,{pageUrl,attachment,warn}){
         return blocks(children(node));
       case 'multiBodiedExtension':return blocks(children(node));
       case 'blockCard':case 'embedCard':{
-        warn('live-embed-omitted','Live embedded content was omitted; its source link was retained when available.');
+        warn('live-embed-omitted','Live embedded content was omitted; its source link was retained when available.',true);
         const href=safeHref(node.attrs?.url);
         return href?{html:`<p>${link(href,href)}</p>`,text:href}:EMPTY;
       }

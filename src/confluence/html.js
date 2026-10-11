@@ -4,6 +4,7 @@
 // src/sharepoint/canvas.js accepts.
 import {emojiParts} from './emoji.js';
 import {NBSP} from './whitespace.js';
+import {MAX_BLOCKS,MAX_TEXT_HTML} from '../transfer/limits.js';
 // Confluence's panels in its light theme (measured): each type's background, and
 // the emoji nearest its icon, the same emoji Confluence's "Using the editor"
 // template uses to show them. A tip is drawn as a success panel.
@@ -191,10 +192,8 @@ function joinText(first,second) {
   return {...first,html:first.html+html,text:compact(`${first.text} ${second.text}`),...(pictures.length?{pictures}:{})};
 }
 
-// The most blocks (runs of text, pictures and dividers) SharePoint page assembly places on one page (serializeCanvas in canvas.js).
-export const MAX_BLOCKS=2000;
-// The most HTML one text block holds: the extension's own limit for a SharePoint text part (safeHtml in canvas.js).
-export const MAX_TEXT_HTML=2_000_000;
+// A capture keeps within the most blocks page assembly places on one page (MAX_BLOCKS) and the most HTML one text block
+// holds (MAX_TEXT_HTML), both in transfer/limits.js.
 const TOO_MANY_BLOCKS='This page has more than the 2,000 parts (pictures, dividers and the runs of text between them) the extension places on one SharePoint page. Split it into shorter pages in Confluence and capture each.';
 // A text block's top-level elements, in order, as pieces of its HTML (the markup capture writes: every element
 // closed, `<` in text escaped, and a line break the only element without an end).

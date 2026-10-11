@@ -7,9 +7,11 @@ await readReleaseMetadata();
 // C2S_BUILD_DIR names another folder for the build, in place of dist/.
 const out = path.resolve(process.env.C2S_BUILD_DIR ?? 'dist', 'sharepoint-helper');
 await mkdir(out, { recursive: true });
-await build({ entryPoints: { popup: 'src/popup/popup.js', content: 'src/transfer/content.js', memory: 'src/sharepoint/memory.js', background: 'src/background.js' }, outdir: out, bundle: true, format: 'iife', platform: 'browser', target: 'chrome127', minify: false, legalComments: 'eof' });
+await build({ entryPoints: { popup: 'src/popup/popup.js', dashboard:'src/dashboard/dashboard.js', content: 'src/transfer/content.js', memory: 'src/sharepoint/memory.js', background: 'src/background.js' }, outdir: out, bundle: true, format: 'iife', platform: 'browser', target: 'chrome127', minify: false, legalComments: 'eof' });
 await copyFile('extension/manifest.json', path.join(out, 'manifest.json'));
 await copyFile('extension/popup.html', path.join(out, 'popup.html'));
+await copyFile('extension/dashboard.html', path.join(out, 'dashboard.html'));
+await copyFile('src/dashboard/dashboard.css', path.join(out, 'dashboard.css'));
 // A developer page, copied where it exists.
 if (existsSync('extension/operator.html')) await copyFile('extension/operator.html', path.join(out, 'operator.html'));
 await copyFile('src/popup/popup.css', path.join(out, 'popup.css'));

@@ -1,12 +1,11 @@
 import {createAssetClient as defaultAssets} from '../sharepoint/assets.js';
 import {detectSharePointSite} from '../sharepoint/detect.js';
 import {checkCanvasBlock} from '../sharepoint/canvas.js';
-import {MAX_PICTURE_BYTES,PICTURE_PIECE_BYTES,base64ToBytes,bytesToBase64,sha256Hex} from './limits.js';
+import {sourceMetadata as checkSourceMetadata} from '../sharepoint/attribution.js';
+import {MAX_BLOCKS,MAX_PICTURE_BYTES,MAX_TEXT_HTML,PICTURE_PIECE_BYTES,base64ToBytes,bytesToBase64,sha256Hex} from './limits.js';
 import {confluenceRoute,confluenceSite,waitForConfluencePage} from '../confluence/detect.js';
 import {logoElement} from '../brand/logo.js';
 import {withinSite} from '../sharepoint/session.js';
-// The most HTML one text part holds: the extension's own limit (safeHtml in canvas.js; MAX_TEXT_HTML in confluence/html.js).
-const MAX_TEXT_HTML=2_000_000;
 const CHANNEL='guide-transfer';
 const SHORTCUT_CHANNEL='guide-shortcut';
 const fail=(code,message)=>Object.assign(new Error(message),{code});
@@ -92,8 +91,10 @@ const PICTURE_ID=/^[a-f0-9]{64}$/;
 function validateModel(model){
   if(!model||typeof model.title!=='string'||!model.title.trim()||model.title.length>255||!(/^[a-f0-9]{64}$/i).test(model.sourceHash??'')||
     !Array.isArray(model.blocks)||!model.blocks.length||!Array.isArray(model.assets))throw fail('invalid-capture','Capture a complete page before sending.');
+  checkSourceMetadata(model);
+  if(model.sourceEditing!==undefined&&typeof model.sourceEditing!=='boolean')throw fail('invalid-capture','The capture’s source view is invalid. Capture the page again.');
   // The most blocks SharePoint page assembly places (serializeCanvas); capture turns a longer page's dividers into text to fit.
-  if(model.blocks.length>2000)throw fail('capture-limit','This page has more than the 2,000 parts (pictures, dividers and the runs of text between them) the extension places on one SharePoint page. Split it into shorter pages in Confluence and capture each.');
+  if(model.blocks.length>MAX_BLOCKS)throw fail('capture-limit','This page has more than the 2,000 parts (pictures, dividers and the runs of text between them) the extension places on one SharePoint page. Split it into shorter pages in Confluence and capture each.');
   const pictures=new Set();
   for(const asset of model.assets){
     if(!PICTURE_ID.test(asset?.id??'')||pictures.has(asset.id)||!Number.isSafeInteger(asset.size)||asset.size<1||asset.size>MAX_PICTURE_BYTES||
@@ -164,7 +165,7 @@ export function createTransferHandler({
   // `step` is how far creating a draft has got (preparing, page, content, checkin), or writing a page (waiting, page, content, checkin).
   // `source`: the page this tab checked before capturing it (its address and id), which the background compares with its own check.
   const state={stage:'idle',step:null,completedImages:0,totalImages:0,attemptId:null,result:null,error:null,source:null};
-  let busy=false,attempted=false;
+  let busy=false,attempted=false,inspectionClient=null,inspectionLocation=null;
   // Pictures travel between this tab and the extension's background in pieces,
   // because Chrome limits each extension message to 64 MiB: the background reads
   // a capture's pictures from here, and sends them to the site's tab before a send.
@@ -172,7 +173,7 @@ export function createTransferHandler({
   // With `detach`, capture and send answer at once and carry on here; `status`
   // follows them and `captured` hands over the finished capture. Chrome stops an
   // extension service worker whose single request lasts more than five minutes.
-  const PAYLOAD={capture:['detach'],import:['model','attemptId','siteUrl','detach','page'],picture:['id','offset'],stage:['id','size','offset','data']};
+  const PAYLOAD={capture:['detach'],import:['model','attemptId','siteUrl','detach','page'],picture:['id','offset'],stage:['id','size','offset','data'],'inspect-tracked-page':['page']};
   function picturePiece({id,offset}){
     const bytes=captured?.get(id);
     if(!bytes||!Number.isSafeInteger(offset)||offset<0||offset>=bytes.length||offset%PICTURE_PIECE_BYTES)throw fail('picture-unavailable','The captured picture is no longer available in this tab. Capture the page again.');
@@ -210,7 +211,7 @@ export function createTransferHandler({
   return async function handle(message,sender){
     if(!getRuntimeId()||sender?.id!==getRuntimeId())return {ok:false,error:{code:'unauthorized-sender',message:'Only this extension can start a transfer.'}};
     try{
-      if(!message||message.channel!==CHANNEL||!['inspect','capture','captured','import','status','picture','stage'].includes(message.action)||Object.keys(message).some(k=>!['channel','action','payload'].includes(k)))throw fail('unsupported-action','Unsupported transfer action.');
+      if(!message||message.channel!==CHANNEL||!['inspect','inspect-tracked-page','capture','captured','import','status','picture','stage'].includes(message.action)||Object.keys(message).some(k=>!['channel','action','payload'].includes(k)))throw fail('unsupported-action','Unsupported transfer action.');
       const payload=message.payload??{};
       if(!payload||typeof payload!=='object'||Array.isArray(payload)||Object.keys(payload).some(k=>!(PAYLOAD[message.action]??[]).includes(k)))throw fail('invalid-message','Unsupported transfer fields.');
       if(payload.detach!==undefined&&payload.detach!==true)throw fail('invalid-message','Unsupported transfer fields.');
@@ -221,6 +222,24 @@ export function createTransferHandler({
         return {ok:true,result:clone(capturedModel)};
       }
       if(busy)throw fail('operation-busy','A transfer operation is already running.');
+      if(message.action==='inspect-tracked-page'){
+        const page=payload.page;
+        if(!page||Object.keys(page).some(key=>!['path','part','parts','uniqueId'].includes(key))||page.parts!==undefined&&(!Array.isArray(page.parts)||!page.parts.length||page.parts.length>2000||page.part!==undefined))throw fail('invalid-message','Unsupported inspection fields.');
+        const parts=page.parts??[page.part];
+        const target=checkedTarget({path:page.path,part:parts[0],uniqueId:page.uniqueId,mode:'update'});
+        for(const part of parts)checkedTarget({path:page.path,part,mode:'update'});
+        const destination=await inspectDestination();
+        if(!destination?.supported||destination.kind!=='sharepoint'||!withinSite(getLocation().href,destination.siteUrl)||!withinSite(`${new URL(destination.siteUrl).origin}${target.path}`,destination.siteUrl))throw fail('target-changed','Open the linked SharePoint site to check this page.');
+        const location=getLocation().href,assertTarget=()=>{if(getLocation().href!==location)throw fail('target-changed','The site tab moved during inspection.');};
+        busy=true;
+        try{
+          if(!inspectionClient||inspectionLocation!==location){
+            inspectionClient=await createPageClient({siteUrl:destination.siteUrl,readOnly:true,fetchImpl:(url,init)=>{assertTarget();if((init?.method??'GET')!=='GET')throw fail('read-only','Inspection only reads SharePoint.');return fetchImpl(url,init);}});
+            inspectionLocation=location;
+          }
+          const result=await inspectionClient.inspectTrackedPage(target.path,{...(page.parts?{parts}:{part:target.part}),uniqueId:target.uniqueId});assertTarget();return {ok:true,result};
+        }finally{busy=false;}
+      }
       if(message.action==='picture')return {ok:true,result:picturePiece(payload)};
       if(message.action==='stage'){
         if(attempted)throw fail('import-already-attempted','A send was already started in this tab. Review the page before starting another.');

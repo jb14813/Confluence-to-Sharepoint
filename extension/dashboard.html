@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sent pages · Confluence to SharePoint</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <script type="module" src="dashboard.js"></script>
+</head>
+<body>
+  <header class="app-header"><img src="icons/logo.svg" width="36" height="36" alt=""><span>Confluence to SharePoint</span></header>
+  <main>
+    <div class="page-heading"><div><h1>Sent pages</h1><p>Find your linked pages and update selected sources as SharePoint drafts.</p></div><button id="refresh" type="button">Refresh</button></div>
+    <p id="account-note" class="muted"></p>
+    <div id="refresh-status" role="status" aria-live="polite"></div>
+    <button id="stop-refresh" type="button" hidden>Stop refresh</button>
+    <ul id="refresh-reports" class="messages" hidden></ul>
+    <p id="error" role="alert" hidden></p>
+    <section id="batch" aria-label="Selected update progress" hidden>
+      <div class="batch-heading"><h2>Draft updates</h2><span id="batch-count"></span></div>
+      <p id="batch-status" role="status" aria-live="polite"></p><progress id="batch-progress" max="1" value="0"></progress>
+      <p id="work-window-note" class="notice" hidden>Work tabs use this window while it is available. Closing the work window can interrupt the current draft and leave it needing review. Keep that window open until the batch pauses or finishes.</p>
+      <div class="batch-controls"><button id="stop" type="button" hidden>Stop after current</button><button id="continue" type="button" hidden>Continue</button><button id="discard" type="button" hidden>Discard pending</button><button id="retry" type="button" hidden>Retry failed</button></div>
+      <details id="results"><summary>Results and notes</summary><ul id="result-list"></ul></details>
+    </section>
+    <div class="filters"><label>Search pages<input id="search" type="search" placeholder="Title, source or page address" autocomplete="off"></label><label>SharePoint site<select id="site"><option value="">All sites</option></select></label></div>
+    <div class="selection-bar"><div class="selection-tools"><button id="select-shown" type="button">Select shown</button><button id="clear-selection" type="button">Clear selection</button><span id="selection-count" role="status">0 selected</span></div><button id="update" type="button" class="primary" disabled>Update selected</button></div>
+    <p id="blocker" class="notice" hidden></p>
+    <p id="empty" class="empty" hidden>No sent pages yet. Send a Confluence page using the extension popup. To recover saved history, open a previously used Confluence site, turn on “Keep in my Confluence account” in Sites, and select Refresh.</p>
+    <div id="catalog"></div>
+    <nav class="pagination" aria-label="Page list navigation"><button id="previous" type="button">Previous</button><span id="page-count"></span><button id="next" type="button">Next</button></nav>
+  </main>
+  <dialog id="confirmation" aria-labelledby="confirm-title"><form method="dialog"><h2 id="confirm-title">Update selected pages?</h2><p id="confirm-count"></p><p>This replaces the content previously imported from each source, including edits made inside it in SharePoint. Updates remain unpublished drafts for you to review.</p><div class="dialog-actions"><button value="cancel">Cancel</button><button id="confirm" type="button" class="primary">Create draft updates</button></div></form></dialog>
+</body>
+</html>

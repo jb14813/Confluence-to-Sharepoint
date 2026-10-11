@@ -24,6 +24,12 @@ const time=value=>Number.isSafeInteger(value)&&value>0?value:null;
 const lower=value=>String(value??'').toLowerCase();
 const guid=value=>typeof value==='string'&&GUID.test(value)?value.toLowerCase():null;
 
+/** The revision actually captured for a verified send; older/account-only links may not know it. */
+export function normalSourceRevision(value){
+  return Number.isSafeInteger(value?.version)&&value.version>0&&time(value?.updatedAt)&&value.updatedAt<=8_640_000_000_000_000
+    ?{version:value.version,updatedAt:value.updatedAt}:null;
+}
+
 /** A Confluence page as a link knows it: the origin of its Confluence Cloud site and its page id, or null. */
 export function sourceKey(source){
   let url;try{url=new URL(source?.origin);}catch{return null;}
@@ -34,6 +40,8 @@ export function sourceKey(source){
 // its title, byline and date from this Confluence page; `headed`: the part starts with the Confluence title as a heading;
 // `uniqueId`: the SharePoint page's permanent ID, which it keeps through a rename or a move within Site Pages (0.4.7).
 // `sentAt`: when the part was sent; `movedAt`: when the page was last found at a new address, if it was (0.5.1).
+// `sourceRevision`: the captured Confluence revision; `sourceIncomplete`: a verified reading-view send omitted content.
+// These and the uncertain/editor marker stay local; the shared account format stays unchanged.
 // `part` names the newest send's controls first, then the earlier sends'; `sends` says how many each send wrote, newest
 // first, where there is more than one (the account copy keeps the controls only, as one send).
 export function normalLink(link){
@@ -41,10 +49,10 @@ export function normalLink(link){
   const part=Array.isArray(link?.part)?[...new Set(link.part.filter(id=>typeof id==='string'&&GUID.test(id)).map(id=>id.toLowerCase()))].slice(0,CONTROLS):[];
   // A link saved before it said whether the part starts with a heading: one that did not title the page was added below it.
   const headed=typeof link?.headed==='boolean'?link.headed:link?.titled!==true;
-  const uniqueId=guid(link?.uniqueId),movedAt=time(link?.movedAt);
+  const uniqueId=guid(link?.uniqueId),movedAt=time(link?.movedAt),sourceRevision=normalSourceRevision(link?.sourceRevision);
   const sends=Array.isArray(link?.sends)&&link.sends.length>1&&link.sends.length<=SENDS&&link.sends.every(count=>Number.isSafeInteger(count)&&count>0)&&
     link.sends.reduce((sum,count)=>sum+count,0)===part.length?[...link.sends]:null;
-  return source&&path&&part.length?{source,siteUrl,path,...(uniqueId?{uniqueId}:{}),title:text(link.title),part,...(sends?{sends}:{}),titled:link.titled===true,headed,sentAt:time(link.sentAt),...(movedAt?{movedAt}:{})}:null;
+  return source&&path&&part.length?{source,siteUrl,path,...(uniqueId?{uniqueId}:{}),title:text(link.title),part,...(sends?{sends}:{}),titled:link.titled===true,headed,sentAt:time(link.sentAt),...(movedAt?{movedAt}:{}),...(sourceRevision?{sourceRevision}:{}),...(link.sourceIncomplete===true?{sourceIncomplete:true}:{}),...(link.sourceUpdateUnknown===true?{sourceUpdateUnknown:true}:{})}:null;
 }
 // A link's part as its sends wrote it, newest first; one send where the link does not say.
 function sendsOf(link){
@@ -82,6 +90,7 @@ export const samePage=(a,b)=>a.siteUrl===b.siteUrl&&(a.uniqueId&&b.uniqueId?a.un
 const sameSource=(a,b)=>a.source.origin===b.source.origin&&a.source.pageId===b.source.pageId;
 // A link's identity in the list: its Confluence page, and its SharePoint page by ID where known, else by address.
 const identity=link=>`${link.source.origin}|${link.source.pageId}|${link.siteUrl}|${link.uniqueId??lower(link.path)}`;
+export const linkKey=identity;
 const newest=list=>[...list].sort((a,b)=>(b.sentAt??0)-(a.sentAt??0));
 const encoder=new TextEncoder();
 // The controls a link can name and still share an entry of the account copy (account.js): an entry takes at most
@@ -128,7 +137,30 @@ export function createLinks({storage=globalThis.chrome?.storage?.local,now=()=>D
     if(!silent)next.then(()=>{if(watcher&&report&&(report.added.length||report.removed.length))Promise.resolve().then(()=>watcher(report)).catch(()=>{});},()=>{});
     return next;
   }
-  const linkOf=({source,siteUrl,path,uniqueId,title,part,mode})=>MODES.has(mode)?normal({source,siteUrl:siteKey(siteUrl),path,uniqueId,title,part,sentAt:now()}):null;
+  const linkOf=({source,siteUrl,path,uniqueId,title,part,mode,sourceRevision,sourceIncomplete,sourceUpdateUnknown})=>MODES.has(mode)?normal({source,siteUrl:siteKey(siteUrl),path,uniqueId,title,part,sentAt:now(),sourceRevision,sourceIncomplete,sourceUpdateUnknown}):null;
+  function mergeMany(inputs,dead){
+    const grouped=new Map(inputs.map(({source,entries})=>{const key=sourceKey(source);return [key?`${key.origin}|${key.pageId}`:null,{key,fresh:(entries??[]).map(entry=>normal({...entry,source:key})).filter(Boolean)}];}).filter(([id])=>id));
+    let heal=[],expected=[];
+    return change(list=>{
+      heal=[];const mine=new Map();for(const link of list){const id=`${link.source.origin}|${link.source.pageId}`;if(!mine.has(id))mine.set(id,[]);mine.get(id).push(link);}
+      const result=[];
+      for(const [id,{key,fresh}] of grouped){
+        const merged=[];
+        for(const link of mine.get(id)??[]){
+          if(dead(link,key))continue;
+          const theirs=fresh.find(entry=>samePage(entry,link)),kept=theirs&&!dead(theirs,key)?combine(link,theirs):link;
+          merged.push(kept);if(!theirs||(kept.sentAt??0)>(theirs.sentAt??0)||placedAt(kept)>placedAt(theirs))heal.push(kept);
+        }
+        for(const entry of fresh)if(!dead(entry,key)&&!merged.some(link=>samePage(link,entry)))merged.push(entry);
+        result.push(...merged);
+      }
+      return expected=[...result,...list.filter(link=>!grouped.has(`${link.source.origin}|${link.source.pageId}`))];
+    },{silent:true}).then(kept=>{
+      const saved=new Map(kept.map(link=>[identity(link),link]));
+      const truncated=expected.length>kept.length||expected.some(link=>JSON.stringify(link)!==JSON.stringify(saved.get(identity(link))));
+      return {heal,...(truncated?{truncated:true}:{})};
+    });
+  }
   return {
     list:async()=>newest(await read()),
     /** The function told of every change made here (account.js). */
@@ -144,6 +176,7 @@ export function createLinks({storage=globalThis.chrome?.storage?.local,now=()=>D
       if(!link)return Promise.resolve(null);
       return change(list=>{
         const earlier=list.find(other=>samePage(other,link)&&sameSource(other,link)),whole=value.mode==='draft'||value.mode==='overwrite';
+        if(value.requireExisting&&!earlier)return list;
         // Overwrite leaves only its own content, with its own title and flags: a link from before it is not carried on.
         const {part,sends}=whole?{part:link.part,sends:null}:joined([link.part,...sendsOf(earlier)],link.part.length>shared(link)?CONTROLS:shared(link));
         return [normal({...link,part,sends,...roles(value.mode,earlier,titled,headed)}),...list.filter(other=>!samePage(other,link)||!whole&&!sameSource(other,link))];
@@ -164,7 +197,8 @@ export function createLinks({storage=globalThis.chrome?.storage?.local,now=()=>D
         const {part,sends}=joined([link.part,...sendsOf(earlier)],CONTROLS,true);
         const flags=earlier&&value.mode!=='update'?{titled:earlier.titled,headed:earlier.headed}:roles(value.mode,earlier,titled,headed);
         const uniqueId=link.uniqueId??earlier?.uniqueId;
-        return [normal({...link,...(uniqueId?{uniqueId}:{}),part,sends,title:link.title||earlier?.title||'',...flags}),...list.filter(other=>other!==earlier)];
+        if(value.mode==='update'&&!earlier)return list;
+        return [normal({...link,...(uniqueId?{uniqueId}:{}),part,sends,title:link.title||earlier?.title||'',...flags,sourceRevision:earlier?.sourceRevision,sourceUpdateUnknown:true}),...list.filter(other=>other!==earlier)];
       });
     },
     /**
@@ -173,10 +207,10 @@ export function createLinks({storage=globalThis.chrome?.storage?.local,now=()=>D
      * in the site's own Site Pages is taken. A moved link is dated as moved now, its send's time kept: the account copy
      * takes the new address from it, and the part, title and flags only from the newer send (see combine).
      */
-    moved(url,from,to,uniqueId){
+    moved(url,from,to,uniqueId,{legacy=true,source}={}){
       const siteUrl=siteKey(url),next=siteUrl?pageKey(siteUrl,to):null,id=guid(uniqueId);
       if(!next||typeof from!=='string'||!id)return Promise.resolve(null);
-      return change(list=>list.map(link=>link.siteUrl===siteUrl&&(link.uniqueId===id||!link.uniqueId&&lower(link.path)===lower(from))?normal({...link,path:next,uniqueId:id,movedAt:now()})??link:link));
+      return change(list=>list.map(link=>link.siteUrl===siteUrl&&(!source||sameSource(link,{source}))&&(link.uniqueId===id||legacy&&!link.uniqueId&&lower(link.path)===lower(from))?normal({...link,path:next,uniqueId:id,movedAt:now()})??link:link));
     },
     /**
      * One Confluence page's links merged with its account copy (account.js): of two copies of a link, the newer send
@@ -185,23 +219,10 @@ export function createLinks({storage=globalThis.chrome?.storage?.local,now=()=>D
      * never replace this browser's by being absent.
      */
     merge(source,entries,dead=()=>false){
-      const key=sourceKey(source);
-      if(!key)return Promise.resolve({heal:[]});
-      const fresh=(Array.isArray(entries)?entries:[]).map(entry=>normal({...entry,source:key})).filter(Boolean);
-      let heal=[];
-      return change(list=>{
-        const mine=list.filter(link=>sameSource(link,{source:key})),others=list.filter(link=>!sameSource(link,{source:key})),result=[];
-        heal=[];
-        for(const link of mine){
-          if(dead(link))continue;
-          const theirs=fresh.find(entry=>samePage(entry,link)),kept=theirs&&!dead(theirs)?combine(link,theirs):link;
-          result.push(kept);
-          if(!theirs||(kept.sentAt??0)>(theirs.sentAt??0)||placedAt(kept)>placedAt(theirs))heal.push(kept);
-        }
-        for(const entry of fresh)if(!dead(entry)&&!result.some(link=>samePage(link,entry)))result.push(entry);
-        return [...result,...others];
-      },{silent:true}).then(()=>({heal}));
+      if(!sourceKey(source))return Promise.resolve({heal:[]});
+      return mergeMany([{source,entries:Array.isArray(entries)?entries:[]}],dead);
     },
+    mergeCatalog:(origin,pages,dead=()=>false)=>mergeMany([...pages].map(([pageId,entries])=>({source:{origin,pageId},entries})),dead),
     /**
      * An update whose part is no longer on the page: that Confluence page's link to the page goes, by the page's ID
      * where known, and only while it still names the part that was looked for; a newer copy of the link, come from

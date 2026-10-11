@@ -2,9 +2,12 @@
 // when the popup closes. Progress and outcome are published in session storage
 // (key `job`), which the popup watches.
 import {createTransferStore} from '../transfer/store.js';
+import {workWindow} from './windows.js';
 import {PICTURE_PIECE_BYTES,base64ToBytes,bytesToBase64,sha256Hex} from '../transfer/limits.js';
 import {captureStats,confirmedPageUrl,fail,siteAddress,validateCapture} from './checks.js';
 import {pageKey,siteKey} from './sites.js';
+import {sourceKey,linkKey,normalSourceRevision} from './links.js';
+import {confluenceRoute} from '../confluence/detect.js';
 
 const CHANNEL='guide-transfer',JOB='job';
 // A send in flight, noted in local storage from its claim to its outcome: Chrome clears session storage (the job and
@@ -18,6 +21,7 @@ const LEFT='left-tab';
 // way the job ended, also a capture's, which leaves no in-flight note and whose job may not name the tab (an update's).
 // A job keeps one tab at a time.
 const KEPT='kept-tab';
+const INSPECTIONS='inspection-tabs';
 const SENDING={checking:'Checking the site',uploading:'Uploading pictures',creating:'Creating the draft',writing:'Preparing the page'};
 // The steps of creating a draft, and of writing a page, as the site's tab reports them.
 const CREATING={preparing:'Preparing the draft',page:'Creating the page',content:'Saving the content',checkin:'Checking in the draft'};
@@ -26,6 +30,7 @@ const WAITING='Waiting for SharePoint to release the page';
 // Reasons a site cannot take a draft. They are noted on the remembered site
 // until the user visits it again; a sign-in or a passing failure is not.
 const LASTING=new Set(['no-site','no-pages','no-permission','no-drafts']);
+const RENDERING_LOSSES=new Set(['text-not-copied','pictures-not-shown','macro-loading','section-not-opened','pictures-not-placed','links-untitled']);
 // Pages a send found gone or unfit, which their site's list forgets.
 const FORGOTTEN=new Set(['page-missing','page-unsupported','page-home']);
 const decodedPath=pathname=>{try{return pathname.split('/').map(decodeURIComponent).join('/');}catch{return null;}};
@@ -51,18 +56,19 @@ const NO_ACCOUNT={queue:async()=>{}};
 const GUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,account=NO_ACCOUNT,store=createTransferStore({session:chromeApi?.storage?.session}),loadTimeoutMs=60_000,importTimeoutMs=15*60_000,
-  captureTimeoutMs=30*60_000,injectTimeoutMs=20_000,pollMs=500,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
+  captureTimeoutMs=30*60_000,injectTimeoutMs=20_000,pollMs=500,batchOwner=()=>null,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
   const session=chromeApi.storage.session;
   const noted=value=>Promise.resolve().then(()=>value?chromeApi.storage.local.set({[FLIGHT]:value}):chromeApi.storage.local.remove(FLIGHT)).catch(()=>{});
   // Tabs a send opened and is still using; their pages' site visits are not recorded.
   const sendingTabs=new Set();
   let active=null;
+  function owned(batchId){if(batchOwner()&&batchOwner()!==batchId)throw fail('batch-busy','A selected update batch is using the capture.');}
   const publish=job=>session.set({[JOB]:{...job,updatedAt:Date.now()}});
   // Keeps a tab from Chrome's memory saver, or gives it back, with its note (KEPT).
-  async function keep(tabId,kept){
+  async function keep(tabId,kept,note=true){
     if(!Number.isInteger(tabId))return;
     const local=chromeApi.storage.local;
-    if(kept)await Promise.resolve().then(()=>local.set({[KEPT]:tabId})).catch(()=>{});
+    if(kept&&note)await Promise.resolve().then(()=>local.set({[KEPT]:tabId})).catch(()=>{});
     await Promise.resolve().then(()=>chromeApi.tabs.update(tabId,{autoDiscardable:!kept})).catch(()=>{});
     if(!kept)await Promise.resolve().then(async()=>{if((await local.get(KEPT))[KEPT]===tabId)await local.remove(KEPT);}).catch(()=>{});
   }
@@ -102,7 +108,7 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
   // and the review details; the returned promise never rejects.
   function start(job,work){
     if(active)throw fail('job-busy','Wait for the current capture or send to finish.');
-    let last={...job},shown='',settled=false;
+    let last={safeToRetry:true,...job},shown='',settled=false;
     const update=change=>{
       if(settled)return Promise.resolve();
       const next={...last,...change,status:'running'},text=JSON.stringify(next);
@@ -115,22 +121,150 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
       try{await update({});await work(update,finish);}
       catch(error){
         settled=true;
-        await publish({...last,status:'failed',error:{code:typeof error?.code==='string'?error.code:'operation-failed',message:error?.message||'The job stopped.',
+        await publish(last={...last,status:'failed',safeToRetry:error?.safeToRetry===true||last.safeToRetry===true,error:{code:typeof error?.code==='string'?error.code:'operation-failed',message:error?.message||'The job stopped.',
           ...(error?.draftMayExist?{draftMayExist:true}:{}),...(error?.pageMayHaveChanged?{pageMayHaveChanged:true}:{}),...(error?.offer==='new-page'?{offer:'new-page'}:{})},
           // A tab that was closed is not offered to show.
           ...(error?.review?{review:error.review}:{}),...(error?.code==='tab-closed'?{tabId:null}:Number.isInteger(error?.tabId)?{tabId:error.tabId}:{})}).catch(()=>{});
       }finally{active=null;}
+      return last;
     })();
     return active;
   }
-  async function loaded(tabId){
+  async function loaded(tabId,source=false,checking=false){
     for(let tries=0;tries*250<loadTimeoutMs;tries++){
       const tab=await chromeApi.tabs.get(tabId).catch(()=>null);
-      if(!tab)throw fail('site-tab-closed','The site’s tab was closed before the send started. Send again.');
-      if(tab.status==='complete')return tab;
+      if(!tab)throw fail(source?'source-tab-closed':'site-tab-closed',source?'The Confluence tab was closed before capture. Open the source and try again.':checking?'The site’s check tab was closed. Refresh again.':'The site’s tab was closed before the send started. Send again.');
+      if(tab.status==='complete'&&!tab.pendingUrl)return tab;
       await sleep(250);
     }
-    throw fail('site-load-timeout','The SharePoint site did not finish loading. Check it in its tab, then send again.');
+    throw fail(source?'source-load-timeout':'site-load-timeout',source?'The Confluence page did not finish loading. Open the source and wait for it to load, then retry.':checking?'The SharePoint check did not finish loading. Wait for its tab to load, then Refresh again.':'The SharePoint site did not finish loading. Check it in its tab, then send again.');
+  }
+  function libraryView(open,siteUrl){
+    try{
+      const url=new URL(open.url),site=new URL(siteUrl),path=decodedPath(url.pathname)?.toLowerCase(),pages=`${decodedPath(site.pathname).replace(/\/$/,'')}/sitepages`.toLowerCase();
+      return url.origin===site.origin&&path!==null&&(path===pages||path.startsWith(`${pages}/forms/`)&&/\.aspx$/.test(path)&&!/(?:edit|new)form\.aspx$/.test(path))&&!shows(url.href,url)?.editing;
+    }catch{return false;}
+  }
+  async function quietTab(url,windowId,requiredWindow=false){
+    if(requiredWindow){
+      windowId=await workWindow(chromeApi,windowId);
+      try{return await chromeApi.tabs.create({url,active:false,windowId});}
+      catch(error){
+        if(!await chromeApi.windows.get(windowId).catch(()=>null))return chromeApi.tabs.create({url,active:false,windowId:await workWindow(chromeApi,null)});
+        throw error;
+      }
+    }
+    if(Number.isInteger(windowId)&&chromeApi.windows?.get&&!await chromeApi.windows.get(windowId).catch(()=>null))windowId=null;
+    try{return await chromeApi.tabs.create({url,active:false,...(Number.isInteger(windowId)?{windowId}:{})});}
+    catch(error){
+      if(Number.isInteger(windowId)&&(/^No window with id: \d+\.?$/.test(error?.message??'')||chromeApi.windows?.get&&!await chromeApi.windows.get(windowId).catch(()=>null)))return chromeApi.tabs.create({url,active:false});
+      throw error;
+    }
+  }
+  async function inspectTrackedSite(value,entries,{windowId,shouldStop=()=>false,onResult=async()=>{}}={}){
+    const siteUrl=siteAddress(value),groups=new Map();
+    for(const link of entries){const path=pageKey(siteUrl,link.path);if(link.siteUrl!==siteUrl||!path)throw fail('invalid-page','The tracked page is not in this site.');const id=link.uniqueId??path.toLowerCase();if(!groups.has(id))groups.set(id,[]);groups.get(id).push(link);}
+    let tab,remaining=[...entries],retain=false,notes,key,accessed;
+    const untouched=open=>open&&Number.isFinite(accessed)&&open.lastAccessed===accessed&&!open.active;
+    const report=async(link,result,error)=>{remaining=remaining.filter(entry=>entry!==link);await onResult(link,result,error);};
+    try{
+      if(shouldStop())return;
+      await reachable(siteUrl,siteUrl,null,'check');
+      windowId=await workWindow(chromeApi,windowId);
+      key=`${siteUrl}|false`;notes=(await session.get(INSPECTIONS))[INSPECTIONS]??{};
+      const previous=notes[key],open=previous?await chromeApi.tabs.get(previous.tabId).catch(()=>null):null;
+      const unchanged=open&&open.incognito===previous.incognito&&Number.isFinite(previous.lastAccessed)&&open.lastAccessed===previous.lastAccessed&&!open.active;
+      // An unchanged access timestamp proves the inactive tab is still ours,
+      // even if Chrome hides its address or sign-in redirects it elsewhere.
+      if(unchanged){
+        if(open.pendingUrl||open.status!=='complete')throw fail('sign-in-needed','Finish sign-in or check access in the existing SharePoint tab, then Refresh again.');
+        tab=await chromeApi.tabs.update(open.id,{url:`${siteUrl}/SitePages`});
+        if(tab.status!=='loading')throw fail('inspection-tab-changed','The check tab did not start loading. Refresh again when it is ready.');
+      }
+      tab??=await quietTab(`${siteUrl}/SitePages`,windowId,true);
+      const created=await chromeApi.tabs.get(tab.id);accessed=created.lastAccessed;
+      notes[key]={tabId:tab.id,incognito:created.incognito===true,lastAccessed:accessed};await session.set({[INSPECTIONS]:notes});
+      sendingTabs.add(tab.id);await keep(tab.id,true,false);
+      await loaded(tab.id,false,true);let context;
+      try{context=await inspect(tab.id);}catch(error){
+        const shown=await chromeApi.tabs.get(tab.id).catch(()=>null);
+        if(!shown?.url||originOf(shown.url)!==new URL(siteUrl).origin)throw fail('sign-in-needed','Sign in to the linked SharePoint site in the tab that opened, then Refresh again.');
+        throw error;
+      }
+      if(context.kind!=='sharepoint')throw fail(context.code==='denied'||context.product!=='sharepoint'?'sign-in-needed':'site-unavailable',context.reason||'Sign in to the linked SharePoint site.');
+      if(context.siteUrl!==siteUrl)throw fail('site-changed','The remembered address opened another site.');
+      for(const group of groups.values()){
+        if(shouldStop())break;
+        const open=await loaded(tab.id,false,true);
+        if(!untouched(open)||open.pendingUrl||open.status!=='complete'||!libraryView(open,siteUrl))throw fail('inspection-tab-changed','The inspection tab was used or moved. Refresh again to open another check tab.');
+        const first=group[0];
+        try{
+          const result=await message(tab.id,'inspect-tracked-page',{page:{path:first.path,parts:group.map(link=>({controls:link.part,titled:link.titled,headed:link.headed})),...(first.uniqueId?{uniqueId:first.uniqueId}:{})}});
+          const resolved=pageKey(siteUrl,result.path),present=result.partsPresent??(group.length===1?[result.partPresent]:null);
+          if(!resolved||first.uniqueId&&result.uniqueId!==first.uniqueId||!Array.isArray(present)||present.length!==group.length||present.some(value=>typeof value!=='boolean'))throw fail('page-unavailable','The tracked page could not be verified.');
+          for(const [index,link] of group.entries()){
+            if(present[index]&&link.uniqueId&&resolved.toLowerCase()!==link.path.toLowerCase()&&(await links.list()).some(entry=>linkKey(entry)===linkKey(link))){
+              await links.moved(siteUrl,link.path,resolved,link.uniqueId,{legacy:false,source:link.source});
+              await sites.visited(siteUrl,context.siteTitle||siteUrl,{path:resolved,title:result.title||link.title});
+              if(result.addressTaken!==true)await sites.removePage(siteUrl,link.path);
+            }
+            await report(link,{...result,path:resolved,partPresent:present[index]});
+          }
+        }catch(error){for(const link of group)await report(link,null,error);}
+      }
+    }catch(error){retain=true;for(const link of remaining)if(!shouldStop())await report(link,null,error);}
+    finally{if(tab){
+      sendingTabs.delete(tab.id);await keep(tab.id,false,false);
+      if(!retain&&untouched(await chromeApi.tabs.get(tab.id).catch(()=>null)))await closeOwned(tab.id,[],siteUrl,accessed);
+      const open=await chromeApi.tabs.get(tab.id).catch(()=>null);
+      if(untouched(open))notes[key]={tabId:tab.id,incognito:open.incognito===true,lastAccessed:accessed};else delete notes[key];
+      await session.set({[INSPECTIONS]:notes});
+    }}
+  }
+  async function inspectTrackedLink(link,options={}){
+    let result,error;
+    await inspectTrackedSite(link.siteUrl,[link],{...options,onResult:async(_link,value,failure)=>{result=value;error=failure;}});
+    if(error)throw error;return result;
+  }
+  async function closeOwned(tabId,expected,siteUrl,lastAccessed){
+    const open=await chromeApi.tabs.get(tabId).catch(()=>null);
+    if(!open||open.active||open.pendingUrl||!open.url)return;
+    if(Number.isFinite(lastAccessed)&&open.lastAccessed!==lastAccessed)return;
+    if(expected.some(url=>shows(open.url,new URL(url))?.editing===false)||siteUrl&&libraryView(open,siteUrl))await chromeApi.tabs.remove(tabId).catch(()=>{});
+  }
+  function reading(url,source){
+    try{const address=new URL(url),route=confluenceRoute({url:address,contextPath:'/wiki'});return address.origin===source.origin&&route?.type==='page'&&route.pageId===source.pageId&&!['edit','edit-v2'].some(value=>address.searchParams.has(value))&&![...address.searchParams].some(([key,value])=>key.toLowerCase()==='mode'&&value.toLowerCase()==='edit');}catch{return false;}
+  }
+  async function openSource(value,{windowId,reuse,requiredWindow=false,onOpened=async()=>{}}={}){
+    const source=sourceKey(value);if(!source)throw fail('invalid-source','Choose a tracked Confluence page.');
+    async function verify(id){
+      const tab=await loaded(id,true);if(!reading(tab.url,source))throw fail('source-changed','Open the source in reading view.');
+      const context=await inspect(id);
+      if(context.kind!=='confluence'||context.pageId!==source.pageId||originOf(context.pageUrl)!==source.origin)throw fail('source-not-ready','Open the source and wait for it to finish loading.');
+    }
+    // Navigate only a tab this batch owns and still finds at its last reading address.
+    // Even the same source is loaded anew, so an older body cannot accompany newer metadata.
+    const url=`${source.origin}/wiki/pages/viewpage.action?pageId=${source.pageId}`;
+    let tab,previousDocument=null;
+    if(reuse?.owned&&sourceKey(reuse.source)){
+      const open=await chromeApi.tabs.get(reuse.tabId).catch(()=>null);
+      if(open&&!open.active&&!open.pendingUrl&&reading(open.url,reuse.source)){
+        await onOpened({tabId:open.id,owned:true});
+        previousDocument=(await chromeApi.scripting.executeScript({target:{tabId:open.id},func:()=>null}).catch(()=>[])).find(frame=>frame.frameId===0)?.documentId??null;
+        if(!previousDocument)throw Object.assign(fail('source-not-ready','The source document could not be checked before navigation.'),{sourceTabId:open.id,sourceNotReady:true,safeToRetry:true});
+        tab=await chromeApi.tabs.update(open.id,{url});
+        if(tab?.id!==open.id||tab.status!=='loading')throw Object.assign(fail('source-not-ready','The source navigation was not confirmed.'),{sourceTabId:open.id,sourceNotReady:true,safeToRetry:true});
+      }
+    }
+    tab??=await quietTab(url,windowId,requiredWindow);
+    try{
+      if(!previousDocument)await onOpened({tabId:tab.id,owned:true});
+      await verify(tab.id);
+      if(previousDocument){const documentId=(await chromeApi.scripting.executeScript({target:{tabId:tab.id},func:()=>null})).find(frame=>frame.frameId===0)?.documentId;
+        if(!documentId||documentId===previousDocument)throw fail('source-not-ready','The source navigation did not load a new document.');}
+      return {tabId:tab.id,owned:true};
+    }
+    catch(error){throw Object.assign(error,{sourceTabId:tab.id,sourceNotReady:true,safeToRetry:true});}
   }
   // What the site's tab reports of the send, as the popup shows it: pictures are counted while they upload; the
   // other steps have no counts.
@@ -187,6 +321,8 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
   // address leaves the site's list unless another page now answers there. Bookkeeping must not turn a finished send
   // into a failure, and doing it twice changes nothing, so a restart can repeat it.
   async function remember(result,attempt,title,url){
+    if(attempt.page?.mode==='update'&&attempt.source&&!(await links.list()).some(link=>link.siteUrl===attempt.siteUrl&&link.source.origin===attempt.source.origin&&link.source.pageId===attempt.source.pageId&&
+      (attempt.page.uniqueId?link.uniqueId===attempt.page.uniqueId:link.path.toLowerCase()===attempt.page.path.toLowerCase())))return;
     const path=decodedPath(new URL(url).pathname),pageTitle=typeof result.title==='string'?result.title:'';
     const uniqueId=typeof result?.uniqueId==='string'&&GUID.test(result.uniqueId)?result.uniqueId.toLowerCase():undefined;
     const from=attempt.page?.path,moved=attempt.page?.mode==='update'&&typeof result?.movedFrom==='string'&&typeof from==='string'&&from.toLowerCase()!==path.toLowerCase();
@@ -195,7 +331,7 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
     if(!attempt.source)return;
     if(moved&&uniqueId)await Promise.resolve().then(()=>links.moved(attempt.siteUrl,from,path,uniqueId)).catch(()=>{});
     await Promise.resolve().then(()=>links.sent({source:attempt.source,siteUrl:attempt.siteUrl,path,...(uniqueId?{uniqueId}:{}),title:pageTitle,part:Array.isArray(result.part)?result.part:[],
-      mode:attempt.page?.mode??'draft',...(attempt.page?.mode==='update'?{titled:attempt.page.titled,headed:attempt.page.headed}:{})})).catch(()=>{});
+      mode:attempt.page?.mode??'draft',...(attempt.sourceRevision?{sourceRevision:attempt.sourceRevision}:{}),...(attempt.sourceIncomplete?{sourceIncomplete:true}:{}),...(attempt.sourceUpdateUnknown?{sourceUpdateUnknown:true}:{}),...(attempt.page?.mode==='update'?{titled:attempt.page.titled,headed:attempt.page.headed,requireExisting:true}:{})})).catch(()=>{});
   }
   // How a verified send is reported, whether it finished now or before a restart of the background.
   function done(result,attempt,title,url){
@@ -210,8 +346,12 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
     await store.completeAttempt(result);
     await noted(null);
     await remember(result,attempt,title,url);
-    const shown=await show(url,tab);
+    const job=await current();
+    const shown=job?.foreground===false?null:await show(url,tab);
     await finish({...done(result,attempt,title,url),...(shown!==null?{tabId:shown}:{})});
+    if(job?.foreground===false&&job.ownedDestination&&tab?.id){
+      await closeOwned(tab.id,[url],attempt.siteUrl);
+    }
   }
   // A failure after the send started: when the site's tab said the page (or, for a draft, the site) is as it
   // was, the capture can be sent again and nothing needs review; otherwise the page, or Site Pages, is to review.
@@ -221,6 +361,7 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
     await noted(null);
     if(error?.reported&&(page?error.pageUnchanged===true:error.draftMayExist!==true)){
       await store.releaseAttempt(attempt.attemptId);
+      error.safeToRetry=true;
       const updating=page?.mode==='update',id=updating?page.uniqueId:undefined;
       // A page that is gone or unfit leaves the site's list (unless another page now answers at its address) with its
       // links: by its ID where the update knew it (a link with another ID is another page and stays), else the links
@@ -307,6 +448,7 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
     return {...model,sourcePage:page};
   }
   function capture(tabId){
+    owned();
     if(!Number.isInteger(tabId))throw fail('invalid-tab','Open the Confluence page to capture.');
     return start({kind:'capture',tabId,phase:'capturing',message:'Capturing the page',completed:0,total:0},async(update,finish)=>{
       const model=await captured(tabId,update);
@@ -328,37 +470,40 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
    * Captures the Confluence page in `tabId` and puts it into a page it was sent to before, in place of what that send
    * wrote there; a page made from it gets its title, byline and date again too.
    */
-  function updatePage(tabId,siteUrl,pagePath,windowId){
+  function updatePage(tabId,siteUrl,pagePath,windowId,options={}){
+    owned(options.batchId);
     if(!Number.isInteger(tabId))throw fail('invalid-tab','Open the Confluence page to update from.');
     const key=siteKey(siteUrl),path=key?pageKey(key,pagePath):null;
     if(!path)throw fail('invalid-destination','Choose a page this Confluence page was sent to.');
-    return start({kind:'send',siteUrl:key,page:{path,mode:'update',title:''},phase:'capturing',message:'Capturing the page',completed:0,total:0},async(update,finish)=>{
+    return start({kind:'send',siteUrl:key,page:{path,mode:'update',title:''},...options,phase:'capturing',message:'Capturing the page',completed:0,total:0},async(update,finish)=>{
       // The update replaces the capture, so the earlier one goes first: a capture of another page, already sent, would
       // otherwise have the popup put this job away with it, whatever stops it.
       await store.clear();
-      const sent=(await links.list()).filter(link=>link.siteUrl===key&&link.path.toLowerCase()===path.toLowerCase());
+      const sent=(await links.list()).filter(link=>link.siteUrl===key&&(options.batchItemId?linkKey(link)===options.batchItemId:link.path.toLowerCase()===path.toLowerCase()));
       if(!sent.length)throw fail('link-unknown',UNLINKED);
       await update({page:{path:sent[0].path,mode:'update',title:sent[0].title}});
       // What would stop the send is checked before the capture, which can take a while.
       await reachable(key,(await sites.list()).find(site=>site.url===key)?.title||key,sent[0].path);
       // The page in the tab is captured now; it must be the Confluence page that was sent.
       const model=await captured(tabId,update);
+      if(options.batchId&&(model.warnings??[]).some(warning=>warning.lost&&RENDERING_LOSSES.has(warning.code)))throw fail('capture-loss','The source capture missed content. Review it in the popup before continuing.');
       // The link as the list has it now: the account copy may have brought a newer one meanwhile.
-      const link=(await links.list()).find(entry=>entry.siteUrl===key&&entry.path.toLowerCase()===path.toLowerCase()&&entry.source.origin===model.sourcePage?.origin&&entry.source.pageId===model.sourcePage?.pageId);
+      const link=(await links.list()).find(entry=>entry.siteUrl===key&&(options.batchItemId?linkKey(entry)===options.batchItemId:entry.path.toLowerCase()===path.toLowerCase())&&entry.source.origin===model.sourcePage?.origin&&entry.source.pageId===model.sourcePage?.pageId);
       if(!link)throw fail('link-unknown',UNLINKED);
       await sending(key,{path:link.path,mode:'update',title:link.title,part:{controls:link.part,titled:link.titled,headed:link.headed},...(link.uniqueId?{uniqueId:link.uniqueId}:{})},windowId,update,finish);
     });
   }
   function transfer(siteUrl,target,windowId){
+    owned();
     const key=siteKey(siteUrl);
     if(!key)throw fail('invalid-destination','Choose a SharePoint site to send the page to.');
     return start({kind:'send',siteUrl:key,...(target?{page:{...target,title:''}}:{}),phase:'opening',message:'Opening the site',completed:0,total:0},(update,finish)=>sending(key,target,windowId,update,finish));
   }
   // Whether the site's tab can be reached, and the page (by its path) is not held by SharePoint's editor in this browser.
-  async function reachable(key,name,path){
+  async function reachable(key,name,path,action='send'){
     // Chrome holds scripts in a site whose access the user withheld from the extension; ask for access rather than wait.
     if(!await Promise.resolve(chromeApi.permissions?.contains({origins:[`${new URL(key).origin}/*`]})).catch(()=>false))
-      throw fail('site-access-needed',`Chrome’s site access for this extension does not include ${name}. Allow access, then send again.`);
+      throw fail('site-access-needed',`Chrome’s site access for this extension does not include ${name}. Allow access, then ${action==='check'?'Refresh':'send'} again.`);
     // A page open in SharePoint's editor in this browser: the editor holds the page, and is never moved or reloaded from here.
     if(path){
       const address=new URL(pageAddress(key,path));
@@ -414,7 +559,10 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
     await reachable(key,name,page?.path);
     await Promise.resolve().then(()=>sites.used(key)).catch(()=>{/* Only the order of the sites. */});
     await update({phase:'opening',siteTitle:name,message:`Opening ${name}`,completed:0,total:0});
-    const tab=await leftTab(key,windowId)??await chromeApi.tabs.create({url:`${key}/SitePages`,active:false,...(Number.isInteger(windowId)?{windowId}:{})});
+    const quiet=(await current())?.foreground===false;
+    const left=quiet?null:await leftTab(key,windowId);
+    const tab=left??await quietTab(`${key}/SitePages`,windowId,quiet);
+    await update({ownedDestination:!left});
     sendingTabs.add(tab.id);
     // The send runs in this background tab for minutes; Chrome's memory saver must not discard it meanwhile.
     await keep(tab.id,true);
@@ -453,19 +601,24 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
       // An add names the IDs of the pages this Confluence page was sent to on the site, which the site's tab refuses to add
       // to: a page renamed in SharePoint since keeps its ID, not the address its link has, so it is not matched above.
       const sentIds=page?.mode==='add'?[...new Set(sentHere.map(link=>link.uniqueId).filter(id=>typeof id==='string'&&GUID.test(id)).map(id=>id.toLowerCase()))].slice(0,200):[];
+      if(page?.mode==='update'&&model.sourcePage&&!(await links.list()).some(link=>link.source.origin===model.sourcePage.origin&&link.source.pageId===model.sourcePage.pageId&&link.siteUrl===key&&
+        (page.uniqueId?link.uniqueId===page.uniqueId:link.path.toLowerCase()===page.path.toLowerCase())))throw fail('link-unknown',UNLINKED);
       // An update's attempt keeps the controls it looks for: after a restart they are all that tells its link from a newer
       // one another computer sent meanwhile, which a part found gone must not take along.
-      const attempt={attemptId:globalThis.crypto.randomUUID(),sourceHash:model.sourceHash,siteUrl:key,tabId:tab.id,...(page?{page}:{}),...(model.sourcePage?{source:model.sourcePage}:{}),
-        ...(Array.isArray(target?.part?.controls)?{part:target.part.controls}:{})};
+      const sourceUpdateUnknown=model.sourceEditing===true;
+      const sourceIncomplete=(model.warnings??[]).some(warning=>warning.lost);
+      const sourceRevision=sourceUpdateUnknown?null:normalSourceRevision({version:model.sourceMetadata?.version,updatedAt:Date.parse(model.sourceMetadata?.lastUpdatedAt)});
+      const attempt={attemptId:globalThis.crypto.randomUUID(),sourceHash:model.sourceHash,siteUrl:key,tabId:tab.id,...(page?{page}:{}),...(model.sourcePage?{source:model.sourcePage}:{}),...(sourceRevision?{sourceRevision}:{}),
+        ...(sourceIncomplete?{sourceIncomplete:true}:{}),...(sourceUpdateUnknown?{sourceUpdateUnknown:true}:{}),...(Array.isArray(target?.part?.controls)?{part:target.part.controls}:{})};
       // The job names its attempt before claiming it, so after a restart it is never taken for an earlier send's.
-      await update({attemptId:attempt.attemptId});
+      await update({attemptId:attempt.attemptId,safeToRetry:false});
       await store.claimAttempt(attempt);
       await noted({attemptId:attempt.attemptId,siteUrl:key,...(page?{page:{path:page.path,mode:page.mode,title:page.title}}:{}),startedAt:Date.now()});
       await update({phase:'checking',message:SENDING.checking,completed:0,total:0});
       try{await message(tab.id,'import',{model,attemptId:attempt.attemptId,siteUrl:key,detach:true,...(page?{page:{path:page.path,mode:page.mode,...(target.part?{part:target.part}:{}),...(page.uniqueId?{uniqueId:page.uniqueId}:{}),...(sentIds.length?{sentIds}:{})}}:{})});}
       catch(error){
         // Refused before it started, so nothing was written: the capture can be sent again.
-        if(error?.refused){await store.releaseAttempt(attempt.attemptId);throw error;}
+        if(error?.refused){await store.releaseAttempt(attempt.attemptId);error.safeToRetry=true;throw error;}
         // No answer: the send may have started, so its tab's status decides.
       }
       await update({review:page?{pageUrl:pageAddress(key,page.path)}:{sitePagesUrl:`${key}/SitePages`}});
@@ -475,8 +628,10 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
       await complete(result,attempt,title,tab,finish);
     }catch(error){
       if(error&&typeof error==='object'&&!Number.isInteger(error.tabId))error.tabId=tab.id;
+      const job=await current().catch(()=>null);
+      if(quiet&&job?.ownedDestination&&(job.safeToRetry||error?.safeToRetry)&&!error?.draftMayExist&&!error?.pageMayHaveChanged)await closeOwned(tab.id,[],key);
       // Nothing was written, so the tab holds nothing to review: the next send of the site may use it.
-      if(!error?.draftMayExist&&!error?.pageMayHaveChanged&&error?.code!=='tab-closed'&&error?.code!=='site-tab-closed')
+      if(!quiet&&!error?.draftMayExist&&!error?.pageMayHaveChanged&&error?.code!=='tab-closed'&&error?.code!=='site-tab-closed')
         await Promise.resolve().then(()=>session.set({[LEFT]:{siteUrl:key,tabId:tab.id}})).catch(()=>{});
       throw error;
     }finally{
@@ -498,7 +653,8 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
         losses:(model.warnings??[]).filter(warning=>warning.lost).map(warning=>warning.message??warning.code),
         attempt:attempt?{status:attempt.status,siteUrl:attempt.siteUrl,pageUrl,page:attempt.page?{title:attempt.page.title,mode:attempt.page.mode}:null}:null,page:model.sourcePage??null}:null};
   }
-  async function clear(){
+  async function clear({batchId}={}){
+    owned(batchId);
     if(active)throw fail('job-busy','Wait for the current capture or send to finish.');
     await store.clear();await session.remove(JOB);await noted(null);
   }
@@ -514,10 +670,12 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
    * the popup opening.
    */
   async function recover(){
+    const inspectionNotes=(await session.get(INSPECTIONS).catch(()=>({})))[INSPECTIONS]??{};
+    for(const entry of Object.values(inspectionNotes))await keep(entry.tabId,false,false);
     const job=await current();
     if(active)return;
-    let record=null;
-    try{record=await store.load();}catch{/* Nothing to follow. */}
+    let record=null,recordRead=false;
+    try{record=await store.load();recordRead=true;}catch{/* The outcome remains unknown. */}
     let kept=null;try{kept=(await chromeApi.storage.local.get(KEPT))[KEPT];}catch{/* None noted. */}
     // A job may have started while the record was read.
     if(active)return;
@@ -545,28 +703,35 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
       // The send finished before the restart; only its report, and perhaps its bookkeeping, was lost.
       let url=null;try{url=confirmedPageUrl(attempt.result,attempt);}catch{/* Reported as interrupted below. */}
       if(url)await remember(attempt.result,attempt,title,url);
-      if(url){await publish({...job,...done(attempt.result,attempt,title,url)});await noted(null);await giveBack(attempt.tabId,job.tabId);return;}
+      if(url){await publish({...job,...done(attempt.result,attempt,title,url)});await noted(null);await giveBack(attempt.tabId,job.tabId);if(job.foreground===false&&job.ownedDestination)await closeOwned(attempt.tabId,[url],attempt.siteUrl);return;}
     }
     if(job.kind==='send'&&attempt?.status==='started'&&Number.isInteger(attempt.tabId)){
       const review=attempt.page?{pageUrl:pageAddress(attempt.siteUrl,attempt.page.path)}:{sitePagesUrl:`${attempt.siteUrl}/SitePages`};
       if(kept!==attempt.tabId)await keep(kept,false);
-      return start({...job,tabId:attempt.tabId,review},async(update,finish)=>{
+      const following=start({...job,safeToRetry:false,tabId:attempt.tabId,review},async(update,finish)=>{
         // Still the send's tab, as in sending(): its visits are not recorded and the memory saver leaves it until the send ends.
         sendingTabs.add(attempt.tabId);
         await keep(attempt.tabId,true);
         try{
           let result;
-          try{result=await settle(attempt.tabId,attempt.attemptId,progress(update),quietLimit(record?.model,importTimeoutMs));}catch(error){throw await stopped(error,attempt,update);}
+          try{result=await settle(attempt.tabId,attempt.attemptId,progress(update),quietLimit(record?.model,importTimeoutMs));}catch(error){
+            const failure=await stopped(error,attempt,update);
+            if(job.foreground===false&&job.ownedDestination&&failure.safeToRetry&&!failure.draftMayExist&&!failure.pageMayHaveChanged)await closeOwned(attempt.tabId,[],attempt.siteUrl);
+            throw failure;
+          }
           await complete(result,attempt,title,await chromeApi.tabs.get(attempt.tabId).catch(()=>null),finish);
         }finally{
           sendingTabs.delete(attempt.tabId);await noted(null);
           await keep(attempt.tabId,false);
         }
       });
+      return {following};
     }
-    await publish({...job,status:'failed',error:{code:'interrupted',message:job.kind==='capture'?'The extension restarted during the capture. Capture the page again.':
+    const beforeWrite=recordRead&&job.safeToRetry===true&&!job.attemptId&&!record?.attempt;
+    await publish({...job,status:'failed',safeToRetry:beforeWrite,error:{code:'interrupted',...(job.kind==='send'&&!beforeWrite?(job.page?{pageMayHaveChanged:true}:{draftMayExist:true}):{}),message:job.kind==='capture'?'The extension restarted during the capture. Capture the page again.':
+      !beforeWrite?'The extension could not establish whether the send completed. Review the destination before clearing this attempt.':
       job.page?.mode==='update'?'The extension restarted before the page was updated. Update it again.':job.page?'The extension restarted before the page was written. Send again.':'The extension restarted before the draft was started. Send again.'}});
     await giveBack(attempt?.tabId,job.tabId);
   }
-  return {state,inspect,capture,send,sendToPage,updatePage,clear,showTab,recover,busyTab:tabId=>sendingTabs.has(tabId)};
+  return {state,inspect,inspectTrackedLink,inspectTrackedSite,openSource,capture,send,sendToPage,updatePage,clear,showTab,recover,busyTab:tabId=>sendingTabs.has(tabId)};
 }

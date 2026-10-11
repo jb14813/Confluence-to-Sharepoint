@@ -73,14 +73,17 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   async function sharePointAllowed(){
     try{return await chromeApi.permissions.contains({origins:['https://*.sharepoint.com/*']});}catch{return true;}
   }
-  async function load(){const [data,open,sharePoint]=await Promise.all([call('state'),openTabs(),sharePointAllowed()]);state.data=data;state.open=open;state.sharePoint=sharePoint;}
+  // `recheck`: the user may have just signed in to a Confluence site or allowed access to it, which the account copy then
+  // checks at once; the readings after each change of a running send do not ask for that.
+  async function load({recheck=false}={}){const [data,open,sharePoint]=await Promise.all([call('state',recheck?{recheck:true}:{}),openTabs(),sharePointAllowed()]);state.data=data;state.open=open;state.sharePoint=sharePoint;}
+  // Opened, back at its tab, or given site access.
   async function refresh(){
     try{
       state.problem=null;
       state.tab=await currentTab();
       state.access=await accessWithheld(state.tab);
       state.allAccess=await allSitesAllowed();
-      await load();
+      await load({recheck:true});
       // Opened over a tab of a remembered site, the popup chooses that site.
       state.tabSite=siteOfTab(state.data?.sites??[],state.tab?.url)?.url??null;
       // Only a Confluence page is read here; SharePoint sites are checked when a page is sent to them.
@@ -326,6 +329,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
     if(focused){const again=document.querySelector(focused);if(again&&!again.disabled)again.focus({preventScroll:true});else if(!focused.startsWith('input'))el(state.view==='sites'?'back':'status').focus({preventScroll:true});}
   }
   const on=(id,handler)=>el(id).addEventListener('click',handler);
+  on('dashboard-link',()=>act(()=>call('open-dashboard')));
   on('capture',()=>act(()=>call('capture',{tabId:state.tab.id})));
   on('send-button',()=>act(()=>state.updateInstead?call('send-page',{siteUrl:state.chosen,pagePath:state.updateInstead,mode:'update',windowId:state.tab?.windowId??null})
     :call('send',{siteUrl:state.chosen,windowId:state.tab?.windowId??null})));

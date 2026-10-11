@@ -232,11 +232,13 @@ async function holds(account,named){
   return false;
 }
 
+// A Confluence site as the messages name it: its host, or what was given when that is not an address.
+function hostOf(origin){try{return new URL(origin).host;}catch{return origin;}}
 // What went wrong with one Confluence site's account, as said while the setting is on: `reading` when nothing was being
 // changed (a read); `missing` when the site answered 404 to whom the sign-in is for, an address every Confluence Cloud
 // site serves, so the site is gone.
 function problem(kind,origin,{status,reading=false}={}){
-  let host=origin;try{host=new URL(origin).host;}catch{/* Named as given. */}
+  const host=hostOf(origin);
   const error=fail(`account-${kind}`,{
     'signed-out':`Sign in to ${host} to keep your sent pages in your Confluence account. This browser’s list is used meanwhile.`,
     access:`Chrome’s site access for this extension does not include ${host}, so your sent pages can’t be kept in your Confluence account there. Allow access to ${host}.`,
@@ -256,16 +258,16 @@ function removalMessage(error){
   if(error?.kind==='access')return `Allow this extension’s site access to ${error.host} so your sent pages can be removed from your Confluence account there.`;
   return error?.host?`Your sent pages will be removed from your Confluence account on ${error.host} when it answers.`:'Your sent pages will be removed from your Confluence account when it answers.';
 }
-// A removal that waited and found none of this browser's entries in the account signed in (see holds). Turned on and
-// off again while signed in to the right account, the removal is made at once there.
+// A removal that waited, or outlived the worker that queued it, and found neither this browser's entries nor this
+// choice's note in the account signed in (see holds). Turned on and off again while signed in to the right account,
+// the removal is made at once there.
 function skippedMessage(origin){
-  let host=origin;try{host=new URL(origin).host;}catch{/* Named as given. */}
-  return `Nothing was removed from the Confluence account signed in on ${host}, as none of this browser’s sent pages are kept in it. If it is the account that keeps them, turn Keep in my Confluence account on and off again while signed in to it.`;
+  return `Nothing was removed from the Confluence account signed in on ${hostOf(origin)}, because this browser could not confirm that it is the account holding its sent history. If it is the intended account, turn Keep in my Confluence account on and off again while signed in to it.`;
 }
 // A removal given up after failing for two weeks (see lasting): the copy may still be there, and the site is no longer
 // listed, so turning the setting on over one of its pages takes it on again (see refreshNow) for the turning off.
 function abandonedMessage(origin){
-  let host=origin;try{host=new URL(origin).host;}catch{/* Named as given. */}
+  const host=hostOf(origin);
   return `Your sent pages were not removed from your Confluence account on ${host}, as it did not take the removal for two weeks. To remove them, open a page of ${host} while signed in there, and turn Keep in my Confluence account on and off again.`;
 }
 
@@ -294,6 +296,10 @@ function client(origin,fetchImpl){
   }
   const property=async key=>{if(!KEYS.includes(key))throw fail('account-key','Not a key this extension keeps.');return `/${encodeURIComponent(await me())}/property/${key}`;};
   return {
+    // The identity already established by this worker, never persisted. A cleanup chosen before any account lookup
+    // cannot assume that the account eventually answering is the one signed in when the user chose it.
+    identity:()=>who,
+    async currentIdentity(){const known=who;who=null;try{return await me();}catch(error){who=known;throw error;}},
     async read(key){
       const answer=await call('GET',await property(key));
       if(answer.status===404)return {exists:false,value:null};
@@ -321,6 +327,11 @@ function client(origin,fetchImpl){
 export function createAccount({storage=globalThis.chrome?.storage?.local,sync=globalThis.chrome?.storage?.sync,fetchImpl=(...args)=>globalThis.fetch(...args),
   permissions=globalThis.chrome?.permissions,links,now=()=>Date.now()}={}){
   const clients=new Map();
+  const knownIdentities=()=>new Map([...clients].map(([origin,account])=>[origin,account.identity()]).filter(([,identity])=>identity));
+  // The removals this worker queued, with the account it knew on their site when the user chose (null if none yet).
+  // Kept in memory only: one that outlives the worker (stopped before its first request failed, so not `waited`)
+  // needs this browser's entries in the account, as a removal that waited does (see holds).
+  const immediateClears=new Map();
   async function clientFor(origin){
     if(!ORIGIN.test(origin))throw problem('refused',origin,{status:0});
     // Chrome sends nothing to a site whose access the user withheld; that is said, not taken for silence.
@@ -331,7 +342,9 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
   const readState=async()=>{
     const value=(await storage.get(STATE))[STATE];
     // `enabledAt`: when the setting was last turned on, which an older note in the account does not turn off again.
-    return {enabled:value?.enabled===true,enabledAt:Number.isSafeInteger(value?.enabledAt)&&value.enabledAt>=0?value.enabledAt:0,origins:Array.isArray(value?.origins)?[...new Set(value.origins.filter(origin=>typeof origin==='string'&&ORIGIN.test(origin)))]:[],
+    // `settingAt`: the latest choice in either direction, kept even when a Chrome-sync write fails.
+    const enabledAt=Number.isSafeInteger(value?.enabledAt)&&value.enabledAt>=0?value.enabledAt:0;
+    return {enabled:value?.enabled===true,enabledAt,settingAt:Number.isSafeInteger(value?.settingAt)&&value.settingAt>=0?Math.max(value.settingAt,enabledAt):enabledAt,origins:Array.isArray(value?.origins)?[...new Set(value.origins.filter(origin=>typeof origin==='string'&&ORIGIN.test(origin)))]:[],
       problem:typeof value?.problem==='string'&&value.problem?value.problem.slice(0,400):null,
       // The Confluence site the problem is with, asked again when the popup opens, so a sign-in the user made clears it.
       problemOrigin:typeof value?.problemOrigin==='string'&&ORIGIN.test(value.problemOrigin)?value.problemOrigin:null,
@@ -344,10 +357,15 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
   const writeQueue=list=>storage.set({[QUEUE]:list.slice(-MAX_OPS)});
   const stamp=op=>({...op,id:globalThis.crypto.randomUUID(),done:[],...(op.op==='put'||op.op==='drop'?{}:{at:op.at??now()})});
   const putOf=link=>stamp({op:'put',origin:link.source.origin,pageId:link.source.pageId,entry:encodeEntry(link)});
-  // The setting as Chrome sync holds it, for every Chrome of the user's where sync is on; written only by the user's own
-  // choice (and by a note from a browser without sync), each dated, so the newest choice wins everywhere.
+  // The setting as Chrome sync holds it, for every Chrome of the user's where sync is on. Each choice is dated; a
+  // delayed older write is corrected from the latest local choice. Off wins when opposing choices have the same date.
   const readSetting=async()=>{try{const value=(await sync?.get(SETTING))?.[SETTING];return plain(value)&&[0,1].includes(value.on)&&Number.isSafeInteger(value.at)&&value.at>=0?{on:value.on,at:value.at}:null;}catch{return null;}};
-  const writeSetting=async(on,at)=>{try{const was=await readSetting();if(!was||was.at<=at)await sync?.set({[SETTING]:{on:on?1:0,at}});}catch{/* Kept in this browser only. */}};
+  const writeSetting=async(on,at)=>{try{await locked(async()=>{
+    const was=await readSetting(),latest=await readState();
+    if(at<latest.settingAt||at===latest.settingAt&&on!==latest.enabled)return;
+    if(!was||was.at<at||was.at===at&&was.on===1&&!on)await sync?.set({[SETTING]:{on:on?1:0,at}});
+  });
+  }catch{/* Kept in this browser only. */}};
   // Operations added to the queue (under the lock); a newer copy of a link replaces an older one still waiting. While
   // the setting is off nothing but a removal waits, so work begun before it was turned off never goes out later.
   async function append(ops){
@@ -361,12 +379,12 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
     }
     await writeQueue(list);
   }
-  // Storage-only changes of the state and the queue, one at a time and never waiting on the network.
+  // Chrome-storage changes of the state, queue and synced choice, one at a time; Confluence never holds this lock.
   let lock=Promise.resolve();
   const locked=work=>{const next=lock.then(work);lock=next.catch(()=>{});return next;};
   // The account's own work, one piece at a time; a flush asked for while one already waits is not asked twice.
   // `failedKind`: what the last failure was; a sign-in or a site-access grant is the user's to make, and the popup's
-  // opening after one checks again at once, while any other failure waits RETRY_MS.
+  // opening after one checks again at once (see retry), while anything else waits RETRY_MS after a failure.
   let net=Promise.resolve(),pending=false,failedAt=0,failedKind=null,races=0;
   const usersToFix=kind=>kind==='signed-out'||kind==='access';
   const onNet=work=>{const next=net.then(work);net=next.catch(()=>{});return next;};
@@ -382,24 +400,31 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
   }
   // Turned on (by the user here, or through Chrome sync): the links go to the Confluence sites they came from, and an
   // older off note goes from every site this browser used, links or not.
-  async function turnOn(at){
-    await locked(async()=>{
+  async function turnOn(at,{fromSync=false}={}){
+    const changed=await locked(async()=>{
       const state=await readState();
-      await writeState({...state,enabled:true,enabledAt:at,problem:null,problemOrigin:null});
+      if(at<state.settingAt||fromSync&&at===state.settingAt)return false;
+      if(fromSync&&state.enabled){await writeState({...state,enabledAt:at,settingAt:at});return false;}
+      await writeState({...state,enabled:true,enabledAt:at,settingAt:at,problem:null,problemOrigin:null});
       const local=await links.list();
       // A site used before (its removal after the setting was last turned off may still wait) gets them again.
       await append([...local.filter(link=>state.origins.includes(link.source.origin)).map(putOf),...state.origins.map(origin=>stamp({op:'on',origin}))]);
       for(const origin of new Set(local.map(link=>link.source.origin)))await adopt(origin);
+      return true;
     });
-    failedAt=0;failedKind=null;
+    if(changed){failedAt=0;failedKind=null;}
+    return changed;
   }
   // Turned off (here, through Chrome sync, or by a note another browser left): the extension's data goes from every
   // Confluence site this browser used, with a note dated `at`; nothing more is sent. `said`: why, when not the user's here.
-  async function turnOff(at,said=null){
-    await locked(async()=>{
-      const state=await readState(),local=await links.list(),waiting=await readQueue();
+  async function turnOff(at,said=null,{fromSync=false,identities=knownIdentities()}={}){
+    const changed=await locked(async()=>{
+      const state=await readState();
+      if(at<state.settingAt||fromSync&&at===state.settingAt&&!state.enabled)return false;
+      if(fromSync&&!state.enabled){await writeState({...state,settingAt:at});return false;}
+      const local=await links.list(),waiting=await readQueue();
       // Already off, it keeps saying why (another computer turned it off), whatever turns it off again.
-      await writeState({...state,enabled:false,problem:said??(state.enabled?null:state.problem),problemOrigin:said||state.enabled?null:state.problemOrigin});
+      await writeState({...state,enabled:false,settingAt:at,problem:said??(state.enabled?null:state.problem),problemOrigin:said||state.enabled?null:state.problemOrigin});
       // Each removal names this browser's entries from that site (and those a removal still waiting named), so that,
       // should it have to wait, it is made only in the account holding them (see holds); the list is read before Forget
       // all clears it.
@@ -409,17 +434,21 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
       // A removal still waiting keeps its count of failed tries, and when they began (see lasting).
       const tried=origin=>{const tries=Math.max(0,...earlier(origin).map(op=>op.tries??0)),since=Math.min(...earlier(origin).map(op=>op.since??Infinity));
         return {...(tries?{tries}:{}),...(Number.isFinite(since)?{since}:{})};};
-      await writeQueue(state.origins.map(origin=>stamp({op:'clear',origin,at,expect:named(origin),...tried(origin)})));
+      const clears=state.origins.map(origin=>stamp({op:'clear',origin,at,expect:named(origin),...tried(origin)}));
+      await writeQueue(clears);
+      for(const op of clears)immediateClears.set(op.id,identities.get(op.origin)??null);
+      return true;
     });
-    failedAt=0;failedKind=null;
-    void onNet(flush).catch(()=>{});
+    if(changed){failedAt=0;failedKind=null;void onNet(flush).catch(()=>{});}
+    return changed;
   }
   // A note in the account newer than this browser's turning on: the setting was turned off on another computer. It is
   // off here too, in Chrome sync as well, dated as the note is.
   async function offElsewhere(at){
+    const identities=knownIdentities();
     if(!(await readState()).enabled)return;
     // This browser first, so the change coming back through Chrome sync finds it already off.
-    await turnOff(at,ELSEWHERE);
+    await turnOff(at,ELSEWHERE,{identities});
     await writeSetting(false,at);
   }
   const complete=(op,state)=>op.origin?op.done.includes(op.origin):state.origins.length>0&&state.origins.every(origin=>op.done.includes(origin));
@@ -446,11 +475,22 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
         const account=await clientFor(origin),values=new Map();
         const last=ops.map(op=>op.op).lastIndexOf('clear'),after=last>=0?ops.slice(last+1):ops;
         if(last>=0){
-          // Removed, then noted as turned off (dated as the choice was), for the browsers that have no Chrome sync. One
-          // that waited, only in the account holding this browser's entries; elsewhere nothing is removed or noted, the
-          // removal is done, and the site stays among those holding the copy, for turning it on and off again.
+          // Noted as turned off (dated as the choice was), for the browsers that have no Chrome sync, and removed. One
+          // this worker queued and that has not failed is made in the account signed in, as every save is (in the one
+          // this worker knew when the user chose, if it knew one). Any other only in the account holding this browser's
+          // entries, or holding this same choice's note, which another of the user's browsers made there. Elsewhere
+          // nothing is removed or noted, the removal is done, and the site stays among those holding the copy, for
+          // turning it on and off again.
           const clears=ops.filter(op=>op.op==='clear');
-          const mine=!clears.some(waitedOp)||await holds(account,[...clears.flatMap(op=>op.expect??[]),...(await links.list()).filter(link=>link.source.origin===origin).map(identityOf)]);
+          let mine=clears.every(op=>immediateClears.has(op.id)&&!waitedOp(op)&&[null,account.identity()].includes(immediateClears.get(op.id)))||
+            await holds(account,[...clears.flatMap(op=>op.expect??[]),...(await links.list()).filter(link=>link.source.origin===origin).map(identityOf)]);
+          if(!mine){const note=await account.read(OFF);mine=note.exists&&clears.some(op=>op.at===note.value.at);}
+          // Noted before anything is removed (0.5.4), so a removal cut off part-way, its entries gone, still finds this
+          // choice's note when it is tried again.
+          if(mine&&!after.length){
+            const note=await account.read(OFF),at=Math.max(ops[last].at??0,note.value?.at??0);
+            if(!note.exists||note.value.at<at)await account.write(OFF,{v:VERSION,off:1,at},note.exists);
+          }
           if(mine)for(const key of DATA_KEYS)await account.remove(key);else skipped.push(origin);
           // Turned on again since (what follows the removal was queued while it was on): no note is left, and an older
           // one goes, removed or not, as what follows is saved there; one newer than the turning on stops this browser.
@@ -458,9 +498,6 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
             const note=await account.read(OFF);
             if(note.exists&&note.value.at>state.enabledAt){offAt=Math.max(offAt,note.value.at);continue;}
             if(note.exists)await account.remove(OFF);
-          }else if(mine){
-            const note=await account.read(OFF),at=Math.max(ops[last].at??0,note.value?.at??0);
-            if(!note.exists||note.value.at<at)await account.write(OFF,{v:VERSION,off:1,at},note.exists);
           }
           if(mine)for(const key of DATA_KEYS)values.set(key,{exists:false,value:null,before:'null'});
         }else{
@@ -517,6 +554,8 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
       const origins=latest.origins.filter(origin=>!givenUp.has(origin)||kept(origin));
       const remaining=current.filter(op=>!complete(op,{...latest,origins}));
       await writeQueue(remaining);
+      const pendingIds=new Set(remaining.map(op=>op.id));
+      for(const [id] of immediateClears)if(!pendingIds.has(id))immediateClears.delete(id);
       const removing=origin=>!latest.enabled&&remaining.some(op=>op.op==='clear'&&op.origin===origin);
       // Each site's problem is said, as far as they fit; off, so are the removals given up or not made.
       const texts=[...failures.map(({error,origin,waiting})=>removing(origin)?removalMessage(error):waiting?waitingMessage(error):error?.message),
@@ -581,6 +620,64 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
         problemOrigin:typeof error?.origin==='string'&&ORIGIN.test(error.origin)?error.origin:key.origin});});
     }
   }
+  // A manual catalog scan stages all buckets before accepting anything from one origin.
+  async function refreshCatalog({origins=[],onProgress,shouldStop=()=>false}={}){
+    let state=await readState();const reports=[];
+    if(!state.enabled)return {reports};
+    const targets=[...new Set([...state.origins,...origins].filter(origin=>typeof origin==='string'&&ORIGIN.test(origin)))];
+    await flush();
+    for(const origin of targets){
+      state=await readState();
+      if(!state.enabled)break;
+      if(shouldStop()){reports.push({origin,status:'stopped'});break;}
+      const epoch=state.settingAt;
+      if((await readQueue()).some(op=>!op.done.includes(origin)&&(op.origin?op.origin===origin:state.origins.includes(origin)))){
+        reports.push({origin,status:'pending',message:'Local history changes are still waiting for this Confluence site.'});continue;
+      }
+      try{
+        const beforeLinks=JSON.stringify((await links.list()).filter(link=>link.source.origin===origin));
+        const account=await clientFor(origin),identity=await account.currentIdentity();
+        const note=await account.read(OFF);
+        if(note.exists&&note.value.at>state.enabledAt){await offElsewhere(note.value.at);reports.push({origin,status:'off',message:ELSEWHERE});break;}
+        const removed=await account.read(REMOVED),records=[];let stopped=false;
+        for(const key of RECORD_KEYS){
+          if(shouldStop()){stopped=true;break;}
+          records.push(await account.read(key));
+          await onProgress?.({origin,completed:records.length,total:RECORDS});
+        }
+        if(stopped||shouldStop()){reports.push({origin,status:'stopped'});break;}
+        if(await account.currentIdentity()!==identity)throw fail('account-changed','The Confluence sign-in changed during the scan. Refresh again.');
+        const latestNote=await account.read(OFF),latest=await readState();
+        if(!latest.enabled||latest.settingAt!==epoch){reports.push({origin,status:'stopped',message:'The account-copy setting changed during the scan.'});break;}
+        if(latestNote.exists&&latestNote.value.at>latest.enabledAt){await offElsewhere(latestNote.value.at);reports.push({origin,status:'off',message:ELSEWHERE});break;}
+        const pages=new Map(),marks=[...(removed.value?.marks??[])];
+        for(const record of records){
+          marks.push(...(record.value?.gone??[]));
+          for(const [id,entries] of Object.entries(record.value?.pages??{})){
+            pages.set(id,[...(pages.get(id)??[]),...entries.map(entry=>decodeEntry(origin,id,entry)).filter(Boolean)]);
+          }
+        }
+        for(const link of await links.list())if(link.source.origin===origin&&!pages.has(link.source.pageId))pages.set(link.source.pageId,[]);
+        let accepted=false,limited=false,changedLocally=false;
+        await locked(async()=>{
+          const current=await readState();if(!current.enabled||current.settingAt!==epoch)return;
+          if((await readQueue()).some(op=>!op.done.includes(origin)&&(op.origin?op.origin===origin:current.origins.includes(origin)))||JSON.stringify((await links.list()).filter(link=>link.source.origin===origin))!==beforeLinks){changedLocally=true;return;}
+          if(records.some(record=>record.exists)||removed.exists||note.exists)await adopt(origin);
+          const merged=await links.mergeCatalog(origin,pages,(link,key)=>dead(encodeEntry(link),key.pageId,marks)),heal=merged.heal;limited=merged.truncated===true;
+          if(heal.length)await append(heal.map(putOf));
+          accepted=true;
+        });
+        if(accepted){schedule();reports.push({origin,status:limited?'limited':'synced',...(limited?{message:'This history exceeds the local tracking limits. The newest links are kept; some links or older send records could not fit.'}:{})});}
+        else reports.push({origin,status:changedLocally?'pending':'stopped',message:changedLocally?'Local history changed during the scan. Refresh again after its account changes are saved.':'The account-copy setting changed during the scan.'});
+      }catch(error){
+        // An unfamiliar public site, read anonymously, has no account history this
+        // browser asked to keep. Match the popup's existing quiet handling.
+        if(error?.kind==='signed-out'&&!state.origins.includes(origin))continue;
+        reports.push({origin,status:'failed',message:error?.message??'This Confluence history could not be read.'});
+      }
+    }
+    return {reports};
+  }
   // Operations for the account, dated and queued, then sent; nothing is kept in the account while the setting is off.
   async function enqueue(ops){
     const added=await locked(async()=>{
@@ -594,6 +691,7 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
   }
 
   return {
+    refreshCatalog:options=>onNet(()=>refreshCatalog(options)),
     /** Whether the setting is on, and what the account last had to say, if anything. */
     state:async()=>{const {enabled,problem:said,full}=await readState();return {enabled,problem:said??(enabled&&full.length?FULL:null)};},
     /**
@@ -601,7 +699,7 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
      * to the Confluence sites they came from; then the Confluence page in the tab, if any, is merged with its copy.
      */
     async enable({origin,pageId}={}){
-      const key=sourceKey({origin,pageId}),at=now();
+      const key=sourceKey({origin,pageId}),at=Math.max(now(),(await readState()).settingAt+1);
       // This browser first, so its own change coming back through Chrome sync finds it already on.
       await turnOn(at);
       await writeSetting(true,at);
@@ -609,8 +707,10 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
     },
     /** The user turns the setting off: for every Chrome of theirs with sync on, and here: see turnOff. */
     async disable(){
-      const at=now();
-      await turnOff(at);
+      // Only identities known when the choice begins can authorize immediate cleanup, even if storage has to wait.
+      const identities=knownIdentities();
+      const at=Math.max(now(),(await readState()).settingAt+1);
+      await turnOff(at,null,{identities});
       await writeSetting(false,at);
     },
     /**
@@ -619,22 +719,28 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
      */
     async synced(value){
       if(!plain(value)||![0,1].includes(value.on)||!Number.isSafeInteger(value.at)||value.at<=0)return;
-      const state=await readState(),on=value.on===1,at=value.at;
+      const on=value.on===1,at=value.at;
       // Already on, and turned on again later elsewhere (this browser missed the Off between, as Chrome sync brings only
-      // its last value): dated as that choice, so an off note left between them is older. Nothing is sent again.
-      if(on&&state.enabled&&value.at>state.enabledAt)await locked(async()=>{const latest=await readState();if(latest.enabled&&value.at>latest.enabledAt)await writeState({...latest,enabledAt:value.at});});
-      if(on===state.enabled)return;
-      if(on){await turnOn(at);void onNet(flush).catch(()=>{});}
-      else await turnOff(at);
+      // its last value): dated as that choice, so an off note left between them is older. Every comparison is under the
+      // storage lock, against the latest local choice, including when the setting already has the incoming value.
+      if(on){if(await turnOn(at,{fromSync:true}))void onNet(flush).catch(()=>{});}
+      else await turnOff(at,null,{fromSync:true});
+      // A write already in progress may have replaced this incoming value in Chrome sync. Restore the newest choice
+      // after it takes the storage lock; unchanged values are not written again, including this browser's own echo.
+      const latest=await readState();
+      await writeSetting(latest.enabled,latest.settingAt);
     },
     /**
      * At the background's start: a setting Chrome sync does not hold yet (first start of 0.4.9) goes there undated, so
-     * a choice made on another computer wins; one it holds is followed.
+     * a choice made on another computer wins. A local choice whose first publication failed keeps its date when
+     * retried; a value already held there is followed only when it is newer.
      */
     async start(){
       const held=await readSetting(),state=await readState();
-      if(!held){try{await sync?.set({[SETTING]:{on:state.enabled?1:0,at:0}});}catch{/* Kept in this browser only. */}return;}
+      if(!held){await writeSetting(state.enabled,state.settingAt);return;}
       await this.synced(held);
+      const latest=await readState();
+      if(latest.settingAt>held.at)await writeSetting(latest.enabled,latest.settingAt);
     },
     /** The Confluence page in the tab, merged with its account copy, once this browser's changes are in. */
     refresh({origin,pageId}={}){
@@ -653,11 +759,13 @@ export function createAccount({storage=globalThis.chrome?.storage?.local,sync=gl
       return valid.length?enqueue(valid).catch(()=>{}):Promise.resolve();
     },
     /**
-     * Sends what waits, as when the popup opens, and asks again a site the popup says something about; not again for
-     * a while after the account did not answer, but at once after a sign-in or an access grant, which the user makes.
+     * Sends what waits, as the popup reads its state, and asks again a site the popup says something about; not again
+     * for a while after a failure. `recheck`: the popup has just opened (or come back to its tab, or been given site
+     * access), so a sign-in or an access grant the user may have made meanwhile is checked at once; its other readings,
+     * at each change of a running send, wait as after any failure.
      */
-    retry(){
-      if(failedAt&&now()-failedAt<RETRY_MS&&!usersToFix(failedKind))return;
+    retry({recheck=false}={}){
+      if(failedAt&&now()-failedAt<RETRY_MS&&!(recheck&&usersToFix(failedKind)))return;
       void Promise.all([readQueue(),readState()]).then(([queue,state])=>{if(queue.length||state.enabled&&state.problem&&state.problemOrigin)schedule();},()=>{});
     },
     /** Settles when every piece of work started so far has finished. */

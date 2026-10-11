@@ -1,4 +1,5 @@
-// Limits that come from the platforms themselves, not from this extension.
+// Limits that capture, the send and SharePoint page assembly share: those that come from the platforms themselves, and
+// the two this extension sets for the parts of a page.
 
 // SharePoint Online accepts one file of up to 250 MB in a single REST upload
 // request; larger files need its chunked upload API, which pictures do not.
@@ -15,6 +16,13 @@ export const PICTURE_PIECE_BYTES=8*1024*1024;
 // Image web part fills unless it is resized.
 // https://support.microsoft.com/en-us/sharepoint/web-parts-and-apps-in-sharepoint/image-sizing-and-scaling-in-sharepoint-modern-pages
 export const SHAREPOINT_COLUMN_WIDTH=1204;
+
+// The extension's own limits for one page: the most blocks (runs of text, pictures and dividers) it places on a page,
+// and the most HTML one text part holds. Capture keeps within them (fitBlocks and splitLargeText in confluence/html.js),
+// the send checks a capture against them before anything is uploaded (transfer/content.js), and page assembly holds
+// to them (serializeCanvas and safeHtml in sharepoint/canvas.js).
+export const MAX_BLOCKS=2000;
+export const MAX_TEXT_HTML=2_000_000;
 
 // The browser's own base64 conversion where it has one; otherwise small slices,
 // since spreading many bytes into one call can exhaust a content script's stack.

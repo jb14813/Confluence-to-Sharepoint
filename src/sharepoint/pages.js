@@ -20,11 +20,11 @@ const LOCK_CHECK_MS = 5_000, LOCK_WAIT_MS = 120_000;
 // SharePoint's own account, which holds a page while it finishes an editing session.
 const SHAREPOINT_APP = /(?:^|\|)app@sharepoint$/i;
 const FILE_FIELDS = '$select=Exists,UniqueId,ListId,Name,ServerRelativeUrl,ServerRelativePath,UIVersionLabel,Level,CheckOutType,ListItemAllFields/Id,CheckedOutByUser/Title,CheckedOutByUser/LoginName,LockedByUser/Title,LockedByUser/LoginName&$expand=ListItemAllFields,CheckedOutByUser,LockedByUser';
-const UNSUPPORTED = 'This is not a page Confluence content can go into, so it was removed from the list. Choose another page.';
-const MISSING = 'This page is no longer at its address (deleted, renamed or moved), so it was removed from the list. If it still exists, open it in SharePoint to list it again.';
+const UNSUPPORTED = 'This is not a page Confluence content can go into. Choose another page.';
+const MISSING = 'This page is no longer at its address (deleted, renamed or moved). If it still exists, open it in SharePoint to list it again.';
 // A page known by its permanent ID (UniqueId), which SharePoint keeps through a rename or a move within Site Pages
 // (measured 2026-09-27), and which no longer answers to it there.
-const GONE = 'This page was deleted or moved out of this site’s Site Pages, so it was removed from the list.';
+const GONE = 'This page was deleted or moved out of this site’s Site Pages.';
 const PART_MISSING = 'The content this Confluence page sent is no longer on the page, so there is nothing to replace. To send it there again, choose the page under Send to; if it isn’t listed, open it in SharePoint first.';
 const LOCKED = 'This page is still open in SharePoint’s editor, perhaps in another window or on another computer. Close the editor, then send again.';
 const ALREADY = 'This page already has this Confluence page’s content. Update it instead of adding it again.';
@@ -128,7 +128,7 @@ function saveBody(page, controls, overwrite) {
 
 /** Writes captures into existing pages of one site, from a browser page on that site. */
 export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, cryptoImpl = globalThis.crypto, serializeCanvasImpl,
-  sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), now = () => Date.now() } = {}) {
+  sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), now = () => Date.now(), readOnly = false } = {}) {
   if (serializeCanvasImpl !== undefined && typeof serializeCanvasImpl !== 'function') throw fail('invalid-serializer', 'The canvas serializer is unavailable.');
   const attempts = new Set();
   let busy = false, target = null, me = null;
@@ -136,6 +136,7 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
   // save, title and check-in, or undoing its check-out.
   function allow(resource, method, body) {
     if (method === 'GET') return /^(?:site\?|web\?|web\/lists\?|web\/siteusers\?|web\/currentuser\?|web\/GetFileByServerRelativePath\(|web\/GetFileById\('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'\)\?)/.test(resource) || Boolean(target) && resource === `sitepages/pages(${target.pageId})`;
+    if (readOnly) return false;
     if (resource === 'contextinfo') return true;
     if (!target) return false;
     const titleUpdate = resource === `web/lists(guid'${target.listId}')/items(${target.pageId})/ValidateUpdateListItem` &&
@@ -145,7 +146,8 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
     return titleUpdate || [`sitepages/pages(${target.pageId})/checkoutpage`, `sitepages/pages(${target.pageId})/savepage`, `${file}/${CHECK_IN}`, `${file}/UndoCheckOut()`].includes(resource);
   }
   const { site, request, freshDigest } = createSession({ siteUrl, fetchImpl, allow });
-  const inspectSite = () => inspectLibrary({ request, site });
+  let inspected;
+  const inspectSite = () => readOnly ? inspected ??= inspectLibrary({request,site}).catch(error=>{inspected=null;throw error;}) : inspectLibrary({ request, site });
   const readFile = path => request(`${fileResource(path)}?${FILE_FIELDS}`, { missing: true });
   const readPage = () => request(`sitepages/pages(${target.pageId})`);
 
@@ -234,6 +236,21 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
         return { title: page.Title ?? '', path: target.path, ...idOf(file), ...(target.taken ? { addressTaken: true } : {}) };
       } finally { busy = false; }
     } catch (error) { throw unchanged(error); }
+  }
+
+  async function inspectTrackedPage(pagePath, {part, parts, uniqueId} = {}) {
+    if (busy) throw fail('page-busy', 'A page is already being written.');
+    if(parts!==undefined&&(!Array.isArray(parts)||!parts.length||parts.length>2000))throw fail('invalid-part','Choose the tracked source parts to check.');
+    const replacing = (parts??[part]).map(checkedPart), id = checkedId(uniqueId);
+    busy = true;
+    try {
+      const {file, page} = await findPage(pagePath, await inspectSite(), id);
+      let locked = false, message;
+      try {const held = await holder(file); locked = held.waiting; if (locked) message = 'SharePoint is holding the editing session.';}
+      catch (error) {if (!['page-checked-out','page-editing'].includes(error.code)) throw error; locked = true; message = error.message;}
+      const partsPresent=replacing.map(part=>holds(page,part));
+      return {title:page.Title ?? '', path:target.path, ...idOf(file), ...(target.taken ? {addressTaken:true}:{}), ...(parts?{partsPresent}:{partPresent:partsPresent[0]}), locked, ...(message?{message}:{})};
+    } finally {busy = false;}
   }
 
   // What SharePoint kept: the title; every kept control, in order; none of the replaced ones; the capture's controls
@@ -379,5 +396,5 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
     } finally { busy = false; }
   }
 
-  return { inspectSite, checkPage, sendToPage };
+  return readOnly ? {inspectSite,inspectTrackedPage} : { inspectSite, checkPage, inspectTrackedPage, sendToPage };
 }

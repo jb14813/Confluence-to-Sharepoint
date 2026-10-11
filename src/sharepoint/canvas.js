@@ -3,7 +3,7 @@
 // Image field names/version come from the supplied, locally inspected page
 // export. No page-specific identities, flexible positions or placeholders are
 // copied. The destination tenant must still verify native image/text rendering.
-import { SHAREPOINT_COLUMN_WIDTH } from '../transfer/limits.js';
+import { MAX_BLOCKS, MAX_TEXT_HTML, SHAREPOINT_COLUMN_WIDTH } from '../transfer/limits.js';
 
 const IMAGE_PART = 'd1d91016-032f-456d-98a4-721247c305e8';
 // SharePoint's Divider web part, a line across its column, with the data its editor stores for one it adds;
@@ -13,10 +13,9 @@ const dividerData = instanceId => ({id:DIVIDER_PART,instanceId,title:'Divider',d
   serverProcessedContent:{htmlStrings:{},searchablePlainTexts:{},imageSources:{},links:{}},dataVersion:'1.2',properties:{minimumLayoutWidth:1,length:100,weight:1},containsDynamicDataSource:false});
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HASH = /^[0-9a-f]{64}$/i;
-// The blocks of one capture the extension places on a page (MAX_BLOCKS in confluence/html.js, which a capture keeps
-// within); a part added below a page, or updated as one, also has its Confluence title as a heading in front, which is
-// not one of the capture's blocks.
-const MAX_BLOCKS = 2000;
+// The blocks of one capture the extension places on a page (MAX_BLOCKS, which a capture keeps within); a part added
+// below a page, or updated as one, also has its Confluence title as a heading in front, which is not one of the
+// capture's blocks.
 const NIL = '00000000-0000-0000-0000-000000000000';
 const MIME = {'image/png':'png','image/jpeg':'jpg','image/gif':'gif','image/webp':'webp'};
 const TAGS = new Set('p h1 h2 h3 h4 h5 h6 span strong b em i u s sup sub br ol ul li table thead tbody tfoot tr td th a blockquote pre code div'.split(' '));
@@ -138,7 +137,7 @@ function checkAttribute(tag,name,value) {
   if (name==='data-picture'&&(tag!=='div'||!/^\d{1,4}$/.test(value))) fail('unsafe-content','Invalid picture slot.');
 }
 function safeHtml(html) {
-  if (typeof html!=='string'||!html.trim()||html.length>2_000_000||badControl.test(html)) fail('unsafe-content','Text HTML is empty, too large, or contains control characters.');
+  if (typeof html!=='string'||!html.trim()||html.length>MAX_TEXT_HTML||badControl.test(html)) fail('unsafe-content','Text HTML is empty, too large, or contains control characters.');
   const stack=[];
   // Picture slots, by their own marks: a div of class c2sPicture or one with data-picture (checkPictures).
   let pos=0,hasCode=false,marked=0;

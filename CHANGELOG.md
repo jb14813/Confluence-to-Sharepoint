@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.6.0 - 2026-10-10
+
+- **A dashboard of the pages you have sent.** **Dashboard** in the popup opens a full page listing every Confluence page you sent and the SharePoint pages it went to, grouped by site and page. You can search it, filter it by site, and select links across its pages of 50.
+- **Refresh shows which pages changed in Confluence.** It reads each Confluence page's last edit date and marks each SharePoint page **Changes available**, **No newer source update** or **Update status unknown**. A page whose last send left something out, such as a live embed, is never shown as up to date. Refresh also checks that each SharePoint page is still there, following a renamed or moved page by its ID. It opens one background tab per SharePoint site, only reads, and closes the tab. With Keep in my Confluence account on, it also brings back the sent list saved in your account. Nothing is checked until you select Refresh.
+- **Update selected updates several pages as drafts.** Each selected link is updated in turn with the same Update as the popup's, so the result is an unpublished draft. The batch pauses for anything that needs you: a sign-in, a site it cannot reach, a page whose content did not finish loading, or a send whose outcome is unknown. **Stop after current**, **Continue**, **Discard pending** and **Retry failed** (only for updates known not to have written) control it. The results link to each draft and list its notes.
+- **Every send now records the Confluence version it copied**, kept in this browser only, so Refresh can tell later edits apart. Omitted live embeds and SVG drawings are now listed with the content that could not be copied.
+- No new permissions. The dashboard's status and results are kept for the browser session only.
+
+## 0.5.4 - 2026-10-09
+
+- **A removal interrupted by Chrome is made only in the account holding this browser's sent pages.** Turning Keep in my Confluence account off removes the copy from the Confluence account. If Chrome stopped the extension's background before the removal's first request finished, the removal could later run in another account signed in on that site meanwhile and delete that account's copy. Now such a removal, like one that had to wait for a sign-in, is made only in an account holding this browser's sent pages, or the note of the same turning off. A removal chosen while the background knew the account is made only in that account.
+- **No false "Nothing was removed" when the copy was already removed for the same choice.** A removal that had to wait, for a sign-in say, now ends quietly when the account holds the note of the same turning off: left by your other computer, or by this one before its removal was cut off part-way. The note is now written before the copy is removed, so a removal cut off part-way finishes when tried again.
+- **The latest account-history setting survives a failed Chrome-sync write.** Both On and Off retain their choice time locally, including a first choice that never reached sync. Older sync values cannot override them after restart. A newer choice received during an older outgoing write restores the newer value in sync; Off wins if opposing choices have exactly the same time.
+
+## 0.5.3 - 2026-10-09
+
+- **SVG pictures stay sharp when you enlarge them in SharePoint.** An SVG was drawn as a picture only twice the size Confluence showed it at. One shown smaller than its own size, such as a diagram in a table cell, blurred when enlarged in SharePoint. It is now drawn at twice its own size, or twice the size shown when that is larger, up to what SharePoint can show. That makes it as sharp as an original picture of its size. In a live doc or a page open in the editor, an SVG shown in several places is drawn for the largest of them, not the first.
+
+## 0.5.2 - 2026-10-08
+
+Fixes from an independent review of 0.5.1. Nothing changes how a page is chosen or sent.
+
+- **Keep in my Confluence account asks a signed-out site far less often.** With the popup open during a send, each step of the send's progress asked that Confluence site again whether you had signed in. Now opening the popup asks at once, as in 0.5.1, and anything else waits half a minute after the site last said to sign in.
+- **An SVG picture from another website keeps its size.** In a live doc, or a page open in Confluence's editor, an SVG shown from another website with no width of its own came to SharePoint at twice its width. So did an SVG Confluence had not laid out on the page, such as one in a section that could not be opened. Each is now shown at the SVG's own width.
+
 ## 0.5.1 - 2026-09-30
 
 Fixes from a review of 0.5.0 and from its first use. Nothing changes how a page is chosen or sent.

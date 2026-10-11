@@ -178,8 +178,11 @@ async function readBytes(response, received = () => {}, guard = part => part) {
  * Draws an SVG picture to PNG, because SharePoint image controls take bitmap
  * formats and an SVG file could carry script into the SharePoint site. An SVG
  * drawn as an image runs no scripts and loads no other files. The PNG is twice
- * the width Confluence showed (or the picture's own width), at most twice a
- * SharePoint column, so it stays sharp on high-density screens.
+ * the larger of the picture's own width and the widest Confluence shows it at,
+ * at most twice a SharePoint column: sharp on high-density screens where the
+ * page shows it, and when it is made larger in SharePoint up to its own size,
+ * as an original picture of that size would be. Returns the PNG and the
+ * picture's own width, at most a SharePoint column.
  */
 async function rasterizeSvg(bytes, displayWidth) {
   const invalid = () => fail('unsupported-image', 'An SVG picture on this page could not be converted to PNG.');
@@ -198,14 +201,14 @@ async function rasterizeSvg(bytes, displayWidth) {
     else if(width && !height && boxRatio) height = width * boxRatio;
     else if(height && !width && boxRatio) width = height / boxRatio;
     if(!(width > 0 && height > 0)) { width = image.naturalWidth || 300; height = image.naturalHeight || 150; }
-    const shown = Math.min(displayWidth > 0 ? displayWidth : width, SHAREPOINT_COLUMN_WIDTH);
-    const scale = Math.min(2 * shown / width, MAX_CANVAS_SIDE / Math.max(width, height), Math.sqrt(MAX_CANVAS_PIXELS / (width * height)));
+    const drawn = Math.min(Math.max(displayWidth > 0 ? displayWidth : 0, width), SHAREPOINT_COLUMN_WIDTH);
+    const scale = Math.min(2 * drawn / width, MAX_CANVAS_SIDE / Math.max(width, height), Math.sqrt(MAX_CANVAS_PIXELS / (width * height)));
     const canvas = globalThis.document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(width * scale)); canvas.height = Math.max(1, Math.round(height * scale));
     canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
     const png = await new Promise(resolve => { try { canvas.toBlob(resolve, 'image/png'); } catch { resolve(null); } });
     if(!png) invalid();
-    return new Uint8Array(await png.arrayBuffer());
+    return {bytes:new Uint8Array(await png.arrayBuffer()), ownWidth:Math.max(1, Math.round(Math.min(width, SHAREPOINT_COLUMN_WIDTH)))};
   } finally { URL.revokeObjectURL(url); }
 }
 
@@ -329,7 +332,8 @@ export async function fetchExternalImage({url, displayWidth}, {fetchImpl=globalT
  * and a picture wider than SharePoint can show is scaled.
  */
 async function preparePicture(bytes, source, displayWidth) {
-  if(source===SVG) { bytes=await rasterizeSvg(bytes,displayWidth);checkSize(bytes.byteLength); }
+  let svgWidth=null;
+  if(source===SVG) { const drawn=await rasterizeSvg(bytes,displayWidth);bytes=drawn.bytes;svgWidth=drawn.ownWidth;checkSize(bytes.byteLength); }
   const mime=source===SVG?'image/png':source;
   const size=dimensions(bytes,mime);
   if(!size.width || !size.height) fail('image-dimensions', 'A Confluence picture has no width or height.');
@@ -343,8 +347,15 @@ async function preparePicture(bytes, source, displayWidth) {
   } catch { fail('unsupported-image', 'A Confluence picture is damaged, or too large for this browser to open.'); }
   const scaled=await scaleToSharePoint(bytes,mime,size);
   if(scaled){bytes=scaled.bytes;Object.assign(size,scaled.size);}
-  return {id:await sha256(bytes),mime,size:bytes.byteLength,bytes,...size,...(scaled?{scaledFrom:scaled.from}:{})};
+  return {id:await sha256(bytes),mime,size:bytes.byteLength,bytes,...size,...(scaled?{scaledFrom:scaled.from}:{}),...(svgWidth?{svgWidth}:{})};
 }
+
+/**
+ * The width a downloaded picture is shown at where nothing else gives one: its own. A picture drawn from an SVG keeps
+ * the SVG's own width (`svgWidth`), whatever width its PNG was drawn at (rasterizeSvg), whichever site or file it came
+ * from; any other picture's file is as wide as its own.
+ */
+export const ownWidth=picture=>Math.max(1,Math.round(picture.svgWidth??picture.width));
 
 /**
  * SharePoint shows a picture at most as wide as a one-column section, twice

@@ -1,4 +1,4 @@
-import {attachmentInfo,attachmentLink,attachmentPage,fetchConfluenceImage,fetchExternalImage,isPicture,fail,lossReason,pictureFileName,unsupportedPicture} from './images.js';
+import {attachmentInfo,attachmentLink,attachmentPage,fetchConfluenceImage,fetchExternalImage,isPicture,fail,lossReason,ownWidth,pictureFileName,unsupportedPicture} from './images.js';
 import {inspectConfluencePage,topLevelArticles} from './detect.js';
 import {captureStoredDocument} from './stored.js';
 import {captureHash,readAttachmentListing,readSourceMetadata,readVersion} from './rest.js';
@@ -335,7 +335,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
     if(!article.contains(live))continue;
     // A card keeps its link (below), a media item is a picture or file, noted as such, and a macro still loading is noted above.
     if(live.matches('form')||live.closest('[data-node-type="blockCard"],[data-node-type="embedCard"],[data-inline-card],[data-node-type="media"]')||[...loading].some(macro=>macro.contains(live))) {
-      live.remove();warn('live-embed-omitted','Live embedded content was omitted because SharePoint cannot preserve its behavior.');continue;
+      live.remove();warn('live-embed-omitted','Live embedded content was omitted because SharePoint cannot preserve its behavior.',true);continue;
     }
     const macro=live.closest(MACRO),[kind,label]=live.matches('video')?['a video','Video']:live.matches('audio')?['an audio clip','Audio']:['an embedded frame','Embedded content'];
     // One marker for a macro however many frames it draws.
@@ -370,7 +370,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
       link.setAttribute('href',source.getAttribute('href'));link.textContent=compact(source.textContent)||compact(source.getAttribute('aria-label'))||'Open linked content';
       paragraph.append(link);card.replaceWith(paragraph);
     } else card.remove();
-    warn('live-embed-omitted','Live embedded content was omitted; its source link was retained when available.');
+    warn('live-embed-omitted','Live embedded content was omitted; its source link was retained when available.',true);
   }
   for(const table of [...article.querySelectorAll('table[data-testid="datasource-table-view"]')]) {
     const snapshot=document.createElement('table'),head=document.createElement('thead'),body=document.createElement('tbody');
@@ -600,7 +600,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
     if(table&&!table.querySelector('tr'))table.remove();
     omittedToc=true;
   }
-  for(const svg of [...article.querySelectorAll('svg')]) {svg.remove();warn('static-vector-omitted','A vector decoration without a safe static picture was omitted.');}
+  for(const svg of [...article.querySelectorAll('svg')]) {svg.remove();warn('static-vector-omitted','A vector decoration without a safe static picture was omitted.',true);}
   // Said only of a macro whose content was kept: not a marker left for what was not copied, nor a macro that drew nothing.
   const keptMacro=macro=>{const copy=macro.cloneNode(true);for(const node of copy.querySelectorAll('[data-marker]'))node.remove();return Boolean(compact(copy.textContent)||copy.querySelector('img,table,[data-node-type="mediaSingle"]'));};
   if([...article.querySelectorAll(MACRO)].some(keptMacro))warn('macro-static-content','Static visible macro content was retained. Live macro behavior was not copied.');
@@ -1038,8 +1038,8 @@ export async function captureConfluencePage({document=globalThis.document,locati
     return declared>0?Math.min(declared,boxWidths.get(node)||declared):shownWidths.get(node);
   };
   const downloadKey=attachment=>attachment.external?`external ${attachment.external}`:`file ${attachment.url??attachment.fallbackUrl} ${attachment.mime}`;
-  // A file is downloaded once for every place it is shown, so an SVG is drawn once, at the widest of them (images.js draws
-  // it at twice that), which serves every narrower place as well.
+  // A file is downloaded once for every place it is shown, so an SVG is drawn once, for the widest of them (images.js draws
+  // it at twice that, or twice its own width when that is larger), which serves every narrower place as well.
   const widest=new Map();
   for(const wrapper of mediaWrappers) {
     const attachment=attachments.get(wrapper),width=shownWidth(wrapper);
@@ -1074,7 +1074,9 @@ export async function captureConfluencePage({document=globalThis.document,locati
     // The picture's own link, as the reading view draws it around its media, kept when it is a web address.
     const anchor=node.querySelector('[data-node-type="media"]')?.closest('a[href]')??node.querySelector('a[href][data-block-link]');
     const link=anchor&&!anchor.closest(CAPTION)?safeLink(anchor.getAttribute('href')):null;
-    return {asset,alt,caption,displayWidth,link:link&&/^https?:/i.test(link)?link:null};
+    // Shown at no width Confluence drew or stored (a part of the page it did not lay out), a picture is shown at its own:
+    // an SVG's PNG is drawn wider than that, so its own is given; any other picture's file is already as wide as its own.
+    return {asset,alt,caption,displayWidth:displayWidth||(asset.svgWidth?ownWidth(asset):displayWidth),link:link&&/^https?:/i.test(link)?link:null};
   }
   // A picture placed as its own image part, in the page's flow or cut out of a list. `next`: the item after it, taken
   // as its caption when it is one (returns whether it was).
@@ -1186,7 +1188,7 @@ export async function captureConfluencePage({document=globalThis.document,locati
       const {asset,alt,displayWidth,link}=got,caption=shortCaption(got.caption);
       if(caption!==got.caption)warn(...CAPTION_SHORTENED);
       // As wide as Confluence shows it: that share of the room SharePoint gives its cell (html.js).
-      const width=Math.max(1,Math.round(displayWidth||asset.width)),room=holderWidths.get(wrapper);
+      const width=Math.max(1,Math.round(displayWidth||ownWidth(asset))),room=holderWidths.get(wrapper);
       settled.set(key,{picture:{assetId:asset.id,alt,caption,...(link?{link}:{}),displayWidth:width,share:pictureShare(width,room&&articleWidth>0?room/articleWidth:1)}});
       model.stats.images++;completed++;
     }

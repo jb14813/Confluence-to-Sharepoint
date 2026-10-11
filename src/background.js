@@ -8,15 +8,22 @@ import {createSites,siteKey} from './background/sites.js';
 import {createLinks} from './background/links.js';
 import {createAccount} from './background/account.js';
 import {createPins} from './background/pins.js';
+import {createDashboard} from './background/dashboard.js';
+import {createBulkUpdates,transferBlocker} from './background/bulk-updates.js';
+import {fail} from './background/checks.js';
 
 const SHORTCUT='guide-shortcut',MEMORY='site-memory',POPUP='c2s-popup';
 const tabId=Number.isInteger,text=value=>typeof value==='string',textOrNull=value=>value===null||typeof value==='string';
+const windowId=value=>value==null||Number.isInteger(value),batchId=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+const ids=value=>Array.isArray(value)&&value.length>0&&value.length<=2000&&value.every(id=>typeof id==='string'&&id.length>0&&id.length<=4096);
 // Each popup command and the fields it carries, with their checks.
-const COMMANDS={state:{},inspect:{tabId},capture:{tabId},send:{siteUrl:text,windowId:value=>value==null||Number.isInteger(value)},
+const COMMANDS={state:{recheck:value=>value===undefined||typeof value==='boolean'},inspect:{tabId},capture:{tabId},send:{siteUrl:text,windowId:value=>value==null||Number.isInteger(value)},
   'send-page':{siteUrl:text,pagePath:text,mode:value=>['add','overwrite','update'].includes(value),windowId:value=>value==null||Number.isInteger(value)},
   'update-page':{tabId,siteUrl:text,pagePath:text,windowId:value=>value==null||Number.isInteger(value)},clear:{},'show-tab':{tabId},
   pin:{url:text,pinned:value=>typeof value==='boolean'},remove:{url:text},'remove-page':{url:text,path:text},forget:{},'inject-open-pages':{},
-  'account-sync':{enabled:value=>typeof value==='boolean',origin:textOrNull,pageId:textOrNull},'account-refresh':{origin:text,pageId:text}};
+  'account-sync':{enabled:value=>typeof value==='boolean',origin:textOrNull,pageId:textOrNull},'account-refresh':{origin:text,pageId:text},
+  'dashboard-state':{},'dashboard-refresh':{windowId},'dashboard-stop-refresh':{},'open-dashboard':{},
+  'batch-start':{ids,windowId,replaceBatchId:value=>value===undefined||batchId(value)},'batch-stop':{batchId},'batch-continue':{batchId,windowId},'batch-discard':{batchId},'batch-retry':{batchId,ids,windowId}};
 // The manifest's content scripts, for pages already open when the extension is installed or updated.
 const PAGE_SCRIPTS=[{url:'https://*.atlassian.net/wiki/*',file:'content.js'},{url:'https://*.sharepoint.com/*',file:'memory.js',skip:/^https:\/\/[^/]*-(?:my|admin)\.sharepoint\.com\//i}];
 const only=(value,keys)=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(key=>keys.includes(key));
@@ -39,12 +46,12 @@ export async function openPopup(chromeApi,tab){
   }
 }
 
-export function configureBackground({chromeApi=globalThis.chrome,sites,links,account,pins,jobs}={}){
+export function configureBackground({chromeApi=globalThis.chrome,sites,links,account,pins,jobs,bulk,dashboard}={}){
   if(!chromeApi?.runtime?.onMessage)return null;
   // The remembered sites, and the synced setting and pins, are for this extension's own pages and worker, not its
   // content scripts, which use neither.
   // https://developer.chrome.com/docs/extensions/reference/api/storage#method-StorageArea-setAccessLevel
-  for(const area of ['local','sync'])Promise.resolve(chromeApi.storage?.[area]?.setAccessLevel?.({accessLevel:'TRUSTED_CONTEXTS'})).catch(error=>console.error(`Could not restrict ${area} storage:`,error?.message??error));
+  for(const area of ['local','sync','session'])Promise.resolve(chromeApi.storage?.[area]?.setAccessLevel?.({accessLevel:'TRUSTED_CONTEXTS'})).catch(error=>console.error(`Could not restrict ${area} storage:`,error?.message??error));
   // Chrome adds content scripts only to pages loaded after it installs the extension, and an
   // update disconnects the ones already running, so Confluence pages that are open get it again.
   // https://developer.chrome.com/docs/extensions/reference/api/runtime#event-onInstalled
@@ -69,12 +76,48 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     void Promise.resolve(pins.changed(changes)).catch(()=>{});
     if(changes?.accountCopy)void Promise.resolve(account.synced(changes.accountCopy.newValue)).catch(()=>{});
   });
-  jobs??=createJobs({chromeApi,sites,links,account});
+  jobs??=createJobs({chromeApi,sites,links,account,batchOwner:()=>bulk?.ownerId()??null});
+  bulk??=createBulkUpdates({chromeApi,links,jobs});
+  dashboard??=createDashboard({chromeApi,links,sites,account,jobs});
+  const recoverStep=async(label,work,batchRelevant=true)=>{
+    try{return await work();}
+    catch(error){
+      console.error(`Could not recover ${label}:`,error?.message??error);
+      if(batchRelevant)await Promise.resolve().then(()=>bulk.recoveryFailed?.(error?.message)).catch(()=>{});
+    }
+  };
+  // Recovery decides ownership before commands run; following an existing write continues independently.
+  const ready=Promise.resolve().then(async()=>{
+    await recoverStep('the batch',()=>bulk.load());
+    const recovered=await recoverStep('the last job',()=>jobs.recover());
+    if(recovered?.following)void recovered.following.then(()=>recoverStep('the batch result',()=>bulk.recover())).catch(error=>recoverStep('the batch result',()=>{throw error;}));
+    else await recoverStep('the batch result',()=>bulk.recover());
+    await recoverStep('Refresh',()=>dashboard.recover(),false);
+  });
+  let opening=null;
+  const openDashboard=()=>{
+    if(opening)return opening;
+    opening=(async()=>{const url=chromeApi.runtime.getURL('dashboard.html'),open=(await chromeApi.tabs.query({url})).find(tab=>tab.url===url);
+      if(open){await chromeApi.tabs.update(open.id,{active:true});await chromeApi.windows.update(open.windowId,{focused:true});return {tabId:open.id};}
+      return {tabId:(await chromeApi.tabs.create({url,active:true})).id};
+    })().finally(()=>{opening=null;});return opening;
+  };
+  const withoutRefresh=()=>{if(dashboard.ownsWork())throw fail('refresh-busy','Wait for Refresh to finish or stop it first.');};
   const runtimeId=chromeApi.runtime.id;
   const commands={
-    // The links go without what each send wrote, which only an update needs. Opening the popup also sends what
-    // waits for the user's Confluence account.
-    state:async()=>{account.retry();return {...await jobs.state(),sites:await sites.list(),links:(await links.list()).map(({source,siteUrl,path,title})=>({source,siteUrl,path,title})),account:await account.state()};},
+    // The links go without what each send wrote, which only an update needs. Reading it also sends what waits for the
+    // user's Confluence account; the popup's opening (`recheck`) checks a sign-in or site access again at once.
+    state:async({recheck}={})=>{account.retry({recheck:recheck===true});const state=await jobs.state();return {...state,...(bulk.ownsWork()?{running:true}:{}),sites:await sites.list(),links:(await links.list()).map(({source,siteUrl,path,title})=>({source,siteUrl,path,title})),account:await account.state()};},
+    'dashboard-state':async()=>{const batch=await bulk.state(),jobState=await jobs.state(),blocker=dashboard.ownsWork()?'Wait for Refresh to finish.':bulk.ownsWork()?'An update batch is running.':batch?.items.some(item=>item.status==='pending')?'Continue or discard pending updates first.':transferBlocker(jobState);
+      return {...await dashboard.state(),batch,job:jobState.job,capture:jobState.capture,canStart:!blocker,canContinue:!batch?.limitReached&&!dashboard.ownsWork()&&!bulk.ownsWork()&&!transferBlocker(jobState),blocker};},
+    'dashboard-refresh':async options=>{if((await jobs.state()).running)throw fail('job-busy','Wait for the current capture or send.');if(bulk.ownsWork())throw fail('batch-busy','Wait for the batch to finish or stop after its current item.');return dashboard.refresh(options);},
+    'dashboard-stop-refresh':()=>dashboard.stopRefresh(),
+    'open-dashboard':openDashboard,
+    'batch-start':options=>{withoutRefresh();return bulk.start(options);},
+    'batch-stop':options=>bulk.stop(options),
+    'batch-continue':options=>{withoutRefresh();return bulk.continue(options);},
+    'batch-discard':options=>bulk.discard(options),
+    'batch-retry':options=>{withoutRefresh();return bulk.retry(options);},
     inspect:({tabId})=>jobs.inspect(tabId),
     // A started job answers at once; its progress arrives through session storage.
     capture:({tabId})=>{jobs.capture(tabId);return {started:true};},
@@ -129,7 +172,10 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     if(message?.channel===POPUP){
       const payload=message.payload??{};
       if(!extensionPage(sender,runtimeId)||!Object.hasOwn(COMMANDS,message.action)||!only(message,['channel','action','payload'])||!fits(payload,COMMANDS[message.action]))return false;
-      Promise.resolve().then(()=>commands[message.action](payload)).then(result=>reply({ok:true,result:result??null}),
+      ready.then(()=>{
+        if(['capture','send','send-page','update-page','clear'].includes(message.action)&&bulk.ownsWork())throw fail('batch-busy','A selected update batch is using the capture.');
+        return commands[message.action](payload);
+      }).then(result=>reply({ok:true,result:result??null}),
         error=>reply({ok:false,error:{code:typeof error?.code==='string'?error.code:'operation-failed',message:error?.message||'The request could not be completed.'}}));
       return true;
     }
@@ -139,11 +185,10 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
   // browser session left, at once rather than when the extension is next used.
   // https://developer.chrome.com/docs/extensions/reference/api/runtime#event-onStartup
   chromeApi.runtime.onStartup?.addListener(()=>{});
-  jobs.recover().catch(error=>console.error('Could not recover the last job:',error?.message??error));
   // Pins from before 0.4.9 go to Chrome sync, and the synced pins and setting are followed.
   Promise.resolve().then(()=>pins.start()).catch(error=>console.error('Could not read the synced pins:',error?.message??error));
   Promise.resolve().then(()=>account.start()).catch(error=>console.error('Could not read the synced setting:',error?.message??error));
-  return {sites,jobs,account,pins};
+  return {sites,jobs,account,pins,bulk,dashboard,ready};
 }
 
 if(globalThis.chrome?.runtime?.onMessage)configureBackground();
