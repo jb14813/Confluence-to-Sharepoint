@@ -22,10 +22,14 @@ export function sourceMetadata(model) {
   return {author:{displayName:name.trim(),email},lastUpdatedAt:updated,version:value.version};
 }
 
+// The day the Confluence page was last updated where the sender is (the browser's time zone), as Confluence shows it
+// them; in UTC an evening edit in the Americas showed the next day. `timeZone` is for tests.
+export const updatedDay=(lastUpdatedAt,timeZone)=>new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',...(timeZone?{timeZone}:{})}).format(new Date(lastUpdatedAt));
+
 export async function resolveAttribution(request, model) {
   const source=sourceMetadata(model);
   if(!source)return null;
-  const topicHeader=new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(source.lastUpdatedAt));
+  const topicHeader=updatedDay(source.lastUpdatedAt);
   try{return {topicHeader,user:await author(request,source)};}
   catch(error){if(!refused(error))throw error;return {topicHeader,user:null,refused:true};}
 }

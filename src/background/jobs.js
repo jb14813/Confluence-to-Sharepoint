@@ -370,6 +370,8 @@ export function createJobs({chromeApi=globalThis.chrome,sites,links=NO_LINKS,acc
       if(page&&FORGOTTEN.has(error.code)){
         if(error.addressTaken!==true)await Promise.resolve().then(()=>sites.removePage(key,page.path)).catch(()=>{});
         await Promise.resolve().then(()=>links.removeGone(key,page.path,id)).catch(()=>{});
+        // The site's tab words it for Refresh too, which removes nothing; a send says why the page left its lists.
+        error.message=String(error.message??'').replace(/^([^.]*)\./,'$1, so it was removed from the list.');
         if(error.code==='page-missing'&&id)await Promise.resolve().then(()=>account.queue([{op:'forget',kind:'gone',siteUrl:key,uniqueId:id}])).catch(()=>{});
         if(updating&&error.code==='page-missing'&&!id)error.message=`${error.message} If it was only renamed, it still has what was sent there before: open it in SharePoint to check before you create a new page.`;
       }

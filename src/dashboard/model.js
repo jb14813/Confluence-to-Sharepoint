@@ -21,14 +21,22 @@ function sourceChange(link,metadata){
   return {status:current.updatedAt>link.sentAt?'changed':'unknown',basis:'send-time',message:'The captured source revision was not recorded. A later edit proves changes; an earlier edit cannot confirm the draft is current.'};
 }
 
+// Rows go by site, page and source, not by when they were sent, so a page's sources are listed together and an Update
+// does not send its row to the front. A page goes by its newest link's title, which every link to it then shares.
+const destinationKey=value=>`${value.siteUrl}|${value.uniqueId??value.path.toLowerCase()}`;
 export function rowsFromLinks(links,{sites=[],sources={},checks={}}={}){
-  return links.map(normalLink).filter(Boolean).map(link=>({
+  const normal=links.map(normalLink).filter(Boolean),named=new Map();
+  for(const link of normal){const key=destinationKey(link),known=named.get(key);if(!known||(link.sentAt??0)>known.sentAt)named.set(key,{title:link.title||'',sentAt:link.sentAt??0});}
+  const title=row=>named.get(destinationKey(row.destination))?.title??'';
+  const byPlace=(a,b)=>a.siteTitle.localeCompare(b.siteTitle)||a.destination.siteUrl.localeCompare(b.destination.siteUrl)||title(a).localeCompare(title(b))||
+    destinationKey(a.destination).localeCompare(destinationKey(b.destination))||a.sourceLabel.localeCompare(b.sourceLabel)||a.id.localeCompare(b.id);
+  return normal.map(link=>({
     id:linkKey(link),source:link.source,sourceLabel:sources[sourceId(link.source)]?.title||`Confluence page ${link.source.pageId}`,
     siteTitle:sites.find(site=>site.url===link.siteUrl)?.title||new URL(link.siteUrl).hostname+new URL(link.siteUrl).pathname,
     destination:{siteUrl:link.siteUrl,path:link.path,title:link.title,...(link.uniqueId?{uniqueId:link.uniqueId}:{})},
     sourceUpdatedAt:normalSourceRevision(sources[sourceId(link.source)])?.updatedAt??null,
     sourceChange:sourceChange(link,sources[sourceId(link.source)]),check:checks[linkKey(link)]??{status:'unchecked'}
-  }));
+  })).sort(byPlace);
 }
 
 export function filterRows(rows,{query='',siteUrl=''}={}){
@@ -47,5 +55,6 @@ export function groupRows(rows){
     const site=sites.get(key),id=destination.uniqueId??destination.path.toLowerCase();
     if(!site.pages.has(id))site.pages.set(id,{id,destination,rows:[]});site.pages.get(id).rows.push(row);
   }
-  return [...sites.values()].sort((a,b)=>a.title.localeCompare(b.title)).map(site=>({...site,pages:[...site.pages.values()].sort((a,b)=>a.destination.title.localeCompare(b.destination.title))}));
+  // In the order of the rows (rowsFromLinks sorts them), so the cards follow the pages of the list.
+  return [...sites.values()].map(site=>({...site,pages:[...site.pages.values()]}));
 }

@@ -190,10 +190,11 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
     el('page-warning').hidden=!warnings.length;
     for(const id of ['add-button','overwrite-button'])el(id).disabled=running;
   }
-  function renderStatus(job,sent){
+  function renderStatus(job,sent,batch){
     let tone='idle',title='',detail='',showTab=false,open=null,openLabel='Open draft',review=null,reviewLabel='Review Site Pages',busy=false,total=0,completed=0;
     const page=job?.page??null;
     if(state.problem){tone='error';title='Something went wrong';detail=state.problem;}
+    else if(batch){tone='neutral';title='Updating selected pages from the dashboard';detail='Capture and send are available again when the update batch finishes or is stopped there.';busy=true;}
     else if(job?.status==='running'){tone='neutral';title=job.message||'Working';detail='You can close this popup; it keeps going.';busy=true;total=job.total??0;completed=job.completed??0;}
     else if(job?.status==='failed'&&page){
       // After a page send started, the page may have changed unless the site's tab said it had not.
@@ -279,7 +280,9 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
     const active=document.activeElement,escape=value=>globalThis.CSS?.escape?.(value)??value;
     const focused=active?.tagName==='INPUT'&&active.type==='radio'?`input[name="${active.name}"][value="${escape(active.value)}"]`:active?.dataset?.key?`[data-key="${escape(active.dataset.key)}"]`:null;
     const {data,context}=state,sites=data?.sites??[],onConfluence=context?.kind==='confluence';
-    const lastCapture=data?.capture??null,lastJob=data?.job??null,running=lastJob?.status==='running';
+    // While the dashboard's update batch runs, the capture and job are its own, not this tab's, and the popup waits for it.
+    const batch=data?.batch===true;
+    const lastCapture=batch?null:data?.capture??null,lastJob=batch?null:data?.job??null,running=batch||lastJob?.status==='running';
     // Whether this tab shows the captured page: by site and page id, or by title where the id is unknown.
     const samePage=Boolean(lastCapture&&onConfluence)&&(lastCapture.page?.pageId&&context.pageId
       ?lastCapture.page.pageId===context.pageId&&lastCapture.page.origin===originOf(context.pageUrl):lastCapture.title===context.title);
@@ -312,14 +315,14 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
     el('notes').hidden=!capture?.warnings?.length;
     const captureButton=el('capture');
     captureButton.hidden=!onConfluence||state.problemKind==='tab';captureButton.disabled=running;
-    captureButton.textContent=running&&(job.kind==='capture'||job.phase==='capturing')?'Capturing…':!capture?'Capture page':samePage?'Capture again':'Capture this page instead';
+    captureButton.textContent=running&&(job?.kind==='capture'||job?.phase==='capturing')?'Capturing…':!capture?'Capture page':samePage?'Capture again':'Capture this page instead';
     captureButton.className=capture?'secondary-button':'primary-button';
     el('clear').hidden=!capture||running;
     // Where the tab's Confluence page was sent before, while the card is about that page.
     const links=onConfluence&&context.pageId&&(!capture||samePage)?(data?.links??[]).filter(link=>link.source?.pageId===context.pageId&&link.source?.origin===originOf(context.pageUrl)):[];
     renderSent(links,sites,running);
     renderDestinations(offered,capture,running,running&&job?.page?.mode==='update');
-    renderStatus(job,sent);
+    renderStatus(job,sent,batch);
     // An update whose page or part is gone offers a new page on the same site for the capture it kept.
     // Not while the tab cannot be read, nor once this Confluence page is on that site again (the account copy may bring it back).
     const onSite=Boolean(capture?.page)&&(data?.links??[]).some(link=>link.siteUrl===job?.siteUrl&&link.source?.origin===capture.page.origin&&link.source?.pageId===capture.page.pageId);
@@ -364,7 +367,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   });
   // A job's news is fresher than a refused command, so it takes the status back; a closed tab or refused access stays said.
   const changed=(changes,area)=>{if(area==='session'&&changes.job&&state.problemKind==='command'&&state.view==='main'){state.problem=null;state.problemKind=null;}
-    if(area==='session'&&changes.job||area==='local'&&(changes.sites||changes.links||changes.account))void load().then(render,()=>{});};
+    if(area==='session'&&(changes.job||changes.dashboardBatch)||area==='local'&&(changes.sites||changes.links||changes.account))void load().then(render,()=>{});};
   chromeApi.storage.onChanged.addListener(changed);
   // The popup page in a window of its own stays open while its tab moves on, so it follows the tab.
   const followed=(id,info)=>{if(id===namedTab&&info?.status==='complete')void refresh();};

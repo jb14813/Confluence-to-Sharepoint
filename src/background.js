@@ -107,9 +107,11 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
   const commands={
     // The links go without what each send wrote, which only an update needs. Reading it also sends what waits for the
     // user's Confluence account; the popup's opening (`recheck`) checks a sign-in or site access again at once.
-    state:async({recheck}={})=>{account.retry({recheck:recheck===true});const state=await jobs.state();return {...state,...(bulk.ownsWork()?{running:true}:{}),sites:await sites.list(),links:(await links.list()).map(({source,siteUrl,path,title})=>({source,siteUrl,path,title})),account:await account.state()};},
-    'dashboard-state':async()=>{const batch=await bulk.state(),jobState=await jobs.state(),blocker=dashboard.ownsWork()?'Wait for Refresh to finish.':bulk.ownsWork()?'An update batch is running.':batch?.items.some(item=>item.status==='pending')?'Continue or discard pending updates first.':transferBlocker(jobState);
-      return {...await dashboard.state(),batch,job:jobState.job,capture:jobState.capture,canStart:!blocker,canContinue:!batch?.limitReached&&!dashboard.ownsWork()&&!bulk.ownsWork()&&!transferBlocker(jobState),blocker};},
+    state:async({recheck}={})=>{account.retry({recheck:recheck===true});const state=await jobs.state();return {...state,...(bulk.ownsWork()?{running:true,batch:true}:{}),sites:await sites.list(),links:(await links.list()).map(({source,siteUrl,path,title})=>({source,siteUrl,path,title})),account:await account.state()};},
+    // What holds a paused batch back is said first: Continue waits for the popup's capture or send too.
+    'dashboard-state':async()=>{const batch=await bulk.state(),jobState=await jobs.state(),transfer=transferBlocker(jobState),
+      blocker=dashboard.ownsWork()?'Wait for Refresh to finish.':bulk.ownsWork()?'An update batch is running.':batch?.items.some(item=>item.status==='pending')?transfer?`${transfer} Then continue or discard the pending updates.`:'Continue or discard pending updates first.':transfer;
+      return {...await dashboard.state(),batch,job:jobState.job,capture:jobState.capture,canStart:!blocker,canContinue:!batch?.limitReached&&!dashboard.ownsWork()&&!bulk.ownsWork()&&!transfer,blocker};},
     'dashboard-refresh':async options=>{if((await jobs.state()).running)throw fail('job-busy','Wait for the current capture or send.');if(bulk.ownsWork())throw fail('batch-busy','Wait for the batch to finish or stop after its current item.');return dashboard.refresh(options);},
     'dashboard-stop-refresh':()=>dashboard.stopRefresh(),
     'open-dashboard':openDashboard,
@@ -147,7 +149,11 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
       await sites.removePage(url,path);await links.removePage(url,path);
       if(key)await account.queue([{op:'forget',kind:'page',siteUrl:key,path,...(ids.length?{uniqueIds:[...new Set(ids)]}:{})}]);
     },
-    forget:async()=>{await account.disable();await sites.forget();await links.forget();await pins.forget();},
+    // The dashboard's results and fetched titles go too, so it is refused while a batch or Refresh runs.
+    forget:async()=>{
+      if(bulk.ownsWork())throw fail('batch-busy','An update batch is running in the dashboard. Stop it there, then forget all.');withoutRefresh();
+      await account.disable();await sites.forget();await links.forget();await pins.forget();await bulk.forget();await dashboard.forget();
+    },
     // Keep in my Confluence account: on, with the Confluence page in the tab if there is one, or off.
     'account-sync':async({enabled,origin,pageId})=>{if(enabled)await account.enable({origin,pageId});else await account.disable();return account.state();},
     // The popup, open over a Confluence page, takes that page's entries from the account; the list redraws when they arrive.

@@ -8,7 +8,7 @@ const RESULTS={pending:'Pending',running:'Updating',updated:'Draft updated','upd
 const date=value=>Number.isFinite(value)&&value>0?new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}):'Unknown';
 export function createDashboardUi({document=globalThis.document,chromeApi=globalThis.chrome}={}){
   const el=id=>document.getElementById(id),selected=new Set();
-  let data={rows:[],refresh:{status:'idle'},account:{enabled:false},canStart:false},page=1,windowId=null,confirming=null,destroyed=false,lastRows='',siteSignature='',requested=0;
+  let data={rows:[],refresh:{status:'idle'},account:{enabled:false},canStart:false},page=1,windowId=null,confirming=null,destroyed=false,lastRows='',siteSignature='',requested=0,shownSettled=null;
   const make=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
   const write=(node,text)=>{if(node.textContent!==text)node.textContent=text;};
   function link(label,url){const a=make('a',label);if(url){a.href=url;a.target='_blank';a.rel='noopener noreferrer';}return a;}
@@ -57,20 +57,32 @@ export function createDashboardUi({document=globalThis.document,chromeApi=global
     }
     el('catalog').replaceChildren(fragment);if(focusedRow)[...el('catalog').querySelectorAll('input[data-row]')].find(input=>input.dataset.row===focusedRow)?.focus();selection();
   }
+  // What a finished batch did, counted by outcome; drafts are offered for review only when some were updated.
+  function summary(items){
+    const count=(...statuses)=>items.filter(item=>statuses.includes(item.status)).length;
+    const updated=count('updated','updated-with-notes'),notes=count('updated-with-notes'),failed=count('failed'),review=count('needs-review'),notRun=count('not-run');
+    const parts=[`${updated} ${updated===1?'draft':'drafts'} updated${notes?` (${notes} with notes)`:''}`,...(failed?[`${failed} not updated`]:[]),...(review?[`${review} ${review===1?'needs':'need'} review`]:[]),...(notRun?[`${notRun} not run`]:[])];
+    return `Finished: ${parts.join(', ')}.${updated?' Open the drafts to review them.':''}`;
+  }
   function renderBatch(){
     const batch=data.batch;el('batch').hidden=!batch;if(!batch)return;
     el('work-window-note').hidden=batch.status!=='running';
     const finished=batch.items.filter(item=>!['pending','running'].includes(item.status)).length,pending=batch.items.filter(item=>item.status==='pending').length;
-    write(el('batch-count'),`${finished} of ${batch.items.length} settled`);el('batch-progress').max=batch.items.length||1;el('batch-progress').value=finished;
+    write(el('batch-count'),`${finished} of ${batch.items.length} done`);el('batch-progress').max=batch.items.length||1;el('batch-progress').value=finished;
     const job=data.job?.batchId===batch.id?data.job:null;
-    write(el('batch-status'),batch.status==='running'?(job?.status==='running'?job.message:'Preparing the next update'):batch.message||(batch.status==='complete'?'Finished. Open the drafts to review your updates.':'Paused. Completed results are kept.'));
+    write(el('batch-status'),batch.status==='running'?(job?.status==='running'?job.message:'Preparing the next update'):batch.status==='complete'?`${summary(batch.items)}${batch.limitReached&&batch.message?` ${batch.message}`:''}`:batch.message||'Paused. Completed results are kept.');
+    // Results with something to act on open once each time the batch stops, and stay as the user leaves them.
+    const settled=batch.status==='running'?null:`${batch.id} ${finished}`;
+    if(settled&&settled!==shownSettled&&batch.items.some(item=>['failed','needs-review','not-run'].includes(item.status)||item.resultInPopup))el('results').open=true;
+    shownSettled=settled;
     el('stop').hidden=batch.status!=='running';el('continue').hidden=batch.status!=='paused'||!pending;el('discard').hidden=batch.status!=='paused'||!pending;
     el('continue').disabled=data.canContinue===false;
-    const failed=batch.items.filter(item=>item.status==='failed'&&item.safeToRetry);el('retry').hidden=!failed.length;el('retry').disabled=!!pending||batch.status==='running'||!data.canStart;
+    // A link Update removed (its page or part is gone) cannot be tried again.
+    const failed=batch.items.filter(item=>item.status==='failed'&&item.safeToRetry&&data.rows.some(row=>row.id===item.id));el('retry').hidden=!failed.length;el('retry').disabled=!!pending||batch.status==='running'||!data.canStart;
     const list=document.createDocumentFragment();
     for(const item of batch.items){
       const row=data.rows.find(row=>row.id===item.id),li=make('li'),label=row?.sourceLabel||`Confluence page ${item.ref.source.pageId}`;
-      li.append(make('strong',`${label}: ${RESULTS[item.status]??'Needs review'}`),make('p',row?.destination.title||item.ref.path));
+      li.append(make('strong',`${label}: ${RESULTS[item.status]??'Needs review'}`),make('p',row?.destination.title||item.ref.title||item.ref.path));
       if(item.error?.message)li.append(make('p',item.error.message));
       if(item.resultInPopup)li.append(make('p','Open the popup to review this result and its notes.'));
       const draft=resultUrl(item.result?.pageUrl,item.ref.siteUrl);if(draft)li.append(link(item.status==='needs-review'?'Review page':'Open draft',draft));
@@ -104,7 +116,7 @@ export function createDashboardUi({document=globalThis.document,chromeApi=global
   });
   on('confirm',()=>{const selection=confirming;confirming=null;el('confirmation').close();if(selection)act(()=>call('batch-start',{...selection,windowId}));});
   on('stop',()=>act(()=>call('batch-stop',{batchId:data.batch.id})));on('continue',()=>act(()=>call('batch-continue',{batchId:data.batch.id,windowId})));on('discard',()=>act(()=>call('batch-discard',{batchId:data.batch.id})));
-  on('retry',()=>act(()=>call('batch-retry',{batchId:data.batch.id,windowId,ids:data.batch.items.filter(item=>item.status==='failed'&&item.safeToRetry).map(item=>item.id)})));
+  on('retry',()=>act(()=>call('batch-retry',{batchId:data.batch.id,windowId,ids:data.batch.items.filter(item=>item.status==='failed'&&item.safeToRetry&&data.rows.some(row=>row.id===item.id)).map(item=>item.id)})));
   let queued=false;const changed=(_changes,area)=>{if(!['session','local'].includes(area)||queued||destroyed)return;queued=true;queueMicrotask(()=>{queued=false;act(load);});};
   chromeApi.storage.onChanged.addListener(changed);
   const ready=(async()=>{windowId=await chromeApi.windows.getCurrent().then(window=>window.id,()=>null);await act(load);})();

@@ -84,8 +84,9 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
   if (typeof fetchImpl !== 'function') throw fail('fetch-unavailable', 'Browser requests are unavailable.');
   const browserBound = Boolean(globalThis.location?.href);
   // `versions`: how the library keeps files (minor versions, approval, whether readers see drafts); `me`: the signed-in
-  // account; `states`: each placed picture's check-out and level as last read; `hidden`: why readers cannot see some.
-  let library, versions, me;
+  // account; `states`: each placed picture's check-out and level as last read; `hidden`: why readers cannot see some;
+  // `rootOnly`: the import folder refused an upload (404), so pictures go to the library's root.
+  let library, versions, me, rootOnly = false;
   const folders = new Set(), states = new Map(), hidden = new Set();
 
   function assertBrowserSite() {
@@ -356,15 +357,15 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
     assertFolder(folderPath);
     const { bytes, hash, filename } = await decodeAsset(asset);
     const path = `${folderPath}/${filename}`;
-    const existing = await verifiedFile(path, bytes, asset, hash);
+    const existing = rootOnly ? null : await verifiedFile(path, bytes, asset, hash);
     if (existing) return existing;
     const digest = await freshDigest();
     let writeError;
-    let useLibraryRoot = false;
+    let useLibraryRoot = rootOnly;
     // An upload SharePoint was too busy for (429, 503) is made again after the wait it asks for, at most twice; with
     // overwrite=false and a name that is the picture's own hash, a repeat can never write a second file. An upload
     // whose answer was lost is never repeated: the read-back below decides.
-    for (let attempt = 0; ; attempt++) {
+    for (let attempt = 0; !useLibraryRoot; attempt++) {
       writeError = undefined;
       try {
         // This tenant recognizes the legacy Files/add action when read through
@@ -375,7 +376,8 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
           method: 'POST', digest, body: bytes, format: 'none', size: bytes.length
         });
       } catch (error) {
-        if (error.status === 404) useLibraryRoot = true;
+        // The rest of the send's pictures go straight to the root: the folder would refuse each of them the same way.
+        if (error.status === 404) useLibraryRoot = rootOnly = true;
         else {
           if (!uncertain(error)) throw error;
           writeError = error;
@@ -389,9 +391,8 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
       break;
     }
     if (useLibraryRoot) {
-      // A 404 is a definite non-write. Some SharePoint tenants can resolve a
-      // freshly created Site Assets folder for reads but not for Files/add.
-      // Fall back to the already verified library root using the immutable
+      // A 404 is a definite non-write: the folder read answers for a folder that does not exist (measured 2026-10-12),
+      // so it was never made. Fall back to the already verified library root using the immutable
       // content-hash filename. Other failures never take this second path.
       const rootPath = `${library.serverRelativeUrl}/${filename}`;
       const rootExisting = await verifiedFile(rootPath, bytes, asset, hash);

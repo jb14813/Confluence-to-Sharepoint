@@ -3,6 +3,7 @@ import {rowsFromLinks,sourceId} from '../dashboard/model.js';
 import {fail} from './checks.js';
 
 const KEY='dashboardCatalog';
+const PART_GONE='The content this Confluence page sent is no longer on this page, so Update has nothing to replace. To send it there again, open the Confluence page and choose this page under Send to in the popup.';
 export function createDashboard({chromeApi=globalThis.chrome,session=chromeApi.storage.session,links,sites,account,jobs,fetchImpl=(...args)=>fetch(...args),now=()=>Date.now()}={}){
   let active=null,stop=false;
   const read=async()=>({sources:{},checks:{},refresh:{status:'idle',completed:0,total:0},...((await session.get(KEY))[KEY]??{})});
@@ -68,7 +69,7 @@ export function createDashboard({chromeApi=globalThis.chrome,session=chromeApi.s
         if(stop)break;
         await jobs.inspectTrackedSite(siteUrl,entries,{windowId,shouldStop:()=>stop,onResult:async(link,found,error)=>{
           const check=error?{status:error.code==='page-missing'?'missing':'blocked',message:(error.message||'The destination could not be checked.').slice(0,500)}:
-            {status:found.locked?'blocked':found.partPresent?'available':'part-missing',...(found.message?{message:found.message.slice(0,500)}:{})};
+            {status:found.locked?'blocked':found.partPresent?'available':'part-missing',...(found.message?{message:found.message.slice(0,500)}:found.locked||found.partPresent?{}:{message:PART_GONE})};
           catalog.checks[linkKey(link)]={...check,checkedAt:now()};catalog.refresh.completed++;await checkpoint();
         }});
       }
@@ -78,6 +79,8 @@ export function createDashboard({chromeApi=globalThis.chrome,session=chromeApi.s
   return {state,ownsWork:()=>Boolean(active),
     async refresh(options={}){if(active)throw fail('refresh-busy','A refresh is already running.');stop=false;active=run(options).finally(()=>{active=null;});return {started:true};},
     async stopRefresh(){stop=true;},
+    // Forget all: the fetched titles and checks go with the lists.
+    async forget(){if(active)throw fail('refresh-busy','Wait for Refresh to finish.');await session.remove(KEY);},
     async recover(){const catalog=await read();if(catalog.refresh.status==='running'){catalog.refresh={...catalog.refresh,status:'interrupted',message:'Refresh was interrupted. Refresh again to check the remaining pages.'};await save(catalog);}},
     idle:async()=>{await active;}
   };

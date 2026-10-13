@@ -19,13 +19,17 @@ const MODES = new Set(['add', 'overwrite', 'update']);
 const LOCK_CHECK_MS = 5_000, LOCK_WAIT_MS = 120_000;
 // SharePoint's own account, which holds a page while it finishes an editing session.
 const SHAREPOINT_APP = /(?:^|\|)app@sharepoint$/i;
-const FILE_FIELDS = '$select=Exists,UniqueId,ListId,Name,ServerRelativeUrl,ServerRelativePath,UIVersionLabel,Level,CheckOutType,ListItemAllFields/Id,CheckedOutByUser/Title,CheckedOutByUser/LoginName,LockedByUser/Title,LockedByUser/LoginName&$expand=ListItemAllFields,CheckedOutByUser,LockedByUser';
+const FILE_FIELDS = '$select=Exists,UniqueId,ListId,Name,ServerRelativeUrl,ServerRelativePath,UIVersionLabel,Level,CheckOutType,ListItemAllFields/Id,ListItemAllFields/OData__ModerationStatus,CheckedOutByUser/Title,CheckedOutByUser/LoginName,LockedByUser/Title,LockedByUser/LoginName&$expand=ListItemAllFields,CheckedOutByUser,LockedByUser';
 const UNSUPPORTED = 'This is not a page Confluence content can go into. Choose another page.';
 const MISSING = 'This page is no longer at its address (deleted, renamed or moved). If it still exists, open it in SharePoint to list it again.';
 // A page known by its permanent ID (UniqueId), which SharePoint keeps through a rename or a move within Site Pages
 // (measured 2026-09-27), and which no longer answers to it there.
 const GONE = 'This page was deleted or moved out of this site’s Site Pages.';
 const PART_MISSING = 'The content this Confluence page sent is no longer on the page, so there is nothing to replace. To send it there again, choose the page under Send to; if it isn’t listed, open it in SharePoint first.';
+// A page waiting for approval, or scheduled to publish, goes back to draft when it is checked out (measured 2026-10-12
+// with content approval on: Pending, 2, became Draft, 3), which would withdraw the request without a word.
+const PENDING_STATES = new Set([2, 4]);
+const PENDING = 'This page is waiting for approval or scheduled to be published, and sending to it now would withdraw that. Send to it once it is approved, rejected or published.';
 const LOCKED = 'This page is still open in SharePoint’s editor, perhaps in another window or on another computer. Close the editor, then send again.';
 const ALREADY = 'This page already has this Confluence page’s content. Update it instead of adding it again.';
 // A check-out the user already had is theirs: it may hold changes of their own, or be of a page never checked in, which
@@ -185,7 +189,7 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
     target = { path: actual, pageId, listId, library, ...(uniqueId ? { uniqueId } : {}), taken };
     const page = await readPage();
     if (page?.Id !== pageId || page.PageLayoutType !== 'Article') throw unchanged(fail('page-unsupported', UNSUPPORTED));
-    if (page.IsWebWelcomePage === true) throw unchanged(fail('page-home', 'This is the site’s home page, which Confluence content does not go into, so it was removed from the list. Choose another page.'));
+    if (page.IsWebWelcomePage === true) throw unchanged(fail('page-home', 'This is the site’s home page, which Confluence content does not go into. Choose another page.'));
     if (page.DoesUserHaveEditPermission === false) throw unchanged(fail('page-no-edit', 'Your account can’t edit this page. Choose another page, or ask its owner for edit access.'));
     return { file, page };
   }
@@ -202,6 +206,7 @@ export function createPageClient({ siteUrl, fetchImpl = globalThis.fetch, crypto
   }
   async function available(file, report) {
     for (const deadline = now() + LOCK_WAIT_MS; ;) {
+      if (PENDING_STATES.has(file.ListItemAllFields?.OData__ModerationStatus)) throw unchanged(fail('page-pending', PENDING));
       const held = await holder(file);
       if (!held.waiting) return held;
       if (now() >= deadline) throw unchanged(fail('page-locked', LOCKED));

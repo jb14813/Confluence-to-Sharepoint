@@ -89,11 +89,14 @@ export function createBulkUpdates({chromeApi=globalThis.chrome,session=chromeApi
         if(PAUSE.has(item.error?.code)){paused=true;batch.message=item.error.message;break;}
       }
       batch.status=paused||pending()||batch.items.some(item=>item.status==='needs-review')?'paused':'complete';
-      if(batch.status==='complete')batch.finishedAt=now();await save();
-    }catch(error){batch.status='paused';batch.message=(error?.message||'The queue was interrupted. Review it before continuing.').slice(0,1500);await save();}
+      // The batch is let go before its last write, so what that write shows the popup and dashboard is no longer running;
+      // `active` still holds off another start until its own source tab is closed.
+      if(batch.status==='complete')batch.finishedAt=now();owner=null;await save();
+    }catch(error){batch.status='paused';batch.message=(error?.message||'The queue was interrupted. Review it before continuing.').slice(0,1500);owner=null;await save();}
     finally{try{if(reusableSource)await closeSource(reusableSource,reusableSource.source);}finally{owner=null;active=null;}}
   }
-  function reference(link){return {source:link.source,siteUrl:link.siteUrl,path:link.path,...(link.uniqueId?{uniqueId:link.uniqueId}:{})};}
+  // The destination's title keeps a result named after Update removes its link (a page or part that is gone).
+  function reference(link){return {source:link.source,siteUrl:link.siteUrl,path:link.path,...(link.title?{title:link.title}:{}),...(link.uniqueId?{uniqueId:link.uniqueId}:{})};}
   async function start({ids,windowId,replaceBatchId}={}){
     if(owner||starting||active)throw fail('batch-busy','An update batch is already running.');
     starting=crypto.randomUUID();const id=starting;
@@ -143,7 +146,9 @@ export function createBulkUpdates({chromeApi=globalThis.chrome,session=chromeApi
     async stop({batchId}){chosen(batchId);if(!owner)throw fail('batch-paused','This batch is already paused.');batch.stopRequested=true;await save();},
     async continue({batchId,windowId}){chosen(batchId);if(owner||active)throw fail('batch-busy','Wait for the current item.');if(batch.limitReached)throw fail('batch-results-full','Review the current result in the popup and discard pending items before selecting a smaller batch.');if(!pending())throw fail('batch-empty','No pending updates remain.');owner=batch.id;batch.stopRequested=false;
       try{await blocked();await jobs.clear({batchId:batch.id});if(Number.isInteger(windowId))batch.windowId=windowId;batch.status='running';delete batch.message;await save();active=pump();return {batchId:batch.id};}catch(error){owner=null;throw error;}},
-    async discard({batchId}){chosen(batchId);if(owner||active)throw fail('batch-busy','Stop after the current item first.');for(const item of batch.items)if(item.status==='pending'){item.status='not-run';item.error={message:'Pending update discarded.'};}batch.status='complete';batch.finishedAt=now();await save();},
+    async discard({batchId}){chosen(batchId);if(owner||active)throw fail('batch-busy','Stop after the current item first.');for(const item of batch.items)if(item.status==='pending'){item.status='not-run';item.error={message:'Pending update discarded.'};}batch.status='complete';delete batch.message;batch.finishedAt=now();await save();},
+    // Forget all: the results and their notes name the pages, so they go with the lists.
+    async forget(){if(owner||starting||active)throw fail('batch-busy','Wait for the update batch.');batch=null;await session.remove(KEY);},
     async retry({batchId,ids,windowId}){
       chosen(batchId);if(owner||active)throw fail('batch-busy','Wait for the current item.');if(pending())throw fail('batch-pending','Continue or discard pending items first.');
       const safe=new Set(batch.items.filter(item=>item.status==='failed'&&item.safeToRetry).map(item=>item.id));

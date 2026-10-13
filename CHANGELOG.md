@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.1 - 2026-10-12
+
+Fixes from a review of 0.6.0. Nothing changes how a page is chosen or sent.
+
+- **A Confluence tab opened before the page was edited is not captured.** Such a tab still shows the older version. Capture copied it, but recorded the newer version, so the dashboard could say **No newer source update** for an outdated draft. Capture now asks you to reload the tab first.
+- **Pictures are uploaded once, not twice.** SharePoint refused every picture upload into the extension's Site Assets folder, which it never actually made, and each picture was then sent again to the library's root, where they are kept by their content and reused by later sends. Now only a send's first picture is refused; the rest go to the root directly.
+- **A page waiting for approval, or scheduled to be published, is not sent to.** Checking it out, as every send does, withdrew the approval request without a word. The send now stops before touching the page and says why.
+- **The dashboard says what a batch did.** A finished batch counts the drafts updated and the links not updated, says to open the drafts only when some were updated, and opens **Results and notes** when something needs your attention. A paused batch names what it waits for in the popup. **Retry failed** is no longer offered for a page that is gone, and its result keeps the page's name.
+- **The dashboard's list stays in order.** Links are listed by site, page and source instead of by when they were last sent, so a page's sources are listed together and an Update no longer sends its row to the front of the list.
+- **While the dashboard updates pages, the popup says so.** It showed the batch's capture as if it were yours, and offered buttons that were then refused.
+- **Forget all clears the dashboard's last results and fetched titles too.** While an update batch or Refresh is running it is refused: stop that first.
+- **Messages:** Refresh explains imported content that is missing and how to send it again; it no longer says a home page was removed from the list; a send that removes a gone page from the list says so again.
+- **The date under the title is the day the page was updated where you are.** It was the day in UTC, so an evening edit in the Americas showed the next day.
+
 ## 0.6.0 - 2026-10-10
 
 - **A dashboard of the pages you have sent.** **Dashboard** in the popup opens a full page listing every Confluence page you sent and the SharePoint pages it went to, grouped by site and page. You can search it, filter it by site, and select links across its pages of 50.

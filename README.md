@@ -10,7 +10,7 @@ Copy a Confluence page into SharePoint without retyping it. Open the page in Chr
 
 ## Install
 
-Install **Confluence to SharePoint** from its [Chrome Web Store page](https://chromewebstore.google.com/detail/ahgjchhmbdpohnbeoccnpnfaeillcedm). The listing is unlisted, so only people with the link can find it; share the link with anyone who needs it.
+Install **Confluence to SharePoint** from its [Chrome Web Store page](https://chromewebstore.google.com/detail/ahgjchhmbdpohnbeoccnpnfaeillcedm). You can also find it by searching the Store for its name.
 
 To keep it handy, pin it: select the puzzle-piece icon in Chrome's toolbar, then the pin next to **Confluence to SharePoint**.
 
@@ -46,7 +46,7 @@ This browser remembers what it sent, so a Confluence page is not copied onto a s
 
 Either way the change is an unpublished draft of the page: readers keep the published version until you publish, and the earlier version stays in the page's version history. When the send finishes, the page comes to the front; a tab already showing it is reloaded rather than opening another.
 
-A page open in SharePoint's editor holds it. If it is open in another tab, the send stops and **Show the tab** takes you there: close that tab, then send again. SharePoint takes about a minute to release a page after its editor closes, and the send waits for that. If someone else is editing the page or has it checked out, the popup names them.
+A page open in SharePoint's editor holds it. If it is open in another tab, the send stops and **Show the tab** takes you there: close that tab, then send again. SharePoint takes about a minute to release a page after its editor closes, and the send waits for that. If someone else is editing the page or has it checked out, the popup names them. A page waiting for approval, or scheduled to be published, is not sent to, because sending would withdraw that: send again once it is approved, rejected or published.
 
 ## Update a page you sent
 
@@ -74,7 +74,7 @@ Successful reading-view sends keep the captured Confluence version and edit date
 
 Select **Update selected** and confirm the links and destination count. The batch reuses its own inactive source tab, navigating afresh before every capture, and updates each source's existing imported part using the same Update behavior described above. This avoids copying stale content from a source tab already open before an edit. Rendering-dependent losses pause before writing; review and clear the capture in the popup. Permanent conversion limitations, including omitted live embeds and SVG drawings, produce Updated with notes; their source status stays unknown until a newer source revision is detected. If a source tab is still loading, **Show source tab** in Results and notes brings up the retained tab; wait for it to load before retrying. Edits made inside that imported part in SharePoint are replaced. Updates run one at a time as unpublished drafts, with **Open draft** and any update notes in the results. The dashboard stays in front.
 
-Send or clear an unsent capture in the popup first. The batch reserves the capture workflow while it runs. **Stop after current** settles the active item, then pauses; **Continue** runs pending links only. **Discard pending** keeps completed results and marks the remainder Not run. **Retry failed** includes only failures known not to have written. A send whose outcome is uncertain pauses the batch: review it and clear the protected attempt in the popup before continuing.
+Send or clear an unsent capture in the popup first. The batch reserves the capture workflow while it runs, and the popup says so. **Stop after current** settles the active item, then pauses; **Continue** runs pending links only. **Discard pending** keeps completed results and marks the remainder Not run. **Retry failed** includes only failures known not to have written. A finished batch counts the drafts updated and the links not updated, and opens **Results and notes** when something needs your attention. A send whose outcome is uncertain pauses the batch: review it and clear the protected attempt in the popup before continuing.
 
 Closing or reloading the dashboard tab keeps progress in the same browser session. During Refresh, if a check tab becomes active (including when Chrome selects it after the dashboard tab closes), that site's remaining checks stop and its tab is preserved; Refresh again from the dashboard. Work tabs use the dashboard’s regular browser window while it exists, with another regular window as fallback and incognito excluded. With no regular window, a batch pauses and Refresh reports that a regular window is needed without creating one. The running dashboard warns that closing the work window during a write can interrupt it; that item is kept for review before Continue. Chrome may continue its browser session in the background with no windows open. A worker restart follows the current attempt without blocking dashboard commands, then pauses remaining work for Continue. Authentication and site-access failures also pause the queue. Retry keeps earlier results, skips removed links and retries only proven safe failures. Browser shutdown or an extension reload clears dashboard metadata and never starts updates automatically; an interrupted send still exposes the existing review warning. No automatic monitoring is added.
 
@@ -85,7 +85,7 @@ A failed Refresh keeps one sign-in or access tab per site while that tab remains
 - The SharePoint sites you visit are remembered and listed in the popup's **Sites** view: up to 30, pinned sites first, then the most recently used. Personal OneDrive and the SharePoint admin center are left out.
 - **Send to** offers the sites you pin there, always, and any other remembered site while it's open in a tab. Pin the sites you send to often; select **Sites** to pin, unpin or remove a site, or forget them all. A site you choose stays in the list until the popup closes.
 - Each site also remembers up to 10 of its pages you opened or sent to. Under **Send to** a site lists the ones open in a tab. The site's home page is never listed. Remove a page in the **Sites** view.
-- Remembered sites and pages, and which Confluence pages you sent to them, are kept in this browser. **Forget all** clears them all, and removing a site or page also forgets what was sent to it.
+- Remembered sites and pages, and which Confluence pages you sent to them, are kept in this browser. **Forget all** clears them all, with the dashboard's last results, and removing a site or page also forgets what was sent to it.
 - **Keep in my Confluence account**, at the foot of the **Sites** view, is off until you turn it on. It saves which Confluence pages you sent where as private settings of your own account on the Confluence sites you send pages from; Atlassian documents that only your account can read them. After Chrome is reset, or on another computer, turn it on and open the popup on a Confluence page: its **Sent to** list and **Update** come back. The sites and pages you only visited stay in the browser.
   - The setting and your pinned sites follow Chrome sync: turning the setting on or off, or pinning or unpinning a site, in one Chrome does the same in every Chrome signed in to your Google account with sync on. Without Chrome sync they stay in that browser.
   - Each computer keeps its own list too, and the account holds what all of them sent. Removing a site or page in the **Sites** view marks it removed in your account on the Confluence sites this computer has sent pages from, so other computers with the setting on drop it when they next read those sites.
@@ -117,6 +117,7 @@ Some things change, and the popup lists each one under **Layout notes** so you k
 
 ## Good to know
 
+- **A tab opened before the page was edited** still shows the older version. Capture says so: reload the tab, then capture again.
 - **Live docs save as you type.** If your latest edits had not been saved when you captured, a note says so. Select **Capture again**.
 - **Chrome asks for site access.** If your Chrome settings limit the extension to certain sites, the popup shows **Allow site access**, on a page it cannot read or when a send needs a site it may not reach. Allow it for your Confluence and SharePoint sites.
 - **SharePoint asks you to sign in.** The popup says so. Select **Show the site’s tab**, sign in as usual, then select **Create draft** again. The extension never asks for your password.

@@ -214,6 +214,12 @@ export async function captureConfluencePage({document=globalThis.document,locati
   const original=topLevelArticles(document)[0];
   const articleWidth=original.getBoundingClientRect().width;
   const {sourceMetadata,expectedMediaCount,featureInventory,expectedText,macroText,macroMedia,textPlaces,externalPictures,mediaContexts,mediaFiles,adf,unchecked}=await readSourceMetadata(info,metadataFetchImpl);
+  // A tab left open while the page was edited elsewhere keeps showing the older version, which must not be sent as the
+  // newer one. Confluence names the version the tab shows (measured 2026-10-12: ajs-page-version stays after an edit
+  // made elsewhere, and changes together with the article on an in-app move).
+  const shownVersion=Number(document.querySelector('meta[name="ajs-page-version"]')?.getAttribute('content'));
+  if(Number.isSafeInteger(shownVersion)&&shownVersion>0&&shownVersion<sourceMetadata.version)
+    fail('source-view-stale','This tab shows an older version of the page: it was edited since the tab opened it. Reload the page, then capture it again.');
   // The page's own pictures, which its stored copy counts: its files, and files it names on another page (a picture
   // stored as another page's attachment). The Include Page and Excerpt Include macros and synced blocks draw
   // another page's pictures, whose files the stored copy never names.
