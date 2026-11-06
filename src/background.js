@@ -11,8 +11,10 @@ import {createPins} from './background/pins.js';
 import {createDashboard} from './background/dashboard.js';
 import {createBulkUpdates,transferBlocker} from './background/bulk-updates.js';
 import {fail} from './background/checks.js';
+import {withinSite} from './sharepoint/session.js';
 
 const SHORTCUT='guide-shortcut',MEMORY='site-memory',POPUP='c2s-popup';
+const ROOT_HINT_TTL_MS=30*60_000;
 const tabId=Number.isInteger,text=value=>typeof value==='string',textOrNull=value=>value===null||typeof value==='string';
 const windowId=value=>value==null||Number.isInteger(value),batchId=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const ids=value=>Array.isArray(value)&&value.length>0&&value.length<=2000&&value.every(id=>typeof id==='string'&&id.length>0&&id.length<=4096);
@@ -162,6 +164,25 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     'inject-open-pages':async()=>{await injectOpenPages();return null;}
   };
   chromeApi.runtime.onMessage.addListener((message,sender,reply)=>{
+    if(message?.channel==='asset-route'){
+      const from=pageSender(sender,runtimeId),site=siteKey(message.siteUrl);
+      if(!from||!site||!withinSite(from.href,site)||!only(message,['channel','action','siteUrl','listId','folderPath','loginName'])||
+        !['get','remember','forget'].includes(message.action)||typeof message.listId!=='string'||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(message.listId)||
+        typeof message.folderPath!=='string'||!message.folderPath.startsWith('/')||message.folderPath.length>1500||
+        typeof message.loginName!=='string'||!message.loginName.trim()||message.loginName.length>512)return false;
+      // Exact folder scope avoids inferring anything about another folder's permissions. One key per destination
+      // avoids read/modify/write races; the timestamp is renewed only after a fresh 404 and verified root receipt.
+      const key=`asset-root:${JSON.stringify([site,message.listId,message.folderPath,message.loginName].map(value=>value.toLowerCase()))}`;
+      (async()=>{
+        const storage=chromeApi.storage.session;
+        if(message.action==='remember'){await storage.set({[key]:Date.now()});return false;}
+        if(message.action==='forget'){await storage.remove(key);return false;}
+        const stamp=(await storage.get(key))[key],now=Date.now();
+        return Number.isSafeInteger(stamp)&&stamp>0&&stamp<=now&&now-stamp<ROOT_HINT_TTL_MS;
+      })().then(rootOnly=>reply({ok:true,rootOnly}),()=>reply({ok:false}));
+      return true;
+    }
     if(message?.channel===SHORTCUT){
       if(message.action!=='open-popup'||Object.keys(message).length!==2||!pageSender(sender,runtimeId))return false;
       openPopup(chromeApi,sender.tab).then(reply);return true;

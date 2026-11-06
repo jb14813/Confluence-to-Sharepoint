@@ -78,8 +78,14 @@ function checkedSite(siteUrl) {
   return { origin: url.origin, path, url: `${url.origin}${path.split('/').map(encode).join('/')}` };
 }
 
+async function rootFallbackHint(message) {
+  const result = await globalThis.chrome.runtime.sendMessage({ channel: 'asset-route', ...message });
+  return result?.ok === true && result.rootOnly === true;
+}
+
 /** Uses only the selected page's browser session. Does not read or persist tokens. */
-export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}) {
+export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch,
+  fallback = globalThis.chrome?.runtime?.sendMessage ? rootFallbackHint : null } = {}) {
   const site = checkedSite(siteUrl);
   if (typeof fetchImpl !== 'function') throw fail('fetch-unavailable', 'Browser requests are unavailable.');
   const browserBound = Boolean(globalThis.location?.href);
@@ -87,6 +93,16 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
   // account; `states`: each placed picture's check-out and level as last read; `hidden`: why readers cannot see some;
   // `rootOnly`: the import folder refused an upload (404), so pictures go to the library's root.
   let library, versions, me, rootOnly = false;
+  let hintChecked = false, hintedRoot = false, routeUser;
+  // This optional hint never supplies a receipt or bypasses a SharePoint permission/content check.
+  async function hint(action, folderPath) {
+    if (!fallback) return false;
+    try {
+      routeUser ??= unwrap(await request('web/currentuser?$select=LoginName'))?.LoginName;
+      if (typeof routeUser !== 'string' || !routeUser.trim() || routeUser.length > 512) return false;
+      return await fallback({ action, siteUrl: site.url, listId: library.listId, folderPath, loginName: routeUser });
+    } catch { return false; } // Cache or identity lookup failure keeps the original upload path.
+  }
   const folders = new Set(), states = new Map(), hidden = new Set();
 
   function assertBrowserSite() {
@@ -341,7 +357,18 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
 
   /** Places the picture in Site Assets, or finds it there, and returns its verified receipt. */
   async function uploadAsset(folderPath, asset) {
-    const receipt = await placedAsset(folderPath, asset);
+    let receipt;
+    try { receipt = await placedAsset(folderPath, asset); }
+    catch (error) {
+      if (!rootOnly) throw error;
+      await hint('forget', folderPath);
+      // Only a definite refusal of a cached route permits trying the folder. Lost answers still use read-back.
+      const retryFolder = hintedRoot && [403, 404].includes(error.status);
+      hintedRoot = false;
+      if (!retryFolder) throw error;
+      rootOnly = false;
+      receipt = await placedAsset(folderPath, asset, { rootRefusal: error });
+    }
     await readable(receipt.serverRelativeUrl);
     return receipt;
   }
@@ -352,10 +379,15 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
     return found ? [found[1]] : [];
   }
 
-  async function placedAsset(folderPath, asset) {
+  async function placedAsset(folderPath, asset, { rootRefusal } = {}) {
     assertBrowserSite();
     assertFolder(folderPath);
     const { bytes, hash, filename } = await decodeAsset(asset);
+    if (!hintChecked) {
+      hintedRoot = rootOnly = await hint('get', folderPath) === true;
+      hintChecked = true;
+    }
+    let folderRefused = false;
     const path = `${folderPath}/${filename}`;
     const existing = rootOnly ? null : await verifiedFile(path, bytes, asset, hash);
     if (existing) return existing;
@@ -377,7 +409,12 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
         });
       } catch (error) {
         // The rest of the send's pictures go straight to the root: the folder would refuse each of them the same way.
-        if (error.status === 404) useLibraryRoot = rootOnly = true;
+        if (error.status === 404) {
+          // The recovery folder attempt must not revisit a root that already refused this upload.
+          if (rootRefusal) throw rootRefusal;
+          useLibraryRoot = rootOnly = true;
+          folderRefused = true;
+        }
         else {
           if (!uncertain(error)) throw error;
           writeError = error;
@@ -396,7 +433,10 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
       // content-hash filename. Other failures never take this second path.
       const rootPath = `${library.serverRelativeUrl}/${filename}`;
       const rootExisting = await verifiedFile(rootPath, bytes, asset, hash);
-      if (rootExisting) return rootExisting;
+      if (rootExisting) {
+        if (folderRefused) await hint('remember', folderPath);
+        return rootExisting;
+      }
       let rootWriteError;
       try {
         await request(`web/lists(guid'${library.listId}')/RootFolder/Files/add(url='${odataPath(filename)}',overwrite=false)`, {
@@ -413,6 +453,7 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch } = {}
         throw fail('upload-unconfirmed', 'Image upload could not be confirmed. Inspect the asset library before retrying.');
       }
       if (!rootConfirmed) throw fail('upload-unconfirmed', rootWriteError ? 'Image upload is uncertain. Inspect the asset library before retrying.' : 'SharePoint did not confirm the uploaded image.');
+      if (folderRefused) await hint('remember', folderPath);
       return rootConfirmed;
     }
     // Never repeat an ambiguous POST. Even a successful response must be read

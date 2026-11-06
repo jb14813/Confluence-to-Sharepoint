@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.2 - 2026-11-05
+
+- **Later sends reuse a verified picture-upload fallback.** After an import-folder upload returns 404 and the picture is verified in Site Assets, the extension remembers the root fallback for that site, library, folder and signed-in account for 30 minutes. A refused cached root route is cleared and the folder is tried once. Working folders keep their normal upload path; uncertain uploads still require read-back verification.
+
 ## 0.6.1 - 2026-10-12
 
 Fixes from a review of 0.6.0. Nothing changes how a page is chosen or sent.
