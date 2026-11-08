@@ -108,6 +108,7 @@ export function createDashboardUi({document=globalThis.document,chromeApi=global
   on('previous',()=>{page--;renderCatalog();});on('next',()=>{page++;renderCatalog();});
   on('select-shown',()=>{for(const row of visible().rows)selected.add(row.id);for(const input of el('catalog').querySelectorAll('input[data-row]'))input.checked=selected.has(input.dataset.row);selection();});
   on('clear-selection',()=>{selected.clear();for(const input of el('catalog').querySelectorAll('input[data-row]'))input.checked=false;selection();});
+  on('file-import-link',()=>act(()=>call('open-file-import')));
   on('refresh',()=>act(()=>call('dashboard-refresh',{windowId})));on('stop-refresh',()=>act(()=>call('dashboard-stop-refresh')));
   on('update',()=>{
     const rows=data.rows.filter(row=>selected.has(row.id));if(!rows.length||!data.canStart)return;

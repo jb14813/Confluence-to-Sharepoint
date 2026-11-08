@@ -1,0 +1,17 @@
+{
+  "name": "file-to-sharepoint",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "description": "Import local documents and interactive forms into SharePoint using browser-only conversion",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "package": "node scripts/package.mjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "vendor:verify": "node scripts/vendor-engine.mjs"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "0.9.12"
+  }
+}

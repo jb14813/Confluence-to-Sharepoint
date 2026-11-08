@@ -1,0 +1,81 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 110376476028,
+      "run_id": 36864484234,
+      "workflow_name": "Releasing refs/tags/v9.3.2+3",
+      "head_branch": "v9.3.2+3",
+      "run_url": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/actions/runs/36864484234",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOLpsm_88AAAAZsvNdfA",
+      "head_sha": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+      "url": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/actions/jobs/110376476028",
+      "html_url": "https://github.com/cryptpad/onlyoffice-x2t-wasm/actions/runs/36864484234/job/110376476028",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-01T12:50:30Z",
+      "started_at": "2026-10-01T12:50:33Z",
+      "completed_at": "2026-10-01T13:24:57Z",
+      "name": "Explore-GitHub-Actions",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-01T12:50:34Z",
+          "completed_at": "2026-10-01T12:50:35Z"
+        },
+        {
+          "name": "Check out repository code",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-01T12:50:35Z",
+          "completed_at": "2026-10-01T12:50:50Z"
+        },
+        {
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-01T12:50:50Z",
+          "completed_at": "2026-10-01T13:24:51Z"
+        },
+        {
+          "name": "Release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-01T13:24:51Z",
+          "completed_at": "2026-10-01T13:24:56Z"
+        },
+        {
+          "name": "Post Check out repository code",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-01T13:24:56Z",
+          "completed_at": "2026-10-01T13:24:56Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-01T13:24:56Z",
+          "completed_at": "2026-10-01T13:24:56Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/check-runs/110376476028",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002462,
+      "runner_name": "GitHub Actions 1000002462",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

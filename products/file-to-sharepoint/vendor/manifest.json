@@ -1,0 +1,848 @@
+{
+  "assetMirror": {
+    "repository": "https://github.com/ranuts/document",
+    "commit": "d1c9b03263aabe14789297f5c717fefff2fe4f0d"
+  },
+  "editorSource": {
+    "repository": "https://github.com/ONLYOFFICE/sdkjs",
+    "release": "v9.3.0.133",
+    "commit": "679a6d70ccb5487924f034cea089ff30daeeb7fd",
+    "wordBundles": {
+      "status": "verified-local-source-build",
+      "provenanceFile": "sdk-build-provenance.json",
+      "buildRecipe": "scripts/build-word-sdk.mjs",
+      "optimization": "SIMPLE",
+      "modifiedSdkJavaScript": false
+    }
+  },
+  "converterSource": {
+    "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
+    "status": "verified-upstream-release",
+    "release": "v9.3.2+3",
+    "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+    "provenanceFile": "converter-provenance.json",
+    "correspondingSourceArchive": {
+      "name": "CryptPad converter source including vendored core",
+      "file": "x2t-source-7debf5e.tar.gz",
+      "url": "https://codeload.github.com/cryptpad/onlyoffice-x2t-wasm/tar.gz/7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+      "bytes": 273752866,
+      "sha256": "baceed384a1cf7d3211b439328791461809025260fd194e87be1b1bdb64fe1ff",
+      "role": "source",
+      "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
+      "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32"
+    }
+  },
+  "jszip": {
+    "version": "3.10.1",
+    "source": "https://github.com/Stuk/jszip/tree/v3.10.1",
+    "license": "MIT or GPLv3 (MIT selected)"
+  },
+  "files": [
+    {
+      "file": "x2t.js",
+      "bytes": 140773,
+      "sha256": "e2f79cf6b71d10a7b5db695dcb4043afb1c5e0412520201bf71d6f12f97648d7",
+      "sourceUrl": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/releases/assets/603320358?download=1",
+      "sourceArchiveMember": "x2t.js",
+      "sourceArchiveSha256": "9fee31b60964d8145396bf1fb992f38ea3bf099a1c64e949fa4976c5c4fdd290",
+      "sourceArchiveSha512": "ed0579097a0269877d6622b28b1e2718e1f9f4e8ac99301f5f13f5f052b3db24db789deab8c654044db588be103c139be74f83a0ca066dee1789522241c1af6e"
+    },
+    {
+      "file": "x2t.wasm",
+      "bytes": 38768424,
+      "sha256": "d5e67dec96ad28f0057818cc6f4faf599f1bc982e150efb44e1605dd23a655c2",
+      "sourceUrl": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/releases/assets/603320358?download=1",
+      "sourceArchiveMember": "x2t.wasm",
+      "sourceArchiveSha256": "9fee31b60964d8145396bf1fb992f38ea3bf099a1c64e949fa4976c5c4fdd290",
+      "sourceArchiveSha512": "ed0579097a0269877d6622b28b1e2718e1f9f4e8ac99301f5f13f5f052b3db24db789deab8c654044db588be103c139be74f83a0ca066dee1789522241c1af6e"
+    },
+    {
+      "file": "drawingfile.js",
+      "bytes": 131210,
+      "sha256": "c1421f8310eb9267818c6fd81f410b7898808fac305b604ac1c41254eb753aac",
+      "sourceUrl": "https://github.com/ONLYOFFICE/core/tree/d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "generator": "drawing-runtime"
+    },
+    {
+      "file": "drawingfile.wasm",
+      "bytes": 10053147,
+      "sha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85",
+      "sourceUrl": "https://github.com/ONLYOFFICE/core/tree/d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "generator": "drawing-runtime"
+    },
+    {
+      "file": "jszip.min.js",
+      "bytes": 97630,
+      "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e",
+      "sourceUrl": "https://raw.githubusercontent.com/Stuk/jszip/v3.10.1/dist/jszip.min.js"
+    },
+    {
+      "file": "JSZIP-LICENSE.markdown",
+      "bytes": 33753,
+      "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4",
+      "sourceUrl": "https://raw.githubusercontent.com/Stuk/jszip/v3.10.1/LICENSE.markdown"
+    },
+    {
+      "file": "ONLYOFFICE-AGPL-3.0.txt",
+      "bytes": 34519,
+      "sha256": "91b65277959ec273763d28ef002e83a6b3fba57c7a35436c9e5b66536333d720",
+      "sourceUrl": "https://raw.githubusercontent.com/ONLYOFFICE/sdkjs/679a6d70ccb5487924f034cea089ff30daeeb7fd/LICENSE.txt"
+    },
+    {
+      "file": "RANUTS-NOTICE.txt",
+      "bytes": 10314,
+      "sha256": "f5aa69df23fd21cccf9f1820b39460bbf66bef00f4b82ed806494197c10d73b8",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/NOTICE"
+    },
+    {
+      "file": "APACHE-2.0.txt",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "sourceUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    },
+    {
+      "file": "xmldom.js",
+      "bytes": 237702,
+      "sha256": "f5285a95cfcaa51e0e47e20309dc199af542a607e01ec7afe76d3c5b924c749b",
+      "sourceUrl": "https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.9.12.tgz",
+      "generator": "xmldom"
+    },
+    {
+      "file": "XMLDOM-LICENSE.txt",
+      "bytes": 1298,
+      "sha256": "4da724fc305d81606b245b324d4d2586916b9d248b23d82183df753ace0fdf71",
+      "sourceUrl": "https://raw.githubusercontent.com/xmldom/xmldom/0.9.12/LICENSE"
+    },
+    {
+      "file": "office/sdkjs/word/sdk-all-min.js",
+      "bytes": 1974295,
+      "sha256": "9cc8575a2cf1d632d50d1e0d6ec892d3844131d140fa2389f15077e49b030ef1",
+      "sourceUrl": "https://codeload.github.com/ONLYOFFICE/sdkjs/tar.gz/679a6d70ccb5487924f034cea089ff30daeeb7fd",
+      "generator": "word-sdk"
+    },
+    {
+      "file": "office/sdkjs/word/sdk-all.js",
+      "bytes": 14329860,
+      "sha256": "d31721c91813f9f776fa6da10fe1e146d8c48fdeb5793e4213a47e2db9070282",
+      "sourceUrl": "https://codeload.github.com/ONLYOFFICE/sdkjs/tar.gz/679a6d70ccb5487924f034cea089ff30daeeb7fd",
+      "generator": "word-sdk"
+    },
+    {
+      "file": "office/sdkjs/common/AllFonts.js",
+      "bytes": 123773,
+      "sha256": "784d8dc3b158a166988097c128e3c06e068bf3a792150372fb8b0d8c9d011165",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/AllFonts.js"
+    },
+    {
+      "file": "office/sdkjs/common/libfont/engine/fonts.js",
+      "bytes": 60270,
+      "sha256": "8002cbfa24a8ced6f7b1d3aafda3c1b4131bc66b881e02240800657102ca7f53",
+      "sourceUrl": "https://raw.githubusercontent.com/ONLYOFFICE/sdkjs/1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59/common/libfont/engine/fonts.js"
+    },
+    {
+      "file": "office/sdkjs/common/libfont/engine/fonts.wasm",
+      "bytes": 3614021,
+      "sha256": "6b27107256a1df72419ac2b4894c65f9f6f0585ac303b8f3158dc441281e4482",
+      "sourceUrl": "https://raw.githubusercontent.com/ONLYOFFICE/sdkjs/1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59/common/libfont/engine/fonts.wasm"
+    },
+    {
+      "file": "office/sdkjs/common/Charts/ChartStyles.js",
+      "bytes": 1583893,
+      "sha256": "f169472ae2926421ed288c88f2dc8343bb7a1d998c50d9ac1a5c7e3404b77968",
+      "sourceUrl": "https://raw.githubusercontent.com/ONLYOFFICE/sdkjs/679a6d70ccb5487924f034cea089ff30daeeb7fd/common/Charts/ChartStyles.js"
+    },
+    {
+      "file": "office/sdkjs/common/Images/cursors/svg.json",
+      "bytes": 18837,
+      "sha256": "7e4b7f0315da635d60c97bf4735a7985610b69a608971788522a821a0825386c",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/cursors/svg.json"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img.png",
+      "bytes": 165,
+      "sha256": "7afc3246721d3bd4b9c452869fec9051ef022bdeef25d4b001440176891835d3",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img@1.25x.png",
+      "bytes": 187,
+      "sha256": "34e052c73b626c62f8d11d6a05882ae5d161600a7f48343714df24a29dd0d87d",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img@1.5x.png",
+      "bytes": 194,
+      "sha256": "0244a70fd665bbf4152346037138c120ec4ce5167d06bd020a789f35ab92722f",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img@1.75x.png",
+      "bytes": 240,
+      "sha256": "a896bf4d9e552ef7e2d6ba785d428a40b122eae275b9a3e7aa9717a407c118b9",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img@2x.png",
+      "bytes": 266,
+      "sha256": "3bf5862fd5af94249b075fe75f6313f7f805312cd19e82514a76a27a49f22a0b",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img_active.png",
+      "bytes": 147,
+      "sha256": "a3735d3b569d871d6ef04187437340b66c384edc3890fe0060d72fbf400dfc11",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img_active@1.25x.png",
+      "bytes": 165,
+      "sha256": "2472a91a627a5fe406abea56d5731b3e1f6a38114c4514a0c2101833004cbd3b",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img_active@1.5x.png",
+      "bytes": 176,
+      "sha256": "f8635a68adff9d37307ae4815dd5f4afb9109a0c97b94b30e1d229691dcd584a",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img_active@1.75x.png",
+      "bytes": 220,
+      "sha256": "0fab3a73d1ba4c5cb08ccf16dbc02d76151dbc02d0715c6e7f2aecd1dabaa69d",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/img_active@2x.png",
+      "bytes": 235,
+      "sha256": "ae0b448134ee846820683aa8b180308ff0885c6113afc75af001d94f3c199f12",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/img_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/signature.png",
+      "bytes": 403,
+      "sha256": "b137f32b3fe5ff2f7953e129cd21534c98d34241197d72e2976dbb753c91d08d",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/signature.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/signature@1.25x.png",
+      "bytes": 494,
+      "sha256": "1a9f590497806ca74b754afb416ef44434b276139609ea84b84fb9b100060262",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/signature@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/signature@1.5x.png",
+      "bytes": 519,
+      "sha256": "1989be4e6504cd36e60329063a982e836d85fbe136cd6fd45b972a9f6c9b0de9",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/signature@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/signature@1.75x.png",
+      "bytes": 608,
+      "sha256": "0be38b407ca1c9bd61747707912a02d881ae6d4fdd7b915882934ed1aa7a12a1",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/signature@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/signature@2x.png",
+      "bytes": 711,
+      "sha256": "b04c38c33cc8c43952a40d593f836caee772aabea32bc3c57b8c8d049db2b0dc",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/signature@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc.png",
+      "bytes": 213,
+      "sha256": "fc5dbc6a67c5ec1bedf6313ce6c0fd10bc57bc33fd8702fd705418bec91b6541",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc@1.25x.png",
+      "bytes": 241,
+      "sha256": "9b31e97dd7231cc809a6e45e7229b11d93d1c61e82f12dc25c659a51496aa70f",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc@1.5x.png",
+      "bytes": 261,
+      "sha256": "f21f0871405d94ef414b727e8f543a2102e9f62611984e2081df7cf83a3cae50",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc@1.75x.png",
+      "bytes": 315,
+      "sha256": "a3eaf6691b6b6dfe9be5e12ab5395aca76bd7afb4e4a749b816947b96e804e5e",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc@2x.png",
+      "bytes": 358,
+      "sha256": "3c67c9a131a9bf14fbca67727fb122f80d4370bf016cb2c2997e1ef1b6e49605",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc_active.png",
+      "bytes": 186,
+      "sha256": "753160296321d3d64d8cb4cd6ed8fde38e0ec017e54e791565c6f02df67be3ff",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc_active@1.25x.png",
+      "bytes": 212,
+      "sha256": "973aebfebdbb13217563f978e93d95007c34e58e56cfc068d80124bfda86e27f",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc_active@1.5x.png",
+      "bytes": 224,
+      "sha256": "073f6c9716be6aa412504fe0612caff486f9c9a0a899b75f311248b92bd2e907",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc_active@1.75x.png",
+      "bytes": 269,
+      "sha256": "d58b9682a1385eebfd53c6fe4679f90d38438fddb8754556c3d77091dc14599e",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/content_controls/toc_active@2x.png",
+      "bytes": 298,
+      "sha256": "53ee80b0ceaf3e7c1f4b91bd1d02f4203a373a775cca248f5dac50345bfe8251",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/content_controls/toc_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/icons/anchor.png",
+      "bytes": 153,
+      "sha256": "9a5ecd2e1d8df10ccdee27f2a86894a85c33829e295355961909b5cdaa726567",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/icons/anchor.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/icons/anchor@1.25x.png",
+      "bytes": 189,
+      "sha256": "ba25099346a04ff954d3c9fff56d8a30d55ce60614e16a20c41841327fffed6e",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/icons/anchor@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/icons/anchor@1.5x.png",
+      "bytes": 202,
+      "sha256": "1593aceda51ce2f3e157fecd96ed4e505dcc99c62896ba5bcb03b3369c2af215",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/icons/anchor@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/icons/anchor@1.75x.png",
+      "bytes": 223,
+      "sha256": "00e58ee05e0347758eb0fbbee3acc9c3880165f08acf800c60c02f5f26b303a4",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/icons/anchor@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/icons/anchor@2x.png",
+      "bytes": 251,
+      "sha256": "617c0b73a56acb6b37f937e4d32070c7cfea027b9371a2e2ba3ac9b43ba53c5f",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/icons/anchor@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio.png",
+      "bytes": 257,
+      "sha256": "c1d5616e02dc31061fe4777db992c715b6ce33e62fec6acbc5582e752760dcf2",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio@1.25x.png",
+      "bytes": 284,
+      "sha256": "9ad8b2ae8fc2e59ee7079008edb32f78612220b201683459c844b08724abfe27",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio@1.5x.png",
+      "bytes": 339,
+      "sha256": "8b07b6a00a78eae09bdab0d37b62ebcea3605a2e1cbdac461efef386b8fc805f",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio@1.75x.png",
+      "bytes": 392,
+      "sha256": "f1851a4794725766470ae2fb2478284d1dca893261a4e7548de180a2443a6d73",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio@2x.png",
+      "bytes": 432,
+      "sha256": "fe24ed629f44a5acfa500b6eac4aff1742568d1c77260e85283de711bad9bbdd",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio_active.png",
+      "bytes": 230,
+      "sha256": "f2d5e3772f7acf736936e96258579a03486a9c4ca96de32079fe4caa595ec27a",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio_active@1.25x.png",
+      "bytes": 253,
+      "sha256": "16a2c2f166b8796cd9f765b4929aa87f392733eaeb5afa5d9251d04ca8343a74",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio_active@1.5x.png",
+      "bytes": 301,
+      "sha256": "8720e0bd60647d79ef7bdb2a7f22c671eec9a19891b63a3f237253e37c755b97",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio_active@1.75x.png",
+      "bytes": 337,
+      "sha256": "6b17047069437abbb3d3f9aab0c8ca095076cc9513eb7a1ea1047076606a9df5",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/audio_active@2x.png",
+      "bytes": 365,
+      "sha256": "543604eda1dc690e44d1fd0f51221039746a9a09751315e285e87d0993a2ab92",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/audio_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart.png",
+      "bytes": 115,
+      "sha256": "e7ec2d8fb9674e4f7ba1b13d1ff76530da856ead7d14fff60ae977113afcb394",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart@1.25x.png",
+      "bytes": 123,
+      "sha256": "a3b9ec6a1b005cccd0dee3527803bf870da7c7e14d33d124ccbf759d0cbd66af",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart@1.5x.png",
+      "bytes": 130,
+      "sha256": "ff7a0b53d461e10b728651e4f5363aa0b48f6e143a82f3c1352050b852182c9c",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart@1.75x.png",
+      "bytes": 173,
+      "sha256": "862a5bc7ca64cb79d5ef9bcdfa725bbf381e63a32f1bce058dcd8fce931e7512",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart@2x.png",
+      "bytes": 170,
+      "sha256": "bd2941f0159a08137a3f7898510eab837ca77950b74885404c9a137cf60cb207",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart_active.png",
+      "bytes": 111,
+      "sha256": "ab22ad3bb3b7d92b0f5feddd35ea807c9a2fff8e1b23048675eb89e56cf83431",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart_active@1.25x.png",
+      "bytes": 119,
+      "sha256": "3433e25a037a6bf916e38fb18858d01c823082a195aa62b1932419d06baaaeb8",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart_active@1.5x.png",
+      "bytes": 123,
+      "sha256": "c95fe8935e75a62da5b6f59486b8263214f70a677d782331b2542a89615c9020",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart_active@1.75x.png",
+      "bytes": 160,
+      "sha256": "69d4e11c3658b5953dc55bfd7496898dea0175c190f58cd2381be715265d666e",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/chart_active@2x.png",
+      "bytes": 157,
+      "sha256": "5b4403f5f237df6252da75644db15247c7005e42e75ed5edc75a0ec6753d15f0",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/chart_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image.png",
+      "bytes": 193,
+      "sha256": "b3ca6aba515bdd47b41da77340f79e3bd7ced82cac21e313c35fe7438ab1da8c",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image@1.25x.png",
+      "bytes": 240,
+      "sha256": "a896bf4d9e552ef7e2d6ba785d428a40b122eae275b9a3e7aa9717a407c118b9",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image@1.5x.png",
+      "bytes": 249,
+      "sha256": "f0c45913bf1dba4eed7565ae48f154fb959560d1f6434c78f6a8f31631d4b918",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image@1.75x.png",
+      "bytes": 294,
+      "sha256": "a2e2eeb9c5101f8c62ad29b4a36c82338116fc5877111062265775220b39c0a8",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image@2x.png",
+      "bytes": 342,
+      "sha256": "18bdcd62455d4c010c302e755ee5af2070758f239c81ed3a4f8615dc174155b3",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_active.png",
+      "bytes": 173,
+      "sha256": "ddf36ff75ff4ed69e3baadc1f815b80cd7ec30c59ff45f2edab6fdddb5518ae7",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_active@1.25x.png",
+      "bytes": 220,
+      "sha256": "0fab3a73d1ba4c5cb08ccf16dbc02d76151dbc02d0715c6e7f2aecd1dabaa69d",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_active@1.5x.png",
+      "bytes": 224,
+      "sha256": "22be9e3b8fe323d114cad70191331928933b847b78bacf7c6c69b4238c545dd2",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_active@1.75x.png",
+      "bytes": 268,
+      "sha256": "cfa0552e049ee1a7797ece0f077d1e356c1286c9783f2a9f4c00c623701d748b",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_active@2x.png",
+      "bytes": 304,
+      "sha256": "c4b1d6798bf93f941f049eb108acdb91b49999c5baa992563c46a2835a65e298",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url.png",
+      "bytes": 313,
+      "sha256": "2d6f223726101e44a12b23fdaaaec242a2e116e27cf2f39d046d1b9d83a3a2c3",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url@1.25x.png",
+      "bytes": 370,
+      "sha256": "6680a261b4ac6b9cc50d34b7b3119aa7cff48c0223276d24d4d3d033c0ee03f4",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url@1.5x.png",
+      "bytes": 422,
+      "sha256": "a09aa60d99387c1bbdab1c1a7cff067040670c936833632787695b73cc94112a",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url@1.75x.png",
+      "bytes": 533,
+      "sha256": "e730cc44c9d5279943f98e4e30a64d37bcc429adbc14b1a069fa828e27594735",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url@2x.png",
+      "bytes": 581,
+      "sha256": "a52b65ad6b2e587333a37cb4a5602370e7fdc4c0380e03618bff7f71f8a76c37",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url_active.png",
+      "bytes": 260,
+      "sha256": "8283cba58ea806ff0036f9b640afa1b8b1a3b3d3e6f7f6e4a75ecc4147f59a73",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url_active@1.25x.png",
+      "bytes": 327,
+      "sha256": "8d21eb659f42fa6895caacca7a7135dee2b9ea52de488a765bd0bd0444b9ccbc",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url_active@1.5x.png",
+      "bytes": 366,
+      "sha256": "1e2e6e0dbf6d95016751b72aa55f1c592143636277e06a9054d069394d1c9593",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url_active@1.75x.png",
+      "bytes": 469,
+      "sha256": "c3f64cb398aed78d24610345a996b1a1e1cf348d4670ff52606181022159326f",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/image_url_active@2x.png",
+      "bytes": 515,
+      "sha256": "ba75f86ba4dd3dec517748c15949cf26e18040114f4865b89120e65d79d9f53e",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/image_url_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart.png",
+      "bytes": 316,
+      "sha256": "e13917fabe3a00ba49370ac7c76a50bf92f30ca322f660fd0c37e1764b1d500b",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart@1.25x.png",
+      "bytes": 342,
+      "sha256": "74a48fceb5348b6707d03624e6fbf1e72d610257116407a08b20c714205609a0",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart@1.5x.png",
+      "bytes": 360,
+      "sha256": "4fc2241961250a77c5c633bb9bf70de8e27a0dc8545ce7a434e6cd0962601c4a",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart@1.75x.png",
+      "bytes": 402,
+      "sha256": "4a1fcab617adec950a0f1000f03753da627b75f4f1669a6f4da498c544fa6637",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart@2x.png",
+      "bytes": 525,
+      "sha256": "0f56328ecaf0288b13760d5831c0e88f44a7519cd245e7bc74da4a7b1b9cbe21",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart_active.png",
+      "bytes": 323,
+      "sha256": "449013bd8e43442140322fe44a22ddc0334d4cfd355dfa19644e1b0677269b99",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart_active@1.25x.png",
+      "bytes": 350,
+      "sha256": "6238ca16eeee3514df27e97607e98f08709d88750594c87d701c378865dbe8de",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart_active@1.5x.png",
+      "bytes": 381,
+      "sha256": "7b270da5ba23d2f578a045c7bbd629182f37a58f56273c3e2be20eb670f9ce4c",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart_active@1.75x.png",
+      "bytes": 418,
+      "sha256": "976ecec7bcaa320dd331b001701b9cd6641c18afbb642f8515b125bdad508d51",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/smartart_active@2x.png",
+      "bytes": 581,
+      "sha256": "593e3a570bebf950bfe180913e8dcdc1409002786746512a4b20683bfc7f4327",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/smartart_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table.png",
+      "bytes": 107,
+      "sha256": "b317e67fec67ffe5785cd261535d637c36c70b912a8dbb1e478e22f5052f14e9",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table@1.25x.png",
+      "bytes": 114,
+      "sha256": "6c24278ba949f4a57307a7ce16f7351638498663035758178e4b87341acd5512",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table@1.5x.png",
+      "bytes": 118,
+      "sha256": "e80059976d88a8524f8b9296bcfa3dea3c893c156c0bde6580b523a46b8079d6",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table@1.75x.png",
+      "bytes": 151,
+      "sha256": "b66c0b66cde30e6e03d4b893c5b7424a6f27c8298ad3da07b15b05118a43714e",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table@2x.png",
+      "bytes": 144,
+      "sha256": "28d1c4c875d530b5d63cedb5683b9bc278942b1ae6fff1a847d1066b719e7a71",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table_active.png",
+      "bytes": 99,
+      "sha256": "ef6ad41d9e7a4ea91933ec0190def6d60d53548c13f754a28d53207a0101dc96",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table_active@1.25x.png",
+      "bytes": 106,
+      "sha256": "20ca04190fec42cb70d3dcfbea3fcb9f6d070ab2bcef9ce0985dd064cace2e73",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table_active@1.5x.png",
+      "bytes": 112,
+      "sha256": "0ca4886a09b886ef3659436dbc085d9367f0be33a8f03c9333e19c134444d93d",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table_active@1.75x.png",
+      "bytes": 138,
+      "sha256": "6f1d8461bab1d58a548839f0384be5f7afa2c120fbf9804b3e48fe78487ba500",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/table_active@2x.png",
+      "bytes": 133,
+      "sha256": "608c534f4f2c304dfd600cb8a8cb9483d553b1418ac16773a0f575477765dad9",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/table_active@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video.png",
+      "bytes": 165,
+      "sha256": "fd6c8020c39eb651ab6c400613d14262909b4500dc0e12d1bf1ca47c25ae7727",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video@1.25x.png",
+      "bytes": 164,
+      "sha256": "0ab508990e48f27d9b4601c0e840216b349532b542eedba0399c667824c57337",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video@1.5x.png",
+      "bytes": 199,
+      "sha256": "8f816572a6294c96b66c40b458c73d5478e401280016a29fc001e629a1489a02",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video@1.75x.png",
+      "bytes": 202,
+      "sha256": "b188ae98c38c644ab520ad4421487f4ef100e68f83fc8696dbaf687e3ca2c0c3",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video@2x.png",
+      "bytes": 244,
+      "sha256": "93a7a2ca4ded75c3ea2b4c619368bfe755b7343c692502af4a885af6907eabef",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video@2x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video_active.png",
+      "bytes": 154,
+      "sha256": "59664dab8f4abfcad84c94f4b52872899e5d9a89d20583a824c0231284ca51fd",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video_active.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video_active@1.25x.png",
+      "bytes": 152,
+      "sha256": "ee65d7593d0f3e93fa2c9a7edadb7a9ff25b8569927d209a778915899e62f15a",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video_active@1.25x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video_active@1.5x.png",
+      "bytes": 182,
+      "sha256": "e7faccec6ed80b9b5746ec5c46aae10c1923cfe8f86fa6c8a242de7bb4d68663",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video_active@1.5x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video_active@1.75x.png",
+      "bytes": 187,
+      "sha256": "370f5cedfbf3e16a14d6a6a0ca0211e576c3ef45e323bb9a47eea8ec821b15ff",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video_active@1.75x.png"
+    },
+    {
+      "file": "office/sdkjs/common/Images/placeholders/video_active@2x.png",
+      "bytes": 223,
+      "sha256": "2e7028990dea6fa93449588cd0d08380c77e1ee1f411e452b85a3f6b769ec552",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/sdkjs/common/Images/placeholders/video_active@2x.png"
+    },
+    {
+      "file": "office/jquery.js",
+      "bytes": 87590,
+      "sha256": "f62a06ea18cb959bf20c050ad5d847c8d52eb5e1d7ce7fef76acf6af90dbae23",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/web-apps/vendor/jquery/jquery.min.js"
+    },
+    {
+      "file": "office/underscore.js",
+      "bytes": 19526,
+      "sha256": "25f436e933246f279adc4967725a4d915e0fc7a6419d3b956a945bb5782dc6e5",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/web-apps/vendor/underscore/underscore-min.js"
+    },
+    {
+      "file": "office/xregexp.js",
+      "bytes": 118852,
+      "sha256": "ad8b04fd8e59beabc616851cd6a820784884c68bb1ea75993e694b21344bd136",
+      "sourceUrl": "https://raw.githubusercontent.com/ranuts/document/d1c9b03263aabe14789297f5c717fefff2fe4f0d/public/web-apps/vendor/xregexp/xregexp-all-min.js"
+    },
+    {
+      "file": "JQUERY-LICENSE.txt",
+      "bytes": 1097,
+      "sha256": "d4db9ebe6f29f5168eac45ad713f055623ac5d0dcd5ba92da23d650ae012020d",
+      "sourceUrl": "https://raw.githubusercontent.com/jquery/jquery/3.7.1/LICENSE.txt"
+    },
+    {
+      "file": "UNDERSCORE-LICENSE.txt",
+      "bytes": 1139,
+      "sha256": "92905fb54f5d168a27e6d5dc7c2197020add11842be4c70689d084bae3bfe37a",
+      "sourceUrl": "https://raw.githubusercontent.com/jashkenas/underscore/1.13.6/LICENSE"
+    },
+    {
+      "file": "XREGEXP-LICENSE.txt",
+      "bytes": 1103,
+      "sha256": "b21567e2442d99d488eca68e86a92ed837cd8fc3c39940841e7b9a34c51b7acf",
+      "sourceUrl": "https://raw.githubusercontent.com/slevithan/xregexp/v3.0.0/LICENSE"
+    },
+    {
+      "file": "CC-BY-SA-4.0.txt",
+      "bytes": 20138,
+      "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5",
+      "sourceUrl": "https://creativecommons.org/licenses/by-sa/4.0/legalcode.txt"
+    }
+  ],
+  "xmldom": {
+    "version": "0.9.12",
+    "source": "https://github.com/xmldom/xmldom/tree/0.9.12",
+    "license": "MIT",
+    "build": "esbuild 0.25.9; browser IIFE EngineXml; chrome120; legalComments eof"
+  },
+  "officeModel": {
+    "source": "ONLYOFFICE sdkjs v9.3.0.133",
+    "api": "AscBuilder.Word.Api.GetDocument().ToJSON(true,true,true,true,true,true)",
+    "runtime": "locally packaged MV3 sandbox, no extension APIs",
+    "guiAssetsLicense": "CC-BY-SA-4.0, unmodified icons loaded by upstream SDK initialization",
+    "nativeHtml": "not used; excludes positioned textbox contents",
+    "dependencies": {
+      "jquery": "3.7.1 MIT",
+      "underscore": "1.13.6 MIT",
+      "xregexp": "3.0.0 MIT",
+      "guiAssets": "CC-BY-SA-4.0"
+    },
+    "decorations": {
+      "api": "ApiDocument.GetAllDrawingObjects()[].Drawing.recalculate(); AscCommon.ShapeToImageConverter(drawing,pageIndex,image/png)",
+      "source": "https://github.com/ONLYOFFICE/sdkjs/blob/v9.3.0.133/word/Drawing/ShapeDrawer.js",
+      "selection": "exact ToJSON graphic.id; shape type only; content absent or null; no live textBoxContent or txBody",
+      "preflight": "existing AscFormat.CSlideBoundsChecker and drawing.draw",
+      "limits": {
+        "count": 512,
+        "dimensionPixels": 4096,
+        "pixelsPerImage": 8388608,
+        "totalBytes": 33554432
+      },
+      "additionalVendorAssets": false
+    }
+  },
+  "provenanceFiles": [
+    "converter-provenance.json",
+    "sdk-build-provenance.json",
+    "sdk-runtime-provenance.json",
+    "drawing-build-provenance.json"
+  ],
+  "pdfRuntimeSource": {
+    "status": "verified-local-source-build",
+    "sdkjsCommit": "1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59",
+    "coreCommit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+    "provenanceFile": "sdk-runtime-provenance.json",
+    "drawingBuildProvenanceFile": "drawing-build-provenance.json"
+  }
+}

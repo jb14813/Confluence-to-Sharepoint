@@ -1,0 +1,113 @@
+{
+  "name": "Release_4.1",
+  "target": {
+    "type": "commit",
+    "hash": "32e25ffcf810c5fe284901859b369270824c4596",
+    "date": "2024-11-22T07:07:34-05:00",
+    "author": {
+      "type": "author",
+      "raw": "mahesh pittala <mahesh@multicorewareinc.com>",
+      "user": {
+        "display_name": "Mahesh Pittala",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/users/%7B0c5f6953-c144-41a6-900c-0b99f36945a6%7D"
+          },
+          "avatar": {
+            "href": "https://secure.gravatar.com/avatar/81184926721722c0be813528065f7aef?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMP-0.png"
+          },
+          "html": {
+            "href": "https://bitbucket.org/%7B0c5f6953-c144-41a6-900c-0b99f36945a6%7D/"
+          }
+        },
+        "type": "user",
+        "uuid": "{0c5f6953-c144-41a6-900c-0b99f36945a6}",
+        "account_id": "557058:f6762bc7-b136-4c05-b6a7-9e8b6d0a89e3",
+        "nickname": "mahesh pittala"
+      }
+    },
+    "message": "Update x265Version.txt\n",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/commit/32e25ffcf810c5fe284901859b369270824c4596"
+      },
+      "html": {
+        "href": "https://bitbucket.org/multicoreware/x265_git/commits/32e25ffcf810c5fe284901859b369270824c4596"
+      },
+      "diff": {
+        "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/diff/32e25ffcf810c5fe284901859b369270824c4596"
+      },
+      "approve": {
+        "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/commit/32e25ffcf810c5fe284901859b369270824c4596/approve"
+      },
+      "comments": {
+        "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/commit/32e25ffcf810c5fe284901859b369270824c4596/comments"
+      },
+      "statuses": {
+        "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/commit/32e25ffcf810c5fe284901859b369270824c4596/statuses"
+      },
+      "patch": {
+        "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/patch/32e25ffcf810c5fe284901859b369270824c4596"
+      }
+    },
+    "parents": [
+      {
+        "hash": "1d117bed4747758b51bd2c124d738527e30392cb",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/commit/1d117bed4747758b51bd2c124d738527e30392cb"
+          },
+          "html": {
+            "href": "https://bitbucket.org/multicoreware/x265_git/commits/1d117bed4747758b51bd2c124d738527e30392cb"
+          }
+        },
+        "type": "commit"
+      }
+    ],
+    "repository": {
+      "type": "repository",
+      "full_name": "multicoreware/x265_git",
+      "links": {
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git"
+        },
+        "html": {
+          "href": "https://bitbucket.org/multicoreware/x265_git"
+        },
+        "avatar": {
+          "href": "https://bytebucket.org/ravatar/%7Bc105f477-2003-4e12-80e5-06858cf7e40b%7D?ts=2419879"
+        }
+      },
+      "name": "x265_git",
+      "uuid": "{c105f477-2003-4e12-80e5-06858cf7e40b}"
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/refs/branches/Release_4.1"
+    },
+    "commits": {
+      "href": "https://api.bitbucket.org/2.0/repositories/multicoreware/x265_git/commits/Release_4.1"
+    },
+    "html": {
+      "href": "https://bitbucket.org/multicoreware/x265_git/branch/Release_4.1"
+    },
+    "pullrequest_create": {
+      "href": "https://bitbucket.org/multicoreware/x265_git/pull-requests/new?source=Release_4.1&t=1"
+    }
+  },
+  "type": "branch",
+  "merge_strategies": [
+    "merge_commit",
+    "squash",
+    "fast_forward",
+    "squash_fast_forward",
+    "rebase_fast_forward",
+    "rebase_merge"
+  ],
+  "sync_strategies": [
+    "merge_commit",
+    "rebase"
+  ],
+  "default_merge_strategy": "merge_commit"
+}

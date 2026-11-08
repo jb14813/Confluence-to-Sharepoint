@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "product": "Confluence to SharePoint",
+  "version": "0.7.0",
+  "status": "verified-corresponding-source",
+  "sourceArchive": {
+    "filename": "confluence-to-sharepoint-0.7.0-source.zip",
+    "downloadUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.0/confluence-to-sharepoint-0.7.0-source.zip",
+    "checksumUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.0/confluence-to-sharepoint-0.7.0-source.zip.sha256"
+  },
+  "sourceInputs": {
+    "file": "SOURCE-INPUTS.json",
+    "count": 226,
+    "bytes": 1433530451,
+    "sha256": "1f67a417e7531b77b47085fde09bc10832b21e7797945271b7cf7934ed1fde3a"
+  },
+  "verification": {
+    "converter": "Official CryptPad release asset, tagged successful upstream workflow and matching source/build inputs; no local C++ rebuild claimed.",
+    "wordSdk": "Pinned official source, supported SIMPLE compilation, fresh-source byte-for-byte reproduction.",
+    "pdfFontRuntime": "PDF drawing engine rebuilt from pinned official core with existing Xpdf hashing and no OpenSSL implementation inputs; fresh recipe replay reproduced both outputs exactly. Font runtime remains exact publisher-associated official SDK bytes.",
+    "thirdParty": "Exact embedded JavaScript versions and native source/license material, including embedded PDF base fonts, are retained and verified."
+  },
+  "instructions": "CORRESPONDING-SOURCE.md",
+  "sourceDelivery": {
+    "file": "products/file-to-sharepoint/vendor/provenance/source-delivery.json",
+    "sha256": "4b7554f12be596d64641ac8e1bb1182d11bec9eecbecb7384a92827e9536b4db",
+    "archives": 4
+  }
+}

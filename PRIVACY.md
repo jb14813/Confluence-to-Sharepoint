@@ -1,6 +1,6 @@
 # Privacy
 
-Confluence to SharePoint processes the Confluence page open in Chrome and creates a native unpublished page in the SharePoint site selected by the user, or saves it into an existing page of that site the user chooses, as an unpublished draft of that page. It has no developer-operated server, analytics, advertising, or telemetry.
+Confluence to SharePoint processes the Confluence page open in Chrome or a local document explicitly chosen in its file-import workspace and creates a native unpublished page in the SharePoint site selected by the user, or saves it into an existing page of that site the user chooses, as an unpublished draft of that page. It has no developer-operated server, analytics, advertising, or telemetry.
 
 The extension uses this data only to perform the transfer requested by the user. The developer does not sell or transfer it to third parties, use it for advertising, or use it to determine creditworthiness or lending eligibility. The SharePoint copy is delivered only to the destination site the user selects.
 
@@ -29,6 +29,16 @@ Remembered SharePoint sites (address, name, when the site was last visited or us
 With **Keep in my Confluence account** on, the same record is also kept as user properties of the user's Confluence account, with the marks of removals made in the **Sites** view or by the extension (the most recent ones that fit), in at most 33 properties of at most 32 KB each (a link that does not fit stays in the browsers that sent it), until the user turns the setting off or selects **Forget all**; after that, on the Confluence sites this browser has sent pages from or found the extension's data on, one small property notes that it was turned off, until the setting is turned on again from a browser that has used the site.
 
 A send writes picture files to the selected site's Site Assets library and either creates one new unpublished page in its Site Pages library or saves an unpublished draft of the existing page the user chose, whose earlier version stays in the page's version history. Those SharePoint files remain until a SharePoint user deletes them. **Clear** does not delete SharePoint content because a stopped send may already have produced a draft or files that require review.
+
+## Local files and interactive forms
+
+File import reads only the local file the user chooses, including its filename, supported text, tables, images, formatting and original PDF form metadata. Packaged WebAssembly and JavaScript reconstruct it inside Chrome; it is not sent to a conversion service. The original source file bytes are not uploaded. Only the reviewed reconstructed page content, its image assets and, for a supported interactive form, its validated definition are sent to the selected SharePoint site after the user chooses Create SharePoint draft.
+
+The file preview, form metadata and image bytes are stored in a separate session-bound local IndexedDB capture. Choosing another file removes that preview; restarting Chrome or reloading/updating the extension invalidates the session-bound capture. A durable send note retains the attempt ID, selected destination and tab reference after an interrupted send so the user can review SharePoint before starting another. It contains no document body or image bytes. File capture/history does not sync to the user's Confluence account or Chrome sync. File review/reset controls apply to the file workspace; Sites > Forget all applies to remembered sites and Confluence links.
+
+Interactive form imports require a separately installed SharePoint Framework component. After a reviewed Send action, the importer creates or verifies its definition/response lists using existing site permissions and stores the validated immutable definition. The form component runs in SharePoint in the reader's browser and submits only after that reader selects Submit response. Definitions, answers, current-user authorship and timestamps stay in those SharePoint lists until authorized SharePoint users remove them. Site owners control who can read and submit responses; the extension and component do not grant permissions or elevate users. Pending unsaved form answers and a retry submission ID are held in page memory, so closing or reloading the form page discards them. A response whose outcome is uncertain retains the same ID for an explicit retry while the page remains open.
+
+No PDF scripts, document macros or arbitrary source form code are executed. No executable converter code is downloaded at runtime. Source/license links and the optional form-package download are external links opened explicitly by the user; they do not upload documents.
 
 ## Network access
 

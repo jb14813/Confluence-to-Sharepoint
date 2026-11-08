@@ -1,0 +1,13 @@
+import {readFileSync,existsSync} from 'node:fs';
+const vendor=new URL('../products/file-to-sharepoint/vendor/',import.meta.url);
+const manifest=JSON.parse(readFileSync(new URL('manifest.json',vendor),'utf8'));
+const valid=name=>typeof name==='string'&&/^[a-z0-9][a-z0-9._/@-]*$/i.test(name)&&name.split('/').every(part=>part&&part!=='.'&&part!=='..');
+if(!Array.isArray(manifest.files)||manifest.files.some(entry=>!valid(entry.file)))throw Error('Invalid pinned document-engine asset inventory.');
+const provenance=manifest.provenanceFiles??[];
+if(!Array.isArray(provenance)||provenance.some(name=>!valid(name)||!name.endsWith('.json')))throw Error('Invalid engine provenance inventory.');
+export const ENGINE_FILES=['index.js','sandbox-decorations.js','sandbox-setup.js','sandbox.html','sandbox.js','worker.js'].map(name=>'src/engine/'+name);
+export const FORM_FILES=['portable-form.js','portable-form.css','portable-form.js.LEGAL.txt'].map(name=>'form/'+name);
+export const FILE_ICON_FILES=['icon16.png','icon32.png','icon48.png','icon128.png','logo.svg'].map(name=>'file-icons/'+name);
+export const VENDOR_METADATA_FILES=['vendor/manifest.json','vendor/NOTICE.md',...provenance.map(name=>'vendor/'+name)];
+export const VENDOR_FILES=[...new Set([...manifest.files.map(entry=>entry.file),'manifest.json','NOTICE.md',...provenance,...(existsSync(new URL('provenance.json',vendor))?['provenance.json']:[])])].map(name=>'vendor/'+name).sort();
+export const FILE_IMPORT_FILES=['file-workspace.html','workspace.css','src/app/workspace.js','file-destination.js','file-product.json','vendor/provenance.json',...ENGINE_FILES,...FORM_FILES,...FILE_ICON_FILES,...VENDOR_FILES];

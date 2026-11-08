@@ -1,0 +1,82 @@
+{
+  "sha": "dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e",
+  "node_id": "C_kwDOAjiFW9oAKGRjZDkwZjAwNTZjZmJjYmQyZDM4OWI3YTEzZGI0NWRkZjViMGI5OGU",
+  "commit": {
+    "author": {
+      "name": "yecril25",
+      "email": "krixel@wp.pl",
+      "date": "2026-07-11T20:57:16Z"
+    },
+    "committer": {
+      "name": "Caol\u00e1n McNamara",
+      "email": "caolan.mcnamara@collabora.com",
+      "date": "2026-07-11T20:57:16Z"
+    },
+    "message": "Related: #25 hyphenate nihilism as ni-hil-ism in the test set\n\nThe base.hyph change is taken from pull request #26. On its own it only\nedits the expected output, so the test would fail; the matching\nexception added to base.pat makes the patterns produce the break, so\nthe test passes.",
+    "tree": {
+      "sha": "a23d4000183f13e54d2eaf7ab0b7685bf37787eb",
+      "url": "https://api.github.com/repos/hunspell/hyphen/git/trees/a23d4000183f13e54d2eaf7ab0b7685bf37787eb"
+    },
+    "url": "https://api.github.com/repos/hunspell/hyphen/git/commits/dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "url": "https://api.github.com/repos/hunspell/hyphen/commits/dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e",
+  "html_url": "https://github.com/hunspell/hyphen/commit/dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e",
+  "comments_url": "https://api.github.com/repos/hunspell/hyphen/commits/dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e/comments",
+  "author": {
+    "login": "yecril25",
+    "id": 193542965,
+    "node_id": "U_kgDOC4k7NQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/193542965?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/yecril25",
+    "html_url": "https://github.com/yecril25",
+    "followers_url": "https://api.github.com/users/yecril25/followers",
+    "following_url": "https://api.github.com/users/yecril25/following{/other_user}",
+    "gists_url": "https://api.github.com/users/yecril25/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/yecril25/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/yecril25/subscriptions",
+    "organizations_url": "https://api.github.com/users/yecril25/orgs",
+    "repos_url": "https://api.github.com/users/yecril25/repos",
+    "events_url": "https://api.github.com/users/yecril25/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/yecril25/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "caolanm",
+    "id": 833656,
+    "node_id": "MDQ6VXNlcjgzMzY1Ng==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/833656?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/caolanm",
+    "html_url": "https://github.com/caolanm",
+    "followers_url": "https://api.github.com/users/caolanm/followers",
+    "following_url": "https://api.github.com/users/caolanm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/caolanm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/caolanm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/caolanm/subscriptions",
+    "organizations_url": "https://api.github.com/users/caolanm/orgs",
+    "repos_url": "https://api.github.com/users/caolanm/repos",
+    "events_url": "https://api.github.com/users/caolanm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/caolanm/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "c1c21beaae1c03704e47c127a860775fc6493c10",
+      "url": "https://api.github.com/repos/hunspell/hyphen/commits/c1c21beaae1c03704e47c127a860775fc6493c10",
+      "html_url": "https://github.com/hunspell/hyphen/commit/c1c21beaae1c03704e47c127a860775fc6493c10"
+    }
+  ]
+}

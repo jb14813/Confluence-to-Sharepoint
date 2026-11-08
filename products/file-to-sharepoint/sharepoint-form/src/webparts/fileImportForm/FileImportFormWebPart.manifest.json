@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "f104fa11-c9e8-43d6-8c5a-3f7b70f31ab1",
+  "alias": "FileImportFormWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart"],
+  "supportsThemeVariants": false,
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+    "group": { "default": "Advanced" },
+    "title": { "default": "Imported document form" },
+    "description": { "default": "Fill an imported form and save a response to this site." },
+    "officeFabricIconFontName": "SurveyQuestions",
+    "properties": { "formId": "", "definitionListId": "", "responseListId": "" }
+  }]
+}

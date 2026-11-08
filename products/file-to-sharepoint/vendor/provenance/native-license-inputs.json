@@ -1,0 +1,4099 @@
+{
+  "schemaVersion": 1,
+  "status": "verified-native-source-and-notices",
+  "scope": "Selected native runtime sources and exact notices; recipe evidence distinguishes runtime code from build-only dependencies. This is a technical provenance audit, not legal approval.",
+  "preferredSourceInputs": [
+    {
+      "file": "freetype-VER-2-10-4.tar.gz",
+      "url": "https://codeload.github.com/freetype/freetype/tar.gz/refs/tags/VER-2-10-4",
+      "bytes": 2093200,
+      "sha256": "4d47fca95debf8eebde5d27e93181f05b4758701ab5ce3e7b3c54b937e8f0962",
+      "role": "source",
+      "version": "VER-2-10-4",
+      "commit": "6a2b3e4007e794bfc6c91030d0ed987f925164a8",
+      "repository": "https://github.com/freetype/freetype"
+    },
+    {
+      "file": "emscripten-3.1.48.tar.gz",
+      "url": "https://codeload.github.com/emscripten-core/emscripten/tar.gz/refs/tags/3.1.48",
+      "bytes": 28865429,
+      "sha256": "5d1eca63ff1a23dd80d51ed6314cf6988fdd44ead13a7b85bd08dc98285e7a99",
+      "role": "source",
+      "version": "3.1.48",
+      "commit": "e967e20b4727956a30592165a3c1cde5c67fa0a8",
+      "repository": "https://github.com/emscripten-core/emscripten"
+    },
+    {
+      "file": "xpdf-4.03.tar.gz",
+      "url": "https://dl.xpdfreader.com/old/xpdf-4.03.tar.gz",
+      "bytes": 936046,
+      "sha256": "0fe4274374c330feaadcebb7bd7700cb91203e153b26aa95952f02bf130be846",
+      "role": "source",
+      "version": "4.03"
+    }
+  ],
+  "sourceArchiveInputs": [
+    {
+      "name": "boost",
+      "file": "boost-ad09f667.tar.gz",
+      "url": "https://codeload.github.com/boostorg/boost/tar.gz/ad09f667e61e18f5c31590941e748ac38e5a81bf",
+      "bytes": 801108,
+      "sha256": "8ce5a7853a0ac5be4fa772cb3ecfc0b52df72ff17192e978172e377508099138",
+      "repository": "https://github.com/boostorg/boost",
+      "commit": "ad09f667e61e18f5c31590941e748ac38e5a81bf",
+      "role": "dependency-source"
+    },
+    {
+      "file": "brotli-a47d7475.tar.gz",
+      "url": "https://codeload.github.com/google/brotli/tar.gz/a47d7475063eb223c87632eed806c0070e70da29",
+      "bytes": 638452,
+      "sha256": "49b657a4321cb00e388863dec8d0558b94ec47100d619b837d570a58bba71379",
+      "repository": "https://github.com/google/brotli",
+      "commit": "a47d7475063eb223c87632eed806c0070e70da29",
+      "component": "brotli",
+      "role": "source"
+    },
+    {
+      "file": "core-d54f0326.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/core/tar.gz/d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "bytes": 221357240,
+      "sha256": "ad8b5adaf49b5ce12705a9cc1eb165f89e791a496ce395f8f0974d8c7d48cd77",
+      "repository": "https://github.com/ONLYOFFICE/core",
+      "commit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "component": "core-publisher-release",
+      "role": "source"
+    },
+    {
+      "file": "emscripten-3.1.48.tar.gz",
+      "url": "https://codeload.github.com/emscripten-core/emscripten/tar.gz/refs/tags/3.1.48",
+      "bytes": 28865429,
+      "sha256": "5d1eca63ff1a23dd80d51ed6314cf6988fdd44ead13a7b85bd08dc98285e7a99",
+      "role": "source",
+      "version": "3.1.48",
+      "commit": "e967e20b4727956a30592165a3c1cde5c67fa0a8",
+      "repository": "https://github.com/emscripten-core/emscripten"
+    },
+    {
+      "name": "Emscripten4.0.11 linked runtime and port recipes",
+      "file": "emscripten-4182f94.tar.gz",
+      "url": "https://codeload.github.com/emscripten-core/emscripten/tar.gz/4182f94222db892e16961fbbfd8097c0797d30c4",
+      "bytes": 34009977,
+      "sha256": "f5756a5440744f19d4714a360f4e12d56fa343b7b9c51aa4f65abb04b2ef8afe",
+      "role": "toolchain-runtime-source",
+      "repository": "https://github.com/emscripten-core/emscripten",
+      "commit": "4182f94222db892e16961fbbfd8097c0797d30c4"
+    },
+    {
+      "file": "freetype-VER-2-10-4.tar.gz",
+      "url": "https://codeload.github.com/freetype/freetype/tar.gz/refs/tags/VER-2-10-4",
+      "bytes": 2093200,
+      "sha256": "4d47fca95debf8eebde5d27e93181f05b4758701ab5ce3e7b3c54b937e8f0962",
+      "role": "source",
+      "version": "VER-2-10-4",
+      "commit": "6a2b3e4007e794bfc6c91030d0ed987f925164a8",
+      "repository": "https://github.com/freetype/freetype"
+    },
+    {
+      "name": "glm",
+      "file": "glm-33b4a621.tar.gz",
+      "url": "https://codeload.github.com/g-truc/glm/tar.gz/33b4a621a697a305bc3a7610d290677b96beb181",
+      "bytes": 4575890,
+      "sha256": "fa761b941987933884b0d21d5b86930789061f026ba163d47cebbc5b00be277b",
+      "repository": "https://github.com/g-truc/glm",
+      "commit": "33b4a621a697a305bc3a7610d290677b96beb181",
+      "role": "dependency-source"
+    },
+    {
+      "name": "gumbo-parser",
+      "file": "gumbo-parser-aa91b27b.tar.gz",
+      "url": "https://codeload.github.com/google/gumbo-parser/tar.gz/aa91b27b02c0c80c482e24348a457ed7c3c088e0",
+      "bytes": 2119724,
+      "sha256": "f2d899ad9f96da1461710148dc1dc84c8519d9ec342d70bdb7a2c1f61dba3678",
+      "repository": "https://github.com/google/gumbo-parser",
+      "commit": "aa91b27b02c0c80c482e24348a457ed7c3c088e0",
+      "role": "dependency-source"
+    },
+    {
+      "file": "harfbuzz-894a1f72.tar.gz",
+      "url": "https://codeload.github.com/harfbuzz/harfbuzz/tar.gz/894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "bytes": 36010701,
+      "sha256": "17eda8a9861d347a6e95cd2b3112301ce90dcc649b0e96623cc89c6ca4180e66",
+      "repository": "https://github.com/harfbuzz/harfbuzz",
+      "commit": "894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "component": "harfbuzz",
+      "role": "source"
+    },
+    {
+      "name": "Hyphen historical source",
+      "file": "hyphen-dcd90f0.tar.gz",
+      "url": "https://codeload.github.com/hunspell/hyphen/tar.gz/dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e",
+      "bytes": 302604,
+      "sha256": "73b65e5b8e9243b13c8f82d719f95fd8f5924723587f5d1097b44c51b36db602",
+      "role": "source",
+      "repository": "https://github.com/hunspell/hyphen",
+      "commit": "dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e"
+    },
+    {
+      "file": "icu-2d029329.tar.gz",
+      "url": "https://codeload.github.com/unicode-org/icu/tar.gz/2d029329c82c7792b985024b2bdab5fc7278fbc8",
+      "bytes": 65925217,
+      "sha256": "b9cf5c172b9e412ff8fd7dae82723ef619367bc30e40979354320d416bab06d2",
+      "repository": "https://github.com/unicode-org/icu",
+      "commit": "2d029329c82c7792b985024b2bdab5fc7278fbc8",
+      "component": "icu",
+      "role": "source"
+    },
+    {
+      "name": "Emscripten ICU68.2 port",
+      "file": "icu4c-68_2-src.zip",
+      "url": "https://api.github.com/repos/unicode-org/icu/releases/assets/29708024?download=1",
+      "bytes": 26023195,
+      "sha256": "047e621bf3ddde8682a569ff26cbfdd27225f892adab76d32c56094823323865",
+      "role": "source",
+      "headers": {
+        "Accept": "application/octet-stream"
+      },
+      "sha512": "12c3db5966c234c94e7918fb8acc8bd0838edc36a620f3faa788e7ff27b06f1aa431eb117401026e3963622b9323212f444b735d5c9dd3d0b82d772a4834b993"
+    },
+    {
+      "name": "katana-parser",
+      "file": "katana-parser-be6df458.tar.gz",
+      "url": "https://codeload.github.com/jasenhuang/katana-parser/tar.gz/be6df458d4540eee375c513958dcb862a391cdd1",
+      "bytes": 97792,
+      "sha256": "3522aa95456f2faa7f43052c5f38c4d5cff8320f9a69fe6aac33eb1dda7b91b5",
+      "repository": "https://github.com/jasenhuang/katana-parser",
+      "commit": "be6df458d4540eee375c513958dcb862a391cdd1",
+      "role": "dependency-source"
+    },
+    {
+      "name": "libetonyek",
+      "file": "libetonyek-cb396b4a.tar.gz",
+      "url": "https://codeload.github.com/LibreOffice/libetonyek/tar.gz/cb396b4a9453a457469b62a740d8fb933c9442c3",
+      "bytes": 1565209,
+      "sha256": "951ebb7e7c9f254f9bfede0574247392d0ccaf7397a4e1b0f3b95db16564e923",
+      "repository": "https://github.com/LibreOffice/libetonyek",
+      "commit": "cb396b4a9453a457469b62a740d8fb933c9442c3",
+      "role": "dependency-source"
+    },
+    {
+      "name": "libodfgen",
+      "file": "libodfgen-8ef8c171.tar.gz",
+      "url": "https://codeload.github.com/Distrotech/libodfgen/tar.gz/8ef8c171ebe3c5daebdce80ee422cf7bb96aa3bc",
+      "bytes": 136890,
+      "sha256": "c6dd47cc88683c7589dbaac5bdc94e492333c53def88a0f40a004d3f1379d063",
+      "repository": "https://github.com/Distrotech/libodfgen",
+      "commit": "8ef8c171ebe3c5daebdce80ee422cf7bb96aa3bc",
+      "role": "dependency-source"
+    },
+    {
+      "name": "librevenge",
+      "file": "librevenge-becd044b.tar.gz",
+      "url": "https://codeload.github.com/Distrotech/librevenge/tar.gz/becd044b519ab83893ad6398e3cbb499a7f0aaf4",
+      "bytes": 546817,
+      "sha256": "5e1d9ec2663990c63127775441f19d48b794a4bf8a50352658976f2d0527bd98",
+      "repository": "https://github.com/Distrotech/librevenge",
+      "commit": "becd044b519ab83893ad6398e3cbb499a7f0aaf4",
+      "role": "dependency-source"
+    },
+    {
+      "name": "md4c",
+      "file": "md4c-481fbfbd.tar.gz",
+      "url": "https://codeload.github.com/mity/md4c/tar.gz/481fbfbdf72daab2912380d62bb5f2187d438408",
+      "bytes": 238870,
+      "sha256": "07252052c3e3c23efeab44b6d52d093817102b2b500353889d72c241a1b76a79",
+      "repository": "https://github.com/mity/md4c",
+      "commit": "481fbfbdf72daab2912380d62bb5f2187d438408",
+      "role": "dependency-source"
+    },
+    {
+      "name": "mdds",
+      "file": "mdds-07831589.tar.gz",
+      "url": "https://codeload.github.com/kohei-us/mdds/tar.gz/0783158939c6ce4b0b1b89e345ab983ccb0f0ad0",
+      "bytes": 754285,
+      "sha256": "7839df303834f939b249b0eb450a2a2b30b390096569967213f1afe56db7002a",
+      "repository": "https://github.com/kohei-us/mdds",
+      "commit": "0783158939c6ce4b0b1b89e345ab983ccb0f0ad0",
+      "role": "dependency-source"
+    },
+    {
+      "file": "openssl-36eadf1f.tar.gz",
+      "url": "https://codeload.github.com/openssl/openssl/tar.gz/36eadf1f84daa965041cce410b4ff32cbda4ef08",
+      "bytes": 9974022,
+      "sha256": "1363fad0711483bd8ec1c1e3a4357bf00b39197da2dc04b1fa66b6a3605eb1f2",
+      "repository": "https://github.com/openssl/openssl",
+      "commit": "36eadf1f84daa965041cce410b4ff32cbda4ef08",
+      "component": "openssl",
+      "role": "source"
+    },
+    {
+      "name": "CryptPad converter source including vendored core",
+      "file": "x2t-source-7debf5e.tar.gz",
+      "url": "https://codeload.github.com/cryptpad/onlyoffice-x2t-wasm/tar.gz/7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+      "bytes": 273752866,
+      "sha256": "baceed384a1cf7d3211b439328791461809025260fd194e87be1b1bdb64fe1ff",
+      "role": "source",
+      "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
+      "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32"
+    },
+    {
+      "file": "xpdf-4.03.tar.gz",
+      "url": "https://dl.xpdfreader.com/old/xpdf-4.03.tar.gz",
+      "bytes": 936046,
+      "sha256": "0fe4274374c330feaadcebb7bd7700cb91203e153b26aa95952f02bf130be846",
+      "role": "source",
+      "version": "4.03"
+    }
+  ],
+  "components": [
+    {
+      "name": "Anti-Grain Geometry 2.4",
+      "license": "BSD-3-Clause option",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/agg-2.4/copying",
+          "bytes": 2605,
+          "sha256": "f580c4e73d78e6f4c1c17ab9042bf630b0b4dabf3680d0c850cf14f910fdf616",
+          "extraction": "whole",
+          "extractedTextBytes": 2538,
+          "extractedTextSha256": "67d8faf92e286882718934e1d74dbebfde16a61bd1ab4c694b21df80c10d3a88"
+        }
+      ],
+      "assessment": "GPC/example sources are excluded; their noncommercial license is not the AGG renderer license."
+    },
+    {
+      "name": "CxImage",
+      "license": "Zlib-style CxImage license",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/CxImage/license.txt",
+          "bytes": 2352,
+          "sha256": "f50c9c12604dafcd15bc88b2e76fbf2e4009c18702669b463e839eb985897034",
+          "extraction": "whole",
+          "extractedTextBytes": 2303,
+          "extractedTextSha256": "44e699a2638e42e6218fbb62fe63f9ccd1a4443f44b9de228f8e0cf4a677053b"
+        }
+      ]
+    },
+    {
+      "name": "Independent JPEG Group JPEG library",
+      "license": "IJG",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/jpeg/README",
+          "bytes": 16249,
+          "sha256": "5fa97edc0ce7dfdcfb3744d705ebd2665190a7f77388747ffaa75c16f10fcfb2",
+          "extraction": "whole",
+          "extractedTextBytes": 15922,
+          "extractedTextSha256": "c72d7a7c8bd2037ef54afb42c57a8c46ea959465b4cf0e6ec5ec868a526e6ec3"
+        }
+      ]
+    },
+    {
+      "name": "libpng",
+      "license": "Libpng",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/png/LICENSE",
+          "bytes": 4187,
+          "sha256": "693fd4bca4178b4b4f11c8043ceb9b68b76658465e692d18e3e8b4920d2fbe66",
+          "extraction": "whole",
+          "extractedTextBytes": 4185,
+          "extractedTextSha256": "479fba6ca809be70c2d7467d1b06bac5880f26068a2fae72b08b5c56e4f2c61f"
+        }
+      ]
+    },
+    {
+      "name": "TIFF library",
+      "license": "libtiff permissive notice",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/tiff/tiff.h",
+          "bytes": 33816,
+          "sha256": "b54d7ac2bb124b3df10aa7a50001e2c6369998621481dd32e94526bb019d2dbd",
+          "extraction": "header",
+          "extractedTextBytes": 1279,
+          "extractedTextSha256": "ab7b5f6ce91276e08232dd59dec512a7d6a7a6e06bf547c8bf4c8f4b68950aad"
+        }
+      ]
+    },
+    {
+      "name": "JasPer JPEG-2000 library",
+      "license": "JasPer-2.0",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/jasper/LICENSE",
+          "bytes": 2744,
+          "sha256": "edf9f4257cc33a1f396f9b062ca4a01dca7c79747c7d85b8947e603e5166760e",
+          "extraction": "whole",
+          "extractedTextBytes": 2742,
+          "extractedTextSha256": "bb4c487af3e325c09adea2b0aedcdf20ca10ac85e1867adbf26ef4f28d5622a0"
+        }
+      ]
+    },
+    {
+      "name": "libmng",
+      "license": "Libmng",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/mng/LICENSE.txt",
+          "bytes": 4679,
+          "sha256": "d2ab2151d732a827473845c82df86a90cbe62860701d18cce0750f078b10acc1",
+          "extraction": "whole",
+          "extractedTextBytes": 4621,
+          "extractedTextSha256": "5408e40054cfec2e02efde9453db92d51a79299aa79d805328eb4971d747c3a4"
+        }
+      ]
+    },
+    {
+      "name": "libpsd",
+      "license": "LGPL-2.0-or-later",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/libpsd/libpsd.h",
+          "bytes": 49208,
+          "sha256": "73ac4e3a8ec7d901869ca9d967b28b70e15110533bd7617ac85f13b27a59c86f",
+          "extraction": "header",
+          "extractedTextBytes": 1106,
+          "extractedTextSha256": "c8159b21318b868fab58b32a9c0b3d32da300ed1e3ea0c74b36ccabe65f165bc"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/libpsd/COPYING",
+          "bytes": 25292,
+          "sha256": "d245807f90032872d1438d741ed21e2490e1175dc8aa3afa5ddb6c8e529b58e5",
+          "extraction": "whole",
+          "extractedTextBytes": 25287,
+          "extractedTextSha256": "a2190e9492d07a8e080baaaf90108d662701f3e1236d731b3f2d23a56bf6b625"
+        }
+      ]
+    },
+    {
+      "name": "OpenJPEG 2.4.0",
+      "license": "BSD-2-Clause",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/PdfFile.pro",
+          "bytes": 5109,
+          "sha256": "8784ca3e10f0d3dd3807ec3fde936d74a787dcc349f001ce70b4668609fe028e"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/raster/Jp2/openjpeg/openjpeg-2.4.0/LICENSE",
+          "bytes": 2112,
+          "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+          "extraction": "whole",
+          "extractedTextBytes": 2111,
+          "extractedTextSha256": "c6eabdaa28c0bf5e77d7b6cce35bff0a1a0397448a8facbe33e6297bbf4a0c05"
+        }
+      ]
+    },
+    {
+      "name": "JBIG-KIT",
+      "license": "GPL-2.0-or-later",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/jbig/jbig.c",
+          "bytes": 94821,
+          "sha256": "1f607aa93dbea05124077d357fd3888a634d2cab5043b34f3595375b428f56a6",
+          "extraction": "header",
+          "extractedTextBytes": 1852,
+          "extractedTextSha256": "ed903175dbad97baf8a5072c1c64bd79941804bc1460938749d6f46054736f8a"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/cximage/jbig/copying.txt",
+          "bytes": 17982,
+          "sha256": "91df39d1816bfb17a4dda2d3d2c83b1f6f2d38d53e53e41e8f97ad5ac46a0cad",
+          "extraction": "whole",
+          "extractedTextBytes": 17975,
+          "extractedTextSha256": "4bc39a602d0e88e8f6ad253b6d354ddea4022d8d4baa743026c644211dedc764"
+        }
+      ],
+      "assessment": "The converter recipe compiles jbig.c and jbig_tab.c; these are distinct from the Apache-licensed JBIG2 encoder."
+    },
+    {
+      "name": "JBIG2 encoder",
+      "license": "Apache-2.0",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/raster/JBig2/source/Encoder/jbig2arith.h",
+          "bytes": 7976,
+          "sha256": "01ff05ec72dfe7b4b162190ebf4fcddbe59431c1f2abac8e92115e11e95819b3",
+          "extraction": "header",
+          "extractedTextBytes": 695,
+          "extractedTextSha256": "6d0355d1e53831bc3e031c16f37a2465e3c5612bb95e6c1f508c79e6081388e5"
+        }
+      ]
+    },
+    {
+      "name": "Leptonica",
+      "license": "Leptonica BSD-style",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/raster.pri",
+          "bytes": 16499,
+          "sha256": "7666c94d040091154d1b294784db2779e53efebea659d239c85b5738d0075b65"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/raster/JBig2/source/LeptonLib/pix1.cpp",
+          "bytes": 44619,
+          "sha256": "f3fd4402fc22bb85a60e98955d30bf943643bfabc93771791f399a046ff7f16b",
+          "extraction": "header",
+          "extractedTextBytes": 7366,
+          "extractedTextSha256": "c731ac7c2f387d10244a902298471bc785181b3ec49f511eb6cce2694c301b9d"
+        }
+      ]
+    },
+    {
+      "name": "zlib 1.2.11",
+      "license": "Zlib",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/OfficeUtils/OfficeUtils.pro",
+          "bytes": 251,
+          "sha256": "8e0a30fa1ea40f5f51a0f931fafce5f1c2bb95babd6e197f00b9606c03d01161"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/OfficeUtils/src/zlib-1.2.11/zlib.h",
+          "bytes": 96291,
+          "sha256": "06ea0a2f6267eae6f66f1eeb1d7933083452a6fa8327438db807a0cf8102672c",
+          "extraction": "header",
+          "extractedTextBytes": 1328,
+          "extractedTextSha256": "7105e04ec139f05b55a4f020e70193f007f44bc052dc322fa1ad24f957993ee0"
+        }
+      ]
+    },
+    {
+      "name": "MiniZip",
+      "license": "Zlib",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/OfficeUtils/src/zlib-1.2.11/contrib/minizip/ioapi.h",
+          "bytes": 7051,
+          "sha256": "8655408534b78dc0889a45f9359fc6d2d5c8e8d8443b81ede596f954c720ef48",
+          "extraction": "header",
+          "extractedTextBytes": 905,
+          "extractedTextSha256": "8f8216eb128ad7244ca9b67930e2a96d87025358990d26142c257651dd208e71"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/OfficeUtils/src/zlib-1.2.11/contrib/minizip/unzip.h",
+          "bytes": 16352,
+          "sha256": "d8dc58fc0121b6a4b98f3028205bb253f956b1ddf791e9ced3cf44892502a01f",
+          "extraction": "header",
+          "extractedTextBytes": 1696,
+          "extractedTextSha256": "99283047bcc60cd0fdc2ccee5746ef4e678132e8f550176f2585207154adfa8e"
+        }
+      ]
+    },
+    {
+      "name": "libxml2",
+      "license": "MIT",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/OfficeUtils/OfficeUtils.pro",
+          "bytes": 251,
+          "sha256": "8e0a30fa1ea40f5f51a0f931fafce5f1c2bb95babd6e197f00b9606c03d01161"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/xml/libxml2/Copyright",
+          "bytes": 1312,
+          "sha256": "7b5c35a856959625fca9bcedb4f13258a37910a0822aedf29166d3d5ea786951",
+          "extraction": "whole",
+          "extractedTextBytes": 1288,
+          "extractedTextSha256": "7709e2aca216b838a96ac48766f2cadd02b1540284265f71b54f9e70f992f7fb"
+        }
+      ]
+    },
+    {
+      "name": "Crypto++",
+      "license": "BSL-1.0 and public-domain components",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/Common/3dParty/cryptopp/License.txt",
+          "bytes": 4032,
+          "sha256": "78e4010b682cb94187fe0b57e50116d0ba271ef81104d1ddb35c80c3d81e3169",
+          "extraction": "whole",
+          "extractedTextBytes": 3947,
+          "extractedTextSha256": "b9a0c99a6408cf6fb0d7e2c70972af412ed5516baa55a23f27bd678587fb0d7f"
+        }
+      ]
+    },
+    {
+      "name": "DjVuLibre / DjVu Reference Library",
+      "license": "GPL-2.0-or-later",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DjVuFile/libdjvu/GString.cpp",
+          "bytes": 60689,
+          "sha256": "6f5f90d7cc1e09f7dd96050e6a4ac4a346aeaf5f37514857328f4da43a5ba426",
+          "extraction": "header",
+          "extractedTextBytes": 3628,
+          "extractedTextSha256": "840bf38454dfd310f076306e06361e9594af58bd81a7b841e8aa6b984ce36dea"
+        }
+      ]
+    },
+    {
+      "name": "Embedded PDF base-font programs",
+      "license": "AGPL-3.0-only WITH upstream font embedding exception",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/PdfFile.pro",
+          "bytes": 5109,
+          "sha256": "8784ca3e10f0d3dd3807ec3fde936d74a787dcc349f001ce70b4668609fe028e"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/Resources/Fonts/LICENSE",
+          "bytes": 440,
+          "sha256": "772b1b47eead8722156abaed483154e1dd1137e7035290550cea6444192a2e3f",
+          "extraction": "whole",
+          "extractedTextBytes": 438,
+          "extractedTextSha256": "86e44de941aa3807d3be1bd892922612e3396d4c203b565bf7515bd1019df0da"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/Resources/Fonts/COPYING",
+          "bytes": 34520,
+          "sha256": "57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6",
+          "extraction": "whole",
+          "extractedTextBytes": 34499,
+          "extractedTextSha256": "5537d2d539c94627446bf7eb30d30fda28d1de8aa9a41c25b83012db52ff6f8b"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/d050000l.pfb",
+          "bytes": 45552,
+          "sha256": "a96f0366a4b0cd2a500e22df52cb0ce55056e499d331cd8ab9410eda6c2540a2",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 326,
+          "extractedTextSha256": "1b471da9c6e855950a0d15912ad58b8a896cd2860b3bc0a071f0c18d2fb55cbc"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019003l.pfb",
+          "bytes": 49658,
+          "sha256": "6be08a49b18731cb664e375c0e51ecba9d5c0746afdaab6937280ccc31f7d33c",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "52605de6471afe1a17623b4042b29e032171eba7ece9b31a907b1ddaaae4bde2"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019004l.pfb",
+          "bytes": 50932,
+          "sha256": "fde86425dc34d4b3f02eb35ffd4d9084148763f89a9658b72285877b8bea6326",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "94eccd335214fb2731db0f297ae335333d94c4c0a286844bcdebd4dd9fe21126"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019023l.pfb",
+          "bytes": 54507,
+          "sha256": "b35d4edbeab956c33f8981782c7901f05e7616e4f1a7a99a3ac69ba834c17b82",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "5657874fc56d347df4e7921376fd4ef85b1bc1594b8fa0e64974ffdfa44c17ad"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019024l.pfb",
+          "bytes": 55873,
+          "sha256": "701b24f668950091a2a43bb16e368403100bb07756a2c1244e6fac6c087bfe12",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 334,
+          "extractedTextSha256": "c1bd6c48b4c55dfd0ce75be0f82ad4f3b94c3a2fafa0e78b6f8860d03c82e049"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021003l.pfb",
+          "bytes": 68241,
+          "sha256": "592b57e682e8686b630ff489ad5678831b741c7169bfcc232e41f7ef4589f4c0",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "cbdbf0103c83bc6f2d23f25d33fd060146728570a5a640e5088ef5c65adf8e6f"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021004l.pfb",
+          "bytes": 67173,
+          "sha256": "2a1c998b23286042d11f978d6e28132fdadd1f01a580517bfe858c04e229374b",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "18f707e7adfb70fff2ae83bbff63afd0c5eb34c4b2233982528e19be0f79704e"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021023l.pfb",
+          "bytes": 71913,
+          "sha256": "a14a2d2d541e69324c0a88f9a85d796169bafdabc072c926a7e1b497506c1cbb",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "5e504d166065971acc11397a692b0293acff8cea6f2e03dec8933d8e67f21f32"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021024l.pfb",
+          "bytes": 70676,
+          "sha256": "8cd594a889db802cd92d269d0c407d108e85e2a6a906bc74e7a175b30e3a6a77",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 334,
+          "extractedTextSha256": "f84d338c7f0eea1fdb4feacfdc7b08f40d440cd950f87102b8fd594f24b5458d"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022003l.pfb",
+          "bytes": 74890,
+          "sha256": "bf4376baec6116927b918a8fe9485a2e07420b31655bc79e0a49d7fc89ce2e06",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "450ecae116d8e7ecc877138eaf10b65dd73e5f9ad35f576076a87c611f5a0377"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022004l.pfb",
+          "bytes": 82510,
+          "sha256": "486b8df6adba53ff421ecfd1328b4a6819f5bbc9a872dd25500ce5b40154212c",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "351bd7032a4a8195c1f9a25b07a79c14f2475c913af99649f0d7af0e41402b43"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022023l.pfb",
+          "bytes": 72071,
+          "sha256": "2d00832c9d8af72727ec9b04cb4e278fa8de980599255fa4cff89a0f04a1d407",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 331,
+          "extractedTextSha256": "881e2a075afada24c2f87716139b18f2fd26c3b94e83e9c3dedbf80b02b5d6b8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022024l.pfb",
+          "bytes": 75690,
+          "sha256": "04a136a3ead955ee4dd80c912690121e8f026073bd1db91dd00de523f615fc15",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 334,
+          "extractedTextSha256": "c6863a800e52b3e1fa94afd7e802bb98aa903468cc20671092e00a5507b081dc"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/s050000l.pfb",
+          "bytes": 32896,
+          "sha256": "d27344755e5fdeb799588f2697eb6ca2d48d100145f462ab1f066f9e44836150",
+          "extraction": "pfb-first-ascii-segment-attribution",
+          "extractedTextBytes": 312,
+          "extractedTextSha256": "199c03e826c60f02a8d3ab160ca818d403334f969cb83d96bbeceb491f5a344b"
+        }
+      ]
+    },
+    {
+      "name": "Adobe PDF CMap data",
+      "license": "BSD-3-Clause Adobe notice",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/PdfFile.pro",
+          "bytes": 5109,
+          "sha256": "8784ca3e10f0d3dd3807ec3fde936d74a787dcc349f001ce70b4668609fe028e"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/Resources/CMap/CMap/LICENSE.md",
+          "bytes": 1453,
+          "sha256": "feb8b068a417681821823ef2e8995072aa111121fa11f8664038f78717f4497c",
+          "extraction": "whole",
+          "extractedTextBytes": 1452,
+          "extractedTextSha256": "2ed3907a5f1caa5235aab00d0ffb55b33dadd13bec194c0f7f5b8c254bd5b2e7"
+        }
+      ]
+    },
+    {
+      "name": "ONLYOFFICE native source identification / additional terms",
+      "license": "AGPL-3.0-only with publisher additional terms",
+      "applicability": "Compiled source selected by x2t graphics and/or publisher drawing/font manifests.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/common/File.h",
+          "bytes": 8808,
+          "sha256": "1163f1cd16a32e979e1ff18934468bd6db86a0c21a948189dcb2f2d74dc0ccee",
+          "extraction": "header",
+          "extractedTextBytes": 1204,
+          "extractedTextSha256": "39d56b7db03d6b565f62029669b782775b24b5ec1eacf3c09bfeacf0a48d5b97"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/common/File.h",
+          "bytes": 9153,
+          "sha256": "3a88bf55cd542286fb1ff6ed32a8618cfa8c4b0f371c2326c35b73949a43acb7",
+          "extraction": "header",
+          "extractedTextBytes": 1549,
+          "extractedTextSha256": "ef126af7c87b1f1b54feeb67ce74168e391662bdd4273bb71a8e78b9f2f8e167"
+        }
+      ]
+    },
+    {
+      "name": "FreeType 2.10.4",
+      "license": "FTL option",
+      "applicability": "Directly compiled by all three runtime recipes.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/freetype.pri",
+          "bytes": 2772,
+          "sha256": "361302e998c272218cd56f1563bf876e9d5fdf4926df1f3f422227d6d096eeb3"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "freetype-VER-2-10-4.tar.gz",
+          "member": "freetype-VER-2-10-4/docs/LICENSE.TXT",
+          "bytes": 1743,
+          "sha256": "fd056de4196903a676208ef58cfddafc7d583d1f28fa2e44c309cf84a59e62fb",
+          "extraction": "whole",
+          "extractedTextBytes": 1741,
+          "extractedTextSha256": "6473af95643697fe1cb366a17b1a6c90aa6018ecc3c6c686608e3b1c28ec23a6"
+        },
+        {
+          "archive": "freetype-VER-2-10-4.tar.gz",
+          "member": "freetype-VER-2-10-4/docs/FTL.TXT",
+          "bytes": 6743,
+          "sha256": "08c135755dd589039470f1fdbb400daaabaaa50d0b366d19cebff4d22986baa1",
+          "extraction": "whole",
+          "extractedTextBytes": 6722,
+          "extractedTextSha256": "e47346ea9025b62f95e4dbc38bf5060351bda27c52d828ee04430b9d535c582b"
+        }
+      ],
+      "assessment": "Official FreeType tag restores license files omitted from the vendored core tree; core modified sources and patches remain the distributed corresponding source."
+    },
+    {
+      "name": "Xpdf 4.03",
+      "license": "GPL-3.0 option",
+      "applicability": "PDF reader source compiled into drawing and converter.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/PdfFile.pro",
+          "bytes": 5109,
+          "sha256": "8784ca3e10f0d3dd3807ec3fde936d74a787dcc349f001ce70b4668609fe028e"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "xpdf-4.03.tar.gz",
+          "member": "xpdf-4.03/README",
+          "bytes": 13752,
+          "sha256": "bf2690cb50abd01c991180d2bd3472f19e678fc3235b15302d298fbc0b0ca05c",
+          "extraction": "whole",
+          "extractedTextBytes": 13752,
+          "extractedTextSha256": "cabc30c1df3474943df2a8e3dfaa17bb60037e79280b010a77f9cafd9dae8374"
+        },
+        {
+          "archive": "xpdf-4.03.tar.gz",
+          "member": "xpdf-4.03/COPYING3",
+          "bytes": 35147,
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+          "extraction": "whole",
+          "extractedTextBytes": 35126,
+          "extractedTextSha256": "c3bc1fd94148c28485e8bab1d5a28edbc8e3870f2bd9be7127c68c8b7a0ea5df"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/lib/xpdf/config.h",
+          "bytes": 3128,
+          "sha256": "0496be8c9c3da675b130908c8a20975d26b3646dc074f8d8295e8044ba2617b8",
+          "extraction": "header",
+          "extractedTextBytes": 210,
+          "extractedTextSha256": "47eb5eb024722758df284a7faa3939058d4bd5dccd35c129f987363ad48705c5"
+        }
+      ],
+      "assessment": "Original publisher archive supplies the complete explicit GPLv2/GPLv3 grant omitted from the vendored subset; modified implementation remains in core source."
+    },
+    {
+      "name": "HarfBuzz",
+      "license": "MIT-style HarfBuzz notices",
+      "applicability": "Font shaping selected by publisher fonts manifest and x2t fontengine recipe.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/fontengine.pri",
+          "bytes": 2201,
+          "sha256": "efb5de8162b8da83fbfbf18a2da4866465898e104ee2851be7ae71fc049cec97"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "harfbuzz-894a1f72.tar.gz",
+          "member": "harfbuzz-894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a/COPYING",
+          "bytes": 1971,
+          "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64",
+          "extraction": "whole",
+          "extractedTextBytes": 1970,
+          "extractedTextSha256": "52bbb9bf44598471a23ceb9de91f3b89dc488be649d215cc29a2c92d67639774"
+        },
+        {
+          "archive": "harfbuzz-894a1f72.tar.gz",
+          "member": "harfbuzz-894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a/src/ms-use/COPYING",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+          "extraction": "whole",
+          "extractedTextBytes": 1136,
+          "extractedTextSha256": "ff82c90f84945c60601e96b43246009b9bc589f3ebe1cd8a0fd39a3520d8c310"
+        }
+      ]
+    },
+    {
+      "name": "Brotli",
+      "license": "MIT",
+      "applicability": "Font/PDF decompression recipes explicitly include Brotli sources/libraries.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/fontengine.pri",
+          "bytes": 2201,
+          "sha256": "efb5de8162b8da83fbfbf18a2da4866465898e104ee2851be7ae71fc049cec97"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/PdfFile/PdfFile.pro",
+          "bytes": 5109,
+          "sha256": "8784ca3e10f0d3dd3807ec3fde936d74a787dcc349f001ce70b4668609fe028e"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "brotli-a47d7475.tar.gz",
+          "member": "brotli-a47d7475063eb223c87632eed806c0070e70da29/LICENSE",
+          "bytes": 1084,
+          "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+          "extraction": "whole",
+          "extractedTextBytes": 1083,
+          "extractedTextSha256": "2a57418d6b10947fe0dfbec3a600269e2745136c125cbf15b256e5ae18af23cb"
+        }
+      ]
+    },
+    {
+      "name": "ICU (publisher source revision)",
+      "license": "Unicode-3.0 plus component notices",
+      "applicability": "Publisher drawing UnicodeConverter source dependency.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "icu-2d029329.tar.gz",
+          "member": "icu-2d029329c82c7792b985024b2bdab5fc7278fbc8/LICENSE",
+          "bytes": 25185,
+          "sha256": "17510cf7a58b4879b887ec05a45d72cf1b73544dd9ec7e72f20110ed104229ee",
+          "extraction": "whole",
+          "extractedTextBytes": 25184,
+          "extractedTextSha256": "4bbd179da96267d72b2c331b1df65a0f67e1c65dfa6e9767341d48aa8fe9d216"
+        }
+      ]
+    },
+    {
+      "name": "ICU 68.2 Emscripten port",
+      "license": "Unicode/ICU plus retained third-party notices",
+      "applicability": "x2t embuild.sh passes -sUSE_ICU=1; Emscripten port recipe pins this exact source ZIP.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/embuild.sh",
+          "bytes": 1569,
+          "sha256": "2e001f52bdd12f5c5cf2b9926ea0b9d12f0ff97309158f1ac07c897d2efe98af"
+        },
+        {
+          "archive": "emscripten-4182f94.tar.gz",
+          "member": "emscripten-4182f94222db892e16961fbbfd8097c0797d30c4/tools/ports/icu.py",
+          "bytes": 4340,
+          "sha256": "93f5f2ad5ce1ccf79dd464d658250e4d13df2df7219e0f5cbc811a9660340c65"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "icu4c-68_2-src.zip",
+          "member": "icu/LICENSE",
+          "bytes": 21439,
+          "sha256": "f155f8f66833bdc8e0479656256bfac1d66a9ec9df4aa56292308f522b4e3fa7",
+          "extraction": "whole",
+          "extractedTextBytes": 21024,
+          "extractedTextSha256": "e16de73427dc10958de3d0d6a829799001210393d02d6670e00ff91cc4d02e1b"
+        }
+      ]
+    },
+    {
+      "name": "Hyphen / LibHnj",
+      "license": "LGPL-2.0-or-later OR MPL-1.1",
+      "applicability": "Publisher fonts manifest compiles hyphen.cpp; converter graphics uses TextHyphen.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/fontengine/js/libfont.json",
+          "bytes": 10151,
+          "sha256": "2007f73f090c5c2582aa47a032f933ce1898495a416a2c6ebf53bbf06a4b1ef3"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/DesktopEditor/graphics/pro/fontengine.pri",
+          "bytes": 2201,
+          "sha256": "efb5de8162b8da83fbfbf18a2da4866465898e104ee2851be7ae71fc049cec97"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "hyphen-dcd90f0.tar.gz",
+          "member": "hyphen-dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e/hyphen.c",
+          "bytes": 38481,
+          "sha256": "79a9e86a8d00150c611499a6b50f301924cffe010ad5abc9c64aaff41146bcee",
+          "extraction": "header",
+          "extractedTextBytes": 1613,
+          "extractedTextSha256": "f198935506c55fbdacace2de94b718f08608e9725bb15d10c678b129497b0459"
+        },
+        {
+          "archive": "hyphen-dcd90f0.tar.gz",
+          "member": "hyphen-dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e/COPYING.LGPL",
+          "bytes": 26532,
+          "sha256": "5bbcbb737e60fe9deba08ecbd00920cfcc3403ba2e534c64fdeea49d6bb87509",
+          "extraction": "whole",
+          "extractedTextBytes": 26510,
+          "extractedTextSha256": "bedac0e91d2decf4948263f89e86309f9c1848c35e664da0d615eda32bbb258a"
+        },
+        {
+          "archive": "hyphen-dcd90f0.tar.gz",
+          "member": "hyphen-dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e/COPYING.MPL",
+          "bytes": 25755,
+          "sha256": "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f",
+          "extraction": "whole",
+          "extractedTextBytes": 25727,
+          "extractedTextSha256": "c874a1ed37387270882488719fca3d4c7855e17a2b8c1530b96b4de3e98b4bc6"
+        }
+      ]
+    },
+    {
+      "name": "Boost 1.84.0",
+      "license": "BSL-1.0",
+      "applicability": "x2t final recipe and headers select Boost regex and associated utility code.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "boost-ad09f667.tar.gz",
+          "member": "boost-ad09f667e61e18f5c31590941e748ac38e5a81bf/LICENSE_1_0.txt",
+          "bytes": 1338,
+          "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+          "extraction": "whole",
+          "extractedTextBytes": 1337,
+          "extractedTextSha256": "8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b"
+        }
+      ]
+    },
+    {
+      "name": "Gumbo parser",
+      "license": "Apache-2.0",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "gumbo-parser-aa91b27b.tar.gz",
+          "member": "gumbo-parser-aa91b27b02c0c80c482e24348a457ed7c3c088e0/COPYING",
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "extraction": "whole",
+          "extractedTextBytes": 11323,
+          "extractedTextSha256": "283ea6cc2997a1a70da0049e09adf9317bb60ca1b51279b65196b83a69e1996b"
+        }
+      ]
+    },
+    {
+      "name": "Katana parser",
+      "license": "MIT",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "katana-parser-be6df458.tar.gz",
+          "member": "katana-parser-be6df458d4540eee375c513958dcb862a391cdd1/COPYING",
+          "bytes": 1087,
+          "sha256": "9448df54ff69cafec4f52ea4440638bd86dcdf8f39804f6235c4b05fef01bba6",
+          "extraction": "whole",
+          "extractedTextBytes": 1087,
+          "extractedTextSha256": "9448df54ff69cafec4f52ea4440638bd86dcdf8f39804f6235c4b05fef01bba6"
+        },
+        {
+          "archive": "katana-parser-be6df458.tar.gz",
+          "member": "katana-parser-be6df458d4540eee375c513958dcb862a391cdd1/LICENSE",
+          "bytes": 1088,
+          "sha256": "ec400e80cb6f41880c97723d722cfcba44273918f488db567f94c1262776beb7",
+          "extraction": "whole",
+          "extractedTextBytes": 1086,
+          "extractedTextSha256": "0688d163701ece984caf83735f5a24e9e4905e46e11de8e9893a9656909c5f32"
+        }
+      ]
+    },
+    {
+      "name": "MD4C",
+      "license": "MIT",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "md4c-481fbfbd.tar.gz",
+          "member": "md4c-481fbfbdf72daab2912380d62bb5f2187d438408/LICENSE.md",
+          "bytes": 1096,
+          "sha256": "d30937367d5413e7eaa218b1640b8946ff76fd34d97152f6979fd96169d5d0fc",
+          "extraction": "whole",
+          "extractedTextBytes": 1094,
+          "extractedTextSha256": "cfd756938db3b34b65d2499189b970ce5bea07328fa20a8e291a620ccfd3e9d6"
+        }
+      ]
+    },
+    {
+      "name": "mdds",
+      "license": "MIT",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "mdds-07831589.tar.gz",
+          "member": "mdds-0783158939c6ce4b0b1b89e345ab983ccb0f0ad0/LICENSE",
+          "bytes": 1062,
+          "sha256": "559cdfad8d02644df807f40fa43e9895c021d516f2e1c87bda406dbd1c69e4b5",
+          "extraction": "whole",
+          "extractedTextBytes": 1061,
+          "extractedTextSha256": "148db4dd3eb97b5b2826fe8847197b41b1d162bf08fd8c821a4f1b35d85baeed"
+        }
+      ]
+    },
+    {
+      "name": "GLM",
+      "license": "MIT option",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "glm-33b4a621.tar.gz",
+          "member": "glm-33b4a621a697a305bc3a7610d290677b96beb181/copying.txt",
+          "bytes": 2865,
+          "sha256": "62d2d642c7d054d4fb4c9b42faad617d6c88fcd91e317f8035aa9f277cc159c3",
+          "extraction": "whole",
+          "extractedTextBytes": 2864,
+          "extractedTextSha256": "24e96911a6bca87434c6981f4d6cea635b0dcbbad551cdb63525e52582dfec42"
+        }
+      ]
+    },
+    {
+      "name": "librevenge",
+      "license": "MPL-2.0 OR LGPL-2.1-or-later",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "librevenge-becd044b.tar.gz",
+          "member": "librevenge-becd044b519ab83893ad6398e3cbb499a7f0aaf4/COPYING.LGPL",
+          "bytes": 26521,
+          "sha256": "592987e8510228d546540b84a22444bde98e48d03078d3b2eefcd889bec5ce8c",
+          "extraction": "whole",
+          "extractedTextBytes": 26502,
+          "extractedTextSha256": "e1083f03677030fd5852ac44426da6edd8f949bd961b617c504dc5142965a100"
+        },
+        {
+          "archive": "librevenge-becd044b.tar.gz",
+          "member": "librevenge-becd044b519ab83893ad6398e3cbb499a7f0aaf4/COPYING.MPL",
+          "bytes": 16726,
+          "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+          "extraction": "whole",
+          "extractedTextBytes": 16725,
+          "extractedTextSha256": "c76f740d1521b9bed9ca7a04ad526c310493c62621b1341d623b431736533b30"
+        }
+      ]
+    },
+    {
+      "name": "libetonyek",
+      "license": "MPL-2.0",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "libetonyek-cb396b4a.tar.gz",
+          "member": "libetonyek-cb396b4a9453a457469b62a740d8fb933c9442c3/COPYING",
+          "bytes": 16726,
+          "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+          "extraction": "whole",
+          "extractedTextBytes": 16725,
+          "extractedTextSha256": "c76f740d1521b9bed9ca7a04ad526c310493c62621b1341d623b431736533b30"
+        }
+      ]
+    },
+    {
+      "name": "libodfgen",
+      "license": "MPL-2.0 OR LGPL-2.1-or-later",
+      "applicability": "Converter HTML/Markdown/Apple format parser sources selected by final converter dependencies.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        },
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/core/X2tConverter/build/Qt/X2tConverter.pri",
+          "bytes": 3890,
+          "sha256": "d9dff71e69060357da2e631e986e08c861e83e56956ef04c7ddb413862d36c69"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "libodfgen-8ef8c171.tar.gz",
+          "member": "libodfgen-8ef8c171ebe3c5daebdce80ee422cf7bb96aa3bc/COPYING.LGPL",
+          "bytes": 26521,
+          "sha256": "592987e8510228d546540b84a22444bde98e48d03078d3b2eefcd889bec5ce8c",
+          "extraction": "whole",
+          "extractedTextBytes": 26502,
+          "extractedTextSha256": "e1083f03677030fd5852ac44426da6edd8f949bd961b617c504dc5142965a100"
+        },
+        {
+          "archive": "libodfgen-8ef8c171.tar.gz",
+          "member": "libodfgen-8ef8c171ebe3c5daebdce80ee422cf7bb96aa3bc/COPYING.MPL",
+          "bytes": 16726,
+          "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+          "extraction": "whole",
+          "extractedTextBytes": 16725,
+          "extractedTextSha256": "c76f740d1521b9bed9ca7a04ad526c310493c62621b1341d623b431736533b30"
+        }
+      ]
+    },
+    {
+      "name": "Historical publisher drawing OpenSSL 1.1.1f SHA-512 implementation",
+      "license": "OpenSSL and SSLeay licenses",
+      "applicability": "Historical upstream drawing recipe only. Excluded from the distributed rebuilt drawing runtime; font manifest never selected this implementation.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+          "bytes": 19740,
+          "sha256": "a444b2cda1e8f1854b388f1701a0c098d5a54a4821a444730ad88e2d2c0374e8"
+        },
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/lib/xpdf/Decrypt.cc",
+          "bytes": 46113,
+          "sha256": "9b895eda7ff52b842bdb7c928d776c697cc86b8867d006ab3ab798900b3c5989"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "openssl-36eadf1f.tar.gz",
+          "member": "openssl-36eadf1f84daa965041cce410b4ff32cbda4ef08/LICENSE",
+          "bytes": 6121,
+          "sha256": "c32913b33252e71190af2066f08115c69bc9fddadf3bf29296e20c835389841c",
+          "extraction": "whole",
+          "extractedTextBytes": 6116,
+          "extractedTextSha256": "7bcb0a173ca086295cd96b772161f3c41ae5d739545405710ce1019d2b390410"
+        },
+        {
+          "archive": "openssl-36eadf1f.tar.gz",
+          "member": "openssl-36eadf1f84daa965041cce410b4ff32cbda4ef08/crypto/sha/sha512.c",
+          "bytes": 25432,
+          "sha256": "4bc230ca6efecf8391b0c7c114d6096f7aeb0dd09bb573d98db2b71df788b855",
+          "extraction": "header",
+          "extractedTextBytes": 332,
+          "extractedTextSha256": "463dca71bffdbf903d277f7733c9917086aaf2f82e8f0d2c8d00103bcb697594"
+        }
+      ],
+      "assessment": "Resolved by rebuilding unchanged core source with USE_OPENSSL_HASH removed and no OpenSSL source/header/archive present. This selects the existing Xpdf SHA-384/SHA-512 branch. Old OpenSSL notices are retained solely to document the superseded publisher build/source inputs; they do not assert implementation inclusion in current binaries.",
+      "historicalOnly": true
+    },
+    {
+      "name": "Emscripten 4.0.11 runtime / C/C++ support",
+      "license": "MIT / Apache-2.0 WITH LLVM-exception / musl notices",
+      "applicability": "Linked runtime support for WebAssembly; compiler/test-only dependencies excluded.",
+      "evidence": [
+        {
+          "archive": "x2t-source-7debf5e.tar.gz",
+          "member": "onlyoffice-x2t-wasm-7debf5e6d6d4f19874d764cd34446f7e63c6bc32/Dockerfile",
+          "bytes": 31761,
+          "sha256": "21b86c38031fff66b9093bc78df6542f61e42336feb4eb20245d5e5d5bc5d782"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "emscripten-4182f94.tar.gz",
+          "member": "emscripten-4182f94222db892e16961fbbfd8097c0797d30c4/LICENSE",
+          "bytes": 5093,
+          "sha256": "620a78084fc7ca97c0b5dea9abf891f3ffcadfdbf305276f099c9c4e12fc1d86",
+          "extraction": "whole",
+          "extractedTextBytes": 5091,
+          "extractedTextSha256": "ade0cde45d85897f0264b37e651256428b77b45ef0363d5b97be8fecb4b6805a"
+        },
+        {
+          "archive": "emscripten-4182f94.tar.gz",
+          "member": "emscripten-4182f94222db892e16961fbbfd8097c0797d30c4/system/lib/libc/musl/COPYRIGHT",
+          "bytes": 6204,
+          "sha256": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af",
+          "extraction": "whole",
+          "extractedTextBytes": 6203,
+          "extractedTextSha256": "50a343c1ce9e27cd6c58023f13b91d2cd679861fe7fb6bbbbfbec3dcafc3583f"
+        },
+        {
+          "archive": "emscripten-4182f94.tar.gz",
+          "member": "emscripten-4182f94222db892e16961fbbfd8097c0797d30c4/system/lib/compiler-rt/LICENSE.TXT",
+          "bytes": 16708,
+          "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+          "extraction": "whole",
+          "extractedTextBytes": 16707,
+          "extractedTextSha256": "84da0b2632d45749f68ac28bdb29a1ee1af85d9d0e9d94a0ffbc867f6bc0f0c4"
+        },
+        {
+          "archive": "emscripten-4182f94.tar.gz",
+          "member": "emscripten-4182f94222db892e16961fbbfd8097c0797d30c4/system/lib/libcxx/LICENSE.TXT",
+          "bytes": 16703,
+          "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+          "extraction": "whole",
+          "extractedTextBytes": 16702,
+          "extractedTextSha256": "9dc39e557a5399be6fdaef806b32fb027eadf125e24e12cd4f1aaf3bf2b07784"
+        },
+        {
+          "archive": "emscripten-4182f94.tar.gz",
+          "member": "emscripten-4182f94222db892e16961fbbfd8097c0797d30c4/system/lib/libcxxabi/LICENSE.TXT",
+          "bytes": 16706,
+          "sha256": "e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c",
+          "extraction": "whole",
+          "extractedTextBytes": 16705,
+          "extractedTextSha256": "054cac72f704c092f3b4f5b4b4c04a3ed11f3305ef11a6dd79014d2f418d3ac2"
+        }
+      ]
+    },
+    {
+      "name": "Emscripten 3.1.48 runtime / C/C++ support",
+      "license": "MIT / Apache-2.0 WITH LLVM-exception / musl notices",
+      "applicability": "Linked runtime support for WebAssembly; compiler/test-only dependencies excluded.",
+      "evidence": [
+        {
+          "archive": "core-d54f0326.tar.gz",
+          "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/Common/js/common.py",
+          "bytes": 713,
+          "sha256": "28db48ef6e5d5da6ccd7d893b57ede6c54b037b99acd0bca747cc67e404d054a"
+        }
+      ],
+      "noticeInputs": [
+        {
+          "archive": "emscripten-3.1.48.tar.gz",
+          "member": "emscripten-3.1.48/LICENSE",
+          "bytes": 5093,
+          "sha256": "620a78084fc7ca97c0b5dea9abf891f3ffcadfdbf305276f099c9c4e12fc1d86",
+          "extraction": "whole",
+          "extractedTextBytes": 5091,
+          "extractedTextSha256": "ade0cde45d85897f0264b37e651256428b77b45ef0363d5b97be8fecb4b6805a"
+        },
+        {
+          "archive": "emscripten-3.1.48.tar.gz",
+          "member": "emscripten-3.1.48/system/lib/libc/musl/COPYRIGHT",
+          "bytes": 6204,
+          "sha256": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af",
+          "extraction": "whole",
+          "extractedTextBytes": 6203,
+          "extractedTextSha256": "50a343c1ce9e27cd6c58023f13b91d2cd679861fe7fb6bbbbfbec3dcafc3583f"
+        },
+        {
+          "archive": "emscripten-3.1.48.tar.gz",
+          "member": "emscripten-3.1.48/system/lib/compiler-rt/LICENSE.TXT",
+          "bytes": 16708,
+          "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+          "extraction": "whole",
+          "extractedTextBytes": 16707,
+          "extractedTextSha256": "84da0b2632d45749f68ac28bdb29a1ee1af85d9d0e9d94a0ffbc867f6bc0f0c4"
+        },
+        {
+          "archive": "emscripten-3.1.48.tar.gz",
+          "member": "emscripten-3.1.48/system/lib/libcxx/LICENSE.TXT",
+          "bytes": 16703,
+          "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+          "extraction": "whole",
+          "extractedTextBytes": 16702,
+          "extractedTextSha256": "9dc39e557a5399be6fdaef806b32fb027eadf125e24e12cd4f1aaf3bf2b07784"
+        },
+        {
+          "archive": "emscripten-3.1.48.tar.gz",
+          "member": "emscripten-3.1.48/system/lib/libcxxabi/LICENSE.TXT",
+          "bytes": 16706,
+          "sha256": "e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c",
+          "extraction": "whole",
+          "extractedTextBytes": 16705,
+          "extractedTextSha256": "054cac72f704c092f3b4f5b4b4c04a3ed11f3305ef11a6dd79014d2f418d3ac2"
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "name": "OpenSSL implementation in x2t",
+      "basis": "Distributed x2t.js declares explicit missing-function abort stubs for OpenSSL imports. Native-host tool libraries are not presumed incorporated into the final WASM. Header-only/inline copied material remains separately auditable."
+    },
+    {
+      "name": "FFmpeg / libav codecs / VLC",
+      "basis": "No FFmpeg/libav/VLC implementation sources or link inputs selected by final converter Docker stages or publisher drawing/font manifests."
+    },
+    {
+      "name": "curl",
+      "basis": "No libcurl library compiled/copied by the converter Docker final dependency stages; network helper object is a separate application wrapper. No inference from repository-wide curl.pri."
+    },
+    {
+      "name": "HEIF / libde265 / x265 implementations",
+      "basis": "Positive binary evidence: all18 imported HEIF API functions are bound by x2t.js to abort missing-function stubs (.stub=true), including allocation/encode/decode/image operations; exact import bindings are in runtimeImportEvidence. Native-host codec build archives are not copied into final WASM link. Publisher drawing/font source manifests omit HEIF. Complete codec source archives remain retained as build dependencies."
+    },
+    {
+      "name": "AGG GPC and examples",
+      "basis": "Selected raster/AGG sources and drawing/font manifests do not include gpc.c or examples. GPC noncommercial terms are not attributed to AGG renderer."
+    },
+    {
+      "name": "dcraw/libdcr implementation",
+      "basis": "Selected vendored libdcr.c is empty; file name alone is not evidence of included dcraw implementation."
+    },
+    {
+      "name": "OpenSSL implementation in current drawing runtime",
+      "basis": "Verified patched recipe removes USE_OPENSSL_HASH and OpenSSL include paths while retaining all40 compile groups. Actual successful source tree contains no OpenSSL implementation directory. Existing Decrypt.cc fallback SHA functions compile instead; distributed outputs match recorded rebuilt hashes. The former publisher binary issue is retained as historicalReleaseFinding."
+    }
+  ],
+  "remainingReleaseGate": [],
+  "attributionNoticeFile": "provenance/NATIVE-RUNTIME-NOTICES.txt",
+  "attributionNoticeBytes": 580956,
+  "attributionNoticeSha256": "1ddbbf5ecf61c7b96f864ab9ce70f143a2f702d84594a1f2bcc665a987afde90",
+  "verification": {
+    "noticeInputsReadFromPinnedArchives": true,
+    "archiveMemberHashesRecorded": true,
+    "newSourceArchiveCount": 3,
+    "newSourceArchiveBytes": 31894675
+  },
+  "runtimeImportEvidence": {
+    "method": "Named missing-function abort stubs in shipped JS correlated to actual WASM function import descriptors; retained records independently supplied by final-link audit. A source-build dependency alone is not treated as incorporated code.",
+    "artifacts": [
+      {
+        "file": "x2t.js",
+        "bytes": 140773,
+        "sha256": "e2f79cf6b71d10a7b5db695dcb4043afb1c5e0412520201bf71d6f12f97648d7"
+      },
+      {
+        "file": "x2t.wasm",
+        "bytes": 38768424,
+        "sha256": "d5e67dec96ad28f0057818cc6f4faf599f1bc982e150efb44e1605dd23a655c2"
+      }
+    ],
+    "wasmImportCount": 173,
+    "confirmedAbortImports": [
+      {
+        "function": "_ASN1_INTEGER_free",
+        "missingSymbol": "ASN1_INTEGER_free",
+        "importBindings": [
+          {
+            "name": "Wa",
+            "function": "_ASN1_INTEGER_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Wa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_ASN1_INTEGER_to_BN",
+        "missingSymbol": "ASN1_INTEGER_to_BN",
+        "importBindings": [
+          {
+            "name": "Xa",
+            "function": "_ASN1_INTEGER_to_BN",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Xa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BIO_ctrl",
+        "missingSymbol": "BIO_ctrl",
+        "importBindings": [
+          {
+            "name": "u",
+            "function": "_BIO_ctrl",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "u",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BIO_free",
+        "missingSymbol": "BIO_free",
+        "importBindings": [
+          {
+            "name": "k",
+            "function": "_BIO_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "k",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BIO_new",
+        "missingSymbol": "BIO_new",
+        "importBindings": [
+          {
+            "name": "o",
+            "function": "_BIO_new",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "o",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BIO_new_mem_buf",
+        "missingSymbol": "BIO_new_mem_buf",
+        "importBindings": [
+          {
+            "name": "m",
+            "function": "_BIO_new_mem_buf",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "m",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BIO_s_mem",
+        "missingSymbol": "BIO_s_mem",
+        "importBindings": [
+          {
+            "name": "p",
+            "function": "_BIO_s_mem",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "p",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BIO_write",
+        "missingSymbol": "BIO_write",
+        "importBindings": [
+          {
+            "name": "Ma",
+            "function": "_BIO_write",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ma",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BN_add",
+        "missingSymbol": "BN_add",
+        "importBindings": [
+          {
+            "name": "Ua",
+            "function": "_BN_add",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ua",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BN_bn2dec",
+        "missingSymbol": "BN_bn2dec",
+        "importBindings": [
+          {
+            "name": "Ta",
+            "function": "_BN_bn2dec",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ta",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BN_free",
+        "missingSymbol": "BN_free",
+        "importBindings": [
+          {
+            "name": "W",
+            "function": "_BN_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "W",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_BN_hex2bn",
+        "missingSymbol": "BN_hex2bn",
+        "importBindings": [
+          {
+            "name": "Va",
+            "function": "_BN_hex2bn",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Va",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_CRYPTO_free",
+        "missingSymbol": "CRYPTO_free",
+        "importBindings": [
+          {
+            "name": "Sa",
+            "function": "_CRYPTO_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Sa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_ERR_error_string",
+        "missingSymbol": "ERR_error_string",
+        "importBindings": [
+          {
+            "name": "C",
+            "function": "_ERR_error_string",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "C",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_ERR_get_error",
+        "missingSymbol": "ERR_get_error",
+        "importBindings": [
+          {
+            "name": "D",
+            "function": "_ERR_get_error",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "D",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_ERR_print_errors",
+        "missingSymbol": "ERR_print_errors",
+        "importBindings": [
+          {
+            "name": "Ya",
+            "function": "_ERR_print_errors",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ya",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestInit",
+        "missingSymbol": "EVP_DigestInit",
+        "importBindings": [
+          {
+            "name": "T",
+            "function": "_EVP_DigestInit",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "T",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestSign",
+        "missingSymbol": "EVP_DigestSign",
+        "importBindings": [
+          {
+            "name": "U",
+            "function": "_EVP_DigestSign",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "U",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestSignInit",
+        "missingSymbol": "EVP_DigestSignInit",
+        "importBindings": [
+          {
+            "name": "Oa",
+            "function": "_EVP_DigestSignInit",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Oa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestUpdate",
+        "missingSymbol": "EVP_DigestUpdate",
+        "importBindings": [
+          {
+            "name": "S",
+            "function": "_EVP_DigestUpdate",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "S",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestVerify",
+        "missingSymbol": "EVP_DigestVerify",
+        "importBindings": [
+          {
+            "name": "va",
+            "function": "_EVP_DigestVerify",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "va",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestVerifyInit",
+        "missingSymbol": "EVP_DigestVerifyInit",
+        "importBindings": [
+          {
+            "name": "wa",
+            "function": "_EVP_DigestVerifyInit",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "wa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_MD_CTX_free",
+        "missingSymbol": "EVP_MD_CTX_free",
+        "importBindings": [
+          {
+            "name": "z",
+            "function": "_EVP_MD_CTX_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "z",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_MD_CTX_new",
+        "missingSymbol": "EVP_MD_CTX_new",
+        "importBindings": [
+          {
+            "name": "A",
+            "function": "_EVP_MD_CTX_new",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "A",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_PKEY_free",
+        "missingSymbol": "EVP_PKEY_free",
+        "importBindings": [
+          {
+            "name": "t",
+            "function": "_EVP_PKEY_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "t",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_SignFinal",
+        "missingSymbol": "EVP_SignFinal",
+        "importBindings": [
+          {
+            "name": "Na",
+            "function": "_EVP_SignFinal",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Na",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_VerifyFinal",
+        "missingSymbol": "EVP_VerifyFinal",
+        "importBindings": [
+          {
+            "name": "ua",
+            "function": "_EVP_VerifyFinal",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ua",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha1",
+        "missingSymbol": "EVP_sha1",
+        "importBindings": [
+          {
+            "name": "Ka",
+            "function": "_EVP_sha1",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ka",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha224",
+        "missingSymbol": "EVP_sha224",
+        "importBindings": [
+          {
+            "name": "kc",
+            "function": "_EVP_sha224",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "kc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha256",
+        "missingSymbol": "EVP_sha256",
+        "importBindings": [
+          {
+            "name": "Z",
+            "function": "_EVP_sha256",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Z",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha384",
+        "missingSymbol": "EVP_sha384",
+        "importBindings": [
+          {
+            "name": "X",
+            "function": "_EVP_sha384",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "X",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha512",
+        "missingSymbol": "EVP_sha512",
+        "importBindings": [
+          {
+            "name": "V",
+            "function": "_EVP_sha512",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "V",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OBJ_nid2ln",
+        "missingSymbol": "OBJ_nid2ln",
+        "importBindings": [
+          {
+            "name": "Fa",
+            "function": "_OBJ_nid2ln",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Fa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OBJ_obj2nid",
+        "missingSymbol": "OBJ_obj2nid",
+        "importBindings": [
+          {
+            "name": "Q",
+            "function": "_OBJ_obj2nid",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Q",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OPENSSL_config",
+        "missingSymbol": "OPENSSL_config",
+        "importBindings": [
+          {
+            "name": "ab",
+            "function": "_OPENSSL_config",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ab",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OPENSSL_init_crypto",
+        "missingSymbol": "OPENSSL_init_crypto",
+        "importBindings": [
+          {
+            "name": "Y",
+            "function": "_OPENSSL_init_crypto",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Y",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OPENSSL_sk_pop_free",
+        "missingSymbol": "OPENSSL_sk_pop_free",
+        "importBindings": [
+          {
+            "name": "ba",
+            "function": "_OPENSSL_sk_pop_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ba",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PEM_read_bio_PrivateKey",
+        "missingSymbol": "PEM_read_bio_PrivateKey",
+        "importBindings": [
+          {
+            "name": "jc",
+            "function": "_PEM_read_bio_PrivateKey",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "jc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PEM_read_bio_X509",
+        "missingSymbol": "PEM_read_bio_X509",
+        "importBindings": [
+          {
+            "name": "gb",
+            "function": "_PEM_read_bio_X509",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "gb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PEM_read_bio_X509_AUX",
+        "missingSymbol": "PEM_read_bio_X509_AUX",
+        "importBindings": [
+          {
+            "name": "cb",
+            "function": "_PEM_read_bio_X509_AUX",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "cb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS12_free",
+        "missingSymbol": "PKCS12_free",
+        "importBindings": [
+          {
+            "name": "B",
+            "function": "_PKCS12_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "B",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS12_parse",
+        "missingSymbol": "PKCS12_parse",
+        "importBindings": [
+          {
+            "name": "da",
+            "function": "_PKCS12_parse",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "da",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_final",
+        "missingSymbol": "PKCS7_final",
+        "importBindings": [
+          {
+            "name": "Ia",
+            "function": "_PKCS7_final",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ia",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_free",
+        "missingSymbol": "PKCS7_free",
+        "importBindings": [
+          {
+            "name": "R",
+            "function": "_PKCS7_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "R",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_sign",
+        "missingSymbol": "PKCS7_sign",
+        "importBindings": [
+          {
+            "name": "La",
+            "function": "_PKCS7_sign",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "La",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_sign_add_signer",
+        "missingSymbol": "PKCS7_sign_add_signer",
+        "importBindings": [
+          {
+            "name": "Ja",
+            "function": "_PKCS7_sign_add_signer",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ja",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_verify",
+        "missingSymbol": "PKCS7_verify",
+        "importBindings": [
+          {
+            "name": "P",
+            "function": "_PKCS7_verify",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "P",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA1",
+        "missingSymbol": "SHA1",
+        "importBindings": [
+          {
+            "name": "xa",
+            "function": "_SHA1",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "xa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA224",
+        "missingSymbol": "SHA224",
+        "importBindings": [
+          {
+            "name": "Ba",
+            "function": "_SHA224",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ba",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA256",
+        "missingSymbol": "SHA256",
+        "importBindings": [
+          {
+            "name": "Aa",
+            "function": "_SHA256",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Aa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA384",
+        "missingSymbol": "SHA384",
+        "importBindings": [
+          {
+            "name": "za",
+            "function": "_SHA384",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "za",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA512",
+        "missingSymbol": "SHA512",
+        "importBindings": [
+          {
+            "name": "ya",
+            "function": "_SHA512",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ya",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_NAME_oneline",
+        "missingSymbol": "X509_NAME_oneline",
+        "importBindings": [
+          {
+            "name": "Qa",
+            "function": "_X509_NAME_oneline",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Qa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_STORE_add_cert",
+        "missingSymbol": "X509_STORE_add_cert",
+        "importBindings": [
+          {
+            "name": "Da",
+            "function": "_X509_STORE_add_cert",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Da",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_STORE_free",
+        "missingSymbol": "X509_STORE_free",
+        "importBindings": [
+          {
+            "name": "Ca",
+            "function": "_X509_STORE_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ca",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_STORE_new",
+        "missingSymbol": "X509_STORE_new",
+        "importBindings": [
+          {
+            "name": "Ea",
+            "function": "_X509_STORE_new",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ea",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_free",
+        "missingSymbol": "X509_free",
+        "importBindings": [
+          {
+            "name": "s",
+            "function": "_X509_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "s",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_issuer_name",
+        "missingSymbol": "X509_get_issuer_name",
+        "importBindings": [
+          {
+            "name": "Ra",
+            "function": "_X509_get_issuer_name",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ra",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_pubkey",
+        "missingSymbol": "X509_get_pubkey",
+        "importBindings": [
+          {
+            "name": "O",
+            "function": "_X509_get_pubkey",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "O",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_serialNumber",
+        "missingSymbol": "X509_get_serialNumber",
+        "importBindings": [
+          {
+            "name": "$a",
+            "function": "_X509_get_serialNumber",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "$a",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_signature_nid",
+        "missingSymbol": "X509_get_signature_nid",
+        "importBindings": [
+          {
+            "name": "ta",
+            "function": "_X509_get_signature_nid",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ta",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_getm_notAfter",
+        "missingSymbol": "X509_getm_notAfter",
+        "importBindings": [
+          {
+            "name": "Za",
+            "function": "_X509_getm_notAfter",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Za",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_getm_notBefore",
+        "missingSymbol": "X509_getm_notBefore",
+        "importBindings": [
+          {
+            "name": "_a",
+            "function": "_X509_getm_notBefore",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "_a",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_print_ex",
+        "missingSymbol": "X509_print_ex",
+        "importBindings": [
+          {
+            "name": "sa",
+            "function": "_X509_print_ex",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "sa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN19CNativeControlEmbed10getCreatorEv",
+        "missingSymbol": "_ZN19CNativeControlEmbed10getCreatorEv",
+        "importBindings": [
+          {
+            "name": "Pb",
+            "function": "__ZN19CNativeControlEmbed10getCreatorEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Pb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN19CNativeControlEmbed7getNameEv",
+        "missingSymbol": "_ZN19CNativeControlEmbed7getNameEv",
+        "importBindings": [
+          {
+            "name": "Qb",
+            "function": "__ZN19CNativeControlEmbed7getNameEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Qb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8COFDFileC1EPN7NSFonts17IApplicationFontsE",
+        "missingSymbol": "_ZN8COFDFileC1EPN7NSFonts17IApplicationFontsE",
+        "importBindings": [
+          {
+            "name": "N",
+            "function": "__ZN8COFDFileC1EPN7NSFonts17IApplicationFontsE",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "N",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext10GetCurrentEv",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext10GetCurrentEv",
+        "importBindings": [
+          {
+            "name": "Ob",
+            "function": "__ZN8NSJSBase10CJSContext10GetCurrentEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ob",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext12createStringERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEE",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext12createStringERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEE",
+        "importBindings": [
+          {
+            "name": "Nb",
+            "function": "__ZN8NSJSBase10CJSContext12createStringERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEE",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Nb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext13GetExceptionsEv",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext13GetExceptionsEv",
+        "importBindings": [
+          {
+            "name": "Tb",
+            "function": "__ZN8NSJSBase10CJSContext13GetExceptionsEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Tb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext14isSnapshotUsedEv",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext14isSnapshotUsedEv",
+        "importBindings": [
+          {
+            "name": "ha",
+            "function": "__ZN8NSJSBase10CJSContext14isSnapshotUsedEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ha",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext4ExitEv",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext4ExitEv",
+        "importBindings": [
+          {
+            "name": "Lb",
+            "function": "__ZN8NSJSBase10CJSContext4ExitEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Lb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext5EnterEv",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext5EnterEv",
+        "importBindings": [
+          {
+            "name": "Mb",
+            "function": "__ZN8NSJSBase10CJSContext5EnterEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Mb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext7DisposeEv",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext7DisposeEv",
+        "importBindings": [
+          {
+            "name": "Rb",
+            "function": "__ZN8NSJSBase10CJSContext7DisposeEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Rb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext9GetGlobalEv",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext9GetGlobalEv",
+        "importBindings": [
+          {
+            "name": "ia",
+            "function": "__ZN8NSJSBase10CJSContext9GetGlobalEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ia",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
+        "importBindings": [
+          {
+            "name": "I",
+            "function": "__ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "I",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContextC1ERKb",
+        "missingSymbol": "_ZN8NSJSBase10CJSContextC1ERKb",
+        "importBindings": [
+          {
+            "name": "Vb",
+            "function": "__ZN8NSJSBase10CJSContextC1ERKb",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Vb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase10CJSContextD1Ev",
+        "missingSymbol": "_ZN8NSJSBase10CJSContextD1Ev",
+        "importBindings": [
+          {
+            "name": "ga",
+            "function": "__ZN8NSJSBase10CJSContextD1Ev",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ga",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8NSJSBase14CreateDefaultsEv",
+        "missingSymbol": "_ZN8NSJSBase14CreateDefaultsEv",
+        "importBindings": [
+          {
+            "name": "Ub",
+            "function": "__ZN8NSJSBase14CreateDefaultsEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ub",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
+        "importBindings": [
+          {
+            "name": "na",
+            "function": "__ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "na",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+        "importBindings": [
+          {
+            "name": "ra",
+            "function": "__ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ra",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
+        "importBindings": [
+          {
+            "name": "qa",
+            "function": "__ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "qa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
+        "importBindings": [
+          {
+            "name": "oa",
+            "function": "__ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "oa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
+        "importBindings": [
+          {
+            "name": "la",
+            "function": "__ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "la",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
+        "importBindings": [
+          {
+            "name": "pa",
+            "function": "__ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "pa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+        "importBindings": [
+          {
+            "name": "Kb",
+            "function": "__ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Kb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
+        "importBindings": [
+          {
+            "name": "ma",
+            "function": "__ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ma",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverterC1Ev",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverterC1Ev",
+        "importBindings": [
+          {
+            "name": "M",
+            "function": "__ZN8StarMath18CStarMathConverterC1Ev",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "M",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "__ZN8StarMath18CStarMathConverterD1Ev",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverterD1Ev",
+        "importBindings": [
+          {
+            "name": "L",
+            "function": "__ZN8StarMath18CStarMathConverterD1Ev",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "L",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_d2i_PKCS12_bio",
+        "missingSymbol": "d2i_PKCS12_bio",
+        "importBindings": [
+          {
+            "name": "fa",
+            "function": "_d2i_PKCS12_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "fa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_d2i_PKCS7_bio",
+        "missingSymbol": "d2i_PKCS7_bio",
+        "importBindings": [
+          {
+            "name": "Ga",
+            "function": "_d2i_PKCS7_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ga",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_d2i_PKCS8PrivateKey_bio",
+        "missingSymbol": "d2i_PKCS8PrivateKey_bio",
+        "importBindings": [
+          {
+            "name": "Sb",
+            "function": "_d2i_PKCS8PrivateKey_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Sb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_d2i_PrivateKey_bio",
+        "missingSymbol": "d2i_PrivateKey_bio",
+        "importBindings": [
+          {
+            "name": "ac",
+            "function": "_d2i_PrivateKey_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ac",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_d2i_X509_bio",
+        "missingSymbol": "d2i_X509_bio",
+        "importBindings": [
+          {
+            "name": "bb",
+            "function": "_d2i_X509_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "bb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_alloc",
+        "missingSymbol": "heif_context_alloc",
+        "importBindings": [
+          {
+            "name": "q",
+            "function": "_heif_context_alloc",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "q",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_encode_image",
+        "missingSymbol": "heif_context_encode_image",
+        "importBindings": [
+          {
+            "name": "$b",
+            "function": "_heif_context_encode_image",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "$b",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_free",
+        "missingSymbol": "heif_context_free",
+        "importBindings": [
+          {
+            "name": "Xb",
+            "function": "_heif_context_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Xb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_get_encoder_for_format",
+        "missingSymbol": "heif_context_get_encoder_for_format",
+        "importBindings": [
+          {
+            "name": "bc",
+            "function": "_heif_context_get_encoder_for_format",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "bc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_get_primary_image_handle",
+        "missingSymbol": "heif_context_get_primary_image_handle",
+        "importBindings": [
+          {
+            "name": "ic",
+            "function": "_heif_context_get_primary_image_handle",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ic",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_read_from_file",
+        "missingSymbol": "heif_context_read_from_file",
+        "importBindings": [
+          {
+            "name": "K",
+            "function": "_heif_context_read_from_file",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "K",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_read_from_memory_without_copy",
+        "missingSymbol": "heif_context_read_from_memory_without_copy",
+        "importBindings": [
+          {
+            "name": "ja",
+            "function": "_heif_context_read_from_memory_without_copy",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ja",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_context_write_to_file",
+        "missingSymbol": "heif_context_write_to_file",
+        "importBindings": [
+          {
+            "name": "_b",
+            "function": "_heif_context_write_to_file",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "_b",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_decode_image",
+        "missingSymbol": "heif_decode_image",
+        "importBindings": [
+          {
+            "name": "hc",
+            "function": "_heif_decode_image",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "hc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_encoder_release",
+        "missingSymbol": "heif_encoder_release",
+        "importBindings": [
+          {
+            "name": "Wb",
+            "function": "_heif_encoder_release",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Wb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_add_plane",
+        "missingSymbol": "heif_image_add_plane",
+        "importBindings": [
+          {
+            "name": "dc",
+            "function": "_heif_image_add_plane",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "dc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_create",
+        "missingSymbol": "heif_image_create",
+        "importBindings": [
+          {
+            "name": "ec",
+            "function": "_heif_image_create",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ec",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_get_plane",
+        "missingSymbol": "heif_image_get_plane",
+        "importBindings": [
+          {
+            "name": "cc",
+            "function": "_heif_image_get_plane",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "cc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_get_plane_readonly",
+        "missingSymbol": "heif_image_get_plane_readonly",
+        "importBindings": [
+          {
+            "name": "J",
+            "function": "_heif_image_get_plane_readonly",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "J",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_get_primary_height",
+        "missingSymbol": "heif_image_get_primary_height",
+        "importBindings": [
+          {
+            "name": "fc",
+            "function": "_heif_image_get_primary_height",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "fc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_get_primary_width",
+        "missingSymbol": "heif_image_get_primary_width",
+        "importBindings": [
+          {
+            "name": "gc",
+            "function": "_heif_image_get_primary_width",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "gc",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_handle_release",
+        "missingSymbol": "heif_image_handle_release",
+        "importBindings": [
+          {
+            "name": "Zb",
+            "function": "_heif_image_handle_release",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Zb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_heif_image_release",
+        "missingSymbol": "heif_image_release",
+        "importBindings": [
+          {
+            "name": "Yb",
+            "function": "_heif_image_release",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Yb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_i2d_PKCS7_bio",
+        "missingSymbol": "i2d_PKCS7_bio",
+        "importBindings": [
+          {
+            "name": "Ha",
+            "function": "_i2d_PKCS7_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ha",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_i2d_X509_bio",
+        "missingSymbol": "i2d_X509_bio",
+        "importBindings": [
+          {
+            "name": "Pa",
+            "function": "_i2d_X509_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Pa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "confirmedHeifAbortImports": 18
+  },
+  "embeddedFontPrograms": [
+    {
+      "font": "d050000l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/d050000l.pfb",
+        "bytes": 45552,
+        "sha256": "a96f0366a4b0cd2a500e22df52cb0ce55056e499d331cd8ab9410eda6c2540a2"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontd050000l.h",
+        "bytes": 163278,
+        "sha256": "8b965a8b82482ff6a0463a1f99fc4a869a7589fca3e468ea629587195124c1db"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n019003l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019003l.pfb",
+        "bytes": 49658,
+        "sha256": "6be08a49b18731cb664e375c0e51ecba9d5c0746afdaab6937280ccc31f7d33c"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn019003l.h",
+        "bytes": 178694,
+        "sha256": "83f811dfececfc0a3c1c5c5de429774b15264aacd6cdd46e85bbc0a254df6881"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n019004l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019004l.pfb",
+        "bytes": 50932,
+        "sha256": "fde86425dc34d4b3f02eb35ffd4d9084148763f89a9658b72285877b8bea6326"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn019004l.h",
+        "bytes": 183461,
+        "sha256": "bc632cbfc3c6d260a7b0e0bb82c4f566bce3036df6a55bf33d8053181e992a51"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n019023l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019023l.pfb",
+        "bytes": 54507,
+        "sha256": "b35d4edbeab956c33f8981782c7901f05e7616e4f1a7a99a3ac69ba834c17b82"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn019023l.h",
+        "bytes": 196132,
+        "sha256": "27c953baefe906ad35ac860e4545ba28bcffb954d7717fef43a045046a224bce"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n019024l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n019024l.pfb",
+        "bytes": 55873,
+        "sha256": "701b24f668950091a2a43bb16e368403100bb07756a2c1244e6fac6c087bfe12"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn019024l.h",
+        "bytes": 200795,
+        "sha256": "59fbca5e5719d18c533fb19cc64958e8f70bf18b45df6281e09d86f3d2103f94"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n021003l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021003l.pfb",
+        "bytes": 68241,
+        "sha256": "592b57e682e8686b630ff489ad5678831b741c7169bfcc232e41f7ef4589f4c0"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn021003l.h",
+        "bytes": 244875,
+        "sha256": "820d4669de507993d2670a45877102c262baea2a8d166366b918488936c2cc57"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n021004l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021004l.pfb",
+        "bytes": 67173,
+        "sha256": "2a1c998b23286042d11f978d6e28132fdadd1f01a580517bfe858c04e229374b"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn021004l.h",
+        "bytes": 241348,
+        "sha256": "a80d87e93caddb0896f512d41957597456153e546005cccb1e1b11a20a2f200b"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n021023l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021023l.pfb",
+        "bytes": 71913,
+        "sha256": "a14a2d2d541e69324c0a88f9a85d796169bafdabc072c926a7e1b497506c1cbb"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn021023l.h",
+        "bytes": 258170,
+        "sha256": "1aa893afca78cfd56ef9939a3649791fc1f54ab88510fec961a47ebac1e6a742"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n021024l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n021024l.pfb",
+        "bytes": 70676,
+        "sha256": "8cd594a889db802cd92d269d0c407d108e85e2a6a906bc74e7a175b30e3a6a77"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn021024l.h",
+        "bytes": 254062,
+        "sha256": "13386b6f8ec581f40e1992e125f1770c274b15b527f37093896beae322d1feca"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n022003l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022003l.pfb",
+        "bytes": 74890,
+        "sha256": "bf4376baec6116927b918a8fe9485a2e07420b31655bc79e0a49d7fc89ce2e06"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn022003l.h",
+        "bytes": 268667,
+        "sha256": "6c86defbb2d5d47fba2144857519971e9cd0d95efb25b39b2762a735d133104d"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n022004l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022004l.pfb",
+        "bytes": 82510,
+        "sha256": "486b8df6adba53ff421ecfd1328b4a6819f5bbc9a872dd25500ce5b40154212c"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn022004l.h",
+        "bytes": 295961,
+        "sha256": "24cb0d27c8943338382ad09510bb30d43d63fab0615b2079927d421bf4dc1339"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n022023l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022023l.pfb",
+        "bytes": 72071,
+        "sha256": "2d00832c9d8af72727ec9b04cb4e278fa8de980599255fa4cff89a0f04a1d407"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn022023l.h",
+        "bytes": 258806,
+        "sha256": "bb8922de54934391583b0ca50a7c864a1d9c62c7cfad82a21ad3177c983c2ab6"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "n022024l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/n022024l.pfb",
+        "bytes": 75690,
+        "sha256": "04a136a3ead955ee4dd80c912690121e8f026073bd1db91dd00de523f615fc15"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fontn022024l.h",
+        "bytes": 271511,
+        "sha256": "a94a2c7b31027096da2dae2384171dd936436e28c618dd2e66eef20714214929"
+      },
+      "decodedArrayEqualsPfb": true
+    },
+    {
+      "font": "s050000l",
+      "source": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts/s050000l.pfb",
+        "bytes": 32896,
+        "sha256": "d27344755e5fdeb799588f2697eb6ca2d48d100145f462ab1f066f9e44836150"
+      },
+      "embeddedArray": {
+        "archive": "core-d54f0326.tar.gz",
+        "member": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/PdfFile/Resources/Fonts050000l.h",
+        "bytes": 118921,
+        "sha256": "24f7ae2dd9abf5e2d9920ecd5d6ec86c3a81e0f5301d634b83f61b6178495fba"
+      },
+      "decodedArrayEqualsPfb": true
+    }
+  ],
+  "drawingRuntimeVerification": {
+    "provenanceFile": "drawing-build-provenance.json",
+    "status": "verified-local-source-build",
+    "sourceCommit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+    "outputs": [
+      {
+        "file": "drawingfile.js",
+        "bytes": 131210,
+        "sha256": "c1421f8310eb9267818c6fd81f410b7898808fac305b604ac1c41254eb753aac"
+      },
+      {
+        "file": "drawingfile.wasm",
+        "bytes": 10053147,
+        "sha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85"
+      }
+    ],
+    "recipeTransform": {
+      "originalArchive": "core-d54f0326.tar.gz",
+      "originalMember": "core-d54f0326cd67ef0d59b87af1c3ff51d678f77a39/DesktopEditor/graphics/pro/js/drawingfile.json",
+      "patchedFile": "provenance/drawing/drawingfile-no-openssl.json",
+      "originalCompileGroupsUnchanged": 40,
+      "useOpenSSLHashDefined": false,
+      "openSSLImplementationSourceDirectoryPresent": false,
+      "openSSLCompileGroups": 0,
+      "openSSLIncludePaths": 0,
+      "fallback": "The unchanged upstream PdfFile/lib/xpdf/Decrypt.cc #else defines SHA384=sha384 and SHA512=sha512, selecting existing Xpdf implementation under its GPLv3 option."
+    },
+    "verifiedBuildHelpers": [
+      {
+        "file": "scripts/drawing-runtime-inputs/rebuild.sh",
+        "bytes": 2190,
+        "sha256": "98a7388b4bca0acd1294935057ca18ff8c00aaef62485777feab5acec171e276"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/patch-drawing.py",
+        "bytes": 1353,
+        "sha256": "6f2f71da8d7b2200b979ea67d242000786329980af3a5ab95c64fc472d961eef"
+      }
+    ],
+    "verifiedLocalSourceMaterials": [
+      {
+        "path": "provenance/drawing/drawingfile-no-openssl.json",
+        "bytes": 27179,
+        "sha256": "d08141b3b1be5bafab732f9886a205d456ac18992478b988680d6e02e1c9a955"
+      },
+      {
+        "path": "provenance/drawing/before-no-openssl.py",
+        "bytes": 2834,
+        "sha256": "aee7cfb09bd18bed0c24aaf33b299f6aad9567dc1f87780507247529e4f90162"
+      },
+      {
+        "path": "provenance/drawing/after-no-openssl.py",
+        "bytes": 1255,
+        "sha256": "246fccf71a8edde7f4103cbb91e2562549b816655929419d6f900d542dead2fd"
+      }
+    ],
+    "validation": {
+      "successfulActualCompile": true,
+      "distributedOutputBytesAndHashesMatch": true,
+      "actualOfflineMv3EngineAndContentTestsPassed": 16,
+      "freshRecipeReplay": "Separately required and recorded by drawing-build-provenance.json and release gate; native license review does not substitute for reproduction."
+    }
+  },
+  "historicalReleaseFinding": {
+    "finding": "Publisher drawing recipe defined USE_OPENSSL_HASH; Decrypt.cc textually included OpenSSL1.1.1f SHA512/mem_clr C sources. No applicable OpenSSL/AGPL linking exception was found in pinned source licenses.",
+    "resolution": "Replaced drawing JS/WASM with verified local source build using existing Xpdf hash branch; no custom cryptography implementation was added.",
+    "supersededDrawingWasmSha256": "2e12c88e7d4e13297dfae9e5ab2836d3434e45acdf771d28e8eac88db7a8d33d",
+    "currentDrawingWasmSha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85",
+    "resolved": true
+  }
+}

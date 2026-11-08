@@ -1,0 +1,644 @@
+[
+  {
+    "file": "office/sdkjs/word/sdk-all-min.js",
+    "gitBlob": "80a9dc63f3b4c895652387a13aed74ca46da2133",
+    "sourceBlob": null,
+    "status": "not-in-source-tree"
+  },
+  {
+    "file": "office/sdkjs/word/sdk-all.js",
+    "gitBlob": "c045186ad85dfa7a6f06a3ae5c5b892119d2beb8",
+    "sourceBlob": null,
+    "status": "not-in-source-tree"
+  },
+  {
+    "file": "office/sdkjs/common/AllFonts.js",
+    "gitBlob": "8bdbd68900340a2854aa5cb73a008b25b1c0d3b6",
+    "sourceBlob": null,
+    "status": "not-in-source-tree"
+  },
+  {
+    "file": "office/sdkjs/common/libfont/engine/fonts.js",
+    "gitBlob": "88a1699103335b87b12e57151d75873834cacb0f",
+    "sourceBlob": "a2a4352eeb2d4ba1c4f09807e0d3df4902c513dd",
+    "status": "different"
+  },
+  {
+    "file": "office/sdkjs/common/libfont/engine/fonts.wasm",
+    "gitBlob": "9252a999e0116ea76f5ee894c8f75cfed1684f4f",
+    "sourceBlob": "9252a999e0116ea76f5ee894c8f75cfed1684f4f",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Charts/ChartStyles.js",
+    "gitBlob": "59d0d8bab98649b36c9f606c69033f59bee34bc0",
+    "sourceBlob": "d3c746520ffb9679b78fe7bef5c870ce5534eb02",
+    "status": "different"
+  },
+  {
+    "file": "office/sdkjs/common/Images/cursors/svg.json",
+    "gitBlob": "357583a773d2f8a69b4ebb37154e8e14e8658754",
+    "sourceBlob": "357583a773d2f8a69b4ebb37154e8e14e8658754",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img.png",
+    "gitBlob": "c0785336172bed658d18e1911d42b137e009b98f",
+    "sourceBlob": "c0785336172bed658d18e1911d42b137e009b98f",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img@1.25x.png",
+    "gitBlob": "9085cdd19dbe1d5d92600b7c381fd6ee8e86c142",
+    "sourceBlob": "9085cdd19dbe1d5d92600b7c381fd6ee8e86c142",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img@1.5x.png",
+    "gitBlob": "26bb1fbf0664b33978a31052df326b31432c9b63",
+    "sourceBlob": "26bb1fbf0664b33978a31052df326b31432c9b63",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img@1.75x.png",
+    "gitBlob": "def9aef4a80af77f8ca6c90b90c683fbc94436c7",
+    "sourceBlob": "def9aef4a80af77f8ca6c90b90c683fbc94436c7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img@2x.png",
+    "gitBlob": "a7472356c6ea9f7584a4dac0f0398e88c243f361",
+    "sourceBlob": "a7472356c6ea9f7584a4dac0f0398e88c243f361",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img_active.png",
+    "gitBlob": "74c3d9e26725d7981723813524eb590101db5a3d",
+    "sourceBlob": "74c3d9e26725d7981723813524eb590101db5a3d",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img_active@1.25x.png",
+    "gitBlob": "fa1b7a633c510f6c4577e3c36dc15e1369652e1a",
+    "sourceBlob": "fa1b7a633c510f6c4577e3c36dc15e1369652e1a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img_active@1.5x.png",
+    "gitBlob": "761eec0d7b7eeb3a4c9282644939562059b24cac",
+    "sourceBlob": "761eec0d7b7eeb3a4c9282644939562059b24cac",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img_active@1.75x.png",
+    "gitBlob": "7fcf530a8719b18c8fc12eee8c68a0c19b6ecf8b",
+    "sourceBlob": "7fcf530a8719b18c8fc12eee8c68a0c19b6ecf8b",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/img_active@2x.png",
+    "gitBlob": "62b57ffb1a7ce98c30bd570aa783f48be5071a5c",
+    "sourceBlob": "62b57ffb1a7ce98c30bd570aa783f48be5071a5c",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/signature.png",
+    "gitBlob": "a0927f114b2901a37cf10cd380473befca2f0b16",
+    "sourceBlob": "a0927f114b2901a37cf10cd380473befca2f0b16",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/signature@1.25x.png",
+    "gitBlob": "c42392c36f9aa3ced7d0e3a737d3e00972fc4fa3",
+    "sourceBlob": "c42392c36f9aa3ced7d0e3a737d3e00972fc4fa3",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/signature@1.5x.png",
+    "gitBlob": "ed42530109bfef0bc294e4645d9c35ce67171e6c",
+    "sourceBlob": "ed42530109bfef0bc294e4645d9c35ce67171e6c",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/signature@1.75x.png",
+    "gitBlob": "7a75512eb87ddfd36e32004a2fa569e2c3ef9c74",
+    "sourceBlob": "7a75512eb87ddfd36e32004a2fa569e2c3ef9c74",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/signature@2x.png",
+    "gitBlob": "a6fd2228f92a543ae0a7214dde638b0bed142b25",
+    "sourceBlob": "a6fd2228f92a543ae0a7214dde638b0bed142b25",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc.png",
+    "gitBlob": "3a2c862dab67a5a2d640f7ca591d49642d15868c",
+    "sourceBlob": "3a2c862dab67a5a2d640f7ca591d49642d15868c",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc@1.25x.png",
+    "gitBlob": "1a9e8fe64b534b6c71011e9e67eaae25bf6f7e2c",
+    "sourceBlob": "1a9e8fe64b534b6c71011e9e67eaae25bf6f7e2c",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc@1.5x.png",
+    "gitBlob": "f679b2a571bb3e0a147c445f9b64528091a1bc39",
+    "sourceBlob": "f679b2a571bb3e0a147c445f9b64528091a1bc39",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc@1.75x.png",
+    "gitBlob": "89565bddb1103eca2c2177ad899ecccc1200e5fb",
+    "sourceBlob": "89565bddb1103eca2c2177ad899ecccc1200e5fb",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc@2x.png",
+    "gitBlob": "e46e9187faab945c0d33502783949618c8f113cf",
+    "sourceBlob": "e46e9187faab945c0d33502783949618c8f113cf",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc_active.png",
+    "gitBlob": "22bc6d464b7aab9b58b01fda1c947edcf1893efd",
+    "sourceBlob": "22bc6d464b7aab9b58b01fda1c947edcf1893efd",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc_active@1.25x.png",
+    "gitBlob": "50215f9d671da83a692fb9ebe9ab4287249876f9",
+    "sourceBlob": "50215f9d671da83a692fb9ebe9ab4287249876f9",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc_active@1.5x.png",
+    "gitBlob": "7b6064e4548ee58709ed9aacd9c036a3e0a8cb2b",
+    "sourceBlob": "7b6064e4548ee58709ed9aacd9c036a3e0a8cb2b",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc_active@1.75x.png",
+    "gitBlob": "943f752fb814c2ee3eed733a71bc2ffff90d3f49",
+    "sourceBlob": "943f752fb814c2ee3eed733a71bc2ffff90d3f49",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/content_controls/toc_active@2x.png",
+    "gitBlob": "ad13b36a330fa4d906429c0af8a12f90b326463a",
+    "sourceBlob": "ad13b36a330fa4d906429c0af8a12f90b326463a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/icons/anchor.png",
+    "gitBlob": "e3630e800c67258f49c3016dcefb6de3ea2939b3",
+    "sourceBlob": "e3630e800c67258f49c3016dcefb6de3ea2939b3",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/icons/anchor@1.25x.png",
+    "gitBlob": "788f0c690abaacdd1de0ceed51cf8056b8a7ddcb",
+    "sourceBlob": "788f0c690abaacdd1de0ceed51cf8056b8a7ddcb",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/icons/anchor@1.5x.png",
+    "gitBlob": "6302665807dc787164b9225ef9d4a2d31759dbee",
+    "sourceBlob": "6302665807dc787164b9225ef9d4a2d31759dbee",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/icons/anchor@1.75x.png",
+    "gitBlob": "c107f2e3dbc543d992229a0d553f1271421530f1",
+    "sourceBlob": "c107f2e3dbc543d992229a0d553f1271421530f1",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/icons/anchor@2x.png",
+    "gitBlob": "6e176c7fad84318ed0a9648dcb479685559c5c8a",
+    "sourceBlob": "6e176c7fad84318ed0a9648dcb479685559c5c8a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio.png",
+    "gitBlob": "adeb424cc4402e8204b6b7b4f07da92bd675db0d",
+    "sourceBlob": "adeb424cc4402e8204b6b7b4f07da92bd675db0d",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio@1.25x.png",
+    "gitBlob": "0346b8afe3900e28ffe7ce766bc207c6311f6a87",
+    "sourceBlob": "0346b8afe3900e28ffe7ce766bc207c6311f6a87",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio@1.5x.png",
+    "gitBlob": "e4aadbcdf715e97ed460a1aadfb9a11076b45d20",
+    "sourceBlob": "e4aadbcdf715e97ed460a1aadfb9a11076b45d20",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio@1.75x.png",
+    "gitBlob": "a3add90da658b9bd778da0a8965ea8e7cd5df552",
+    "sourceBlob": "a3add90da658b9bd778da0a8965ea8e7cd5df552",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio@2x.png",
+    "gitBlob": "d9d5174082b642d521e00facaca543d5d7de3fae",
+    "sourceBlob": "d9d5174082b642d521e00facaca543d5d7de3fae",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio_active.png",
+    "gitBlob": "7aae77a4a0cb6831308331cd282fb590df3864fb",
+    "sourceBlob": "7aae77a4a0cb6831308331cd282fb590df3864fb",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio_active@1.25x.png",
+    "gitBlob": "e0165fc647d3500575d4fec7bc465fca3c7d29f7",
+    "sourceBlob": "e0165fc647d3500575d4fec7bc465fca3c7d29f7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio_active@1.5x.png",
+    "gitBlob": "95ffeb758ed617b52ab02ca03b8b981c7586a92d",
+    "sourceBlob": "95ffeb758ed617b52ab02ca03b8b981c7586a92d",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio_active@1.75x.png",
+    "gitBlob": "6605a96bd329e2ec3c95362e3ac5f25e099f2db7",
+    "sourceBlob": "6605a96bd329e2ec3c95362e3ac5f25e099f2db7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/audio_active@2x.png",
+    "gitBlob": "aebe0dbf49e1e2cbdcb98571ab0051df0e0bae28",
+    "sourceBlob": "aebe0dbf49e1e2cbdcb98571ab0051df0e0bae28",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart.png",
+    "gitBlob": "440f04c56137b83106d7155f50b11db6faff7b3a",
+    "sourceBlob": "440f04c56137b83106d7155f50b11db6faff7b3a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart@1.25x.png",
+    "gitBlob": "b3d30df959585566d59655cf8fa98b9c30945a2a",
+    "sourceBlob": "b3d30df959585566d59655cf8fa98b9c30945a2a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart@1.5x.png",
+    "gitBlob": "d186b4e4efd011b6bbd1f87bf4a4a51b61065e22",
+    "sourceBlob": "d186b4e4efd011b6bbd1f87bf4a4a51b61065e22",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart@1.75x.png",
+    "gitBlob": "925226b048a741512ca436f7874efd5296fe7be7",
+    "sourceBlob": "925226b048a741512ca436f7874efd5296fe7be7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart@2x.png",
+    "gitBlob": "a00ae46c84ba830b44b374a9a59e8669f8f790ed",
+    "sourceBlob": "a00ae46c84ba830b44b374a9a59e8669f8f790ed",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart_active.png",
+    "gitBlob": "d8a2dba1bd2eee9514cbc15bcf6cf823939051a6",
+    "sourceBlob": "d8a2dba1bd2eee9514cbc15bcf6cf823939051a6",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart_active@1.25x.png",
+    "gitBlob": "bf506fb4e52032016232688e730813398401c082",
+    "sourceBlob": "bf506fb4e52032016232688e730813398401c082",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart_active@1.5x.png",
+    "gitBlob": "658fcad4ddab16b97f520499334c9979c4cdc33e",
+    "sourceBlob": "658fcad4ddab16b97f520499334c9979c4cdc33e",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart_active@1.75x.png",
+    "gitBlob": "52793282b755cc40624b77b981c1cacd7b9563d2",
+    "sourceBlob": "52793282b755cc40624b77b981c1cacd7b9563d2",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/chart_active@2x.png",
+    "gitBlob": "e75c7516f56d4564caff0befaa52cd7c20ac233d",
+    "sourceBlob": "e75c7516f56d4564caff0befaa52cd7c20ac233d",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image.png",
+    "gitBlob": "dcfe3126260b78811f375f7b9fc5217a99e087f8",
+    "sourceBlob": "dcfe3126260b78811f375f7b9fc5217a99e087f8",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image@1.25x.png",
+    "gitBlob": "def9aef4a80af77f8ca6c90b90c683fbc94436c7",
+    "sourceBlob": "def9aef4a80af77f8ca6c90b90c683fbc94436c7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image@1.5x.png",
+    "gitBlob": "ea875c42557e1f68bbd461119f4623bf0ece7a18",
+    "sourceBlob": "ea875c42557e1f68bbd461119f4623bf0ece7a18",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image@1.75x.png",
+    "gitBlob": "4052b60f2eaef0cfc3b358257524360ba3614cd2",
+    "sourceBlob": "4052b60f2eaef0cfc3b358257524360ba3614cd2",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image@2x.png",
+    "gitBlob": "b98b31bdc3d809c6f421478cdeadc24ea7d43018",
+    "sourceBlob": "b98b31bdc3d809c6f421478cdeadc24ea7d43018",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_active.png",
+    "gitBlob": "5d245d065a53b5d13d877c45557d83b7cde40a7e",
+    "sourceBlob": "5d245d065a53b5d13d877c45557d83b7cde40a7e",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_active@1.25x.png",
+    "gitBlob": "7fcf530a8719b18c8fc12eee8c68a0c19b6ecf8b",
+    "sourceBlob": "7fcf530a8719b18c8fc12eee8c68a0c19b6ecf8b",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_active@1.5x.png",
+    "gitBlob": "1398e9ad5c57f110ba755f3be889e9a10c636efa",
+    "sourceBlob": "1398e9ad5c57f110ba755f3be889e9a10c636efa",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_active@1.75x.png",
+    "gitBlob": "7527fe2b9e007d86905e26cf27123c9411579a09",
+    "sourceBlob": "7527fe2b9e007d86905e26cf27123c9411579a09",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_active@2x.png",
+    "gitBlob": "2eefec7fce145b4a207eb5dbd48259d79314e6ac",
+    "sourceBlob": "2eefec7fce145b4a207eb5dbd48259d79314e6ac",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url.png",
+    "gitBlob": "192386d674d9337ea98c540f67bc2090c636b293",
+    "sourceBlob": "192386d674d9337ea98c540f67bc2090c636b293",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url@1.25x.png",
+    "gitBlob": "18ff74947e1a8af6fa7c89bf502cd8aa4e21eba7",
+    "sourceBlob": "18ff74947e1a8af6fa7c89bf502cd8aa4e21eba7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url@1.5x.png",
+    "gitBlob": "82be325dfdaf0a62298e82fb876ee71b106ca8e9",
+    "sourceBlob": "82be325dfdaf0a62298e82fb876ee71b106ca8e9",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url@1.75x.png",
+    "gitBlob": "5f8b9a3c8019819372485279268590286c25fb4a",
+    "sourceBlob": "5f8b9a3c8019819372485279268590286c25fb4a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url@2x.png",
+    "gitBlob": "1ddfa61d172f63c06f784a2b0858dba1c092ea85",
+    "sourceBlob": "1ddfa61d172f63c06f784a2b0858dba1c092ea85",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url_active.png",
+    "gitBlob": "964f8971fb91d5c5980abaa3f4c5b0b9f41cf2b1",
+    "sourceBlob": "964f8971fb91d5c5980abaa3f4c5b0b9f41cf2b1",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url_active@1.25x.png",
+    "gitBlob": "fbc2446b42efd580085eac6f74818f1daa082ce0",
+    "sourceBlob": "fbc2446b42efd580085eac6f74818f1daa082ce0",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url_active@1.5x.png",
+    "gitBlob": "30c470ffc6c666d444794f53e48c7c0febebe120",
+    "sourceBlob": "30c470ffc6c666d444794f53e48c7c0febebe120",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url_active@1.75x.png",
+    "gitBlob": "6d50f4db96a1fccbeb96519740652e8f434a1696",
+    "sourceBlob": "6d50f4db96a1fccbeb96519740652e8f434a1696",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/image_url_active@2x.png",
+    "gitBlob": "1c85a7477120995c7b6935924eecd7ffb17339ec",
+    "sourceBlob": "1c85a7477120995c7b6935924eecd7ffb17339ec",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart.png",
+    "gitBlob": "5f1c2e41cde674d18cb328744aaae00d161b68b3",
+    "sourceBlob": "5f1c2e41cde674d18cb328744aaae00d161b68b3",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart@1.25x.png",
+    "gitBlob": "ab1e2416d3cc438d08ad8a84fb4bb6b72026c960",
+    "sourceBlob": "ab1e2416d3cc438d08ad8a84fb4bb6b72026c960",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart@1.5x.png",
+    "gitBlob": "0b632a241917415ed7a9b0e4774edf216220928f",
+    "sourceBlob": "0b632a241917415ed7a9b0e4774edf216220928f",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart@1.75x.png",
+    "gitBlob": "182ce6d691c097d6313e9de04ff9ef0f23b39284",
+    "sourceBlob": "182ce6d691c097d6313e9de04ff9ef0f23b39284",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart@2x.png",
+    "gitBlob": "07087740e2b6f515b7d0dd3445746475c9598e25",
+    "sourceBlob": "07087740e2b6f515b7d0dd3445746475c9598e25",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart_active.png",
+    "gitBlob": "3e32031766ef339e63c2030f6ce5ee645c12ac8b",
+    "sourceBlob": "3e32031766ef339e63c2030f6ce5ee645c12ac8b",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart_active@1.25x.png",
+    "gitBlob": "0f1c3f158dd720d29bff3874415b46aa96b6a6da",
+    "sourceBlob": "0f1c3f158dd720d29bff3874415b46aa96b6a6da",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart_active@1.5x.png",
+    "gitBlob": "1821b73482b9f1d1cd9078f6f36b93eb80fe6e1a",
+    "sourceBlob": "1821b73482b9f1d1cd9078f6f36b93eb80fe6e1a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart_active@1.75x.png",
+    "gitBlob": "3008fcac853ada2f93ef02b5abb7bb1945563188",
+    "sourceBlob": "3008fcac853ada2f93ef02b5abb7bb1945563188",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/smartart_active@2x.png",
+    "gitBlob": "5ff8b8fa9114c325f3e82492c00935c77bbda66a",
+    "sourceBlob": "5ff8b8fa9114c325f3e82492c00935c77bbda66a",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table.png",
+    "gitBlob": "3174284c24a0e5ec977191cb874442a5c1b48276",
+    "sourceBlob": "3174284c24a0e5ec977191cb874442a5c1b48276",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table@1.25x.png",
+    "gitBlob": "f3cc2164c4cc59ecf1c3950209e89d28cd51adf2",
+    "sourceBlob": "f3cc2164c4cc59ecf1c3950209e89d28cd51adf2",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table@1.5x.png",
+    "gitBlob": "7d251aa94e8e935ba237a141afbe958338f6ef88",
+    "sourceBlob": "7d251aa94e8e935ba237a141afbe958338f6ef88",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table@1.75x.png",
+    "gitBlob": "1cdb33f8b79feac232ca74c2b50dcb0b83715c2b",
+    "sourceBlob": "1cdb33f8b79feac232ca74c2b50dcb0b83715c2b",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table@2x.png",
+    "gitBlob": "5d841fd4bcc231bc23c7257e3074b9b698786c01",
+    "sourceBlob": "5d841fd4bcc231bc23c7257e3074b9b698786c01",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table_active.png",
+    "gitBlob": "7b608f9e14d62d11610f5c2b8ef76d52dab41e77",
+    "sourceBlob": "7b608f9e14d62d11610f5c2b8ef76d52dab41e77",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table_active@1.25x.png",
+    "gitBlob": "f6d10de30a73c5ed59877b3aaaa5f18db03bc4f7",
+    "sourceBlob": "f6d10de30a73c5ed59877b3aaaa5f18db03bc4f7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table_active@1.5x.png",
+    "gitBlob": "49eec3b3949b2fade7982e43bdb22144a0344423",
+    "sourceBlob": "49eec3b3949b2fade7982e43bdb22144a0344423",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table_active@1.75x.png",
+    "gitBlob": "42e82444f01531f43c25d19a27b070a8427aafd7",
+    "sourceBlob": "42e82444f01531f43c25d19a27b070a8427aafd7",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/table_active@2x.png",
+    "gitBlob": "a6d5d78196cc4c464161410e5384d54d5b21cd9d",
+    "sourceBlob": "a6d5d78196cc4c464161410e5384d54d5b21cd9d",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video.png",
+    "gitBlob": "88619814a4c3efe402bf666d6bce7266c3828a03",
+    "sourceBlob": "88619814a4c3efe402bf666d6bce7266c3828a03",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video@1.25x.png",
+    "gitBlob": "c3fa548c762a99235b53d022d489ddf0a55ec759",
+    "sourceBlob": "c3fa548c762a99235b53d022d489ddf0a55ec759",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video@1.5x.png",
+    "gitBlob": "dd4da789c6d52e2de761dd4a23f47a1e50ca7e4c",
+    "sourceBlob": "dd4da789c6d52e2de761dd4a23f47a1e50ca7e4c",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video@1.75x.png",
+    "gitBlob": "82b1e3b89bf45e29aae42f0c7ac4fefdd78f098f",
+    "sourceBlob": "82b1e3b89bf45e29aae42f0c7ac4fefdd78f098f",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video@2x.png",
+    "gitBlob": "9dbfda472377c8eb0f278e8142327cdf610a6a22",
+    "sourceBlob": "9dbfda472377c8eb0f278e8142327cdf610a6a22",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video_active.png",
+    "gitBlob": "0ccfd9f9e23c9b977fd32b9de38f9d44bd416d29",
+    "sourceBlob": "0ccfd9f9e23c9b977fd32b9de38f9d44bd416d29",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video_active@1.25x.png",
+    "gitBlob": "da14d1348381202559e04be0e66b3d06fa856f87",
+    "sourceBlob": "da14d1348381202559e04be0e66b3d06fa856f87",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video_active@1.5x.png",
+    "gitBlob": "2ea9d83dce9cd79ec75bb088f0f1745bf2d93d49",
+    "sourceBlob": "2ea9d83dce9cd79ec75bb088f0f1745bf2d93d49",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video_active@1.75x.png",
+    "gitBlob": "4d8d368034e03bc149d811f683fa774614d8a7ad",
+    "sourceBlob": "4d8d368034e03bc149d811f683fa774614d8a7ad",
+    "status": "exact"
+  },
+  {
+    "file": "office/sdkjs/common/Images/placeholders/video_active@2x.png",
+    "gitBlob": "c2b9f0281ba08ba517b49c55b2ec5bc8dc0f4a76",
+    "sourceBlob": "c2b9f0281ba08ba517b49c55b2ec5bc8dc0f4a76",
+    "status": "exact"
+  }
+]

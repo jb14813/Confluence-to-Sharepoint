@@ -1,0 +1,10 @@
+{
+  "ref": "refs/tags/v9.3.2+3",
+  "node_id": "REF_kwDOLpsm_7JyZWZzL3RhZ3MvdjkuMy4yKzM",
+  "url": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/git/refs/tags/v9.3.2+3",
+  "object": {
+    "sha": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+    "type": "commit",
+    "url": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/git/commits/7debf5e6d6d4f19874d764cd34446f7e63c6bc32"
+  }
+}

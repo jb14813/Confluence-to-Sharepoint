@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "publisherRelease": {
+    "repository": "https://github.com/ONLYOFFICE/DocumentServer",
+    "tag": "v9.3.0",
+    "commit": "b8ad25cc7e6316abe4406dab8aac080d5d53998a",
+    "sourceTreeEvidence": "provenance/sdk/documentserver-release-tree.json",
+    "gitlinks": {
+      "core": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "sdkjs": "1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59",
+      "webApps": "1c8ca9987876bada73c0bde21367da09c0e1ed83"
+    }
+  },
+  "components": [
+    {
+      "name": "drawingfile",
+      "sdkjsCommit": "1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59",
+      "sourceCoreCommit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "files": [
+        {
+          "file": "drawingfile.js",
+          "bytes": 131210,
+          "sha256": "c1421f8310eb9267818c6fd81f410b7898808fac305b604ac1c41254eb753aac"
+        },
+        {
+          "file": "drawingfile.wasm",
+          "bytes": 10053147,
+          "sha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85"
+        }
+      ],
+      "recipes": [
+        "core/DesktopEditor/graphics/pro/js/deploy.py",
+        "core/DesktopEditor/graphics/pro/js/drawingfile.json",
+        "core/DesktopEditor/graphics/pro/js/before.py",
+        "core/Common/js/make.py"
+      ],
+      "previouslyDistributedOfficialFiles": [
+        {
+          "sourcePath": "pdf/src/engine/drawingfile.js",
+          "blob": "9158ec0b149dcee9d0ca2771714abef7c0b75de3",
+          "sha256": "56595e349f92efcf952ffc62762893d60a9002ed801e38172e30cd167025019c"
+        },
+        {
+          "sourcePath": "pdf/src/engine/drawingfile.wasm",
+          "blob": "30761b1be1122e7425bda9e472c7727e6efc4548",
+          "sha256": "2e12c88e7d4e13297dfae9e5ab2836d3434e45acdf771d28e8eac88db7a8d33d"
+        }
+      ],
+      "buildProvenanceFile": "drawing-build-provenance.json"
+    },
+    {
+      "name": "fonts",
+      "sdkjsCommit": "1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59",
+      "sourceCoreCommit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "files": [
+        {
+          "sourcePath": "common/libfont/engine/fonts.js",
+          "blob": "a2a4352eeb2d4ba1c4f09807e0d3df4902c513dd",
+          "sha256": "8002cbfa24a8ced6f7b1d3aafda3c1b4131bc66b881e02240800657102ca7f53"
+        },
+        {
+          "sourcePath": "common/libfont/engine/fonts.wasm",
+          "blob": "9252a999e0116ea76f5ee894c8f75cfed1684f4f",
+          "sha256": "6b27107256a1df72419ac2b4894c65f9f6f0585ac303b8f3158dc441281e4482"
+        }
+      ],
+      "recipes": [
+        "core/DesktopEditor/fontengine/js/deploy.py",
+        "core/DesktopEditor/fontengine/js/libfont.json",
+        "core/DesktopEditor/fontengine/js/before.py",
+        "core/Common/js/make.py"
+      ]
+    }
+  ],
+  "toolchain": {
+    "buildToolsCommit": "10118f4c68e151e4fd8d76804a3ee42db68fe1dc",
+    "emsdkCommit": "f677ef915645c09794f0ae88f21d3cba2886459f",
+    "emscripten": "3.1.48",
+    "emscriptenReleaseHash": "694434b6d47c5f6eff2c8fbd9eeb016c977ae9dc",
+    "icuCommit": "2d029329c82c7792b985024b2bdab5fc7278fbc8",
+    "harfbuzzCommit": "894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+    "brotliCommit": "a47d7475063eb223c87632eed806c0070e70da29",
+    "opensslCommit": "36eadf1f84daa965041cce410b4ff32cbda4ef08"
+  },
+  "proof": {
+    "origin": "Font runtime has exact official SDK git blob identity. Drawing runtime was rebuilt from the publisher-associated core source using the retained no-OpenSSL recipe.",
+    "sourceAssociation": "publisher release Git submodule tree ties exact engine-containing SDK to exact core source; core deployment recipes explicitly copy output into these SDK paths",
+    "reproducibility": "Drawing JS/WASM and Word SDK bundles were each reproduced exactly from both original acquisition sources and the filtered preferred-source deliveries using retained recipes and pinned inputs. Unchanged publisher font WASM is not claimed locally reproducible."
+  },
+  "preferredSourceInputs": [
+    {
+      "file": "sdkjs-679a6d70.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/sdkjs/tar.gz/679a6d70ccb5487924f034cea089ff30daeeb7fd",
+      "bytes": 39757185,
+      "sha256": "fbc648d47049c621c14a58c22f02b29d5f4fd52bc1383906b8e10972a68db28a",
+      "repository": "https://github.com/ONLYOFFICE/sdkjs",
+      "commit": "679a6d70ccb5487924f034cea089ff30daeeb7fd",
+      "component": "sdkjs",
+      "role": "source"
+    },
+    {
+      "file": "build-tools-10118f4c.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/build_tools/tar.gz/10118f4c68e151e4fd8d76804a3ee42db68fe1dc",
+      "bytes": 6729574,
+      "sha256": "ea1010f9ff798c2f15497ba5091c0ade5701e73e054b939d2cd6c8574a5e6e4f",
+      "repository": "https://github.com/ONLYOFFICE/build_tools",
+      "commit": "10118f4c68e151e4fd8d76804a3ee42db68fe1dc",
+      "component": "build_tools",
+      "role": "build-input"
+    },
+    {
+      "file": "harfbuzz-894a1f72.tar.gz",
+      "url": "https://codeload.github.com/harfbuzz/harfbuzz/tar.gz/894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "bytes": 36010701,
+      "sha256": "17eda8a9861d347a6e95cd2b3112301ce90dcc649b0e96623cc89c6ca4180e66",
+      "repository": "https://github.com/harfbuzz/harfbuzz",
+      "commit": "894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "component": "harfbuzz",
+      "role": "source"
+    },
+    {
+      "file": "brotli-a47d7475.tar.gz",
+      "url": "https://codeload.github.com/google/brotli/tar.gz/a47d7475063eb223c87632eed806c0070e70da29",
+      "bytes": 638452,
+      "sha256": "49b657a4321cb00e388863dec8d0558b94ec47100d619b837d570a58bba71379",
+      "repository": "https://github.com/google/brotli",
+      "commit": "a47d7475063eb223c87632eed806c0070e70da29",
+      "component": "brotli",
+      "role": "source"
+    },
+    {
+      "file": "icu-2d029329.tar.gz",
+      "url": "https://codeload.github.com/unicode-org/icu/tar.gz/2d029329c82c7792b985024b2bdab5fc7278fbc8",
+      "bytes": 65925217,
+      "sha256": "b9cf5c172b9e412ff8fd7dae82723ef619367bc30e40979354320d416bab06d2",
+      "repository": "https://github.com/unicode-org/icu",
+      "commit": "2d029329c82c7792b985024b2bdab5fc7278fbc8",
+      "component": "icu",
+      "role": "source"
+    },
+    {
+      "file": "emsdk-f677ef91.tar.gz",
+      "url": "https://codeload.github.com/emscripten-core/emsdk/tar.gz/f677ef915645c09794f0ae88f21d3cba2886459f",
+      "bytes": 100863,
+      "sha256": "bb07091c4a1b35038cf38b65bc98f8684cf239722ea8c6d428bd08adaa147886",
+      "repository": "https://github.com/emscripten-core/emsdk",
+      "commit": "f677ef915645c09794f0ae88f21d3cba2886459f",
+      "component": "emsdk",
+      "role": "build-input"
+    },
+    {
+      "file": "openssl-36eadf1f.tar.gz",
+      "url": "https://codeload.github.com/openssl/openssl/tar.gz/36eadf1f84daa965041cce410b4ff32cbda4ef08",
+      "bytes": 9974022,
+      "sha256": "1363fad0711483bd8ec1c1e3a4357bf00b39197da2dc04b1fa66b6a3605eb1f2",
+      "repository": "https://github.com/openssl/openssl",
+      "commit": "36eadf1f84daa965041cce410b4ff32cbda4ef08",
+      "component": "openssl",
+      "role": "source"
+    },
+    {
+      "file": "core-d54f0326.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/core/tar.gz/d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "bytes": 221357240,
+      "sha256": "ad8b5adaf49b5ce12705a9cc1eb165f89e791a496ce395f8f0974d8c7d48cd77",
+      "repository": "https://github.com/ONLYOFFICE/core",
+      "commit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "component": "core-publisher-release",
+      "role": "source"
+    },
+    {
+      "file": "sdkjs-1b1c0fd7.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/sdkjs/tar.gz/1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59",
+      "bytes": 39762952,
+      "sha256": "798cb922eac557e8b94f69847af01de687780c27ea38a775018670ec75f046ae",
+      "repository": "https://github.com/ONLYOFFICE/sdkjs",
+      "commit": "1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59",
+      "component": "sdkjs-publisher-release",
+      "role": "source"
+    },
+    {
+      "file": "documentserver-b8ad25cc.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/DocumentServer/tar.gz/b8ad25cc7e6316abe4406dab8aac080d5d53998a",
+      "bytes": 978758,
+      "sha256": "ee807001530f95593f6ff3d3e4ef23784dfc4621f8fb0e628a2e64b2d11caadd",
+      "repository": "https://github.com/ONLYOFFICE/DocumentServer",
+      "commit": "b8ad25cc7e6316abe4406dab8aac080d5d53998a",
+      "component": "DocumentServer-release-association",
+      "role": "source"
+    }
+  ],
+  "localPreferredSourceMaterials": [
+    {
+      "path": "provenance/sdk/catalog-source/AllFonts.js",
+      "role": "literal editable source registry, no font glyph files",
+      "bytes": 123773,
+      "sha256": "784d8dc3b158a166988097c128e3c06e068bf3a792150372fb8b0d8c9d011165"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/catalog-editable.json",
+      "role": "decoded editable font catalog and selection metadata",
+      "bytes": 355405,
+      "sha256": "3acb4f3ecec09df54c16c1598805cc3f7cd04e6789bdc4063ce5e1282383a1d9"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/bin/lib/selection-bin.mjs",
+      "role": "verified byte-exact selection metadata decode/encode",
+      "bytes": 6144,
+      "sha256": "a39f4536f72df6b4b972b4d7d24f3ac1ce91ac524dd4407888456d3e0ef31f1c"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/bin/lib/sfnt.mjs",
+      "role": "codec helper source",
+      "bytes": 7447,
+      "sha256": "403b1ea6db0a211f05e984eecf9e8cff8dd99ccc948d5e7e512310a706caf80d"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/AllFonts-before-font-sweep.js",
+      "role": "baseline source registry at mirror parent eb07e3cc8b97a01c0dc0e206e5fb2590f734fe83",
+      "bytes": 121440,
+      "sha256": "c3375c97382d0ef5233da457031617c847a56cd838a1132ff5e0573aa76debcc"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/AllFonts-mirror-modifications.patch",
+      "role": "exact modifications to current mirror catalog",
+      "bytes": 233193,
+      "sha256": "9475b5d34a26fd0505bea828750f051547b435d542b631b1e760e54b4ec92369"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/bin/font-license-sweep.mjs",
+      "role": "pinned mirror generator with documented optional open-font inputs",
+      "bytes": 23785,
+      "sha256": "ea41c3369df4bb73cb620d8a7807365c6a091d13d8aac2c539525711a15b3c2e"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/docs/fonts.md",
+      "role": "generator input/build documentation",
+      "bytes": 11782,
+      "sha256": "a319231e5ada1c583bb2f71b4d0fd0bc7f78f4abfd24e1e0c5ad44fb1ffe808e"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/docs/font-licenses.md",
+      "role": "font catalog metadata documentation; catalog excludes external font glyphs, while PDF WASM contains embedded base fonts",
+      "bytes": 4562,
+      "sha256": "796e51078f7eec56c62b17f99c3bb9f4afec21fa60ea85b3427eb9b525ca99b0"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/LICENSE",
+      "role": "upstream mirror license",
+      "bytes": 34519,
+      "sha256": "91b65277959ec273763d28ef002e83a6b3fba57c7a35436c9e5b66536333d720"
+    },
+    {
+      "path": "provenance/sdk/catalog-source/NOTICE",
+      "role": "unmodified upstream statement, retained as provenance without adopting logo-removal interpretation",
+      "bytes": 10314,
+      "sha256": "f5aa69df23fd21cccf9f1820b39460bbf66bef00f4b82ed806494197c10d73b8"
+    }
+  ],
+  "validation": {
+    "publisherDrawingPair": "Historical official drawing pair passed16 tests before the OpenSSL implementation source audit; that pair has been replaced.",
+    "catalogCodec": "exact base64 decode/encode roundtrip,288 records",
+    "currentDrawingBuild": "16 strict offline MV3 engine/content/vendor tests passed with the no-OpenSSL source-built drawing runtime."
+  },
+  "evidenceFiles": [
+    "provenance/sdk/drawingfile-source.json",
+    "provenance/sdk/libfont-source.json",
+    "provenance/sdk/core-js-make.py",
+    "provenance/sdk/drawing-deploy.py",
+    "provenance/sdk/DesktopEditor_fontengine_js_deploy.py"
+  ],
+  "historicalMirrorAssetComparison": {
+    "file": "provenance/sdk/sdk-asset-comparison.json",
+    "scope": "Original mirror asset audit at pinned SDK679a6d70, before source-built Word/official drawing/fonts/ChartStyles replacements; exact static PNG/JSON matches remain unchanged."
+  }
+}

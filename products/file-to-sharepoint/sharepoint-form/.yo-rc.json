@@ -1,0 +1,22 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "file-to-sharepoint-form",
+    "environment": "spo",
+    "packageManager": "npm",
+    "skipFeatureDeployment": true,
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "none",
+    "componentName": "FileImportForm",
+    "componentDescription": "Interactive imported document form",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "26.12.1",
+    "sdksVersions": {},
+    "version": "1.24.1",
+    "libraryName": "file-to-sharepoint-form",
+    "libraryId": "08f7c843-f68f-43e2-9862-99478df779d6",
+    "solutionShortDescription": "file-to-sharepoint-form description"
+  }
+}

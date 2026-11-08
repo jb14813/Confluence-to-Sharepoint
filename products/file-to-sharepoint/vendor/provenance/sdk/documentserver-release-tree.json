@@ -1,0 +1,129 @@
+{
+  "sha": "b8ad25cc7e6316abe4406dab8aac080d5d53998a",
+  "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/trees/b8ad25cc7e6316abe4406dab8aac080d5d53998a",
+  "tree": [
+    {
+      "path": ".aspell.en.pws",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ac7b8a053fa967a96399e92ee4b8aba7c7da84a3",
+      "size": 9601,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/ac7b8a053fa967a96399e92ee4b8aba7c7da84a3"
+    },
+    {
+      "path": ".github",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "38eef29d9b13fc90ab84ce588282d5456470b8b7",
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/trees/38eef29d9b13fc90ab84ce588282d5456470b8b7"
+    },
+    {
+      "path": ".gitmodules",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8256b4ead746f529a1bb8f6054226d4d95405d35",
+      "size": 1446,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/8256b4ead746f529a1bb8f6054226d4d95405d35"
+    },
+    {
+      "path": ".markdownlint.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b262fb77329d528db42cdba7d000f011f8c2ffe5",
+      "size": 43,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/b262fb77329d528db42cdba7d000f011f8c2ffe5"
+    },
+    {
+      "path": ".mrconfig",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "18eda0968420a8cd7a95f9a53591b734961644c8",
+      "size": 1084,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/18eda0968420a8cd7a95f9a53591b734961644c8"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "498f1353394ff3fe213c3133d4a99f4eee3171c3",
+      "size": 252657,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/498f1353394ff3fe213c3133d4a99f4eee3171c3"
+    },
+    {
+      "path": "LICENSE.txt",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "76d383dedf69e90237a73722bab0d90fcaa38ca4",
+      "size": 35029,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/76d383dedf69e90237a73722bab0d90fcaa38ca4"
+    },
+    {
+      "path": "ROADMAP.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fc06e37720400e85ab912c11bbb79206eb5d8698",
+      "size": 28192,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/fc06e37720400e85ab912c11bbb79206eb5d8698"
+    },
+    {
+      "path": "Readme.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b8d74a2b7c8264dec705df2f7a2ecdb59372508a",
+      "size": 13512,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/b8d74a2b7c8264dec705df2f7a2ecdb59372508a"
+    },
+    {
+      "path": "core",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39"
+    },
+    {
+      "path": "core-fonts",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "7030c6681fb5bbed560675cb42422f91df15d5c9"
+    },
+    {
+      "path": "dictionaries",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "d3223bbb777883db66ac3cd249f71c6ebdc992c7"
+    },
+    {
+      "path": "mr-update.sh",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "08d0ca4ecd64b0011c52d216f03027945c50c4b3",
+      "size": 180,
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/blobs/08d0ca4ecd64b0011c52d216f03027945c50c4b3"
+    },
+    {
+      "path": "screenshots",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "217f21e678327cef38f82b94ad467d3820ed1e6d",
+      "url": "https://api.github.com/repos/ONLYOFFICE/DocumentServer/git/trees/217f21e678327cef38f82b94ad467d3820ed1e6d"
+    },
+    {
+      "path": "sdkjs",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "1b1c0fd7f886a00cf7c9e7eaef43704a53d20a59"
+    },
+    {
+      "path": "server",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "34adaeeb4cc1e032a5cf188924880a25546dc67c"
+    },
+    {
+      "path": "web-apps",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "1c8ca9987876bada73c0bde21367da09c0e1ed83"
+    }
+  ],
+  "truncated": false
+}

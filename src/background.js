@@ -12,9 +12,9 @@ import {createDashboard} from './background/dashboard.js';
 import {createBulkUpdates,transferBlocker} from './background/bulk-updates.js';
 import {fail} from './background/checks.js';
 import {withinSite} from './sharepoint/session.js';
+import {createAssetRouteListener} from './sharepoint/route-cache.js';
 
 const SHORTCUT='guide-shortcut',MEMORY='site-memory',POPUP='c2s-popup';
-const ROOT_HINT_TTL_MS=30*60_000;
 const tabId=Number.isInteger,text=value=>typeof value==='string',textOrNull=value=>value===null||typeof value==='string';
 const windowId=value=>value==null||Number.isInteger(value),batchId=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const ids=value=>Array.isArray(value)&&value.length>0&&value.length<=2000&&value.every(id=>typeof id==='string'&&id.length>0&&id.length<=4096);
@@ -24,7 +24,7 @@ const COMMANDS={state:{recheck:value=>value===undefined||typeof value==='boolean
   'update-page':{tabId,siteUrl:text,pagePath:text,windowId:value=>value==null||Number.isInteger(value)},clear:{},'show-tab':{tabId},
   pin:{url:text,pinned:value=>typeof value==='boolean'},remove:{url:text},'remove-page':{url:text,path:text},forget:{},'inject-open-pages':{},
   'account-sync':{enabled:value=>typeof value==='boolean',origin:textOrNull,pageId:textOrNull},'account-refresh':{origin:text,pageId:text},
-  'dashboard-state':{},'dashboard-refresh':{windowId},'dashboard-stop-refresh':{},'open-dashboard':{},
+  'dashboard-state':{},'dashboard-refresh':{windowId},'dashboard-stop-refresh':{},'open-dashboard':{},'open-file-import':{},
   'batch-start':{ids,windowId,replaceBatchId:value=>value===undefined||batchId(value)},'batch-stop':{batchId},'batch-continue':{batchId,windowId},'batch-discard':{batchId},'batch-retry':{batchId,ids,windowId}};
 // The manifest's content scripts, for pages already open when the extension is installed or updated.
 const PAGE_SCRIPTS=[{url:'https://*.atlassian.net/wiki/*',file:'content.js'},{url:'https://*.sharepoint.com/*',file:'memory.js',skip:/^https:\/\/[^/]*-(?:my|admin)\.sharepoint\.com\//i}];
@@ -96,14 +96,17 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     else await recoverStep('the batch result',()=>bulk.recover());
     await recoverStep('Refresh',()=>dashboard.recover(),false);
   });
-  let opening=null;
-  const openDashboard=()=>{
+  const workspaceOpener=filename=>{
+    let opening=null;
+    return ()=>{
     if(opening)return opening;
-    opening=(async()=>{const url=chromeApi.runtime.getURL('dashboard.html'),open=(await chromeApi.tabs.query({url})).find(tab=>tab.url===url);
+    opening=(async()=>{const url=chromeApi.runtime.getURL(filename),open=(await chromeApi.tabs.query({url})).find(tab=>tab.url===url);
       if(open){await chromeApi.tabs.update(open.id,{active:true});await chromeApi.windows.update(open.windowId,{focused:true});return {tabId:open.id};}
       return {tabId:(await chromeApi.tabs.create({url,active:true})).id};
     })().finally(()=>{opening=null;});return opening;
+    };
   };
+  const openDashboard=workspaceOpener('dashboard.html'),openFileImport=workspaceOpener('file-workspace.html');
   const withoutRefresh=()=>{if(dashboard.ownsWork())throw fail('refresh-busy','Wait for Refresh to finish or stop it first.');};
   const runtimeId=chromeApi.runtime.id;
   const commands={
@@ -117,6 +120,7 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     'dashboard-refresh':async options=>{if((await jobs.state()).running)throw fail('job-busy','Wait for the current capture or send.');if(bulk.ownsWork())throw fail('batch-busy','Wait for the batch to finish or stop after its current item.');return dashboard.refresh(options);},
     'dashboard-stop-refresh':()=>dashboard.stopRefresh(),
     'open-dashboard':openDashboard,
+    'open-file-import':openFileImport,
     'batch-start':options=>{withoutRefresh();return bulk.start(options);},
     'batch-stop':options=>bulk.stop(options),
     'batch-continue':options=>{withoutRefresh();return bulk.continue(options);},
@@ -163,26 +167,9 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     // After the user grants site access, pages already open get their scripts, as after an install.
     'inject-open-pages':async()=>{await injectOpenPages();return null;}
   };
+  const assetRoute=createAssetRouteListener({chromeApi});
   chromeApi.runtime.onMessage.addListener((message,sender,reply)=>{
-    if(message?.channel==='asset-route'){
-      const from=pageSender(sender,runtimeId),site=siteKey(message.siteUrl);
-      if(!from||!site||!withinSite(from.href,site)||!only(message,['channel','action','siteUrl','listId','folderPath','loginName'])||
-        !['get','remember','forget'].includes(message.action)||typeof message.listId!=='string'||
-        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(message.listId)||
-        typeof message.folderPath!=='string'||!message.folderPath.startsWith('/')||message.folderPath.length>1500||
-        typeof message.loginName!=='string'||!message.loginName.trim()||message.loginName.length>512)return false;
-      // Exact folder scope avoids inferring anything about another folder's permissions. One key per destination
-      // avoids read/modify/write races; the timestamp is renewed only after a fresh 404 and verified root receipt.
-      const key=`asset-root:${JSON.stringify([site,message.listId,message.folderPath,message.loginName].map(value=>value.toLowerCase()))}`;
-      (async()=>{
-        const storage=chromeApi.storage.session;
-        if(message.action==='remember'){await storage.set({[key]:Date.now()});return false;}
-        if(message.action==='forget'){await storage.remove(key);return false;}
-        const stamp=(await storage.get(key))[key],now=Date.now();
-        return Number.isSafeInteger(stamp)&&stamp>0&&stamp<=now&&now-stamp<ROOT_HINT_TTL_MS;
-      })().then(rootOnly=>reply({ok:true,rootOnly}),()=>reply({ok:false}));
-      return true;
-    }
+    if(message?.channel==='asset-route')return assetRoute(message,sender,reply);
     if(message?.channel===SHORTCUT){
       if(message.action!=='open-popup'||Object.keys(message).length!==2||!pageSender(sender,runtimeId))return false;
       openPopup(chromeApi,sender.tab).then(reply);return true;

@@ -4,6 +4,8 @@
 
 Copy a Confluence page into SharePoint without retyping it. Open the page in Chrome, capture it, and send it to one of your SharePoint sites: as a new page, or into a page you already have, to update it or to combine several Confluence pages into one. You get an **unpublished** SharePoint page with the text, tables, links and pictures, ready for you to review and publish. When the Confluence page changes, one click updates the SharePoint page you sent it to.
 
+You can also select **Import a file** in the popup or dashboard to turn local documents into editable SharePoint drafts.
+
 - Uses the Confluence and SharePoint accounts you are already signed in to. There is no extra sign-in, app registration, server or API key.
 - Never publishes anything. A page you send into keeps showing its readers the published version until you publish the changes.
 - Sends your content only to the SharePoint site you choose.
@@ -13,6 +15,21 @@ Copy a Confluence page into SharePoint without retyping it. Open the page in Chr
 Install **Confluence to SharePoint** from its [Chrome Web Store page](https://chromewebstore.google.com/detail/ahgjchhmbdpohnbeoccnpnfaeillcedm). You can also find it by searching the Store for its name.
 
 To keep it handy, pin it: select the puzzle-piece icon in Chrome's toolbar, then the pin next to **Confluence to SharePoint**.
+
+## Import a file
+
+1. Select **Import a file** in the popup or dashboard.
+2. Choose a DOC, DOCX, ODT, RTF, UTF-8 TXT or text-based PDF file up to 50 MiB. Conversion runs locally inside Chrome.
+3. Review the reconstructed content and conversion notes, enter a page title and choose the SharePoint site.
+4. Select **I reviewed the content and conversion notes**, then **Create SharePoint draft**. The verified, unpublished page opens for review.
+
+![File import preview of an illustrative document, with editable text, a table, an image and review controls](store/assets/screenshot-5-files-1280x800.png)
+
+Text and supported formatting remain editable. Original raster images retain their bytes; nontext shapes use the existing engine's rendering. Positioned PDF textboxes reflow into native editable content, so this is not a fixed-layout facsimile. Unsupported structures and image-only PDFs without editable text block sending; OCR is not included. Mixed text/image PDFs need review for words still inside images.
+
+Supported PDF form fields become text, multiline text, checkboxes, dropdowns and radio groups, grouped by source page. Interactive form pages require the companion SharePoint Framework app installed on the destination site. **Licenses and source** in the extension links to the package, installation instructions and response-list permission requirements. The component uses the reader's current SharePoint permissions; it does not grant access. XFA, PDF scripts, calculations and signatures are not supported.
+
+The local file preview is separate from the Confluence capture and does not enter the Confluence sent-page/update history. An interrupted file send keeps its attempt identity and destination so a lost message cannot silently create a second page. Its review/reset controls are in the file workspace; the Sites view's **Forget all** still applies to remembered sites and Confluence links.
 
 ## Copy a page
 
@@ -135,12 +152,14 @@ This is an independent tool and is not affiliated with Atlassian or Microsoft.
 
 ```powershell
 npm ci
+npm --prefix products/file-to-sharepoint ci
+npm --prefix products/file-to-sharepoint/sharepoint-form ci
 npm run build
 ```
 
 The build is in `dist/sharepoint-helper/`. To try it, open `chrome://extensions`, turn on **Developer mode**, select **Load unpacked**, and choose that folder.
 
 
-## License
+## Licensing and corresponding source
 
-[MIT](LICENSE)
+The combined extension is distributed under GNU AGPL version 3, with the original MIT core notice retained and applicable upstream notices. **Licenses and source** displays the original ONLYOFFICE logo and provides the complete notices, pinned source inventory and corresponding-source download. See [SOURCE-MANIFEST.json](SOURCE-MANIFEST.json) for the release inventory and the packaged build/source instructions.

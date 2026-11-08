@@ -1,10 +1,10 @@
 {
   "name": "confluence-to-sharepoint",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "private": true,
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "type": "module",
-  "description": "Copy the Confluence page you have open into a new or existing SharePoint page, as an unpublished draft",
+  "description": "Import Confluence pages and local documents into editable, unpublished SharePoint drafts",
   "scripts": {
     "build": "node scripts/build.mjs"
   },

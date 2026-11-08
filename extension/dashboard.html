@@ -8,7 +8,7 @@
   <script type="module" src="dashboard.js"></script>
 </head>
 <body>
-  <header class="app-header"><img src="icons/logo.svg" width="36" height="36" alt=""><span>Confluence to SharePoint</span></header>
+  <header class="app-header"><img src="icons/logo.svg" width="36" height="36" alt=""><span>Confluence to SharePoint</span><nav aria-label="Extension views"><span aria-current="page">Sent pages</span><button id="file-import-link" type="button">Import a file</button></nav></header>
   <main>
     <div class="page-heading"><div><h1>Sent pages</h1><p>Find your linked pages and update selected sources as SharePoint drafts.</p></div><button id="refresh" type="button">Refresh</button></div>
     <p id="account-note" class="muted"></p>
@@ -29,6 +29,7 @@
     <p id="empty" class="empty" hidden>No sent pages yet. Send a Confluence page using the extension popup. To recover saved history, open a previously used Confluence site, turn on “Keep in my Confluence account” in Sites, and select Refresh.</p>
     <div id="catalog"></div>
     <nav class="pagination" aria-label="Page list navigation"><button id="previous" type="button">Previous</button><span id="page-count"></span><button id="next" type="button">Next</button></nav>
+    <footer class="app-footer"><a href="licenses.html" target="_blank" rel="noopener noreferrer">Licenses and source</a></footer>
   </main>
   <dialog id="confirmation" aria-labelledby="confirm-title"><form method="dialog"><h2 id="confirm-title">Update selected pages?</h2><p id="confirm-count"></p><p>This replaces the content previously imported from each source, including edits made inside it in SharePoint. Updates remain unpublished drafts for you to review.</p><div class="dialog-actions"><button value="cancel">Cancel</button><button id="confirm" type="button" class="primary">Create draft updates</button></div></form></dialog>
 </body>

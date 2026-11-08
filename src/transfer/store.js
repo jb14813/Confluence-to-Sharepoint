@@ -10,7 +10,9 @@ export function createTransferStore({session=globalThis.chrome?.storage?.session
   async function initialize(){
     if(!initialized)initialized=(async()=>{
       if(!session||!indexedDB||!locks)throw fail('storage-unavailable','Chrome capture storage is unavailable. Reopen the extension.');
-      const sessionId=await locks.request(`${databaseName}-session`,async()=>{
+      // All capture databases share this browser-session key, so they must
+      // serialize its initialization under the same lock too.
+      const sessionId=await locks.request(SESSION_KEY,async()=>{
         const existing=(await session.get(SESSION_KEY))[SESSION_KEY];
         if(existing)return existing;
         const id=globalThis.crypto.randomUUID();await session.set({[SESSION_KEY]:id});return id;

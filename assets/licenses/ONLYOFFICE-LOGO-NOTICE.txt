@@ -1,0 +1,17 @@
+Original, unmodified ONLYOFFICE logo.
+Copyright Ascensio System SIA / ONLYOFFICE.
+
+Source repository: https://github.com/ONLYOFFICE/web-apps
+Source revision: 3d7f2370c2a1043d4e7839f5942f096c491923ef (v9.3.0.133)
+Source path: apps/common/main/resources/img/about/logo_s.svg
+Git blob: 04df9911dbb1a8375a883d24d4153a0ae3d261fb
+SHA-256: 1454d2e49a2ad2765b344f89d7349264af90160dd59ad8604a20cd03b02824c9
+
+The graphical asset is retained under the CC BY-SA 4.0 terms recorded in the
+pinned source's ONLYOFFICE copyright notices. The complete license is shipped
+as vendor/CC-BY-SA-4.0.txt. This is the original asset from that pinned source,
+not an asset acquired under a later press-download license.
+
+ONLYOFFICE is a mark of its owner. Displaying its original logo identifies the
+software used for conversion and retains the upstream notice; it does not
+imply sponsorship or endorsement of Confluence to SharePoint.

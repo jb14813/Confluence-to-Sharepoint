@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Confluence to SharePoint",
-  "version": "0.6.2",
-  "description": "Copy the Confluence page you have open into a new or existing SharePoint page as a draft, with its text, tables, links and pictures.",
+  "version": "0.7.0",
+  "description": "Import Confluence pages and local documents into editable SharePoint drafts with pictures, tables and interactive forms.",
   "minimum_chrome_version": "127",
   "permissions": [
     "scripting",
@@ -54,6 +54,12 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none';"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'none'; base-uri 'none';",
+    "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; object-src 'none'; connect-src 'self'"
+  },
+  "sandbox": {
+    "pages": [
+      "src/engine/sandbox.html"
+    ]
   }
 }

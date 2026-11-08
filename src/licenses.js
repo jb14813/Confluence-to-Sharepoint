@@ -1,0 +1,11 @@
+const status=document.getElementById('source-status'),download=document.getElementById('source-download');
+(async()=>{
+ const response=await fetch('SOURCE-MANIFEST.json',{cache:'no-store'});if(!response.ok)throw Error('Source information could not be loaded.');
+ const manifest=await response.json();
+ if(manifest.status!=='verified-corresponding-source'){status.textContent='Development build: corresponding-source verification is in progress. This package is not cleared for public release.';return;}
+ const url=new URL(manifest.sourceArchive?.downloadUrl);
+ const repository=new URL('https://github.com/jb14813/Confluence-to-Sharepoint');
+ if(url.protocol!=='https:'||url.hostname!==repository.hostname||!url.pathname.startsWith(repository.pathname+'/releases/download/')||url.username||url.password)throw Error('The source download reference is invalid.');
+ status.textContent=`Corresponding-source inventory verified for version ${manifest.version}. The download includes the extension source, upstream source archives, pinned build inputs and instructions.`;
+ download.href=url.href;download.hidden=false;
+})().catch(error=>{status.textContent=`Source information unavailable. ${error.message}`;});

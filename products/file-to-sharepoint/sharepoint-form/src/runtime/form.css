@@ -1,0 +1,7 @@
+.file-import-form { --sjs-primary-backcolor: #0078a3; --sjs-primary-backcolor-dark: #005e80; color: #172b3a; background: #fff; border: 1px solid #d3e0e7; border-radius: 8px; padding: 16px; font-family: "Segoe UI", sans-serif; }
+.file-import-form .sd-question { border: 1px solid #d3e0e7; border-radius: 6px; }
+.file-import-form .sd-panel { margin-block: 12px; }
+.file-import-form-submit { color: #fff; background: #0078a3; border: 0; border-radius: 4px; padding: 12px 24px; font: 600 16px "Segoe UI", sans-serif; cursor: pointer; }
+.file-import-form-submit:focus-visible { outline: 3px solid #005e80; outline-offset: 3px; }
+.file-import-form-submit:disabled { opacity: .65; cursor: default; }
+.file-import-form [role="status"] { white-space: pre-wrap; }

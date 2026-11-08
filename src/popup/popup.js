@@ -333,6 +333,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   }
   const on=(id,handler)=>el(id).addEventListener('click',handler);
   on('dashboard-link',()=>act(()=>call('open-dashboard')));
+  on('file-import-link',()=>act(()=>call('open-file-import')));
   on('capture',()=>act(()=>call('capture',{tabId:state.tab.id})));
   on('send-button',()=>act(()=>state.updateInstead?call('send-page',{siteUrl:state.chosen,pagePath:state.updateInstead,mode:'update',windowId:state.tab?.windowId??null})
     :call('send',{siteUrl:state.chosen,windowId:state.tab?.windowId??null})));

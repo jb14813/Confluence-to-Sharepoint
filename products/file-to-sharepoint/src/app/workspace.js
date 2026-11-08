@@ -1,0 +1,125 @@
+import {convertDocument,MAX_DOCUMENT_BYTES} from '../engine/index.js';
+import {adaptDocument} from '../content/index.js';
+import {createTransferStore} from '../../../../src/transfer/store.js';
+import {checkCanvasBlock} from '../../../../src/sharepoint/canvas.js';
+import {createSites,siteKey} from '../../../../src/background/sites.js';
+import {confirmedPageUrl} from '../../../../src/background/checks.js';
+import {createFileTransfer,FLIGHT_KEY} from './transfer.js';
+import {mountForm} from '../../form/portable-form.js';
+import {readProductConfig,loadProductConfig,applyProductConfig} from './product.js';
+const $=id=>document.getElementById(id),store=createTransferStore({databaseName:'file-to-sharepoint-v1'});
+let current=null,busy=false,abort=null,formPreview=null,urls=[],orphaned=null;
+const say=text=>{$('status').textContent=text;};
+const stages={forms:'Checking the interactive form installation…',checking:'Checking the destination…',uploading:'Uploading and verifying pictures…',creating:'Creating and verifying the draft…',complete:'Draft verified. Opening SharePoint…'};
+let transfer;
+function buttons(){
+  const attempted=!!current?.attempt||!!orphaned,blocked=current?.model.warnings?.some(w=>w.blocking);
+  $('send').disabled=busy||!current||attempted||blocked||!$('reviewed').checked||!siteKey($('site').value.trim())||!$('title').value.trim();
+  $('file').disabled=busy||attempted;$('title').disabled=busy||!current||attempted;$('site').disabled=busy||attempted;
+  $('new-file').disabled=busy||attempted;$('reviewed').disabled=busy||!current||attempted||blocked;
+  $('cancel').hidden=!abort;$('check').disabled=busy;$('reset').disabled=busy;
+}
+async function locked(work){
+  return navigator.locks.request('file-to-sharepoint-operation',{ifAvailable:true},async lock=>{
+    if(!lock){say('Another file import window is working. Continue there.');return;}
+    busy=true;buttons();try{return await work();}finally{busy=false;buttons();}
+  });
+}
+function image(file,info){
+  const img=document.createElement('img'),url=URL.createObjectURL(file);urls.push(url);img.src=url;img.alt=info.alt??'';img.style.maxWidth='100%';
+  if(info.displayWidth)img.style.width=`${info.displayWidth}px`;img.style.height='auto';return img;
+}
+async function render(){
+  formPreview?.dispose();formPreview=null;for(const url of urls)URL.revokeObjectURL(url);urls=[];
+  $('paper').replaceChildren();$('notes').replaceChildren();$('reviewed').checked=false;
+  $('document').hidden=!current;$('picker').hidden=!!current;$('form-section').hidden=true;$('form-notice').hidden=true;
+  $('check').hidden=true;$('review-link').hidden=true;$('reset').hidden=true;
+  if(!current){$('title').value='';buttons();return;}
+  const {model,attempt}=current;
+  $('filename').textContent=model.sourceName;$('title').value=model.title;
+  $('document-stats').textContent=`${model.assets.length} pictures · ${model.stats.tables} tables · editable page content`;
+  for(const block of model.blocks){
+    checkCanvasBlock(block);
+    if(block.type==='text'){
+      const template=document.createElement('template');template.innerHTML=block.html;
+      for(const slot of template.content.querySelectorAll('.c2sPicture')) {
+        const picture=block.pictures[Number(slot.dataset.picture)],file=await store.picture(picture.assetId);
+        if(!file)throw Error('A local preview image is missing. Choose the source file again.');
+        slot.replaceChildren(image(file,picture));
+      }
+      const section=document.createElement('section');section.className='preview-block';section.append(template.content);$('paper').append(section);
+    }else if(block.type==='image'){
+      const file=await store.picture(block.assetId);if(file)$('paper').append(image(file,block));
+    }
+  }
+  const notes=[...(model.warnings??[]),...(attempt?.result?.notes??[]).map(message=>({message}))];$('notes').hidden=!notes.length;
+  if(notes.length){const heading=document.createElement('h3');heading.textContent='Conversion notes';$('notes').append(heading);}
+  for(const note of notes){const p=document.createElement('p');p.textContent=note.message;if(note.blocking)p.className='blocking';$('notes').append(p);}
+  const definition=model.fileReview?.formDefinition;
+  if(definition){$('form-section').hidden=false;$('form-notice').hidden=false;formPreview=mountForm($('form-preview'),definition,{submit:async()=>{throw Error('This is a local preview. Responses are submitted from the SharePoint form.');}});}
+  if(attempt){
+    $('reset').hidden=false;$('check').hidden=attempt.status==='complete';
+    $('reset').textContent=attempt.status==='complete'?'Import another file':'I reviewed SharePoint; start another file';
+    $('review-link').hidden=false;$('review-link').href=attempt.siteUrl;$('site').value=attempt.siteUrl;
+    if(attempt.status==='complete'){
+      $('review-link').href=confirmedPageUrl(attempt.result,attempt);say('Draft created and verified. Review it in SharePoint before publishing.');
+    }else say('An earlier send needs a status check. Its identity is retained to prevent a duplicate draft.');
+  }
+  buttons();
+}
+async function restore(){
+  current=await store.load();
+  const flight=(await chrome.storage.local.get(FLIGHT_KEY))[FLIGHT_KEY];
+  // Chrome updates/restarts clear session storage. Keep the durable destination
+  // reference so losing the local preview cannot silently enable a duplicate.
+  orphaned=flight&&!current?.attempt?flight:null;
+  await render();
+  if(orphaned){$('picker').hidden=true;$('reset').hidden=false;$('check').hidden=true;$('review-link').href=flight.siteUrl;$('review-link').hidden=false;say('A send was interrupted across a browser restart. Review this SharePoint site before importing again.');buttons();}
+}
+async function choose(file){
+  if(!file)return;
+  await locked(async()=>{
+    if((await store.load())?.attempt||(await chrome.storage.local.get(FLIGHT_KEY))[FLIGHT_KEY])throw Error('Review the previous send before choosing another file.');
+    if(file.size>MAX_DOCUMENT_BYTES)throw Error('Choose a document up to 50 MiB.');
+    abort=new AbortController();buttons();say('Reconstructing the document locally…');
+    try{
+      const bytes=new Uint8Array(await file.arrayBuffer()),result=await convertDocument({name:file.name,bytes},{signal:abort.signal});
+      say('Preparing editable content and form controls…');
+      const adapted=await adaptDocument({name:file.name,bytes,result});
+      if(abort.signal.aborted)throw new DOMException('Conversion cancelled.','AbortError');
+      const model={...adapted.model,fileReview:{formDefinition:adapted.formDefinition,preview:adapted.preview}};
+      await store.save(model,adapted.pictures);current=await store.load();await render();
+      say(model.warnings.some(w=>w.blocking)?'This document includes content that needs adaptation. See conversion notes.':'Review the content and conversion notes, then choose a destination.');
+    }finally{abort=null;buttons();}
+  });
+}
+function report(error){say(error.name==='AbortError'?'Conversion cancelled.':error.message??'The operation stopped. Review the destination before sending again.');}
+$('file').addEventListener('change',event=>choose(event.target.files[0]).catch(report));
+$('picker').addEventListener('dragover',event=>{event.preventDefault();});
+$('picker').addEventListener('drop',event=>{event.preventDefault();if(!busy&&!current)choose(event.dataTransfer.files[0]).catch(report);});
+$('cancel').addEventListener('click',()=>abort?.abort());
+for(const id of ['title','site','reviewed'])$(id).addEventListener('input',buttons);
+$('new-file').addEventListener('click',()=>locked(async()=>{await store.clear();current=null;await render();$('file').value='';say('Choose a file to begin.');}).catch(report));
+$('reset').addEventListener('click',()=>locked(async()=>{await store.clear();await chrome.storage.local.remove(FLIGHT_KEY);orphaned=null;current=null;await render();$('file').value='';say('Choose a file to begin.');}).catch(report));
+$('send').addEventListener('click',()=>locked(async()=>{
+  current=await store.load();if(!current)throw Error('Choose the source file again.');
+  current.model.title=$('title').value.trim();
+  // Title is local review data. Save only before claiming a send, under the
+  // cross-window operation lock, so no in-flight attempt can be overwritten.
+  if(current.attempt)throw Error('This document was already sent. Review the previous attempt.');
+  const files=new Map();for(const asset of current.model.assets)files.set(asset.id,await store.picture(asset.id));
+  await store.save(current.model,files);
+  try{await transfer.send({model:current.model,siteUrl:siteKey($('site').value.trim()),formDefinition:current.model.fileReview?.formDefinition});}
+  finally{await restore();}
+}).catch(report));
+$('check').addEventListener('click',()=>locked(async()=>{try{await transfer.follow(current.attempt);}finally{await restore();}}).catch(report));
+(async()=>{
+  // The standard package supplies its presentation settings at the combined
+  // entry point. The standalone preview needs no optional-file fetch.
+  const product=location.pathname.endsWith('/file-workspace.html')?await loadProductConfig():readProductConfig();
+  if(location.pathname.endsWith('/file-workspace.html')&&!product.isCombined)throw Error('The standard extension file-workspace configuration is missing.');
+  transfer=createFileTransfer({store,destinationScript:product.destinationScript,onProgress:state=>say(stages[state.stage]??'Preparing the SharePoint draft…')});
+  applyProductConfig(document,product,{version:chrome.runtime.getManifest().version});
+  for(const site of await createSites().list()){const option=document.createElement('option');option.value=site.url;option.textContent=site.title;$('sites').append(option);}
+  await restore();
+})().catch(report);

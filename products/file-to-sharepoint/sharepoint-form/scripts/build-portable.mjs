@@ -1,0 +1,11 @@
+import { build } from 'esbuild';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+await mkdir('dist', { recursive: true });
+await build({ entryPoints: ['src/runtime/index.ts'], bundle: true, outfile: 'dist/portable-form.js', format: 'esm', platform: 'browser', target: 'chrome120', minify: true, legalComments: 'linked', metafile: true }).then(async result => writeFile('dist/portable-meta.json', JSON.stringify(result.metafile, null, 2)));
+await build({ entryPoints: ['src/runtime/sharepoint.ts'], bundle: true, outfile: 'dist/sharepoint-adapter.js', format: 'esm', platform: 'browser', target: 'chrome120', minify: true, legalComments: 'linked' });
+const css = await readFile('node_modules/survey-core/survey-core.min.css', 'utf8');
+if (/url\(\s*["']?(?:https?:)?\/\//i.test(css)) throw new Error('Remote CSS dependency is not allowed');
+await writeFile('dist/portable-form.css', `${css}\n${await readFile('src/runtime/form.css', 'utf8')}`);
+await mkdir('.artifacts', { recursive: true });
+await writeFile('.artifacts/package.json', '{"type":"module"}');
+await build({ entryPoints: ['src/runtime/index.ts', 'src/runtime/sharepoint.ts'], bundle: true, outdir: '.artifacts', format: 'esm', platform: 'browser', target: 'chrome120', packages: 'external' });

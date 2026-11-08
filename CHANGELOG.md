@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 - 2026-11-08
+
+- Rebuilt the PDF drawing engine with its upstream Xpdf hashing code to exclude an incompatible older OpenSSL implementation; retained native library and embedded-font notices. File artwork now uses an original document icon.
+
+- **Import local files from the standard extension.** Import a file in the popup and dashboard opens a local review workspace for DOC/DOCX/ODT/RTF/TXT and text-based PDF files, using the same verified SharePoint draft writer.
+- **Supported PDF form fields become interactive SharePoint controls.** Text, multiline, checkbox, dropdown and radio fields use the separately installed form companion and existing SharePoint permissions. No automatic publishing or permission grants.
+- **Preview fidelity and recovery are explicit.** Editable PDF text, original raster bytes, nontext shapes, reflow notes, unsupported-content/OCR blocking and durable send identities are retained. File captures stay separate from Confluence captures and update history.
+- **Licenses and corresponding source are available from the extension.** The release includes local converter assets, upstream attribution and a source-download inventory. No runtime conversion service or remotely hosted executable code.
+- **Live compatibility fixes.** Custom SharePoint web-part GUID braces are recognized, and long titles cannot produce a filename stem ending in a separator.
+
 ## 0.6.2 - 2026-11-05
 
 - **Later sends reuse a verified picture-upload fallback.** After an import-folder upload returns 404 and the picture is verified in Site Assets, the extension remembers the root fallback for that site, library, folder and signed-in account for 30 minutes. A refused cached root route is cleared and the folder is tried once. Working folders keep their normal upload path; uncertain uploads still require read-back verification.

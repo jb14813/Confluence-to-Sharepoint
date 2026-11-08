@@ -1,0 +1,2 @@
+# Preserve the exact hashed source-build input bytes across checkouts.
+* -text -whitespace

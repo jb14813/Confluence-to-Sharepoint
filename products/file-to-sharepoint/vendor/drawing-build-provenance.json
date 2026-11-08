@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "status": "verified-local-source-build",
+  "source": {
+    "repository": "https://github.com/ONLYOFFICE/core",
+    "commit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+    "archiveFile": "core-d54f0326.tar.gz"
+  },
+  "preferredSourceInputs": [
+    {
+      "file": "build-tools-10118f4c.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/build_tools/tar.gz/10118f4c68e151e4fd8d76804a3ee42db68fe1dc",
+      "bytes": 6729574,
+      "sha256": "ea1010f9ff798c2f15497ba5091c0ade5701e73e054b939d2cd6c8574a5e6e4f",
+      "repository": "https://github.com/ONLYOFFICE/build_tools",
+      "commit": "10118f4c68e151e4fd8d76804a3ee42db68fe1dc",
+      "component": "build_tools",
+      "role": "build-input"
+    },
+    {
+      "file": "harfbuzz-894a1f72.tar.gz",
+      "url": "https://codeload.github.com/harfbuzz/harfbuzz/tar.gz/894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "bytes": 36010701,
+      "sha256": "17eda8a9861d347a6e95cd2b3112301ce90dcc649b0e96623cc89c6ca4180e66",
+      "repository": "https://github.com/harfbuzz/harfbuzz",
+      "commit": "894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "component": "harfbuzz",
+      "role": "source"
+    },
+    {
+      "file": "brotli-a47d7475.tar.gz",
+      "url": "https://codeload.github.com/google/brotli/tar.gz/a47d7475063eb223c87632eed806c0070e70da29",
+      "bytes": 638452,
+      "sha256": "49b657a4321cb00e388863dec8d0558b94ec47100d619b837d570a58bba71379",
+      "repository": "https://github.com/google/brotli",
+      "commit": "a47d7475063eb223c87632eed806c0070e70da29",
+      "component": "brotli",
+      "role": "source"
+    },
+    {
+      "file": "icu-2d029329.tar.gz",
+      "url": "https://codeload.github.com/unicode-org/icu/tar.gz/2d029329c82c7792b985024b2bdab5fc7278fbc8",
+      "bytes": 65925217,
+      "sha256": "b9cf5c172b9e412ff8fd7dae82723ef619367bc30e40979354320d416bab06d2",
+      "repository": "https://github.com/unicode-org/icu",
+      "commit": "2d029329c82c7792b985024b2bdab5fc7278fbc8",
+      "component": "icu",
+      "role": "source"
+    },
+    {
+      "file": "emsdk-f677ef91.tar.gz",
+      "url": "https://codeload.github.com/emscripten-core/emsdk/tar.gz/f677ef915645c09794f0ae88f21d3cba2886459f",
+      "bytes": 100863,
+      "sha256": "bb07091c4a1b35038cf38b65bc98f8684cf239722ea8c6d428bd08adaa147886",
+      "repository": "https://github.com/emscripten-core/emsdk",
+      "commit": "f677ef915645c09794f0ae88f21d3cba2886459f",
+      "component": "emsdk",
+      "role": "build-input"
+    },
+    {
+      "file": "core-d54f0326.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/core/tar.gz/d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "bytes": 221357240,
+      "sha256": "ad8b5adaf49b5ce12705a9cc1eb165f89e791a496ce395f8f0974d8c7d48cd77",
+      "repository": "https://github.com/ONLYOFFICE/core",
+      "commit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+      "component": "core-publisher-release",
+      "role": "source"
+    },
+    {
+      "file": "emscripten-3.1.48-wasm-binaries.tar.xz",
+      "url": "https://storage.googleapis.com/webassembly/emscripten-releases-builds/linux/694434b6d47c5f6eff2c8fbd9eeb016c977ae9dc/wasm-binaries.tar.xz",
+      "bytes": 265441656,
+      "sha256": "689fffcb60f93a60a7bb52cc205ead43ab31f252753cfef39ae2074f6a442634",
+      "role": "pinned-build-tool-binary",
+      "name": "emscripten-3.1.48-wasm-binaries.tar.xz"
+    },
+    {
+      "file": "node-v16.20.0-linux-x64.tar.xz",
+      "url": "https://storage.googleapis.com/webassembly/emscripten-releases-builds/deps/node-v16.20.0-linux-x64.tar.xz",
+      "bytes": 22559772,
+      "sha256": "dff21020b555cc165a1ac36da7d4f6c810b35409c94e00afc51d5d370aae47ae",
+      "role": "pinned-build-tool-binary",
+      "name": "node-v16.20.0-linux-x64.tar.xz"
+    }
+  ],
+  "build": {
+    "host": "Ubuntu 24.04.4 LTS Linux x86_64",
+    "python": "3.12.3",
+    "emsdkCommit": "f677ef915645c09794f0ae88f21d3cba2886459f",
+    "emscripten": "3.1.48",
+    "emscriptenReleaseHash": "694434b6d47c5f6eff2c8fbd9eeb016c977ae9dc",
+    "clang": "18.0.0; LLVM a54545ba6514802178cf7cf1c1dd9f7efbf3cde7",
+    "node": "16.20.0",
+    "command": "python3 make.py ../../DesktopEditor/graphics/pro/js/drawingfile-no-openssl.json",
+    "existingHashBranch": "PdfFile/lib/xpdf/Decrypt.cc: SHA384=sha384; SHA512=sha512",
+    "changes": [
+      "Remove USE_OPENSSL_HASH to select the existing upstream Xpdf SHA-384/SHA-512 implementation.",
+      "Remove OpenSSL include paths and before/after OpenSSL source touches; no OpenSSL source/header/archive is present in the build tree.",
+      "Build WASM only; retain readable generated bootstrap and original legal header instead of WHITESPACE_ONLY Closure formatting."
+    ],
+    "inputs": [
+      {
+        "file": "scripts/drawing-runtime-inputs/rebuild.sh",
+        "bytes": 2190,
+        "sha256": "98a7388b4bca0acd1294935057ca18ff8c00aaef62485777feab5acec171e276"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/patch-drawing.py",
+        "bytes": 1353,
+        "sha256": "6f2f71da8d7b2200b979ea67d242000786329980af3a5ab95c64fc472d961eef"
+      }
+    ],
+    "compilerFiles": [
+      {
+        "file": "upstream/bin/clang",
+        "sha256": "7dd1e3ce6fcc7854d81028bdbbe53b8fde61dbc6a512e8fb1f178b753e1e313d"
+      },
+      {
+        "file": "upstream/bin/wasm-ld",
+        "sha256": "c3d420a01bb67e950bfd37959e844870a9194d0c31dce20d081a77f011bda4d3"
+      },
+      {
+        "file": "upstream/emscripten/emcc.py",
+        "sha256": "9aee722e959a235121c010a04eece0932525636bb72335997f6dbf7bdb9d7fa5"
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "file": "drawingfile.js",
+      "bytes": 131210,
+      "sha256": "c1421f8310eb9267818c6fd81f410b7898808fac305b604ac1c41254eb753aac"
+    },
+    {
+      "file": "drawingfile.wasm",
+      "bytes": 10053147,
+      "sha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85"
+    }
+  ],
+  "localPreferredSourceMaterials": [
+    {
+      "path": "provenance/drawing/drawingfile-no-openssl.json",
+      "bytes": 27179,
+      "sha256": "d08141b3b1be5bafab732f9886a205d456ac18992478b988680d6e02e1c9a955"
+    },
+    {
+      "path": "provenance/drawing/before-no-openssl.py",
+      "bytes": 2834,
+      "sha256": "aee7cfb09bd18bed0c24aaf33b299f6aad9567dc1f87780507247529e4f90162"
+    },
+    {
+      "path": "provenance/drawing/after-no-openssl.py",
+      "bytes": 1255,
+      "sha256": "246fccf71a8edde7f4103cbb91e2562549b816655929419d6f900d542dead2fd"
+    }
+  ],
+  "validation": {
+    "compile": "passed",
+    "opensslImplementationInputs": false,
+    "opensslImplementationSourceDirectoryPresent": false,
+    "mv3": "16 actual strict offline MV3 engine/content/vendor tests passed, including PDF original form keys/options/geometry, editable textboxes, native nontext decorations, unchanged raster bytes and abort/error/isolation behavior.",
+    "freshSourceReproduction": "Both outputs reproduced exactly from a fresh source directory using the recorded offline compiler/source inputs and durable rebuild recipe.",
+    "filteredPreferredSourceReproduction": "Both outputs reproduced exactly from core-d54f0326.source-only.tar.gz using the retained source, pinned compiler inputs and durable build recipe."
+  }
+}

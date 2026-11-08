@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "https://github.com/ONLYOFFICE/sdkjs",
+    "commit": "679a6d70ccb5487924f034cea089ff30daeeb7fd",
+    "tag": "v9.3.0.133",
+    "archiveUrl": "https://codeload.github.com/ONLYOFFICE/sdkjs/tar.gz/679a6d70ccb5487924f034cea089ff30daeeb7fd",
+    "archiveFile": "sdkjs-679a6d70.tar.gz",
+    "archiveSha256": "fbc648d47049c621c14a58c22f02b29d5f4fd52bc1383906b8e10972a68db28a",
+    "archiveBytes": 39757185
+  },
+  "build": {
+    "platform": "win32-x64",
+    "node": "v26.12.1",
+    "npm": "11.20.0",
+    "compiler": "google-closure-compiler@20240317.0.0 (native Windows compiler)",
+    "compilerExeSha256": "98d66f1f8f846056068e8899c76f01b56ab1bd13f7e6acca8008eaa880ec3818",
+    "grunt": "1.6.1",
+    "command": "node node_modules/grunt-cli/bin/grunt compile-word --map --level=SIMPLE",
+    "workingDirectory": "sdkjs source/build",
+    "environment": {
+      "PRODUCT_VERSION": "9.3.0.133",
+      "BUILD_NUMBER": "1",
+      "APP_COPYRIGHT": "Copyright (C) Ascensio System SIA 2012-2026. All rights reserved",
+      "PUBLISHER_URL": "https://www.onlyoffice.com/",
+      "COMPANY_NAME": "onlyoffice"
+    },
+    "inputs": [
+      {
+        "file": "scripts/word-sdk-inputs/package.json",
+        "sha256": "3110855c96acf22196853d4ab3541328fefc52c466375d62e1f7feadbc58a683"
+      },
+      {
+        "file": "scripts/word-sdk-inputs/npm-shrinkwrap.json",
+        "sha256": "b9113ff9f8d57ead136e32e69faf161506b529afc15c8d9b6ea4fee5dfb32450"
+      },
+      {
+        "file": "scripts/word-sdk-inputs/rebuild-sdk.ps1",
+        "sha256": "59aedc6e6e8575f7333f0edea98bfc5aebc3ee8c1ed3af9d63c1f0bafaa752e9"
+      },
+      {
+        "file": "scripts/word-sdk-inputs/extract-source.py",
+        "sha256": "1f43159fa82cea2d2c49d4af6e4a75f9c6350c007dfae67eb93d7e4e9a2cd336"
+      }
+    ],
+    "changes": "Only dependency versions were pinned and grunt-cli added; no SDK JavaScript source or Grunt compiler logic changed.",
+    "upstreamLock": "SDK archive already contains npm-shrinkwrap.json v1 with compiler20240317.0.0 and Grunt1.6.1; local v3 shrinkwrap explicitly covers the pinned CLI and all transitive dependency integrity hashes."
+  },
+  "outputs": [
+    {
+      "file": "office/sdkjs/word/sdk-all-min.js",
+      "bytes": 1974295,
+      "sha256": "9cc8575a2cf1d632d50d1e0d6ec892d3844131d140fa2389f15077e49b030ef1"
+    },
+    {
+      "file": "office/sdkjs/word/sdk-all.js",
+      "bytes": 14329860,
+      "sha256": "d31721c91813f9f776fa6da10fe1e146d8c48fdeb5793e4213a47e2db9070282"
+    }
+  ],
+  "validation": {
+    "compile": "passed",
+    "mv3": "16 production strict offline MV3 engine/content/vendor tests passed with official converter, locally rebuilt compatible drawing runtime and unchanged publisher-linked font runtime.",
+    "advancedRejected": "ADVANCED compilation succeeded but private WordControl/ShapeToImageConverter names changed, hanging bootstrap; SIMPLE is the validated upstream-supported level.",
+    "freshSourceReproduction": "Both outputs reproduced exactly from a new source directory using supplied shrinkwrap and rebuild script.",
+    "filteredPreferredSourceReproduction": "Both outputs reproduced exactly from sdkjs-679a6d70.source-only.tar.gz using the retained source, pinned build inputs and Unicode-safe extraction."
+  },
+  "status": "verified-local-source-build"
+}

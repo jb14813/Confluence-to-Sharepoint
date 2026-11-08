@@ -1,0 +1,2 @@
+# Exact build-input hashes must survive Windows/Linux checkout.
+* -text -whitespace

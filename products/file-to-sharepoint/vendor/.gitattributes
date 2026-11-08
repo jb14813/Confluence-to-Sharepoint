@@ -1,0 +1,2 @@
+# Preserve pinned upstream bytes, including upstream whitespace.
+* -text -whitespace

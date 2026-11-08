@@ -1,0 +1,82 @@
+{
+  "sha": "3fb46d931fca96487712b0cfff60df79a1f48897",
+  "node_id": "C_kwDOAjiFW9oAKDNmYjQ2ZDkzMWZjYTk2NDg3NzEyYjBjZmZmNjBkZjc5YTFmNDg4OTc",
+  "commit": {
+    "author": {
+      "name": "Caol\u00e1n McNamara",
+      "email": "caolanm@gmail.com",
+      "date": "2026-11-05T07:33:49Z"
+    },
+    "committer": {
+      "name": "Caol\u00e1n McNamara",
+      "email": "caolanm@gmail.com",
+      "date": "2026-11-05T07:33:49Z"
+    },
+    "message": "treat the hyphenation dictionaries as installed data, not untrusted input\n\nThe word being hyphenated is the one untrusted input. A hyph_*.dic\ncomes from a distribution package or an extension the user chose to\ninstall, and an extension can already run code as the user, so a bug\nthat needs a crafted dictionary is fixed as an ordinary bug with no\nadvisory and no CVE.\n\nAlso one report per root cause, no separate credit for variants, and\nno advisory for code that is in no release.",
+    "tree": {
+      "sha": "c43178e6a132ecda5d9e1ade0b77d50e6457bb21",
+      "url": "https://api.github.com/repos/hunspell/hyphen/git/trees/c43178e6a132ecda5d9e1ade0b77d50e6457bb21"
+    },
+    "url": "https://api.github.com/repos/hunspell/hyphen/git/commits/3fb46d931fca96487712b0cfff60df79a1f48897",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "url": "https://api.github.com/repos/hunspell/hyphen/commits/3fb46d931fca96487712b0cfff60df79a1f48897",
+  "html_url": "https://github.com/hunspell/hyphen/commit/3fb46d931fca96487712b0cfff60df79a1f48897",
+  "comments_url": "https://api.github.com/repos/hunspell/hyphen/commits/3fb46d931fca96487712b0cfff60df79a1f48897/comments",
+  "author": {
+    "login": "caolanm",
+    "id": 833656,
+    "node_id": "MDQ6VXNlcjgzMzY1Ng==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/833656?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/caolanm",
+    "html_url": "https://github.com/caolanm",
+    "followers_url": "https://api.github.com/users/caolanm/followers",
+    "following_url": "https://api.github.com/users/caolanm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/caolanm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/caolanm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/caolanm/subscriptions",
+    "organizations_url": "https://api.github.com/users/caolanm/orgs",
+    "repos_url": "https://api.github.com/users/caolanm/repos",
+    "events_url": "https://api.github.com/users/caolanm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/caolanm/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "caolanm",
+    "id": 833656,
+    "node_id": "MDQ6VXNlcjgzMzY1Ng==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/833656?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/caolanm",
+    "html_url": "https://github.com/caolanm",
+    "followers_url": "https://api.github.com/users/caolanm/followers",
+    "following_url": "https://api.github.com/users/caolanm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/caolanm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/caolanm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/caolanm/subscriptions",
+    "organizations_url": "https://api.github.com/users/caolanm/orgs",
+    "repos_url": "https://api.github.com/users/caolanm/repos",
+    "events_url": "https://api.github.com/users/caolanm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/caolanm/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "53820b5d49c64a6e9b8249fcc26d0eb2ed818cbe",
+      "url": "https://api.github.com/repos/hunspell/hyphen/commits/53820b5d49c64a6e9b8249fcc26d0eb2ed818cbe",
+      "html_url": "https://github.com/hunspell/hyphen/commit/53820b5d49c64a6e9b8249fcc26d0eb2ed818cbe"
+    }
+  ]
+}

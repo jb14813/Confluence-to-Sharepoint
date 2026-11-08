@@ -9,6 +9,9 @@ const IMAGE_PART = 'd1d91016-032f-456d-98a4-721247c305e8';
 // SharePoint's Divider web part, a line across its column, with the data its editor stores for one it adds;
 // its text part keeps no <hr> once edited.
 const DIVIDER_PART = '2161a1c6-db61-4731-b97c-3cdb303f7cbb';
+// File to SharePoint's installed SPFx form renderer. Definitions are immutable
+// records in the current web; canvas data contains references, never scripts.
+const FORM_PART = 'f104fa11-c9e8-43d6-8c5a-3f7b70f31ab1';
 const dividerData = instanceId => ({id:DIVIDER_PART,instanceId,title:'Divider',description:'Add a line between web parts to make the page easier to read.',audiences:[],hideOn:{mobile:false},
   serverProcessedContent:{htmlStrings:{},searchablePlainTexts:{},imageSources:{},links:{}},dataVersion:'1.2',properties:{minimumLayoutWidth:1,length:100,weight:1},containsDynamicDataSource:false});
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -96,7 +99,22 @@ function checkStyle(value,tag) {
   for (const declaration of value.split(';')) {
     if (!declaration.trim()) continue;
     const match=/^\s*([a-z-]+)\s*:\s*(.*?)\s*$/i.exec(declaration);
-    if (!match || !Object.hasOwn(rules,match[1].toLowerCase()) || !rules[match[1].toLowerCase()].test(match[2])) {
+    const property=match?.[1].toLowerCase(),v=match?.[2];
+    if(property&&/^border(?:-(?:top|right|bottom|left))?$/.test(property)) {
+      const border=/^(\d+(?:\.\d+)?)(px|pt) (solid|double|dashed|dotted) (.+)$/i.exec(v);
+      if(!['table','td','th'].includes(tag)||!border||Number(border[1])>(border[2].toLowerCase()==='pt'?12:16)||!color.test(border[4])) fail('unsafe-content','Unsupported table border.');
+      continue;
+    }
+    if(property==='border-collapse') {
+      if(tag!=='table'||v!=='collapse') fail('unsafe-content','Unsupported table formatting.');
+      continue;
+    }
+    if(property==='padding') {
+      const padding=/^(\d+(?:\.\d+)?)(px|pt)$/i.exec(v);
+      if(!['td','th'].includes(tag)||!padding||Number(padding[1])>(padding[2].toLowerCase()==='pt'?72:96)) fail('unsafe-content','Unsupported table padding.');
+      continue;
+    }
+    if (!match || !Object.hasOwn(rules,property) || !rules[property].test(v)) {
       fail('unsafe-content','Unsupported inline formatting was found.');
     }
     if(match[1].toLowerCase()==='table-layout'&&tag!=='table'||
@@ -263,6 +281,12 @@ export function checkCanvasBlock(block) {
   checkSection(block?.section);
   if(block?.type==='text') { checkPictures(block,safeHtml(block.html).marked); return; }
   if(block?.type==='divider') { if(Object.keys(block).some(key=>!['id','type','section'].includes(key))) fail('invalid-model','A divider holds nothing but its place.'); return; }
+  if(block?.type==='form') {
+    if(Object.keys(block).some(key=>!['id','type','section','formId','definitionListId','responseListId','fieldCount'].includes(key))||
+       !/^[a-f0-9]{64}$/.test(block.formId??'')||!guid(block.definitionListId)||!guid(block.responseListId)||same(block.definitionListId,block.responseListId)||
+       !Number.isInteger(block.fieldCount)||block.fieldCount<1||block.fieldCount>500) fail('invalid-model','A form requires verified local list references and a bounded field count.');
+    return;
+  }
   if(block?.type!=='image'||![block.caption??'',block.alt??''].every(v=>typeof v==='string'&&v.length<=100_000&&!badControl.test(v))||
      (block.widthRatio!==undefined&&(!Number.isFinite(block.widthRatio)||block.widthRatio<=0||block.widthRatio>1))||
      (block.displayWidth!==undefined&&(!Number.isInteger(block.displayWidth)||block.displayWidth<1||block.displayWidth>100_000))||!pictureLink(block.link)) fail('invalid-model','Image references, captions, alternative text, links, or proportional widths are invalid.');
@@ -274,9 +298,9 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
   if(!model||typeof model.title!=='string'||!model.title.trim()||model.title.length>255||badControl.test(model.title)||
      !Array.isArray(model.blocks)||!model.blocks.length||model.blocks.length>MAX_BLOCKS+(headed===true?1:0)||typeof idFactory!=='function') fail('invalid-model','A titled document with 1–2000 ordered text, image or divider blocks is required.');
   const blockIds=new Set(),expanded=[];
-  let textCount=0,imageCount=0,dividerCount=0,totalHtml=0;
+  let textCount=0,imageCount=0,dividerCount=0,formCount=0,totalHtml=0;
   for(const block of model.blocks) {
-    if(!block||!['text','image','divider'].includes(block.type)||typeof block.id!=='string'||!block.id||block.id.length>200||blockIds.has(block.id)) fail('invalid-model','Each ordered text, image or divider block requires a unique source identifier.');
+    if(!block||!['text','image','divider','form'].includes(block.type)||typeof block.id!=='string'||!block.id||block.id.length>200||blockIds.has(block.id)) fail('invalid-model','Each ordered block requires a unique source identifier.');
     blockIds.add(block.id);
     checkSection(block.section);
     if(block.type==='text') {
@@ -285,6 +309,8 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     } else if(block.type==='divider') {
       checkCanvasBlock(block);
       expanded.push({type:'divider',section:block.section});dividerCount++;
+    } else if(block.type==='form') {
+      checkCanvasBlock(block);expanded.push({type:'form',block,section:block.section});formCount++;
     } else {
       if(typeof block.assetId!=='string'||!HASH.test(block.assetId)||
          ![block.caption??'',block.alt??''].every(v=>typeof v==='string'&&v.length<=100_000&&!badControl.test(v))||
@@ -310,7 +336,7 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     zones.push({key,factors:entry.section?entry.section.factors:[12],entries:[entry]});
   }
   const uploaded=receiptMap(model,assetReceipts,site);
-  const forbiddenIds=new Set([...blockIds,...[site.siteId,site.webId,IMAGE_PART,DIVIDER_PART],...[...uploaded.values()].flatMap(r=>[r.listId,r.uniqueId])].map(s=>s.toLowerCase()));
+  const forbiddenIds=new Set([...blockIds,...[site.siteId,site.webId,IMAGE_PART,DIVIDER_PART,FORM_PART],...model.blocks.filter(b=>b.type==='form').flatMap(b=>[b.definitionListId,b.responseListId]),...[...uploaded.values()].flatMap(r=>[r.listId,r.uniqueId])].map(s=>s.toLowerCase()));
   function freshId() {
     const id=idFactory();
     if(!guid(id)||forbiddenIds.has(id.toLowerCase())) fail('invalid-id','Every new canvas section/control requires a fresh, distinct UUID.');
@@ -343,6 +369,11 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
       return {...base,webPartId:DIVIDER_PART,reservedWidth:Math.round(SHAREPOINT_COLUMN_WIDTH*factor/12),reservedHeight:1,webPartData:dividerData(id)};
     }
     const block=entry.block;
+    if(entry.type==='form') return {...base,webPartId:FORM_PART,reservedWidth:Math.round(SHAREPOINT_COLUMN_WIDTH*factor/12),reservedHeight:Math.min(4000,160+block.fieldCount*80),webPartData:{
+      id:FORM_PART,instanceId:id,title:'Imported form',description:'Fill and submit the imported document form.',audiences:[],
+      serverProcessedContent:{htmlStrings:{},searchablePlainTexts:{},imageSources:{},links:{}},dataVersion:'1.0',
+      properties:{formId:block.formId,definitionListId:block.definitionListId.toLowerCase(),responseListId:block.responseListId.toLowerCase()},containsDynamicDataSource:false
+    }};
     const r=uploaded.get(block.assetId.toLowerCase()), ratio=block.widthRatio??1;
     const imageSource={siteid:site.siteId,webid:site.webId,listid:r.listId.toLowerCase(),uniqueid:r.uniqueId.toLowerCase(),width:String(r.width),height:String(r.height)};
     // A picture shown narrower than its file is resized the way SharePoint's
@@ -367,5 +398,5 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
   controls.push({controlType:0,pageSettingsSlice:{isDefaultDescription:true,isDefaultThumbnail:true,rtePageSettings:{contentVersion:5}}});
   const warnings=[];
   if(imageCount) warnings.push({code:'native-image-layout-unverified',message:'Images retain natural aspect ratios and proportional reserved-size hints. Native Image version 1.13 and final responsive widths require review in this SharePoint tenant.'});
-  return {CanvasContent1:JSON.stringify(controls),controlCount:textCount+imageCount+dividerCount,textCount,imageCount,dividerCount,warnings};
+  return {CanvasContent1:JSON.stringify(controls),controlCount:textCount+imageCount+dividerCount+formCount,textCount,imageCount,dividerCount,...(formCount?{formCount}:{}),warnings};
 }

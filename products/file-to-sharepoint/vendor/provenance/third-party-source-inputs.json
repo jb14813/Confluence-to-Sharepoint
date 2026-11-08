@@ -1,0 +1,531 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Additional complete preferred sources/data for runtime libraries in the combined AGPL-3.0-only distribution; retained permissive component licenses are not replaced.",
+  "preferredSourceInputs": [
+    {
+      "name": "CLDR release48 preferred XML/source/build files",
+      "file": "cldr-acd6d88a.tar.gz",
+      "url": "https://codeload.github.com/unicode-org/cldr/tar.gz/acd6d88ae493633240e19a87a721076a8a75c310",
+      "bytes": 66227948,
+      "sha256": "25dd343d28beb408aca36b8afa33255f15b898379ace68af37d6911ddea8b06e",
+      "role": "source",
+      "repository": "https://github.com/unicode-org/cldr",
+      "commit": "acd6d88ae493633240e19a87a721076a8a75c310",
+      "license": "Unicode-3.0"
+    },
+    {
+      "file": "cldr-annotations-derived-full-48.0.0.tgz",
+      "url": "https://registry.npmjs.org/cldr-annotations-derived-full/-/cldr-annotations-derived-full-48.0.0.tgz",
+      "bytes": 4233628,
+      "sha256": "64f0bfd89ded2edd7a7de8adf416392482b951d3c60a146f62649fe02d8ef290",
+      "version": "48.0.0",
+      "integrity": "sha512-D8CmZ5xK6qvpBo+2pRlthZNLkIyQiQbiZ72SLiUWTJG/Al/PkD6h7uHs1mLssKnIpYWpR0VAqg44xtWiWa1T2A==",
+      "name": "cldr-annotations-derived-full 48.0.0 published source/data",
+      "role": "source",
+      "package": "cldr-annotations-derived-full",
+      "license": "Unicode-3.0",
+      "commit": "4d06be52b51bb2f75688d0abe55c52a66afed790",
+      "repository": "git://github.com/unicode-cldr/cldr-json.git"
+    },
+    {
+      "file": "cldr-annotations-full-48.0.0.tgz",
+      "url": "https://registry.npmjs.org/cldr-annotations-full/-/cldr-annotations-full-48.0.0.tgz",
+      "bytes": 6538012,
+      "sha256": "6ada74c15f05e8007fae6bc311e044a94729b1e1df4ab4873f53cf77b723e487",
+      "version": "48.0.0",
+      "integrity": "sha512-7lQjJ3wu2IDz0ye5tXHiaIeDKcdM6/SgZwXO6vTu+A3NJ1SsKjKDF0kzghl3JgzoDP5ncxUKHTyMEKRIUTO5MQ==",
+      "name": "cldr-annotations-full 48.0.0 published source/data",
+      "role": "source",
+      "package": "cldr-annotations-full",
+      "license": "Unicode-3.0",
+      "commit": "4d06be52b51bb2f75688d0abe55c52a66afed790",
+      "repository": "git://github.com/unicode-cldr/cldr-json.git"
+    },
+    {
+      "file": "cldr-core-48.0.0.tgz",
+      "url": "https://registry.npmjs.org/cldr-core/-/cldr-core-48.0.0.tgz",
+      "bytes": 205069,
+      "sha256": "3b739a175e47e50905050a34612584fd5590c9352b11f36e3498eacff1c9aa94",
+      "version": "48.0.0",
+      "integrity": "sha512-iQnK68eOjEsHEOwCvi2CI7xbjcVlCdaSNTQrkwCgEMnyZUbHCgF0GPw2CXi0D2IGz+9Pj80cmcWzRFcF6zdrYQ==",
+      "name": "cldr-core 48.0.0 published source/data",
+      "role": "source",
+      "package": "cldr-core",
+      "license": "Unicode-3.0",
+      "commit": "4d06be52b51bb2f75688d0abe55c52a66afed790",
+      "repository": "git://github.com/unicode-cldr/cldr-json.git"
+    },
+    {
+      "file": "cldr-localenames-full-48.0.0.tgz",
+      "url": "https://registry.npmjs.org/cldr-localenames-full/-/cldr-localenames-full-48.0.0.tgz",
+      "bytes": 1959011,
+      "sha256": "b79db910fe2ba45ef20ca2f34ee5c269920a232a43e9af47676b79dfa6c03ac7",
+      "version": "48.0.0",
+      "integrity": "sha512-H6ZG0+1rjwsg7gqFeIAa2TTab9fWA7/b7U0ovxA2YJSI5tGumyM5sVchY5f/q0kn/9AtseGKwrTb9UDC4xmghw==",
+      "name": "cldr-localenames-full 48.0.0 published source/data",
+      "role": "source",
+      "package": "cldr-localenames-full",
+      "license": "Unicode-3.0",
+      "commit": "4d06be52b51bb2f75688d0abe55c52a66afed790",
+      "repository": "git://github.com/unicode-cldr/cldr-json.git"
+    },
+    {
+      "file": "cldr-misc-full-48.0.0.tgz",
+      "url": "https://registry.npmjs.org/cldr-misc-full/-/cldr-misc-full-48.0.0.tgz",
+      "bytes": 586623,
+      "sha256": "c72d7aef0022206f0c65bbad9fb3d5524078c89066febb397d94cca9e2983176",
+      "version": "48.0.0",
+      "integrity": "sha512-Bg+iNOD4FyhNxqiEr3a8JbPEH25Ob/f2KwU3SbH3VpAND3DYFlDa/eXU588H5djP+YlyHj4y+joBrUUKBXq7VA==",
+      "name": "cldr-misc-full 48.0.0 published source/data",
+      "role": "source",
+      "package": "cldr-misc-full",
+      "license": "Unicode-3.0",
+      "commit": "4d06be52b51bb2f75688d0abe55c52a66afed790",
+      "repository": "git://github.com/unicode-cldr/cldr-json.git"
+    },
+    {
+      "name": "Emojibase 17.0.0 preferred generator/source files",
+      "file": "emojibase-a5fc630a.tar.gz",
+      "url": "https://codeload.github.com/milesj/emojibase/tar.gz/a5fc630a91ca42cddf3f4a66492965600fd3bce8",
+      "bytes": 10956321,
+      "sha256": "59ddd47f41d401b1cab56d74cfb8726be65ca61e15a395c2ec44455f4c0b84b0",
+      "role": "source",
+      "repository": "https://github.com/milesj/emojibase",
+      "commit": "a5fc630a91ca42cddf3f4a66492965600fd3bce8",
+      "license": "MIT; underlying Unicode/CLDR data retains Unicode-3.0"
+    },
+    {
+      "file": "emojibase-data-17.0.0.tgz",
+      "url": "https://registry.npmjs.org/emojibase-data/-/emojibase-data-17.0.0.tgz",
+      "bytes": 6711091,
+      "sha256": "d01d0e2ca4e22cb402679532155342c71e2e871f25c32223c013b8b166ebdf5a",
+      "version": "17.0.0",
+      "integrity": "sha512-Yvgb5AWoHViHV/gq1qr5ZAarcBip+B27/ZLRsUJkbgAEaLlZ/fof9g882LTpmEpyhBNEC0m2SEmItljHsTygjA==",
+      "name": "emojibase-data 17.0.0 published source/data",
+      "role": "source",
+      "package": "emojibase-data",
+      "license": "MIT",
+      "commit": "a5fc630a91ca42cddf3f4a66492965600fd3bce8",
+      "repository": "git+ssh://git@github.com/milesj/emojibase.git"
+    },
+    {
+      "file": "immediate-3.0.6.tgz",
+      "url": "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz",
+      "bytes": 4905,
+      "sha256": "98c792f39650b00818c05dcc407902034dc4092f368596b37658d44f28739d11",
+      "version": "3.0.6",
+      "integrity": "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==",
+      "name": "immediate 3.0.6 published source/data",
+      "role": "source",
+      "package": "immediate",
+      "license": "MIT",
+      "commit": "cba16a641397af7071dda0d7aee8b06c89a9926d",
+      "repository": "git://github.com/calvinmetcalf/immediate.git"
+    },
+    {
+      "file": "jquery-3.7.1.tgz",
+      "url": "https://registry.npmjs.org/jquery/-/jquery-3.7.1.tgz",
+      "bytes": 404231,
+      "sha256": "68a9f787516da47c680e09c187bcbac4536b6f85d90eb882844e12919e583f53",
+      "version": "3.7.1",
+      "integrity": "sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==",
+      "name": "jquery 3.7.1 published source/data",
+      "role": "source",
+      "package": "jquery",
+      "license": "MIT",
+      "commit": "fde1f76e2799dd877c176abde0ec836553246991",
+      "repository": "git+https://github.com/jquery/jquery.git"
+    },
+    {
+      "name": "JSZip 3.10.1 preferred source/build files",
+      "file": "jszip-0f2f1e4d.tar.gz",
+      "url": "https://codeload.github.com/Stuk/jszip/tar.gz/0f2f1e4d0509514417db83fe5b86bde90e0ffe8d",
+      "bytes": 23080163,
+      "sha256": "a546bf0c9ebb692955f2f9bec1d50892316f1b641fcc4cefe7d9d204bca05e6d",
+      "role": "source",
+      "repository": "https://github.com/Stuk/jszip",
+      "commit": "0f2f1e4d0509514417db83fe5b86bde90e0ffe8d",
+      "license": "MIT selected from MIT OR GPL-3.0-or-later"
+    },
+    {
+      "file": "jszip-3.10.1.tgz",
+      "url": "https://registry.npmjs.org/jszip/-/jszip-3.10.1.tgz",
+      "bytes": 195083,
+      "sha256": "5117f4a2a645aeb307bf3b829c575ad58135cc97e75291e594532ab5b5b21b23",
+      "version": "3.10.1",
+      "integrity": "sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==",
+      "name": "jszip 3.10.1 published source/data",
+      "role": "source",
+      "package": "jszip",
+      "license": "(MIT OR GPL-3.0-or-later)",
+      "commit": "0f2f1e4d0509514417db83fe5b86bde90e0ffe8d",
+      "repository": "git+https://github.com/Stuk/jszip.git"
+    },
+    {
+      "file": "lie-3.3.0.tgz",
+      "url": "https://registry.npmjs.org/lie/-/lie-3.3.0.tgz",
+      "bytes": 8877,
+      "sha256": "2db8461cd4a10e2fc3588c8c55da34d33465ff81cc19c72416bbcaec7ee6a36e",
+      "version": "3.3.0",
+      "integrity": "sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==",
+      "name": "lie 3.3.0 published source/data",
+      "role": "source",
+      "package": "lie",
+      "license": "MIT",
+      "commit": "fa42cdf72817a963186538d8f8a32c8c1dea6e14",
+      "repository": "git+https://github.com/calvinmetcalf/lie.git"
+    },
+    {
+      "file": "pako-1.0.5.tgz",
+      "url": "https://registry.npmjs.org/pako/-/pako-1.0.5.tgz",
+      "bytes": 202043,
+      "sha256": "6d7efd8e218516a28d5521c8f20446045107486d93afc55eff9b7eb3042ef2be",
+      "version": "1.0.5",
+      "integrity": "sha512-umumrxStF9I4G8OZlhzEgTlwktjp4bofYq7E0mfH/IM7fctJ1pzLBhVrhNmP86hA1b3RNP5gAzxJJ4mjj0Up6Q==",
+      "name": "pako 1.0.5 published source/data",
+      "role": "source",
+      "package": "pako",
+      "license": "(MIT AND Zlib)",
+      "commit": "588a4376d24f24b3bae4167b4a5c8cd43761a5cd",
+      "repository": "git+https://github.com/nodeca/pako.git"
+    },
+    {
+      "name": "Preact 10.27.2 preferred source/build files",
+      "file": "preact-0dbe6367.tar.gz",
+      "url": "https://codeload.github.com/preactjs/preact/tar.gz/0dbe6367842c055637ba67814b37f488a9ad7211",
+      "bytes": 438690,
+      "sha256": "91bedbddf1321e673c3e2dd2281d73aa408a7e34d67274e0d0a7adbe6fbfd18a",
+      "role": "source",
+      "repository": "https://github.com/preactjs/preact",
+      "commit": "0dbe6367842c055637ba67814b37f488a9ad7211",
+      "license": "MIT"
+    },
+    {
+      "file": "preact-10.27.2.tgz",
+      "url": "https://registry.npmjs.org/preact/-/preact-10.27.2.tgz",
+      "bytes": 402564,
+      "sha256": "f1d9cb453deb8d922c2f21702d719d23d24aaa3cab1a89a3dd326d0d8f6b3c70",
+      "version": "10.27.2",
+      "integrity": "sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg==",
+      "name": "preact 10.27.2 published source/data",
+      "role": "source",
+      "package": "preact",
+      "license": "MIT",
+      "repository": "https://github.com/preactjs/preact",
+      "commit": "0dbe6367842c055637ba67814b37f488a9ad7211"
+    },
+    {
+      "file": "setimmediate-1.0.5.tgz",
+      "url": "https://registry.npmjs.org/setimmediate/-/setimmediate-1.0.5.tgz",
+      "bytes": 3255,
+      "sha256": "5cb9fc22698364ed42c02d6aa3dc50ffeafa68452ae84699672e3dfd74922c9e",
+      "version": "1.0.5",
+      "integrity": "sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==",
+      "name": "setimmediate 1.0.5 published source/data",
+      "role": "source",
+      "package": "setimmediate",
+      "license": "MIT",
+      "commit": "f1ccbfdf09cb93aadf77c4aa749ea554503b9234",
+      "repository": "git+https://github.com/yuzujs/setImmediate.git"
+    },
+    {
+      "name": "Signature Pad 4.2.0 preferred TypeScript source/build files",
+      "file": "signature-pad-9ec285e5.tar.gz",
+      "url": "https://codeload.github.com/szimek/signature_pad/tar.gz/9ec285e51c8fcc2b1caa82ea867d7aaaaf16c0b7",
+      "bytes": 991136,
+      "sha256": "cb6644fffc6d5df162461509955fa001e9d96a032c8b53631c34026877c5aaa5",
+      "role": "source",
+      "repository": "https://github.com/szimek/signature_pad",
+      "commit": "9ec285e51c8fcc2b1caa82ea867d7aaaaf16c0b7",
+      "license": "MIT"
+    },
+    {
+      "file": "signature_pad-4.2.0.tgz",
+      "url": "https://registry.npmjs.org/signature_pad/-/signature_pad-4.2.0.tgz",
+      "bytes": 62546,
+      "sha256": "71156b0bea9cbf68d9fdb75028741cd5397c725243c8abc3f8cd091067baf2aa",
+      "version": "4.2.0",
+      "integrity": "sha512-YLWysmaUBaC5wosAKkgbX7XI+LBv2w5L0QUcI6Jc4moHYzv9BUBJtAyNLpWzHjtjKTeWOH6bfP4a4pzf0UinfQ==",
+      "name": "signature_pad 4.2.0 published source/data",
+      "role": "source",
+      "package": "signature_pad",
+      "license": "MIT",
+      "commit": "9ec285e51c8fcc2b1caa82ea867d7aaaaf16c0b7",
+      "repository": "git+https://github.com/szimek/signature_pad.git"
+    },
+    {
+      "file": "survey-core-3.2.4.tgz",
+      "url": "https://registry.npmjs.org/survey-core/-/survey-core-3.2.4.tgz",
+      "bytes": 8208879,
+      "sha256": "8aec04e5b1308ea85a25434317d88d63458cdbcab6313d70e120a9c27be9ea7f",
+      "version": "3.2.4",
+      "integrity": "sha512-xm3VfT7bzgQFzXrabcjyvscH6Y+Tsh3z9Axa8G4emVwPzs9UfhXxKuTAer/5R7CoT/RM5mg9/GtNRYmMeZe0Dg==",
+      "name": "survey-core 3.2.4 published source/data",
+      "role": "source",
+      "package": "survey-core",
+      "license": "MIT",
+      "repository": "https://github.com/surveyjs/survey-library",
+      "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9"
+    },
+    {
+      "file": "survey-js-ui-3.2.4.tgz",
+      "url": "https://registry.npmjs.org/survey-js-ui/-/survey-js-ui-3.2.4.tgz",
+      "bytes": 547205,
+      "sha256": "452612a8c4bcd14696e500bc2dd37483da6f794ccd8145872ab2aca8e31eaa62",
+      "version": "3.2.4",
+      "integrity": "sha512-dIrYf5M67vF6f4SSyXTf7j74BSF3hr3m4Q+WIsjiICBf509uA7KzG+AJxdHlxjIQEhuM2XchGwgUO9X+0Ewzgw==",
+      "name": "survey-js-ui 3.2.4 published source/data",
+      "role": "source",
+      "package": "survey-js-ui",
+      "license": "MIT",
+      "repository": "https://github.com/surveyjs/survey-library",
+      "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9"
+    },
+    {
+      "name": "SurveyJS Form Library 3.2.4 preferred TypeScript/source/build files",
+      "file": "survey-library-2536d8aa.tar.gz",
+      "url": "https://codeload.github.com/surveyjs/survey-library/tar.gz/2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9",
+      "bytes": 56799847,
+      "sha256": "ff55a52f42b1241b4a40ad0bddf6886dbbabdbed77f5f575d11ef00489fe1e10",
+      "role": "source",
+      "repository": "https://github.com/surveyjs/survey-library",
+      "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9",
+      "license": "MIT"
+    },
+    {
+      "file": "tslib-2.3.1.tgz",
+      "url": "https://registry.npmjs.org/tslib/-/tslib-2.3.1.tgz",
+      "bytes": 8041,
+      "sha256": "1774fefbfd64c476f33b92ae8efad1347c171ea1300720d0be036e102b8198fc",
+      "version": "2.3.1",
+      "integrity": "sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==",
+      "name": "tslib 2.3.1 published source/data",
+      "role": "source",
+      "package": "tslib",
+      "license": "0BSD",
+      "commit": "251802eeddb5556f507595c624ee7792154ce9fc",
+      "repository": "git+https://github.com/Microsoft/tslib.git"
+    },
+    {
+      "file": "tslib-2.8.1.tgz",
+      "url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
+      "bytes": 18477,
+      "sha256": "66f635d5eeabae44807534976913a102cf615b9a045368359c9f79ae6ee2119e",
+      "version": "2.8.1",
+      "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
+      "name": "tslib 2.8.1 published source/data",
+      "role": "source",
+      "package": "tslib",
+      "license": "0BSD",
+      "commit": "d72d6f70b36286bc3f94a3dda1e64dcb568b1370",
+      "repository": "git+https://github.com/Microsoft/tslib.git"
+    },
+    {
+      "file": "underscore-1.13.6.tgz",
+      "url": "https://registry.npmjs.org/underscore/-/underscore-1.13.6.tgz",
+      "bytes": 216577,
+      "sha256": "aef5a43ac7f903136a93e75a274e3a7b50de1a92277e1666457cabf62eeb0140",
+      "version": "1.13.6",
+      "integrity": "sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==",
+      "name": "underscore 1.13.6 published source/data",
+      "role": "source",
+      "package": "underscore",
+      "license": "MIT",
+      "commit": "e8f86fb4c670ff00abade85064c4a9cf4456fbbd",
+      "repository": "git://github.com/jashkenas/underscore.git"
+    },
+    {
+      "file": "xmldom-xmldom-0.9.12.tgz",
+      "url": "https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.9.12.tgz",
+      "bytes": 109708,
+      "sha256": "08245e18c248b957b4c6e07f8549ad5f55ae11b7a8abd4c1113a0fd61ddc67ee",
+      "version": "0.9.12",
+      "integrity": "sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==",
+      "name": "@xmldom/xmldom 0.9.12 published source/data",
+      "role": "source",
+      "package": "@xmldom/xmldom",
+      "license": "MIT",
+      "commit": "0af8cf829d8a92bbac612903422c6947f5458f06",
+      "repository": "git://github.com/xmldom/xmldom.git"
+    },
+    {
+      "file": "xregexp-3.0.0.tgz",
+      "url": "https://registry.npmjs.org/xregexp/-/xregexp-3.0.0.tgz",
+      "bytes": 62442,
+      "sha256": "51c2dfefc888da5ec1f30b5dbaa4b2ae1cfd5ed1dfbbda728bc6419667566231",
+      "version": "3.0.0",
+      "integrity": "sha512-xRBKIDB5W4pucyZEd4bkGjzelarhgvgZUH379LARkSKDf4lDGCeKtCCSdfbYwEbSLt9yUeeuLNeOKEa2CaaZiw==",
+      "name": "xregexp 3.0.0 published source/data",
+      "role": "source",
+      "package": "xregexp",
+      "license": "MIT",
+      "commit": "8183679d136bda6c0d015160a912ce2e54375917",
+      "repository": "git+https://github.com/slevithan/xregexp.git"
+    },
+    {
+      "name": "XRegExp 3.0.0 preferred source/build files",
+      "file": "xregexp-8183679d.tar.gz",
+      "url": "https://codeload.github.com/slevithan/xregexp/tar.gz/8183679d136bda6c0d015160a912ce2e54375917",
+      "bytes": 672810,
+      "sha256": "58f149d71595db30ac1034586ec40ee6d51a216e3de103fef9d691fcd29b0afd",
+      "role": "source",
+      "repository": "https://github.com/slevithan/xregexp",
+      "commit": "8183679d136bda6c0d015160a912ce2e54375917",
+      "license": "MIT"
+    }
+  ],
+  "collection": {
+    "additionalArchives": 28,
+    "additionalBytes": 189855182,
+    "allDownloadedAndSha256Verified": true,
+    "allNpmArchivesRegistrySha512Verified": true,
+    "engineCollectionArchivesAtAudit": 193,
+    "overlappingEngineArchiveFiles": 0,
+    "overlappingEngineArchiveDigests": 0
+  },
+  "existingEngineCoverage": {
+    "sourceRecords": [
+      "converter-provenance.json",
+      "sdk-build-provenance.json",
+      "sdk-runtime-provenance.json"
+    ],
+    "sdkArchivesContain": [
+      "jQuery 3.2.1 vendor distribution, not required jQuery 3.7.1",
+      "minified XRegExp 3.0.0 distribution, not complete preferred src/build tree"
+    ],
+    "allRequestedPreferredSourcesAlreadyCovered": false
+  },
+  "verifiedEmbeddedVersions": {
+    "Preact": {
+      "version": "10.27.2",
+      "evidence": "SurveyJS v3.2.4 survey-js-ui package.json pins 10.27.2; all 4 source-map module bodies match published Preact 10.27.2 package exactly",
+      "matchedSourceMapModules": 4,
+      "license": "MIT"
+    },
+    "SignaturePad": {
+      "version": "4.2.0",
+      "evidence": "Complete source-map signature_pad.js equals published 4.2.0 package file",
+      "license": "MIT"
+    },
+    "Tslib": {
+      "version": "2.8.1",
+      "evidence": "Complete survey-core source-map tslib.es6.js equals published 2.8.1 package file",
+      "license": "0BSD",
+      "additionalCompanionInput": "tslib 2.3.1 is also collected from the separately locked SPFx build dependency"
+    },
+    "Pako": {
+      "version": "1.0.5",
+      "evidence": "All 15 lib source modules byte-exact inside published JSZip 3.10.1 dist/jszip.js; vendor min bundle is byte-exact to same published JSZip package. Candidates 1.0.2 through 1.0.11 compared; later semver-satisfying versions are not substituted.",
+      "matchedSourceModules": 15,
+      "license": "MIT AND Zlib"
+    },
+    "JSZipPolyfills": {
+      "lie": "3.3.0",
+      "immediate": "3.0.6",
+      "setimmediate": "1.0.5",
+      "evidence": "Lie/Immediate browser source variants and SetImmediate source byte-exact inside published JSZip 3.10.1 bundle",
+      "license": "MIT"
+    }
+  },
+  "surveyPreferredSource": {
+    "repository": "https://github.com/surveyjs/survey-library",
+    "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9",
+    "tag": "v3.2.4",
+    "surveyCoreSourceMapFilesExact": 205,
+    "surveyUiSourceMapFilesExact": 107,
+    "generatedIconModule": "packages/survey-core/build/icons/iconsV2.js is generated; preferred src/images-v2 SVG assets and rollup.icons.config.mjs are included in repository source",
+    "creatorDesignerIncluded": false,
+    "cssExternalFontFaces": 0
+  },
+  "emojiDataScope": {
+    "version": "emojibase-data 17.0.0",
+    "generator": "scripts/generate-emoji-names.mjs",
+    "usedData": [
+      "en/data.json",
+      "en/shortcodes/joypixels.json",
+      "en/shortcodes/github.json",
+      "en/shortcodes/iamcal.json"
+    ],
+    "shippedResult": "Unicode text, names, shortcodes and keywords in src/confluence/emoji-names.js",
+    "cldrVersion": "48.0.0",
+    "cldrVersionProof": "Emojibase source commit a5fc630a... package.json and yarn.lock pin all 4 imported CLDR data packages 48.0.0; their exact npm data sources plus underlying CLDR release 48 XML sources are collected",
+    "emojiArtworkImagesOrFontsShipped": false,
+    "licenses": [
+      "MIT for Emojibase code/data wrapper",
+      "Unicode-3.0 for Unicode/CLDR data"
+    ],
+    "imageLicenseClaim": "No emoji-artwork license is substituted for the MIT and Unicode data terms; this generated runtime dataset contains no Emojibase-provided image or font files."
+  },
+  "lockIntegrityChecks": [
+    {
+      "lockfile": "package-lock.json",
+      "package": "jszip",
+      "version": "3.10.1",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "package-lock.json",
+      "package": "emojibase-data",
+      "version": "17.0.0",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "package-lock.json",
+      "package": "lie",
+      "version": "3.3.0",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "package-lock.json",
+      "package": "immediate",
+      "version": "3.0.6",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "package-lock.json",
+      "package": "setimmediate",
+      "version": "1.0.5",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "products/file-to-sharepoint/package-lock.json",
+      "package": "@xmldom/xmldom",
+      "version": "0.9.12",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
+      "package": "survey-core",
+      "version": "3.2.4",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
+      "package": "survey-js-ui",
+      "version": "3.2.4",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
+      "package": "lie",
+      "version": "3.3.0",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
+      "package": "immediate",
+      "version": "3.0.6",
+      "integrityMatches": true
+    },
+    {
+      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
+      "package": "tslib",
+      "version": "2.3.1",
+      "integrityMatches": true
+    }
+  ],
+  "attributionNoticeFile": "provenance/THIRD-PARTY-RUNTIME-NOTICES.txt",
+  "buildAvailability": "Full SurveyJS/Preact/SignaturePad/JSZip/XRegExp/Emojibase/CLDR repository archives include their source/build files; npm archives with lib/src or preferred editable data are additionally retained with registry integrity hashes. No private repository or credentials are needed.",
+  "attributionNoticeSha256": "09a1aa3e7adeafbbe02f5a8904052efae0c059685e7457ae3e694ca8e00e5a2e",
+  "attributionNoticeBytes": 22064
+}
