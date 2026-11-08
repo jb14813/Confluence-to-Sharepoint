@@ -10,6 +10,11 @@ export const LEGAL_FILES=['licenses.html','licenses.js','LICENSE','SOURCE-MANIFE
 export const RELEASE_FILES=['THIRD-PARTY-NOTICES.txt','background.js','content.js','dashboard.css','dashboard.html','dashboard.js',...ICON_FILES,'manifest.json','memory.js','popup.css','popup.html','popup.js',...FILE_IMPORT_FILES,...LEGAL_FILES];
 export const BUILD_FILES=[...new Set([...RELEASE_FILES.map(name=>name.split('/')[0]),'operator.html'])];
 
+export function requireStoreManifest(files){
+ const manifests=files.filter(name=>name.split('/').at(-1).toLowerCase()==='manifest.json');
+ if(manifests.length!==1||manifests[0]!=='manifest.json')throw new Error('The Store package must contain exactly one manifest.json at its root.');
+}
+
 export async function readReleaseMetadata(root=path.resolve('.')){
   const packageMetadata=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
   const manifest=JSON.parse(await readFile(path.join(root,'extension','manifest.json'),'utf8'));

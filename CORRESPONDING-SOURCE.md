@@ -1,4 +1,4 @@
-# Corresponding source for 0.7.0
+# Corresponding source for 0.7.1
 
 The release distributes the combined Confluence and file importer under GNU AGPL version 3, with the original MIT core notice retained. Unchanged upstream additional notices, the original ONLYOFFICE logo, CC BY-SA graphical asset terms and dependency licenses accompany the extension. No trademark endorsement is implied.
 

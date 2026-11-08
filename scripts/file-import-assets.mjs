@@ -8,6 +8,8 @@ if(!Array.isArray(provenance)||provenance.some(name=>!valid(name)||!name.endsWit
 export const ENGINE_FILES=['index.js','sandbox-decorations.js','sandbox-setup.js','sandbox.html','sandbox.js','worker.js'].map(name=>'src/engine/'+name);
 export const FORM_FILES=['portable-form.js','portable-form.css','portable-form.js.LEGAL.txt'].map(name=>'form/'+name);
 export const FILE_ICON_FILES=['icon16.png','icon32.png','icon48.png','icon128.png','logo.svg'].map(name=>'file-icons/'+name);
-export const VENDOR_METADATA_FILES=['vendor/manifest.json','vendor/NOTICE.md',...provenance.map(name=>'vendor/'+name)];
-export const VENDOR_FILES=[...new Set([...manifest.files.map(entry=>entry.file),'manifest.json','NOTICE.md',...provenance,...(existsSync(new URL('provenance.json',vendor))?['provenance.json']:[])])].map(name=>'vendor/'+name).sort();
+export const VENDOR_METADATA_FILES=['vendor/engine-assets.json','vendor/NOTICE.md',...provenance.map(name=>'vendor/'+name)];
+// Store validation treats every file named manifest.json as an app manifest.
+// The development inventory keeps its name; only its packaged name changes.
+export const VENDOR_FILES=[...new Set([...manifest.files.map(entry=>entry.file),'engine-assets.json','NOTICE.md',...provenance,...(existsSync(new URL('provenance.json',vendor))?['provenance.json']:[])])].map(name=>'vendor/'+name).sort();
 export const FILE_IMPORT_FILES=['file-workspace.html','workspace.css','src/app/workspace.js','file-destination.js','file-product.json','vendor/provenance.json',...ENGINE_FILES,...FORM_FILES,...FILE_ICON_FILES,...VENDOR_FILES];

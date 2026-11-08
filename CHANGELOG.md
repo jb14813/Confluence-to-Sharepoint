@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 - 2026-11-08
+
+- Rename the packaged vendor asset inventory to `engine-assets.json`. Chrome Web Store rejected the earlier ZIP because a second file named `manifest.json` was present. The release gate now requires exactly one app manifest at the ZIP root. Conversion code is unchanged.
+
 ## 0.7.0 - 2026-11-08
 
 - Rebuilt the PDF drawing engine with its upstream Xpdf hashing code to exclude an incompatible older OpenSSL implementation; retained native library and embedded-font notices. File artwork now uses an original document icon.

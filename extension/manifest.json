@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Confluence to SharePoint",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Import Confluence pages and local documents into editable SharePoint drafts with pictures, tables and interactive forms.",
   "minimum_chrome_version": "127",
   "permissions": [
