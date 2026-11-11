@@ -1,0 +1,93 @@
+{
+  "scope": "Fresh preferred source-only core extraction patched only through maintained patch-drawing.py and its guarded helper closure; exact current QA011 source match, no compiler payload input.",
+  "sourceFilesBeforePatch": 23540,
+  "coreCompilerPayloads": [],
+  "changedFiles": [
+    {
+      "file": "PdfFile/PdfReader.cpp",
+      "before": "0efe8a3f1bc9a8a7d88ae85f98ea8a44a8c12d945e86ee870325be1a80b25136",
+      "after": "4ac205a416c19516b1aae2169f92f31408819dcf43f14f6833264831081805f4"
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfActualTextRun.h",
+      "before": null,
+      "after": "acdf0dc8b5f2964f558de6d389eb1d449c3437f0e1c6407b559895be056cd6d3"
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfTextOrder.h",
+      "before": null,
+      "after": "5a8deb8d8f3ba6cc5b0508dcd2a10d02765d34c331e446021e119285ddde195f"
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfTextCapabilities.h",
+      "before": null,
+      "after": "46867f4e6a7f269de645e35e96818226e0f4778c40246cad47d057d786554985"
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfCaptureRasterDensity.h",
+      "before": null,
+      "after": "5005eed71ea17ababee57429b5e0c39a3a742f3e79368ad7719b56d676ecc495"
+    },
+    {
+      "file": "PdfFile/lib/xpdf/OutputDev.h",
+      "before": "cb54fa4b3b61d9b41f43f0fcb9b7202ed2d17de2fe109e494c8a5d243e350746",
+      "after": "c0e0c89590af1be70e1d9cd1c4d7bf592a2a17f6fbb7f305c87d6cdfa418c832"
+    },
+    {
+      "file": "PdfFile/lib/xpdf/Page.cc",
+      "before": "a640abcadb589fd20b8f2f61ba52a96255b11787e24c5d85842d4bd3bf9bbaa4",
+      "after": "68c5043fc596e26223a29f4bfa0649be59f4ba91d1848e65d1fe3a7373ac0a8e"
+    },
+    {
+      "file": "PdfFile/lib/xpdf/TextOutputDev.cc",
+      "before": "d489026984b8db47f63205f9ec5aad534da10610844394ffec7d7e21bbe49c3c",
+      "after": "db8ecdb62704a486f5f20c5ea6d3c7d41cb88a05eef677176120e5cef2f6b29b"
+    },
+    {
+      "file": "PdfFile/lib/xpdf/Gfx.cc",
+      "before": "69e18426eb46f0374342ce04c3e99178e08756b5f160e8ad775d4a739234caca",
+      "after": "0a4899c42bbaed9a26a5d311d3634cb7e356bf49d8ed178b5bd48e173baf0286"
+    },
+    {
+      "file": "PdfFile/lib/xpdf/CharCodeToUnicode.h",
+      "before": "6c19b1d5c1b9a2e93a9987ad191e4e713ecb88a2294b930d031ca62912b4b299",
+      "after": "f80256317410bd3e25a16357dabc9d6c27d5b247dba22390dc2a8dd4e9f411ac"
+    },
+    {
+      "file": "PdfFile/lib/xpdf/CharCodeToUnicode.cc",
+      "before": "c2a2056ff5c9adc08d9c7e096e106c414b5043cbb5a7cb0f989f15ab7707b01b",
+      "after": "5250845e1e5d0b3656dc1b47a9db32d80a2123b19e843449ac448c700c13f758"
+    },
+    {
+      "file": "DesktopEditor/graphics/Graphics.h",
+      "before": "0bb59eab04c69b0c5249941abf4c1d70cd221cdfdbd1d6212bf57ece5d37ae38",
+      "after": "9159585b7ae7a36f17960c56354ad514cc8a0a092ec76e0baa41eaba2babd41d"
+    },
+    {
+      "file": "DesktopEditor/graphics/StraightBlendAdaptor.h",
+      "before": null,
+      "after": "0b67cbe3c87292733edf33b4174f28d01d73c93b1bd03aca3112ee6d731c8f78"
+    },
+    {
+      "file": "DesktopEditor/common/CalculatorCRC32.h",
+      "before": "fa91df7b2fbdd3c23b27f4d6bb81f09f0c874dba8ee7c30f8acf07c6b193d199",
+      "after": "b857301402859353e9bce318a7930b7ef94fbe6af910e2d47886ca203e3112e2"
+    },
+    {
+      "file": "DesktopEditor/graphics/pro/js/after-no-openssl.py",
+      "before": null,
+      "after": "246fccf71a8edde7f4103cbb91e2562549b816655929419d6f900d542dead2fd"
+    },
+    {
+      "file": "DesktopEditor/graphics/pro/js/before-no-openssl.py",
+      "before": null,
+      "after": "aee7cfb09bd18bed0c24aaf33b299f6aad9567dc1f87780507247529e4f90162"
+    },
+    {
+      "file": "DesktopEditor/graphics/pro/js/drawingfile-no-openssl.json",
+      "before": null,
+      "after": "d08141b3b1be5bafab732f9886a205d456ac18992478b988680d6e02e1c9a955"
+    }
+  ],
+  "allNativePatchSourceBytesMatchQa011": true
+}

@@ -9,6 +9,8 @@ export async function buildCombinedFileImport(out){
  await build({...common,entryPoints:[path.join(product,'src/destination/index.js')],outfile:path.join(out,'file-destination.js'),format:'iife'});
  async function copy(source,destination){await mkdir(path.dirname(destination),{recursive:true});await copyFile(source,destination);}
  for(const file of ENGINE_FILES)await copy(path.join(product,file),path.join(out,file));
+ await build({...common,entryPoints:[path.join(product,'src/engine/html-resources.js')],outfile:path.join(out,'src/engine/html-resources.js'),format:'esm'});
+ await build({...common,entryPoints:[path.join(product,'src/engine/sandbox-svg.js')],outfile:path.join(out,'src/engine/sandbox-svg.js'),format:'iife',globalName:'FtsSvg'});
  for(const file of VENDOR_FILES)await copy(path.join(product,file==='vendor/engine-assets.json'?'vendor/manifest.json':file),path.join(out,file));
  const provenanceFiles=VENDOR_METADATA_FILES.filter(name=>name.endsWith('.json')&&name!=='vendor/engine-assets.json');
  const records=await Promise.all(provenanceFiles.map(async file=>({file:path.basename(file),record:JSON.parse(await readFile(path.join(product,file),'utf8'))})));

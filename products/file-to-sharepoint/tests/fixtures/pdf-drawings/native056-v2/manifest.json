@@ -1,0 +1,232 @@
+{
+  "scope": "Genuine compiled native056 V2 metadata + original Reader011 + current SDK + original derivedPNG. QA candidate, not adopted/release or original-coordinate/flow acceptance. No invented flags or v1 compatibility.",
+  "converterRuntime": {
+    "x2t.js": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46",
+    "x2t.wasm": "2151b5ebe35ae978d898b709d79a140678ccba5c577738b1ca70b5e1f7d0854f"
+  },
+  "readerRuntime": {
+    "drawingfile.js": "c8d8b7547fc89040e129e8cc0b3603d9b92e679aa08bf023821ad532e55c3560",
+    "drawingfile.wasm": "9b1de1b12078daa6c3dc3019bc2c0a4430950dd37b82bc75c4718dcd70717c37"
+  },
+  "sdkAllJsSha256": "d31721c91813f9f776fa6da10fe1e146d8c48fdeb5793e4213a47e2db9070282",
+  "nativePatchSourceFiles": [
+    {
+      "file": "DocxRenderer/src/logic/Page.cpp",
+      "afterRaw": "3b268fa163fe8a1b21d2f4e3a1ef5cb3f6f357e3c0638d481930aacc1aff0817"
+    },
+    {
+      "file": "DocxRenderer/src/logic/Page.h",
+      "afterRaw": "7f593752f15f8f09ec8629678b4d70d75b439e99372533da93a6e5c4f54154bc"
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/Shape.cpp",
+      "afterRaw": "9cede870e603c1f9e892916bfd94cede5b70697d29bd4fbc8c0393c96a179c61"
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/Shape.h",
+      "afterRaw": "3d82b5c7ba0454c7982c05cdd438207159eeb97da2f7be81280fcf7e384669bd"
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDrawingLedger.h",
+      "afterRaw": "04d55a6a094d1cdbf0fa67fd039dd445977e62e768339a28b2e00cc48994312e"
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDrawingLedgerPage.inl",
+      "afterRaw": "e0a794bb1e551f5ff55e5830b5f057680abda35a128c68b9a3ad0fff9fcd3742"
+    },
+    {
+      "file": "DocxRenderer/src/logic/Document.cpp",
+      "afterRaw": "131710349902ccf030d59b87c9c5aa17e84ab208e1b55107944c3774ba321fe9"
+    },
+    {
+      "file": "DocxRenderer/DocxRenderer.cpp",
+      "afterRaw": "82c6630fc663549797d600f96e5257610555f6ab44dd3f16f2c91bea4e046764"
+    },
+    {
+      "file": "PdfFile/SrcReader/RendererOutputDev.cpp",
+      "afterRaw": "80ebac58e3fec702761c961c2e90c275fa972d18664308fd9ac5d0db6ce1a6da"
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDerivedVectorPlan.h",
+      "afterRaw": "a6a84d3882df217ce811878053e1856f8fd7b6810ce05666fe1363af13173e22"
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDerivedVectorPage.inl",
+      "afterRaw": "20e00f2d6161eed37b5262463af73bb85a5c8c8fd57838bac4e65f228784657e"
+    },
+    {
+      "file": "DesktopEditor/graphics/commands/PdfPaintContext.h",
+      "afterRaw": "1f850d8e9b7fb55b420c4a0e42f9c42b40e67df96432a7924226058da7ebc662"
+    }
+  ],
+  "cases": [
+    {
+      "name": "alpha-gap",
+      "sourcePdfSha256": "272f6df59b129aa642244d44550305f61b78d7e8dd57e510681e5a0fedc58904",
+      "nativeDocxSha256": "b90872651c8f091525f8c14f0c9d6a319c49aa86c4728a90412f7942a40f89cc",
+      "drawingsPartSha256": "63b04fff724749f5b723caf35ecefdf13b2f3817a0b3d5e8dfdb8bb3701198fd",
+      "meaningfulScalars": 16,
+      "tables": 1,
+      "media": [
+        {
+          "resourceName": "word/media/image1.png",
+          "pngSha256": "2e8c77bd0ba369dd75710aa2d873865c215557febf18c7037761732de39cd2a7",
+          "width": 134,
+          "height": 67,
+          "rgbaSha256": "386bd56b0ea137fa6cfdb9224d9be4508f7a714e8ccb2b505b4ef5becce4f289"
+        }
+      ],
+      "files": {
+        "alpha-gap.json": "45b39eb357d2a4a5011d11b0304dd3fa676b4454fe8c9f1358e2e9ca79064257",
+        "alpha-gap.drawings.xml": "63b04fff724749f5b723caf35ecefdf13b2f3817a0b3d5e8dfdb8bb3701198fd",
+        "alpha-gap.layout.xml": "e21e5fbc42b911fe0723bda8c03584099f52ccc692edbbd9d217f985a242e5ee",
+        "alpha-gap.document.xml": "9772cd664ffd2eef309ce02ce89504a7412347182de0245d0b754afdb268a617",
+        "alpha-gap.source.pdf": "272f6df59b129aa642244d44550305f61b78d7e8dd57e510681e5a0fedc58904"
+      }
+    },
+    {
+      "name": "filled-curve-gap",
+      "sourcePdfSha256": "c76df579b179c5056fb850824c476d9b4411a76456406f7ce07e81c332fc62ef",
+      "nativeDocxSha256": "046160bbf6019865c6f3579c817ec975af87ecb55f56cbcc2d5c38c2e7d338da",
+      "drawingsPartSha256": "c5d8b1e069c15570f4194f97551239ddefabef7b419ab608d735d3431e61686c",
+      "meaningfulScalars": 16,
+      "tables": 1,
+      "media": [
+        {
+          "resourceName": "word/media/image1.png",
+          "pngSha256": "19ebecc403ff03eb2dd13a6c342acf5d5c91a7bf015562808cfd2db71b44ac98",
+          "width": 134,
+          "height": 67,
+          "rgbaSha256": "ae0f4cf10953c38f0d90d8bf440152f6d7df9f70657f731dfef4e7f323d31a53"
+        }
+      ],
+      "files": {
+        "filled-curve-gap.json": "c0b7bcd6f876b8c896ee1317ce0d5f7ddc8927ff94fd7249c4057f8cc85dc91d",
+        "filled-curve-gap.drawings.xml": "c5d8b1e069c15570f4194f97551239ddefabef7b419ab608d735d3431e61686c",
+        "filled-curve-gap.layout.xml": "e21e5fbc42b911fe0723bda8c03584099f52ccc692edbbd9d217f985a242e5ee",
+        "filled-curve-gap.document.xml": "9772cd664ffd2eef309ce02ce89504a7412347182de0245d0b754afdb268a617",
+        "filled-curve-gap.source.pdf": "c76df579b179c5056fb850824c476d9b4411a76456406f7ce07e81c332fc62ef"
+      }
+    },
+    {
+      "name": "nested-opposite-evenodd",
+      "sourcePdfSha256": "093e4a689b8e9b8e9f9c1706c8b7b6594236726bd55c37054746891f24776131",
+      "nativeDocxSha256": "bdff3ca79b93a8435bbbc5a57adb52c3597442e033a1a99c044b70128a6dbedb",
+      "drawingsPartSha256": "17ccd922f2a3c4541820ca1dd15de8f3785bb1a08db1e2446c812e508c27f0e2",
+      "meaningfulScalars": 16,
+      "tables": 1,
+      "media": [
+        {
+          "resourceName": "word/media/image1.png",
+          "pngSha256": "cfbf60bb025496cf6f7c83d7f98403bd37b0dd62ccfe82c46c8546372a3551c4",
+          "width": 134,
+          "height": 67,
+          "rgbaSha256": "f56228324f1c9e9acf8f788c3de6bc02fcc9602e75d6c0f16b719884885f9c6e"
+        }
+      ],
+      "files": {
+        "nested-opposite-evenodd.json": "82338dcc823213abf2db67386793bf1345a6635cf75509168178d69c4dc23917",
+        "nested-opposite-evenodd.drawings.xml": "17ccd922f2a3c4541820ca1dd15de8f3785bb1a08db1e2446c812e508c27f0e2",
+        "nested-opposite-evenodd.layout.xml": "e21e5fbc42b911fe0723bda8c03584099f52ccc692edbbd9d217f985a242e5ee",
+        "nested-opposite-evenodd.document.xml": "9772cd664ffd2eef309ce02ce89504a7412347182de0245d0b754afdb268a617",
+        "nested-opposite-evenodd.source.pdf": "093e4a689b8e9b8e9f9c1706c8b7b6594236726bd55c37054746891f24776131"
+      }
+    },
+    {
+      "name": "nested-same-evenodd",
+      "sourcePdfSha256": "4035be5fc139dd432667d5eba54c2884a5da76888e99acb6974dba5a7ace1125",
+      "nativeDocxSha256": "73694450d8f2869f11a04386c84f14934a654b6f086f92a40a0919de3553a7cb",
+      "drawingsPartSha256": "39c0a3c2db5e46d97fadd9747ac420195ce4d634f88c17ac4cddd00a5baa6df6",
+      "meaningfulScalars": 16,
+      "tables": 1,
+      "media": [
+        {
+          "resourceName": "word/media/image1.png",
+          "pngSha256": "e680d9a10c4701243271e3565bce2199b641d3851c125b55ee1b65052bb12fff",
+          "width": 134,
+          "height": 67,
+          "rgbaSha256": "dc7296c6b615d91b3e883521196cab6070276d8b1f3808f0388bbb762b75654a"
+        }
+      ],
+      "files": {
+        "nested-same-evenodd.json": "02b0b7918677082672f680f2b57d9151f04e44a7d468081dca2fb3546ac198f8",
+        "nested-same-evenodd.drawings.xml": "39c0a3c2db5e46d97fadd9747ac420195ce4d634f88c17ac4cddd00a5baa6df6",
+        "nested-same-evenodd.layout.xml": "e21e5fbc42b911fe0723bda8c03584099f52ccc692edbbd9d217f985a242e5ee",
+        "nested-same-evenodd.document.xml": "9772cd664ffd2eef309ce02ce89504a7412347182de0245d0b754afdb268a617",
+        "nested-same-evenodd.source.pdf": "4035be5fc139dd432667d5eba54c2884a5da76888e99acb6974dba5a7ace1125"
+      }
+    },
+    {
+      "name": "star-evenodd",
+      "sourcePdfSha256": "8ad9732c4f7fd77aabc4017820a1bb05b29f90a366499cc0aa452ed05f5f990d",
+      "nativeDocxSha256": "f5de776baa3a0c3d876ef872b91024a06c1116c3a93b4674a931528d9f404752",
+      "drawingsPartSha256": "debb92f5bfd74962b70f77e12c425cb46740abc27f6475dcf6483968cecc0c83",
+      "meaningfulScalars": 16,
+      "tables": 1,
+      "media": [
+        {
+          "resourceName": "word/media/image1.png",
+          "pngSha256": "8be301760d0a085b81fb13b4f77d9d9b27943be0ce949816086574833def0fef",
+          "width": 122,
+          "height": 58,
+          "rgbaSha256": "8031720b4ac71668bf931914d106743190564b857b669d8754743f61fbe5354d"
+        }
+      ],
+      "files": {
+        "star-evenodd.json": "cb0875f2ed031fe3c143e8ef5c684325fe4b9c55b055e1ca4f4a673809280e40",
+        "star-evenodd.drawings.xml": "debb92f5bfd74962b70f77e12c425cb46740abc27f6475dcf6483968cecc0c83",
+        "star-evenodd.layout.xml": "e21e5fbc42b911fe0723bda8c03584099f52ccc692edbbd9d217f985a242e5ee",
+        "star-evenodd.document.xml": "1cc8c00e520027cb2b17904a47c064c8af40f3764a953d8aa8406a1936466448",
+        "star-evenodd.source.pdf": "8ad9732c4f7fd77aabc4017820a1bb05b29f90a366499cc0aa452ed05f5f990d"
+      }
+    },
+    {
+      "name": "wide-1334-evenodd",
+      "sourcePdfSha256": "8ab6c05aceb407827a816ed289fa80f6c60e71a1b7c53dc6f60a8b1bd4553573",
+      "nativeDocxSha256": "00463b37423287b2ef06453cb3e72f1c4a4e6d57fc13365ddcf446b0cd0b4524",
+      "drawingsPartSha256": "0aaf68b9cf6ffb67f19c24c4b37337c3495bb4d835408df1b21795d132a28c41",
+      "meaningfulScalars": 16,
+      "tables": 1,
+      "media": [
+        {
+          "resourceName": "word/media/image1.png",
+          "pngSha256": "8b2d096312aa55f334315aa78978b41e9dcc777b0c3833095729f42c166de55f",
+          "width": 1334,
+          "height": 67,
+          "rgbaSha256": "1d9edf72d20920691d5e90ca4d94aa283d4163575c172ef0a9ad7a8be98e40e7"
+        }
+      ],
+      "files": {
+        "wide-1334-evenodd.json": "122717fc233926f5f9b5a2d636950a757e211a0cae47b0695cc4aabd459083fa",
+        "wide-1334-evenodd.drawings.xml": "0aaf68b9cf6ffb67f19c24c4b37337c3495bb4d835408df1b21795d132a28c41",
+        "wide-1334-evenodd.layout.xml": "6a9f3ec6b7ff478aa1265563e29edf49a57bf6edfd88f680ecc9b01a2a2522f4",
+        "wide-1334-evenodd.document.xml": "e0603405ebb4cf1b20d07296a3beaf76921d480ab9c212b75a670b1603951ebc",
+        "wide-1334-evenodd.source.pdf": "8ab6c05aceb407827a816ed289fa80f6c60e71a1b7c53dc6f60a8b1bd4553573"
+      }
+    },
+    {
+      "name": "wide-2134-evenodd-alpha",
+      "sourcePdfSha256": "a12ec19b3415450d56541afab4e5e6cd17220958ae79fec0faf8002ccbc191db",
+      "nativeDocxSha256": "17ef0347e233b12c1319246182ca0a38d730cfafc480311c6a5e66c97a40092b",
+      "drawingsPartSha256": "3bf34df7d7c5a281ef4c77f9510646125bf91531622cd7ecf651a5e24f31d80c",
+      "meaningfulScalars": 16,
+      "tables": 1,
+      "media": [
+        {
+          "resourceName": "word/media/image1.png",
+          "pngSha256": "f05e2df4b9ca81c6cfdebc537b164956cd38b362c97e192a5149356b7352cd2d",
+          "width": 2134,
+          "height": 67,
+          "rgbaSha256": "1edc09ffc228497ca2cafba298b11916e30d03c34c82cc0eff978d6c4d31fe85"
+        }
+      ],
+      "files": {
+        "wide-2134-evenodd-alpha.json": "33888e736ab400227f132734e2ba2e0d431a3a6feb3394962a19044765329009",
+        "wide-2134-evenodd-alpha.drawings.xml": "3bf34df7d7c5a281ef4c77f9510646125bf91531622cd7ecf651a5e24f31d80c",
+        "wide-2134-evenodd-alpha.layout.xml": "8be65e3bd5514a6d6310de3259e1b32f20b01705ec537a37fe4da10bb26c1db9",
+        "wide-2134-evenodd-alpha.document.xml": "54f86ba684dc7439fb402fd9fd7cc8161466399cf05ac0c5df8b9c0996fe37b8",
+        "wide-2134-evenodd-alpha.source.pdf": "a12ec19b3415450d56541afab4e5e6cd17220958ae79fec0faf8002ccbc191db"
+      }
+    }
+  ]
+}

@@ -13,6 +13,8 @@ const common={bundle:true,platform:'browser',target:'chrome127',minify:false,leg
 const app=await build({...common,entryPoints:[path.join(product,'src/app/workspace.js')],outfile:path.join(out,'src/app/workspace.js'),format:'esm',external:['../engine/index.js','../../form/portable-form.js']});
 const rest=await build({...common,entryPoints:{destination:path.join(product,'src/destination/index.js'),background:path.join(product,'src/app/background.js'),memory:path.join(root,'src/sharepoint/memory.js')},outdir:out,format:'iife'});
 await cp(path.join(product,'src/engine'),path.join(out,'src/engine'),{recursive:true});
+await build({...common,entryPoints:[path.join(product,'src/engine/html-resources.js')],outfile:path.join(out,'src/engine/html-resources.js'),format:'esm'});
+await build({...common,entryPoints:[path.join(product,'src/engine/sandbox-svg.js')],outfile:path.join(out,'src/engine/sandbox-svg.js'),format:'iife',globalName:'FtsSvg'});
 await cp(path.join(product,'vendor'),path.join(out,'vendor'),{recursive:true});
 await cp(path.join(product,'assets/icons'),path.join(out,'icons'),{recursive:true});
 await mkdir(path.join(out,'form'),{recursive:true});

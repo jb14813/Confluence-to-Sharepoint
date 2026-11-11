@@ -1,0 +1,300 @@
+{
+  "scope": "All changed or added native source/project files compared directly with pinned preferred source archive, across the complete maintained preparation chain.",
+  "files": [
+    {
+      "file": "DesktopEditor/common/CalculatorCRC32.h",
+      "before": "42dbe345415f1843356bbd7d10d700590f21beaea40a749539ccea0b5a111946",
+      "after": "12b94d6f596004a8c69e2f1cd06051695a5f030838806146833c9a272705118e",
+      "bytes": 2379
+    },
+    {
+      "file": "DesktopEditor/cximage/CxImage/ximacfg.h",
+      "before": "ce03d415448aed8865528850be19c9aede9f0d96bf7a218b640520e194aa7980",
+      "after": "51d1dd47932b432ea12359239b8d86f9df6e95043de385cf7a1a5cf4f41ba2f9",
+      "bytes": 3066
+    },
+    {
+      "file": "DesktopEditor/cximage/CxImage/ximatif.cpp",
+      "before": "2656360d102de37f1dfe1c71a5123e30804dff9255a4be32b024ab2cd0104c2c",
+      "after": "181bd34384965ee5e3df38adb602b2ea6d6377f21bf071a0045372ac95532bc1",
+      "bytes": 33608
+    },
+    {
+      "file": "DesktopEditor/graphics/Graphics.h",
+      "before": "4ee6af4f987cab8607093b396525bd88d84b0bfc68176d86c1ea0aed4fab558e",
+      "after": "9345736c39d2487aa5f40729451a72a25d4bcc5f7412f889dd541abf36f23218",
+      "bytes": 16123
+    },
+    {
+      "file": "DesktopEditor/graphics/StraightBlendAdaptor.h",
+      "before": null,
+      "after": "0b67cbe3c87292733edf33b4174f28d01d73c93b1bd03aca3112ee6d731c8f78",
+      "bytes": 1378
+    },
+    {
+      "file": "DesktopEditor/graphics/commands/PdfPaintContext.h",
+      "before": null,
+      "after": "1f850d8e9b7fb55b420c4a0e42f9c42b40e67df96432a7924226058da7ebc662",
+      "bytes": 305
+    },
+    {
+      "file": "DesktopEditor/graphics/pro/metafile.pri",
+      "before": "f7cd456939e9a8bac65f9889f783247e3d32980693dbf679c382f44c277b19f6",
+      "after": "ee89643f77e9b1cdc1123b6e8f91740e1c15641c329f51183996dc1fc943eb02",
+      "bytes": 6632
+    },
+    {
+      "file": "DesktopEditor/raster/heif/heif.cpp",
+      "before": "301cf76f2958749e86627d9c078b555ce8aa83575c9a0bfd384cabf7720e2dab",
+      "after": "82203e4aafec1d465864ee5906a14210235ee5da7514c22e4ea97e9c444784e4",
+      "bytes": 4756
+    },
+    {
+      "file": "DocxRenderer/DocxRenderer.cpp",
+      "before": "f0de11fe43780a8e4af2be6998394947db5ed4eaba06a1ebd819b5725da02dc7",
+      "after": "82c6630fc663549797d600f96e5257610555f6ab44dd3f16f2c91bea4e046764",
+      "bytes": 25710
+    },
+    {
+      "file": "DocxRenderer/DocxRenderer.h",
+      "before": "7c925e40f4518e532a3b38a8d9a3ebf4751df063109c0d6aff656333fcba0a77",
+      "after": "36576f549a7d21b976937d82048bb756f73c471772fdb5d15ec95ac42f90dca6",
+      "bytes": 9756
+    },
+    {
+      "file": "DocxRenderer/src/logic/Document.cpp",
+      "before": "d0c9bf4d32bd2a91189df5b9663a4902b0863d82efec1fa3d360565c340b46f5",
+      "after": "f474bcf1a5a61cd073a8b732a8931beabf653787d5745af9331d7160d52176d3",
+      "bytes": 59397
+    },
+    {
+      "file": "DocxRenderer/src/logic/Document.h",
+      "before": "efcb17508f65b18416ff60df5feb070ae66253047e78e42d117bd18a5a199554",
+      "after": "1239b9650193be6e2a3fa30109b471242dbf0557bf425660727f8cdbb8d8985f",
+      "bytes": 8536
+    },
+    {
+      "file": "DocxRenderer/src/logic/Page.cpp",
+      "before": "816865185fa6084d9cb5145067ad3b6c72c57fb0b53e4f20bcaa9057dd67d1cd",
+      "after": "605330a12448de86407cc18463b045cd8e28cfc92d2507a1b9de49d6a8412968",
+      "bytes": 135144
+    },
+    {
+      "file": "DocxRenderer/src/logic/Page.h",
+      "before": "e60b364f1ee03cead4d497e678dba27ff55c4a49b28896c639186dcaaa9b041b",
+      "after": "7f593752f15f8f09ec8629678b4d70d75b439e99372533da93a6e5c4f54154bc",
+      "bytes": 9945
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/ContText.cpp",
+      "before": "8ebdcdd731fe6ef6e1c04ea569f678ab197ef1d455e56543cedd872994f480b9",
+      "after": "4cd90f4bd9a9ca8bbbc752a1a7284a1338b6b44a226de5944f0851c4ece4bc37",
+      "bytes": 44873
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/ContText.h",
+      "before": "60868f8361411c33444cb6de225143914efdc7a8da51e3d2941fc8b978874cc8",
+      "after": "e25e9999edcc1847c33cda7be79a0de7ba51c3f97ef9907c8dc973994e70adad",
+      "bytes": 7326
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/Shape.cpp",
+      "before": "a75271a77fa4e0a42bd2633c85a1fc7a4b574d26dbdf9ef3d12ec800cc926a42",
+      "after": "9cede870e603c1f9e892916bfd94cede5b70697d29bd4fbc8c0393c96a179c61",
+      "bytes": 51511
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/Shape.h",
+      "before": "3614f0a9c7e69a535be7f3cefec14a20aec6081055467b26408fc2e8fbd59e9e",
+      "after": "3d82b5c7ba0454c7982c05cdd438207159eeb97da2f7be81280fcf7e384669bd",
+      "bytes": 4154
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/Table.cpp",
+      "before": "93dac5f4a876d967ce6c24883790f5243c8a5662c4ec3980198e993583926da1",
+      "after": "9d66e81dc83b7c50fa8c08e1e49983867d3d7a38171e5d07f5e4ca778dc61e26",
+      "bytes": 9227
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/Table.h",
+      "before": "7ac61f4ce263b7fd2b60010053de2943ac116f9bd410df92cecc3072eb3e0608",
+      "after": "6f1c3b2887ab1b0b8f463316877df160e9d508ed85a53a54e0b86090ed380aa9",
+      "bytes": 3985
+    },
+    {
+      "file": "DocxRenderer/src/logic/elements/TextLine.cpp",
+      "before": "d3d80a252d0a8dd1346c7b203f810e70a88842a8870ff1faa07495e0cf04a18b",
+      "after": "5e0ccc8af03b77ceeb2600a7fba5e93e7a1c02ab9de0306c39d5dbed5a94da4e",
+      "bytes": 10181
+    },
+    {
+      "file": "DocxRenderer/src/logic/managers/FontManager.cpp",
+      "before": "2dd9a962451dd0f9651c2c4a63f55fc7f76c403eb0b02f3250fced0e22e52070",
+      "after": "89d25fc424799779112e834a601bafcae6996de6f7d4fef1890fb59fd4ebc096",
+      "bytes": 33376
+    },
+    {
+      "file": "DocxRenderer/src/logic/managers/FontManager.h",
+      "before": "71eeab2bcddd42fabd103a713ea36aa15422b3a7f68c658f055d584640d0e830",
+      "after": "ff24fe8cb661870f2929126631ba8b7ed8a1291c9948bd0ae12c984cf9275ceb",
+      "bytes": 5371
+    },
+    {
+      "file": "DocxRenderer/src/logic/managers/ImageManager.cpp",
+      "before": "46a7c8ee69ece0aef93aea3af55b7b057e22d6ef36365035abddb3fdcd7dc914",
+      "after": "16ab36a995ba0e81addd4b92815445df4c4a9592d1bf84efd65ff036781b1905",
+      "bytes": 5844
+    },
+    {
+      "file": "DocxRenderer/src/logic/managers/ImageManager.h",
+      "before": "31a9419cd7ab91faf438f5d015c4ff3f00296cc08f592dbf70d4fa419c64f24d",
+      "after": "3535c08fff7ced4bb6dee00b908f3923bee2b70a85b7b328cfd705149133295b",
+      "bytes": 1039
+    },
+    {
+      "file": "DocxRenderer/src/logic/managers/PixelIdentityCache.h",
+      "before": null,
+      "after": "7700ffb6c14b098fd44f1bc7e71cc3c962d40fd2582e585f9093869499bccf2d",
+      "bytes": 2220
+    },
+    {
+      "file": "DocxRenderer/src/resources/NativeContainedRectangles.h",
+      "before": null,
+      "after": "ba800f5939b62cb65894ac16d8c091f8f9a187e09f39ebc7719a89172792b325",
+      "bytes": 2909
+    },
+    {
+      "file": "DocxRenderer/src/resources/NativeTableGrid.h",
+      "before": null,
+      "after": "d479306a7d8b2ce56aadd5b5e498c57c8c81bd3989e80f5916600bf2fb46b37b",
+      "bytes": 4889
+    },
+    {
+      "file": "DocxRenderer/src/resources/NativeTablePrecision.h",
+      "before": null,
+      "after": "c8633327ecc8420eab023326245d802b2a8c011ba1006e224629e13b4d18476a",
+      "bytes": 527
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDerivedVectorPage.inl",
+      "before": null,
+      "after": "ac8fb88ffa5748071ff650c696eb19a7c72b4caae118e099e01d41970a6ff302",
+      "bytes": 5934
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDerivedVectorPlan.h",
+      "before": null,
+      "after": "a6a84d3882df217ce811878053e1856f8fd7b6810ce05666fe1363af13173e22",
+      "bytes": 997
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDrawingLedger.h",
+      "before": null,
+      "after": "04d55a6a094d1cdbf0fa67fd039dd445977e62e768339a28b2e00cc48994312e",
+      "bytes": 6406
+    },
+    {
+      "file": "DocxRenderer/src/resources/PdfDrawingLedgerPage.inl",
+      "before": null,
+      "after": "c2750f9f7b326af1cdaa375cfce8dbf7aeec31996719e4004b94cba003be8cb4",
+      "bytes": 20747
+    },
+    {
+      "file": "DocxRenderer/src/resources/VectorGraphics.cpp",
+      "before": "d5c57ce273f40e25012586eb68aa21fab668460034d4ae33e7b0c6c4b173d71d",
+      "after": "ce2266e4a64751bab4a7ca2b1b8986296319f6edbf0bd557416bd224318d2a28",
+      "bytes": 14151
+    },
+    {
+      "file": "DocxRenderer/src/resources/VectorGraphics.h",
+      "before": "3baff4b1a09e999553dff5703475943cb3cd2288ffaf523e55c42ab935e9b978",
+      "after": "fb48e1c694ffeb0eea32bfa4adf9ae27eaa69946ed73f4afc43a0d40d2d8bff2",
+      "bytes": 3725
+    },
+    {
+      "file": "OOXML/Binary/Presentation/imagemanager.cpp",
+      "before": "24d8ef070967c3519b37a56eb28cfa5505b3e64b7bbd64585b5a57e9d079f6bb",
+      "after": "c53a23a2c2080016781c084c5f2a2b727bfc57ae4ca768f91235920b81be0de0",
+      "bytes": 19087
+    },
+    {
+      "file": "PdfFile/PdfFile.pro",
+      "before": "8784ca3e10f0d3dd3807ec3fde936d74a787dcc349f001ce70b4668609fe028e",
+      "after": "06797efc8b87be44e27406b553909c362289eb5a31c28fbd6de9d3eb95d368b8",
+      "bytes": 5274
+    },
+    {
+      "file": "PdfFile/PdfReader.cpp",
+      "before": "2734668f2eed2cbaec334744518baa9922b67dc1634b676683b55f0904ce57f5",
+      "after": "72a60de3ace3cdcb75a5c73a7109a451ae3ffc6442734fc8dbeee346731fc727",
+      "bytes": 60796
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfActualTextRun.h",
+      "before": null,
+      "after": "acdf0dc8b5f2964f558de6d389eb1d449c3437f0e1c6407b559895be056cd6d3",
+      "bytes": 4072
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfCaptureRasterDensity.h",
+      "before": null,
+      "after": "5005eed71ea17ababee57429b5e0c39a3a742f3e79368ad7719b56d676ecc495",
+      "bytes": 5268
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfSemanticAdvance.h",
+      "before": null,
+      "after": "52ac94b11394a2a70c5361329001bde97e53a5f0a14f96dafe4565aa2b4ae8a9",
+      "bytes": 1210
+    },
+    {
+      "file": "PdfFile/SrcReader/PdfType3FontProfile.h",
+      "before": null,
+      "after": "5164ff8b484720ecbfea6dc07cda6f292c1e8b6ffc3c8ff043735d22825e922b",
+      "bytes": 2233
+    },
+    {
+      "file": "PdfFile/SrcReader/RendererOutputDev.cpp",
+      "before": "0a1f3ac5b2b21f6ef748f261fd2e29485096e5c763809a5d226df7e54ecdb0cf",
+      "after": "80ebac58e3fec702761c961c2e90c275fa972d18664308fd9ac5d0db6ce1a6da",
+      "bytes": 132407
+    },
+    {
+      "file": "PdfFile/SrcReader/RendererOutputDev.h",
+      "before": "144cf291ba946563294802071697b7dc1b358a460f4ba466643706884904286b",
+      "after": "05963a1263778a08f191582b344e56a19a4d1653ba2b30d21141db23a41f5704",
+      "bytes": 14814
+    },
+    {
+      "file": "PdfFile/lib/xpdf/Gfx.cc",
+      "before": "6436193a4b93bb51ebd21aa10e8cc69b453f80c01497b6b15f6c5b2438fa2706",
+      "after": "03e4eada2785760910886677316e01ca00cba8ebc32a27a3b7b4888cf649f10f",
+      "bytes": 149088
+    },
+    {
+      "file": "PdfFile/lib/xpdf/OutputDev.h",
+      "before": "cb54fa4b3b61d9b41f43f0fcb9b7202ed2d17de2fe109e494c8a5d243e350746",
+      "after": "667ab874005c450d6d4d220bc521c1e50a85ef86b841661537d7fcc3ec6e7af8",
+      "bytes": 10198
+    },
+    {
+      "file": "PdfFile/lib/xpdf/Page.cc",
+      "before": "a640abcadb589fd20b8f2f61ba52a96255b11787e24c5d85842d4bd3bf9bbaa4",
+      "after": "dbd3ca35707df212c24fd09df86061f210fac2433a0d7a9b0037cd54868a5a51",
+      "bytes": 12526
+    },
+    {
+      "file": "PdfFile/lib/xpdf/Stream.h",
+      "before": "b2bff229aec5fcd62a9b271dc072f37cddbcaa351d0094c1189e729a78eebb9f",
+      "after": "76c4439a395d519ccc7c4ba4e041eddd601ee0d9c9c6347ae41b207ce2693a07",
+      "bytes": 31307
+    },
+    {
+      "file": "PdfFile/lib/xpdf/TextOutputDev.h",
+      "before": "f7cf546f079071a83f3bf4a9533be9081d6d6a946ff10c31fb364d96f9b69c29",
+      "after": "e26926f865302e745ac9ec3d47677f18765128331e8c5db3d2c79b1fb95a4ad0",
+      "bytes": 26934
+    }
+  ],
+  "count": 49
+}

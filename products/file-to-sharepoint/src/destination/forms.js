@@ -136,10 +136,15 @@ async function inspect(connection, options) {
   return lists;
 }
 
-/** Read-only. Missing lists or safe missing columns may be provisioned only after the user presses Send. */
+/** Read-only. With expectedDefinition, also requires the exact prepared immutable item to remain readable. */
 export async function checkFormReadiness(options) {
+  const expected = options.expectedDefinition === undefined ? null : validateDefinition(options.expectedDefinition);
   const connection = client(options);
   const lists = await inspect(connection, options);
+  if (expected) {
+    const list = lists.get('definitionListId');
+    if (!list || list.missingColumns.length || !await storedDefinition(connection, list, expected, JSON.stringify(expected))) throw fail('form-definition-unavailable', 'The prepared immutable form definition is no longer available. Review the form before importing.');
+  }
   return { componentId: FORM_COMPONENT_ID, definitionListId: lists.get('definitionListId')?.Id ?? null, responseListId: lists.get('responseListId')?.Id ?? null,
     needsSetup: LISTS.some(specification => !lists.get(specification.key) || lists.get(specification.key).missingColumns.length > 0) };
 }

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "status": "verified-local-source-build",
+  "preferredSourceInputs": [
+    {
+      "name": "Proton maintained MIME parser source",
+      "file": "protontech-crypto-2.2.0.tgz",
+      "url": "https://registry.npmjs.org/@protontech/crypto/-/crypto-2.2.0.tgz",
+      "bytes": 115874,
+      "sha256": "6b523327ed72c6173f86c0ece970996174c6c81be5aa2f8ff8bd1c3da6ddeae4",
+      "integrity": "sha512-WjoNBMn07LxnYE6QLgniEnNfP0Apmvqgi8P48udFtvAxhSnVwiHqmXxMaVHJxBRaJev/DlOKJ67OGYj+3yGYPA==",
+      "repository": "https://github.com/ProtonMail/WebPackages",
+      "version": "2.2.0",
+      "role": "mime-parser-source"
+    }
+  ],
+  "build": {
+    "command": "node scripts/build-mime-parser.mjs --offline",
+    "esbuild": "0.25.9",
+    "format": "esm",
+    "target": "chrome127",
+    "inputs": [
+      {
+        "file": "scripts/build-mime-parser.mjs",
+        "bytes": 9646,
+        "sha256": "b79aa0088c0c060b29ceaa023617e78abc39ddaf8df859f7ba5cfbe0751a2e02"
+      },
+      {
+        "file": "scripts/mime-parser-inputs/extract-source.py",
+        "bytes": 1996,
+        "sha256": "8be1a9ad77cf95014686a72d85df1db0435523547c9943a8bf298f390887ad08"
+      },
+      {
+        "file": "scripts/source-archive.mjs",
+        "bytes": 2682,
+        "sha256": "5fa559949caae4908d98929991cba42b9c2f6325cbdb0e196d090f124fb0189a"
+      }
+    ],
+    "sourceClosure": [
+      "entry.js",
+      "package/src/jsmimeparser/headerParser.js",
+      "package/src/jsmimeparser/rawMimeParser.js",
+      "package/src/jsmimeparser/structuredHeaders.js",
+      "package/src/jsmimeparser/textDecoders.js",
+      "package/src/jsmimeparser/utils.js",
+      "package/src/utils.ts"
+    ],
+    "unrelatedCryptoCode": false,
+    "platform": "browser",
+    "toolchainInputs": [
+      {
+        "file": "vendor/provenance/mime-compiler/package.json",
+        "bytes": 1205,
+        "sha256": "4c218d78e81aff1bf7a64994487a6720082d7a7219e41b0549baaf76abded461"
+      },
+      {
+        "file": "vendor/provenance/mime-compiler/package-lock.json",
+        "bytes": 21707,
+        "sha256": "afdb3d23f31193a3a998b609002b1feeafece9359e13d1071131cd2f5e44545a"
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "file": "mime-parser.js",
+      "bytes": 40125,
+      "sha256": "02a1d51010b41d66d695471ff21909ecc833da705309ef0e0df0f21447bebb07"
+    }
+  ],
+  "validation": {
+    "compile": "passed",
+    "freshSourceReproduction": "Two independent source-only extractions reproduced mime-parser.js exactly.",
+    "sourceModified": false,
+    "licenses": {
+      "package": "GPL-3.0",
+      "mimeSubtree": "MIT",
+      "unusedMailParserSource": "MPL-2.0"
+    }
+  },
+  "licenseFiles": [
+    {
+      "file": "provenance/PROTON-GPL-3.0.txt",
+      "bytes": 32473,
+      "sha256": "1b3782ccad7b8614100cda30d3faf42fc39f2e97932908c543005053b654ca68"
+    },
+    {
+      "file": "provenance/PROTON-MIME-MIT.txt",
+      "bytes": 1058,
+      "sha256": "d7cc10b09e57053b82df0c5533b7c3e28e011746af67e4915353b8f6a2d7cb96"
+    },
+    {
+      "file": "provenance/PROTON-MPL-2.0.txt",
+      "bytes": 16726,
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+    }
+  ]
+}

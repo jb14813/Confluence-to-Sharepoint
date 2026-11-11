@@ -8,7 +8,7 @@ await readReleaseMetadata();
 // C2S_BUILD_DIR names another folder for the build, in place of dist/.
 const out = path.resolve(process.env.C2S_BUILD_DIR ?? 'dist', 'sharepoint-helper');
 await mkdir(out, { recursive: true });
-await build({ entryPoints: { popup: 'src/popup/popup.js', dashboard:'src/dashboard/dashboard.js', content: 'src/transfer/content.js', memory: 'src/sharepoint/memory.js', background: 'src/background.js' }, outdir: out, bundle: true, format: 'iife', platform: 'browser', target: 'chrome127', minify: false, legalComments: 'eof' });
+await build({ entryPoints: { popup: 'src/popup/popup.js', dashboard:'src/dashboard/dashboard.js', content: 'src/transfer/content.js', memory: 'src/sharepoint/combined-memory.js', background: 'src/background.js' }, outdir: out, bundle: true, format: 'iife', platform: 'browser', target: 'chrome127', minify: false, legalComments: 'eof' });
 await buildCombinedFileImport(out);
 await build({entryPoints:['src/licenses.js'],outfile:path.join(out,'licenses.js'),bundle:true,format:'iife',platform:'browser',target:'chrome127'});
 await copyFile('extension/licenses.html',path.join(out,'licenses.html'));

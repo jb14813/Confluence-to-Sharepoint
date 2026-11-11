@@ -18,18 +18,22 @@ To keep it handy, pin it: select the puzzle-piece icon in Chrome's toolbar, then
 
 ## Import a file
 
-1. Select **Import a file** in the popup or dashboard.
+1. Select **Import a file** in the popup, dashboard, or the extension's shortcut on a SharePoint page.
 2. Choose a DOC, DOCX, ODT, RTF, UTF-8 TXT or text-based PDF file up to 50 MiB. Conversion runs locally inside Chrome.
 3. Review the reconstructed content and conversion notes, enter a page title and choose the SharePoint site.
 4. Select **I reviewed the content and conversion notes**, then **Create SharePoint draft**. The verified, unpublished page opens for review.
 
 ![File import preview of an illustrative document, with editable text, a table, an image and review controls](store/assets/screenshot-5-files-1280x800.png)
 
-Text and supported formatting remain editable. Original raster images retain their bytes; nontext shapes use the existing engine's rendering. Positioned PDF textboxes reflow into native editable content, so this is not a fixed-layout facsimile. Unsupported structures and image-only PDFs without editable text block sending; OCR is not included. Mixed text/image PDFs need review for words still inside images.
+Confluence Word exports wrapped in MIME are supported alongside ordinary Word documents. Original bitmap resources are used directly when their display is supported. SVG pictures, nonuniform image views and very narrow graphics can use verified PNG derivatives; the preview explains those adaptations. If an export links to images it did not include, the workspace lists their websites and asks you to select **Load linked images**. Those requests omit cookies and the referring page address. The file itself stays local. Exported application widgets become labeled editable snapshots or source links; an attachment already marked unknown in the source remains explicitly marked unknown.
+
+Text and supported formatting remain editable. Each selected upload is hashed and verified after transfer. The converter retains full decoded PDF raster dimensions using lossless PNG output; compressed file bytes change, and PDF color-space conversion can differ between viewers. Transformed or nonuniform image views can use verified PNG derivatives, and very narrow graphics can gain transparent space to keep them visible in SharePoint. Browser rendering limits and layout adaptations appear in the preview notes. Nontext shapes use the existing engine's rendering. Overlapping PDF layouts reflow into ordinary editable SharePoint content and separate images, with explicit notes when layout or text order changes. No custom document viewer or editor is required. Unsupported structures and image-only PDFs without editable text block sending; OCR is not included. Mixed text/image PDFs need review for words still inside images.
 
 Supported PDF form fields become text, multiline text, checkboxes, dropdowns and radio groups, grouped by source page. Interactive form pages require the companion SharePoint Framework app installed on the destination site. **Licenses and source** in the extension links to the package, installation instructions and response-list permission requirements. The component uses the reader's current SharePoint permissions; it does not grant access. XFA, PDF scripts, calculations and signatures are not supported.
 
 The local file preview is separate from the Confluence capture and does not enter the Confluence sent-page/update history. An interrupted file send keeps its attempt identity and destination so a lost message cannot silently create a second page. Its review/reset controls are in the file workspace; the Sites view's **Forget all** still applies to remembered sites and Confluence links.
+
+Word bullets, supported numbered lists and merged table cells remain native editable structures. The importer uses the Word engine's calculated numbering and merge grid. Verified markerless task and contents groups use supported native bullets while retaining checkbox symbols and links, with a preview note. Other custom numbering or layouts that cannot be represented faithfully block sending with an explanation.
 
 ## Copy a page
 

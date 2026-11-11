@@ -1,0 +1,823 @@
+{
+  "schemaVersion": 1,
+  "method": "Actual staged JS abort bodies/import table correlated to actual WASM imports, plus actual generated compiler/link Makefiles; no WASM instantiation.",
+  "outputs": [
+    {
+      "file": "x2t.js",
+      "bytes": 137170,
+      "sha256": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46"
+    },
+    {
+      "file": "x2t.wasm",
+      "bytes": 38867906,
+      "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+    }
+  ],
+  "wasmImportCount": 155,
+  "abortImportCount": 96,
+  "cryptoAbortImportCount": 71,
+  "heifAbortImportCount": 0,
+  "abortImports": [
+    {
+      "module": "a",
+      "name": "k",
+      "function": "_BIO_free",
+      "missingSymbol": "BIO_free"
+    },
+    {
+      "module": "a",
+      "name": "m",
+      "function": "_BIO_new_mem_buf",
+      "missingSymbol": "BIO_new_mem_buf"
+    },
+    {
+      "module": "a",
+      "name": "o",
+      "function": "_BIO_new",
+      "missingSymbol": "BIO_new"
+    },
+    {
+      "module": "a",
+      "name": "p",
+      "function": "_BIO_s_mem",
+      "missingSymbol": "BIO_s_mem"
+    },
+    {
+      "module": "a",
+      "name": "r",
+      "function": "_X509_free",
+      "missingSymbol": "X509_free"
+    },
+    {
+      "module": "a",
+      "name": "s",
+      "function": "_EVP_PKEY_free",
+      "missingSymbol": "EVP_PKEY_free"
+    },
+    {
+      "module": "a",
+      "name": "t",
+      "function": "_BIO_ctrl",
+      "missingSymbol": "BIO_ctrl"
+    },
+    {
+      "module": "a",
+      "name": "y",
+      "function": "_EVP_MD_CTX_free",
+      "missingSymbol": "EVP_MD_CTX_free"
+    },
+    {
+      "module": "a",
+      "name": "z",
+      "function": "_EVP_MD_CTX_new",
+      "missingSymbol": "EVP_MD_CTX_new"
+    },
+    {
+      "module": "a",
+      "name": "A",
+      "function": "_PKCS12_free",
+      "missingSymbol": "PKCS12_free"
+    },
+    {
+      "module": "a",
+      "name": "B",
+      "function": "_ERR_error_string",
+      "missingSymbol": "ERR_error_string"
+    },
+    {
+      "module": "a",
+      "name": "C",
+      "function": "_ERR_get_error",
+      "missingSymbol": "ERR_get_error"
+    },
+    {
+      "module": "a",
+      "name": "H",
+      "function": "__ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE"
+    },
+    {
+      "module": "a",
+      "name": "I",
+      "function": "__ZN8StarMath18CStarMathConverterD1Ev",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverterD1Ev"
+    },
+    {
+      "module": "a",
+      "name": "J",
+      "function": "__ZN8StarMath18CStarMathConverterC1Ev",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverterC1Ev"
+    },
+    {
+      "module": "a",
+      "name": "K",
+      "function": "__ZN8COFDFileC1EPN7NSFonts17IApplicationFontsE",
+      "missingSymbol": "_ZN8COFDFileC1EPN7NSFonts17IApplicationFontsE"
+    },
+    {
+      "module": "a",
+      "name": "L",
+      "function": "_X509_get_pubkey",
+      "missingSymbol": "X509_get_pubkey"
+    },
+    {
+      "module": "a",
+      "name": "M",
+      "function": "_PKCS7_verify",
+      "missingSymbol": "PKCS7_verify"
+    },
+    {
+      "module": "a",
+      "name": "N",
+      "function": "_OBJ_obj2nid",
+      "missingSymbol": "OBJ_obj2nid"
+    },
+    {
+      "module": "a",
+      "name": "O",
+      "function": "_PKCS7_free",
+      "missingSymbol": "PKCS7_free"
+    },
+    {
+      "module": "a",
+      "name": "P",
+      "function": "_EVP_DigestUpdate",
+      "missingSymbol": "EVP_DigestUpdate"
+    },
+    {
+      "module": "a",
+      "name": "Q",
+      "function": "_EVP_DigestInit",
+      "missingSymbol": "EVP_DigestInit"
+    },
+    {
+      "module": "a",
+      "name": "R",
+      "function": "_EVP_DigestSign",
+      "missingSymbol": "EVP_DigestSign"
+    },
+    {
+      "module": "a",
+      "name": "S",
+      "function": "_EVP_sha512",
+      "missingSymbol": "EVP_sha512"
+    },
+    {
+      "module": "a",
+      "name": "T",
+      "function": "_BN_free",
+      "missingSymbol": "BN_free"
+    },
+    {
+      "module": "a",
+      "name": "U",
+      "function": "_EVP_sha384",
+      "missingSymbol": "EVP_sha384"
+    },
+    {
+      "module": "a",
+      "name": "V",
+      "function": "_OPENSSL_init_crypto",
+      "missingSymbol": "OPENSSL_init_crypto"
+    },
+    {
+      "module": "a",
+      "name": "W",
+      "function": "_EVP_sha256",
+      "missingSymbol": "EVP_sha256"
+    },
+    {
+      "module": "a",
+      "name": "X",
+      "function": "_OPENSSL_sk_pop_free",
+      "missingSymbol": "OPENSSL_sk_pop_free"
+    },
+    {
+      "module": "a",
+      "name": "_",
+      "function": "_PKCS12_parse",
+      "missingSymbol": "PKCS12_parse"
+    },
+    {
+      "module": "a",
+      "name": "aa",
+      "function": "_d2i_PKCS12_bio",
+      "missingSymbol": "d2i_PKCS12_bio"
+    },
+    {
+      "module": "a",
+      "name": "da",
+      "function": "__ZN8NSJSBase10CJSContextD1Ev",
+      "missingSymbol": "_ZN8NSJSBase10CJSContextD1Ev"
+    },
+    {
+      "module": "a",
+      "name": "ea",
+      "function": "__ZN8NSJSBase10CJSContext14isSnapshotUsedEv",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext14isSnapshotUsedEv"
+    },
+    {
+      "module": "a",
+      "name": "fa",
+      "function": "__ZN8NSJSBase10CJSContext9GetGlobalEv",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext9GetGlobalEv"
+    },
+    {
+      "module": "a",
+      "name": "ga",
+      "function": "__ZN8NSJSBase14CreateDefaultsEv",
+      "missingSymbol": "_ZN8NSJSBase14CreateDefaultsEv"
+    },
+    {
+      "module": "a",
+      "name": "ha",
+      "function": "__ZN8NSJSBase10CJSContextC1ERKb",
+      "missingSymbol": "_ZN8NSJSBase10CJSContextC1ERKb"
+    },
+    {
+      "module": "a",
+      "name": "ja",
+      "function": "__ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter14GetFormulaSizeEv"
+    },
+    {
+      "module": "a",
+      "name": "ka",
+      "function": "__ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj"
+    },
+    {
+      "module": "a",
+      "name": "la",
+      "function": "__ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseBoldEb"
+    },
+    {
+      "module": "a",
+      "name": "ma",
+      "function": "__ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter13SetBaseItalicEb"
+    },
+    {
+      "module": "a",
+      "name": "na",
+      "function": "__ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj"
+    },
+    {
+      "module": "a",
+      "name": "oa",
+      "function": "__ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseSizeERKj"
+    },
+    {
+      "module": "a",
+      "name": "pa",
+      "function": "__ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE"
+    },
+    {
+      "module": "a",
+      "name": "qa",
+      "function": "_X509_print_ex",
+      "missingSymbol": "X509_print_ex"
+    },
+    {
+      "module": "a",
+      "name": "ra",
+      "function": "_X509_get_signature_nid",
+      "missingSymbol": "X509_get_signature_nid"
+    },
+    {
+      "module": "a",
+      "name": "sa",
+      "function": "_EVP_VerifyFinal",
+      "missingSymbol": "EVP_VerifyFinal"
+    },
+    {
+      "module": "a",
+      "name": "ta",
+      "function": "_EVP_DigestVerify",
+      "missingSymbol": "EVP_DigestVerify"
+    },
+    {
+      "module": "a",
+      "name": "ua",
+      "function": "_EVP_DigestVerifyInit",
+      "missingSymbol": "EVP_DigestVerifyInit"
+    },
+    {
+      "module": "a",
+      "name": "va",
+      "function": "_SHA1",
+      "missingSymbol": "SHA1"
+    },
+    {
+      "module": "a",
+      "name": "wa",
+      "function": "_SHA512",
+      "missingSymbol": "SHA512"
+    },
+    {
+      "module": "a",
+      "name": "xa",
+      "function": "_SHA384",
+      "missingSymbol": "SHA384"
+    },
+    {
+      "module": "a",
+      "name": "ya",
+      "function": "_SHA256",
+      "missingSymbol": "SHA256"
+    },
+    {
+      "module": "a",
+      "name": "za",
+      "function": "_SHA224",
+      "missingSymbol": "SHA224"
+    },
+    {
+      "module": "a",
+      "name": "Aa",
+      "function": "_X509_STORE_free",
+      "missingSymbol": "X509_STORE_free"
+    },
+    {
+      "module": "a",
+      "name": "Ba",
+      "function": "_X509_STORE_add_cert",
+      "missingSymbol": "X509_STORE_add_cert"
+    },
+    {
+      "module": "a",
+      "name": "Ca",
+      "function": "_X509_STORE_new",
+      "missingSymbol": "X509_STORE_new"
+    },
+    {
+      "module": "a",
+      "name": "Da",
+      "function": "_OBJ_nid2ln",
+      "missingSymbol": "OBJ_nid2ln"
+    },
+    {
+      "module": "a",
+      "name": "Ea",
+      "function": "_d2i_PKCS7_bio",
+      "missingSymbol": "d2i_PKCS7_bio"
+    },
+    {
+      "module": "a",
+      "name": "Fa",
+      "function": "_i2d_PKCS7_bio",
+      "missingSymbol": "i2d_PKCS7_bio"
+    },
+    {
+      "module": "a",
+      "name": "Ga",
+      "function": "_PKCS7_final",
+      "missingSymbol": "PKCS7_final"
+    },
+    {
+      "module": "a",
+      "name": "Ha",
+      "function": "_PKCS7_sign_add_signer",
+      "missingSymbol": "PKCS7_sign_add_signer"
+    },
+    {
+      "module": "a",
+      "name": "Ia",
+      "function": "_EVP_sha1",
+      "missingSymbol": "EVP_sha1"
+    },
+    {
+      "module": "a",
+      "name": "Ja",
+      "function": "_PKCS7_sign",
+      "missingSymbol": "PKCS7_sign"
+    },
+    {
+      "module": "a",
+      "name": "Ka",
+      "function": "_BIO_write",
+      "missingSymbol": "BIO_write"
+    },
+    {
+      "module": "a",
+      "name": "La",
+      "function": "_EVP_SignFinal",
+      "missingSymbol": "EVP_SignFinal"
+    },
+    {
+      "module": "a",
+      "name": "Ma",
+      "function": "_EVP_DigestSignInit",
+      "missingSymbol": "EVP_DigestSignInit"
+    },
+    {
+      "module": "a",
+      "name": "Na",
+      "function": "_i2d_X509_bio",
+      "missingSymbol": "i2d_X509_bio"
+    },
+    {
+      "module": "a",
+      "name": "Oa",
+      "function": "_X509_NAME_oneline",
+      "missingSymbol": "X509_NAME_oneline"
+    },
+    {
+      "module": "a",
+      "name": "Pa",
+      "function": "_X509_get_issuer_name",
+      "missingSymbol": "X509_get_issuer_name"
+    },
+    {
+      "module": "a",
+      "name": "Qa",
+      "function": "_CRYPTO_free",
+      "missingSymbol": "CRYPTO_free"
+    },
+    {
+      "module": "a",
+      "name": "Ra",
+      "function": "_BN_bn2dec",
+      "missingSymbol": "BN_bn2dec"
+    },
+    {
+      "module": "a",
+      "name": "Sa",
+      "function": "_BN_add",
+      "missingSymbol": "BN_add"
+    },
+    {
+      "module": "a",
+      "name": "Ta",
+      "function": "_BN_hex2bn",
+      "missingSymbol": "BN_hex2bn"
+    },
+    {
+      "module": "a",
+      "name": "Ua",
+      "function": "_ASN1_INTEGER_free",
+      "missingSymbol": "ASN1_INTEGER_free"
+    },
+    {
+      "module": "a",
+      "name": "Va",
+      "function": "_ASN1_INTEGER_to_BN",
+      "missingSymbol": "ASN1_INTEGER_to_BN"
+    },
+    {
+      "module": "a",
+      "name": "Wa",
+      "function": "_ERR_print_errors",
+      "missingSymbol": "ERR_print_errors"
+    },
+    {
+      "module": "a",
+      "name": "Xa",
+      "function": "_X509_getm_notAfter",
+      "missingSymbol": "X509_getm_notAfter"
+    },
+    {
+      "module": "a",
+      "name": "Ya",
+      "function": "_X509_getm_notBefore",
+      "missingSymbol": "X509_getm_notBefore"
+    },
+    {
+      "module": "a",
+      "name": "Za",
+      "function": "_X509_get_serialNumber",
+      "missingSymbol": "X509_get_serialNumber"
+    },
+    {
+      "module": "a",
+      "name": "_a",
+      "function": "_OPENSSL_config",
+      "missingSymbol": "OPENSSL_config"
+    },
+    {
+      "module": "a",
+      "name": "$a",
+      "function": "_d2i_X509_bio",
+      "missingSymbol": "d2i_X509_bio"
+    },
+    {
+      "module": "a",
+      "name": "ab",
+      "function": "_PEM_read_bio_X509_AUX",
+      "missingSymbol": "PEM_read_bio_X509_AUX"
+    },
+    {
+      "module": "a",
+      "name": "bb",
+      "function": "_PEM_read_bio_X509",
+      "missingSymbol": "PEM_read_bio_X509"
+    },
+    {
+      "module": "a",
+      "name": "Fb",
+      "function": "_d2i_PKCS8PrivateKey_bio",
+      "missingSymbol": "d2i_PKCS8PrivateKey_bio"
+    },
+    {
+      "module": "a",
+      "name": "Jb",
+      "function": "__ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+      "missingSymbol": "_ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE"
+    },
+    {
+      "module": "a",
+      "name": "Kb",
+      "function": "__ZN8NSJSBase10CJSContext4ExitEv",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext4ExitEv"
+    },
+    {
+      "module": "a",
+      "name": "Lb",
+      "function": "__ZN8NSJSBase10CJSContext5EnterEv",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext5EnterEv"
+    },
+    {
+      "module": "a",
+      "name": "Mb",
+      "function": "_d2i_PrivateKey_bio",
+      "missingSymbol": "d2i_PrivateKey_bio"
+    },
+    {
+      "module": "a",
+      "name": "Nb",
+      "function": "__ZN8NSJSBase10CJSContext12createStringERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEE",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext12createStringERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEE"
+    },
+    {
+      "module": "a",
+      "name": "Ob",
+      "function": "__ZN8NSJSBase10CJSContext10GetCurrentEv",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext10GetCurrentEv"
+    },
+    {
+      "module": "a",
+      "name": "Pb",
+      "function": "__ZN19CNativeControlEmbed10getCreatorEv",
+      "missingSymbol": "_ZN19CNativeControlEmbed10getCreatorEv"
+    },
+    {
+      "module": "a",
+      "name": "Qb",
+      "function": "__ZN19CNativeControlEmbed7getNameEv",
+      "missingSymbol": "_ZN19CNativeControlEmbed7getNameEv"
+    },
+    {
+      "module": "a",
+      "name": "Rb",
+      "function": "__ZN8NSJSBase10CJSContext7DisposeEv",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext7DisposeEv"
+    },
+    {
+      "module": "a",
+      "name": "Sb",
+      "function": "__ZN8NSJSBase10CJSContext13GetExceptionsEv",
+      "missingSymbol": "_ZN8NSJSBase10CJSContext13GetExceptionsEv"
+    },
+    {
+      "module": "a",
+      "name": "Tb",
+      "function": "_PEM_read_bio_PrivateKey",
+      "missingSymbol": "PEM_read_bio_PrivateKey"
+    },
+    {
+      "module": "a",
+      "name": "Ub",
+      "function": "_EVP_sha224",
+      "missingSymbol": "EVP_sha224"
+    }
+  ],
+  "generatedMakefiles": [
+    {
+      "file": "provenance/converter/local-build/x2t.Makefile",
+      "bytes": 188904,
+      "sha256": "9930a6d4720abd9f8d03beb2276197c3fb8da0634564c689be2f138b0c2d1bdd",
+      "target": "build/bin/linux_64/x2t",
+      "compiler": "em++",
+      "linker": "em++",
+      "archiver": "ar cqs",
+      "definitions": [
+        "-D__linux__",
+        "-DHAVE_UNISTD_H",
+        "-D_RWSTD_NO_SETRLIMIT",
+        "-DINTVER=2.5.565.0",
+        "-DCOPYRIGHT_YEAR=2026",
+        "-DQT_VERSION_6",
+        "-DLINUX",
+        "-D_LINUX",
+        "-DCRYPTOPP_DISABLE_ASM",
+        "-DUNICODE",
+        "-D_UNICODE",
+        "-DFILTER_FLATE_DECODE_ENABLED",
+        "-DDONT_WRITE_EMBEDDED_FONTS",
+        "-DAVS_USE_CONVERT_PPTX_TOCUSTOM_VML",
+        "-DPDFFILE_USE_DYNAMIC_LIBRARY",
+        "-DXPS_USE_DYNAMIC_LIBRARY",
+        "-DOFD_USE_DYNAMIC_LIBRARY",
+        "-DDJVU_USE_DYNAMIC_LIBRARY",
+        "-DHTMLFILE_USE_DYNAMIC_LIBRARY",
+        "-DUNICODECONVERTER_USE_DYNAMIC_LIBRARY",
+        "-DFILE_FORMAT_CHECKER_WITH_MACRO",
+        "-DKERNEL_USE_DYNAMIC_LIBRARY",
+        "-DGRAPHICS_USE_DYNAMIC_LIBRARY",
+        "-DQT_NO_DEBUG"
+      ],
+      "sourceCount": 4,
+      "opensslWrapperSources": [],
+      "jpegSourceCount": 0,
+      "imageManagerSources": [],
+      "linkFlags": "-sUSE_ICU=1 -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=128kb -sASSERTIONS=0 -sUSE_CLOSURE_COMPILER=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEMULATE_FUNCTION_POINTER_CASTS=1 -looxmlsignature -L/usr/local/lib --pre-js /pre-js.js -sEXPORTED_RUNTIME_METHODS=ccall,FS -sEXPORTED_FUNCTIONS=_main1 -sALLOW_MEMORY_GROWTH -sUSE_ICU=1 -sUSE_BOOST_HEADERS=0 -Os -Wl,-rpath,'$$ORIGIN' -Wl,-rpath,'$$ORIGIN/system' -static-libstdc++ -static-libgcc -Wl,-O1 -Wl,-s",
+      "linkLibraries": "$(SUBLIBS) -L/core/X2tConverter/build/Qt/../../../build/lib/linux_64 -lVbaFormatLib -lOdfFormatLib -lDocFormatLib -lPptFormatLib -lRtfFormatLib -lTxtXmlFormatLib -lBinDocument -lPPTXFormatLib -lDocxFormatLib -lXlsbFormatLib -lXlsFormatLib -lCompoundFileLib -lCryptoPPLib -lgraphics -lkernel -lUnicodeConverter -lkernel_network -lPdfFile -lHtmlFile2 -lEpubFile -lXpsFile -lDjVuFile -ldoctrenderer -lDocxRenderer -lIWorkFile -lHWPFile -L/core/Common/3dParty/boost/build/linux_64/lib -lboost_date_time -lpthread   ",
+      "linkOrArchiveCommands": [
+        "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)"
+      ]
+    },
+    {
+      "file": "provenance/converter/local-build/pdffile.Makefile",
+      "bytes": 263492,
+      "sha256": "6b683499f84f5f3d34d68135887042532e1ea16fbe7e3e669af4b57cb46b5345",
+      "target": "libPdfFile.a",
+      "compiler": "em++",
+      "linker": null,
+      "archiver": "ar cqs",
+      "definitions": [
+        "-D__linux__",
+        "-DHAVE_UNISTD_H",
+        "-D_RWSTD_NO_SETRLIMIT",
+        "-DINTVER=2.5.565.0",
+        "-DCOPYRIGHT_YEAR=2026",
+        "-DQT_VERSION_6",
+        "-DLINUX",
+        "-D_LINUX",
+        "-DPDFFILE_USE_DYNAMIC_LIBRARY",
+        "-DUSE_EXTERNAL_JPEG2000",
+        "-DUSE_JPIP",
+        "-DOPJ_STATIC",
+        "-DCRYPTOPP_DISABLE_ASM",
+        "-DNOMINMAX",
+        "-DHAVE_UNISTD_H",
+        "-DHAVE_FCNTL_H",
+        "-DFT_CONFIG_OPTION_USE_BROTLI",
+        "-DFT_CONFIG_OPTION_SYSTEM_ZLIB",
+        "-DFT2_BUILD_LIBRARY",
+        "-DHAVE_JPEGLIB=1",
+        "-DQT_NO_DEBUG",
+        "-DQT_STATICPLUGIN",
+        "-DQT_PLUGIN"
+      ],
+      "sourceCount": 154,
+      "opensslWrapperSources": [],
+      "jpegSourceCount": 0,
+      "imageManagerSources": [],
+      "linkFlags": null,
+      "linkLibraries": null,
+      "linkOrArchiveCommands": [
+        "$(AR) $(DESTDIR)$(TARGET) $(OBJECTS)"
+      ]
+    },
+    {
+      "file": "provenance/converter/local-build/ooxmlsignature.Makefile",
+      "bytes": 31518,
+      "sha256": "bcc8c02c3fa8534f071cac0132c3bd3088b824dfa4b707c806224cba683d4123",
+      "target": "libooxmlsignature.a",
+      "compiler": "em++",
+      "linker": null,
+      "archiver": "ar cqs",
+      "definitions": [
+        "-D__linux__",
+        "-DHAVE_UNISTD_H",
+        "-D_RWSTD_NO_SETRLIMIT",
+        "-DINTVER=2.5.565.0",
+        "-DCOPYRIGHT_YEAR=2026",
+        "-DQT_VERSION_6",
+        "-DLINUX",
+        "-D_LINUX",
+        "-DSUPPORT_OPENSSL",
+        "-DCOMMON_OPENSSL_BUILDING",
+        "-DQT_NO_DEBUG",
+        "-DQT_STATICPLUGIN",
+        "-DQT_PLUGIN"
+      ],
+      "sourceCount": 5,
+      "opensslWrapperSources": [
+        "Common/3dParty/openssl/common/common_openssl.cpp"
+      ],
+      "jpegSourceCount": 0,
+      "imageManagerSources": [],
+      "linkFlags": null,
+      "linkLibraries": null,
+      "linkOrArchiveCommands": [
+        "$(AR) $(DESTDIR)$(TARGET) $(OBJECTS)"
+      ]
+    },
+    {
+      "file": "provenance/converter/local-build/graphics.Makefile",
+      "bytes": 1968184,
+      "sha256": "423ea891c2c0484a7cda9c3be4e1ceac0559ebcd9fff70f7ee2a3d620ba7a3fb",
+      "target": "libgraphics.a",
+      "compiler": "em++",
+      "linker": null,
+      "archiver": "ar cqs",
+      "definitions": [
+        "-D__linux__",
+        "-DHAVE_UNISTD_H",
+        "-D_RWSTD_NO_SETRLIMIT",
+        "-D_QT",
+        "-DGRAPHICS_USE_DYNAMIC_LIBRARY_BUILDING",
+        "-DINTVER=2.5.565.0",
+        "-DCOPYRIGHT_YEAR=2026",
+        "-DQT_VERSION_6",
+        "-DLINUX",
+        "-D_LINUX",
+        "-DDISABLE_IMAGE_EXCEPTIONS",
+        "-D_QT",
+        "-DEXCLUDE_JPG_SUPPORT",
+        "-DMNG_SUPPORT_DISPLAY",
+        "-DMNG_SUPPORT_READ",
+        "-DMNG_SUPPORT_WRITE",
+        "-DMNG_ACCESS_CHUNKS",
+        "-DMNG_STORE_CHUNKS",
+        "-DMNG_ERROR_TELLTALE",
+        "-DHAVE_UNISTD_H",
+        "-DHAVE_FCNTL_H",
+        "-DSUPPORT_LIB_HEIF_SOURCES",
+        "-DLIBHEIF_STATIC_BUILD",
+        "-DMETAFILE_SUPPORT_WMF_EMF",
+        "-DMETAFILE_SUPPORT_WMF_EMF_XML",
+        "-DMETAFILE_SUPPORT_SVG",
+        "-DCSS_CALCULATOR_WITH_XHTML",
+        "-DMETAFILE_SUPPORT_SVM",
+        "-DFT_CONFIG_OPTION_SYSTEM_ZLIB",
+        "-DFT2_BUILD_LIBRARY",
+        "-DSUPPORT_HARFBUZZ_SHAPER",
+        "-DHAVE_FREETYPE",
+        "-DHB_NO_VISIBILITY",
+        "-DFT_CONFIG_OPTION_USE_BROTLI",
+        "-DQT_NO_DEBUG",
+        "-DQT_STATICPLUGIN",
+        "-DQT_PLUGIN"
+      ],
+      "sourceCount": 507,
+      "opensslWrapperSources": [],
+      "jpegSourceCount": 66,
+      "imageManagerSources": [],
+      "linkFlags": null,
+      "linkLibraries": null,
+      "linkOrArchiveCommands": [
+        "$(AR) $(DESTDIR)$(TARGET) $(OBJECTS)"
+      ]
+    },
+    {
+      "file": "provenance/converter/local-build/docxrenderer.Makefile",
+      "bytes": 47050,
+      "sha256": "cda3c7d1104e34ffdc410edfb3fcb8f03ed8251f4be612b0ff73a7b4306709eb",
+      "target": "libDocxRenderer.a",
+      "compiler": "em++",
+      "linker": null,
+      "archiver": "ar cqs",
+      "definitions": [
+        "-D__linux__",
+        "-DHAVE_UNISTD_H",
+        "-D_RWSTD_NO_SETRLIMIT",
+        "-DINTVER=2.5.565.0",
+        "-DCOPYRIGHT_YEAR=2026",
+        "-DQT_VERSION_6",
+        "-DLINUX",
+        "-D_LINUX",
+        "-DDOCXRENDERER_USE_DYNAMIC_LIBRARY",
+        "-DQT_NO_DEBUG",
+        "-DQT_STATICPLUGIN",
+        "-DQT_PLUGIN"
+      ],
+      "sourceCount": 17,
+      "opensslWrapperSources": [],
+      "jpegSourceCount": 0,
+      "imageManagerSources": [
+        "DocxRenderer/src/logic/managers/ImageManager.cpp"
+      ],
+      "linkFlags": null,
+      "linkLibraries": null,
+      "linkOrArchiveCommands": [
+        "$(AR) $(DESTDIR)$(TARGET) $(OBJECTS)"
+      ]
+    }
+  ],
+  "checks": {
+    "noOpenSSLImplementationTranslationUnitsInReviewedMakefiles": true,
+    "noOpenSSLHashDefine": true,
+    "noOpenSSLOrHEIFImplementationLibrariesInFinalLink": true,
+    "noGpcOrAggExamplesSelected": true,
+    "signatureAndGraphicsArchivesContainObjectInputsOnly": true,
+    "existingIjgDecoderSelected": true,
+    "noTestOnlyCaptureMarkerInProductionWasm": true
+  },
+  "limits": "The reviewed Makefiles retain ONLYOFFICE API wrapper/header dependencies. Abort-import evidence is not a claim that all repository OpenSSL headers or host tools are absent. Full fresh-source reproduction is recorded separately by converter-build-provenance.json."
+}

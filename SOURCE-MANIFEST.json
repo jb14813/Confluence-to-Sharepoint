@@ -1,24 +1,25 @@
 {
   "schemaVersion": 1,
   "product": "Confluence to SharePoint",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "status": "verified-corresponding-source",
   "sourceArchive": {
-    "filename": "confluence-to-sharepoint-0.7.1-source.zip",
-    "downloadUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.1/confluence-to-sharepoint-0.7.1-source.zip",
-    "checksumUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.1/confluence-to-sharepoint-0.7.1-source.zip.sha256"
+    "filename": "confluence-to-sharepoint-0.7.2-source.zip",
+    "downloadUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.2/confluence-to-sharepoint-0.7.2-source.zip",
+    "checksumUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.2/confluence-to-sharepoint-0.7.2-source.zip.sha256"
   },
   "sourceInputs": {
     "file": "SOURCE-INPUTS.json",
-    "count": 226,
-    "bytes": 1433530451,
-    "sha256": "1f67a417e7531b77b47085fde09bc10832b21e7797945271b7cf7934ed1fde3a"
+    "count": 229,
+    "bytes": 1809660821,
+    "sha256": "bc83d62e377707b7d4ea464e1167c5a7120c3a5b81d203fe9db4fe27b67cc06e"
   },
   "verification": {
-    "converter": "Official CryptPad release asset, tagged successful upstream workflow and matching source/build inputs; no local C++ rebuild claimed.",
-    "wordSdk": "Pinned official source, supported SIMPLE compilation, fresh-source byte-for-byte reproduction.",
-    "pdfFontRuntime": "PDF drawing engine rebuilt from pinned official core with existing Xpdf hashing and no OpenSSL implementation inputs; fresh recipe replay reproduced both outputs exactly. Font runtime remains exact publisher-associated official SDK bytes.",
-    "thirdParty": "Exact embedded JavaScript versions and native source/license material, including embedded PDF base fonts, are retained and verified."
+    "converter": "Two independent fresh source-only contexts reproduced JS/WASM and all six build outputs exactly. The 188 pinned source/tool inputs and complete maintained recipes are retained. Recorded toolchain/dependency caches were reused; core compilation was uncached.",
+    "wordSdk": "Pinned official Word SDK source and retained independent source-build pairs match the shipped JavaScript bundles.",
+    "pdfFontRuntime": "A fresh source/compiler PDF-reader build exactly matches the accepted JS/WASM. The existing Xpdf SHA384/SHA512 branch avoids incompatible OpenSSL implementation inputs. Font WASM remains exact publisher-associated official SDK bytes; a local font-runtime build is not claimed.",
+    "mimeParser": "The provided-source CLI reproduces the exact raw MIME closure from pinned Proton source. Immutable compiler configuration snapshots and matching application/compiler/platform pins preserve public-source rebuilding.",
+    "thirdParty": "Exact embedded JavaScript versions, native source/license inputs, embedded PDF base-font notices and full MIME GPL/MIT/MPL texts are retained and verified."
   },
   "instructions": "CORRESPONDING-SOURCE.md",
   "sourceDelivery": {

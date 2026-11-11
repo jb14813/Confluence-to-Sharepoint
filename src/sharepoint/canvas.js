@@ -21,13 +21,16 @@ const HASH = /^[0-9a-f]{64}$/i;
 // capture's blocks.
 const NIL = '00000000-0000-0000-0000-000000000000';
 const MIME = {'image/png':'png','image/jpeg':'jpg','image/gif':'gif','image/webp':'webp'};
-const TAGS = new Set('p h1 h2 h3 h4 h5 h6 span strong b em i u s sup sub br ol ul li table thead tbody tfoot tr td th a blockquote pre code div'.split(' '));
+const TAGS = new Set('p h1 h2 h3 h4 h5 h6 span strong b em i u s sup sub br ol ul li figure table colgroup col thead tbody tfoot tr td th a blockquote pre code div'.split(' '));
 const ATTRS = new Set('id href style start type scope colspan rowspan class data-picture'.split(' '));
 // SharePoint's own markup for a table without borders, as its editor writes it:
-// two wrapper divs and the table style. A div must be one of them; no other class is accepted.
+// two wrapper divs and the table style. Current file tables use its canonical
+// figure wrapper, restricted below to one direct table child and full width.
+// A div must be one of the known wrappers or picture slots.
 // A picture kept in a table cell, a panel or a quote is written by the capture as an empty slot, `c2sPicture`, numbered in its
 // block's `pictures` (checkPictures); serializeCanvas turns it into SharePoint's own inline picture.
-const CLASSES = {div:new Set(['canvasRteResponsiveTable','tableCenterAlign tableWrapper','c2sPicture']),table:new Set(['noBorderTableStyleNeutral'])};
+const CLASSES = {div:new Set(['canvasRteResponsiveTable','tableCenterAlign tableWrapper','c2sPicture']),table:new Set(['noBorderTableStyleNeutral']),figure:new Set(['table'])};
+const TABLE_FIGURE_PARENTS = new Set(['td','th','div','li','blockquote']);
 const ENTITIES = {amp:'&',lt:'<',gt:'>',quot:'"',apos:"'",nbsp:'\u00a0'};
 const badControl = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u;
 // Match the characters the Confluence heading slugger can emit, plus legacy
@@ -80,6 +83,11 @@ function attributeValue(raw) {
 }
 function checkStyle(value,tag) {
   if (/[{}@\\&<>\u0000-\u001f\u007f]|url\s*\(|expression\s*\(/iu.test(value)) fail('unsafe-content','Unsafe inline formatting was found.');
+  if(tag==='figure'){
+    if(!/^\s*width\s*:\s*100%\s*;?\s*$/i.test(value))fail('unsafe-content','Unsupported table figure formatting.');
+    return;
+  }
+  if(tag==='col'&&!/^\s*width\s*:\s*(?:100|[1-9]?\d(?:\.\d{1,4})?)%\s*;?\s*$/i.test(value)||tag==='col'&&Number(value.match(/[\d.]+/)?.[0])<=0)fail('unsafe-content','Unsupported table column width.');
   const color = /^(?:#[0-9a-f]{3,8}|[a-z]+|rgba?\([\d.,%\s]+\))$/i;
   const rules = {
     color, 'background-color':color,
@@ -92,7 +100,7 @@ function checkStyle(value,tag) {
     'white-space':/^(?:pre|pre-wrap)$/i,
     'table-layout':/^fixed$/i,
     // A list's own numbering style, when sub-steps go on after a picture outside their step (lists.js).
-    'list-style-type':/^(?:decimal|lower-latin|lower-roman|disc|circle|square)$/i,
+    'list-style-type':/^(?:decimal|lower-latin|upper-latin|lower-roman|upper-roman|disc|circle|square|none)$/i,
     overflow:/^visible$/i,
     width:/^(?:100|[1-9]?\d(?:\.\d{1,4})?)%$/
   };
@@ -112,6 +120,11 @@ function checkStyle(value,tag) {
     if(property==='padding') {
       const padding=/^(\d+(?:\.\d+)?)(px|pt)$/i.exec(v);
       if(!['td','th'].includes(tag)||!padding||Number(padding[1])>(padding[2].toLowerCase()==='pt'?72:96)) fail('unsafe-content','Unsupported table padding.');
+      continue;
+    }
+    if(property==='height'){
+      const height=/^(\d+(?:\.\d+)?)(px|pt)$/i.exec(v);
+      if(!['td','th'].includes(tag)||!height||Number(height[1])<=0||Number(height[1])>4096)fail('unsafe-content','Unsupported table cell height.');
       continue;
     }
     if (!match || !Object.hasOwn(rules,property) || !rules[property].test(v)) {
@@ -144,6 +157,8 @@ function pictureLink(value) {
 }
 function checkAttribute(tag,name,value) {
   if (!ATTRS.has(name)||badControl.test(value)) fail('unsafe-content','Unsupported HTML attribute.');
+  if(tag==='figure'&&!['class','style'].includes(name))fail('unsafe-content','Unsupported table figure attribute.');
+  if(tag==='colgroup'||tag==='col'&&name!=='style')fail('unsafe-content','Unsupported table column attribute.');
   if (name==='id'&&!HEADING_ID.test(value)) fail('unsafe-content','Invalid heading identifier.');
   if (name==='href') { if(tag!=='a') fail('unsafe-content','Links require anchor elements.'); checkHref(value); }
   if (name==='style') checkStyle(value,tag);
@@ -156,19 +171,33 @@ function checkAttribute(tag,name,value) {
 }
 function safeHtml(html) {
   if (typeof html!=='string'||!html.trim()||html.length>MAX_TEXT_HTML||badControl.test(html)) fail('unsafe-content','Text HTML is empty, too large, or contains control characters.');
-  const stack=[];
+  const stack=[],columnGroups=[],tableFigures=[],ids=[];
   // Picture slots, by their own marks: a div of class c2sPicture or one with data-picture (checkPictures).
   let pos=0,hasCode=false,marked=0;
   while (pos<html.length) {
     const start=html.indexOf('<',pos);
     if (start<0) break;
+    if(stack.at(-1)==='colgroup'&&html.slice(pos,start).trim())fail('unsafe-content','Table column groups cannot contain text.');
+    if(stack.at(-1)==='figure'&&html.slice(pos,start).trim())fail('unsafe-content','Table figures cannot contain text outside their table.');
     const match=/^<\s*(\/?)\s*([a-z][a-z0-9]*)(\s[^<>]*?|)\s*(\/?)>/i.exec(html.slice(start));
     if (!match) fail('unsafe-content','Text HTML must contain balanced supported elements with escaped literal angle brackets.');
     const [,closing,rawTag,rawAttrs,selfClosing]=match, tag=rawTag.toLowerCase();
     if (!TAGS.has(tag)) fail('unsafe-content','Unsupported HTML element.');
     if (closing) {
       if (rawAttrs.trim()||selfClosing||stack.pop()!==tag) fail('unsafe-content','Text HTML contains mismatched closing tags.');
+      if(tag==='colgroup'&&!columnGroups.pop())fail('unsafe-content','A table column group must contain columns.');
+      if(tag==='figure'&&tableFigures.pop()!==1)fail('unsafe-content','A table figure must contain exactly one table.');
     } else {
+      if(stack.at(-1)==='figure'){
+        if(tag!=='table'||++tableFigures[tableFigures.length-1]!==1)fail('unsafe-content','A table figure must contain exactly one direct table child.');
+      }
+      if(tag==='figure'){
+        if(stack.length&&!TABLE_FIGURE_PARENTS.has(stack.at(-1)))fail('unsafe-content','Unsupported table figure placement.');
+        tableFigures.push(0);
+      }
+      if(tag==='colgroup'&&stack.at(-1)!=='table'||tag==='col'&&stack.at(-1)!=='colgroup'||stack.at(-1)==='colgroup'&&tag!=='col')fail('unsafe-content','Unsupported table column placement.');
+      if(tag==='colgroup')columnGroups.push(0);
+      if(tag==='col')columnGroups[columnGroups.length-1]++;
       const names=new Set();
       let remaining=rawAttrs,slotClass=false;
       while (remaining.trim()) {
@@ -177,13 +206,16 @@ function safeHtml(html) {
         const name=attr[1].toLowerCase(),value=attributeValue(attr[2]??attr[3]);
         if(names.has(name)) fail('unsafe-content','Duplicate HTML attributes are not supported.');
         names.add(name); checkAttribute(tag,name,value);
+        if(name==='id')ids.push(value);
         if(name==='class'&&value==='c2sPicture') slotClass=true;
         remaining=remaining.slice(attr[0].length);
       }
       if (tag==='div'&&!names.has('class')) fail('unsafe-content','Unsupported HTML element.');
+      if(tag==='figure'&&(!names.has('class')||!names.has('style')))fail('unsafe-content','A table figure requires its native class and full width.');
+      if(tag==='col'&&!names.has('style'))fail('unsafe-content','A table column requires its bounded width.');
       if (slotClass||names.has('data-picture')) marked++;
-      if (tag!=='br') {
-        if(selfClosing) fail('unsafe-content','Only line breaks can be self-closing.');
+      if (!['br','col'].includes(tag)) {
+        if(selfClosing) fail('unsafe-content','Only line breaks and table columns can be self-closing.');
         stack.push(tag);
       }
       if(tag==='pre'||tag==='code') hasCode=true;
@@ -193,7 +225,7 @@ function safeHtml(html) {
   if(stack.length) fail('unsafe-content','Text HTML has unclosed elements.');
   // Return the validated markup unchanged so source words, escapes and spacing
   // survive. This accepts normalized HTML, not arbitrary Confluence DOM.
-  return {html,hasCode,marked};
+  return {html,hasCode,marked,ids};
 }
 
 // A text block's pictures kept in table cells or panels: {assetId, alt, caption, link?, displayWidth (px, as Confluence
@@ -305,7 +337,7 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     checkSection(block.section);
     if(block.type==='text') {
       const checked=safeHtml(block.html),pictures=checkPictures(block,checked.marked);
-      expanded.push({type:'text',html:checked.html,pictures,section:block.section});totalHtml+=checked.html.length;textCount++;
+      expanded.push({type:'text',html:checked.html,pictures,sourceIds:checked.ids,section:block.section});totalHtml+=checked.html.length;textCount++;
     } else if(block.type==='divider') {
       checkCanvasBlock(block);
       expanded.push({type:'divider',section:block.section});dividerCount++;
@@ -342,7 +374,7 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     if(!guid(id)||forbiddenIds.has(id.toLowerCase())) fail('invalid-id','Every new canvas section/control requires a fresh, distinct UUID.');
     forbiddenIds.add(id.toLowerCase()); return id.toLowerCase();
   }
-  const controls=[];
+  const controls=[],nativeTargets=new Map();
   zones.forEach((zone,zoneNumber)=>{
     const zoneId=freshId();
     const position=(sectionIndex,controlIndex)=>({layoutIndex:1,zoneIndex:zoneNumber+1,zoneId,sectionIndex,sectionFactor:zone.factors[sectionIndex-1],...(controlIndex?{controlIndex}:{})});
@@ -358,6 +390,10 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
     const id=freshId();
     const base={position,id,controlType:entry.type==='text'?4:3,isFromSectionTemplate:false,addedFromPersistedData:true};
     if(entry.type==='text') {
+      if(model.sourceKind==='file')for(const sourceId of entry.sourceIds){
+        if(nativeTargets.has(sourceId))fail('invalid-model','A local document link target is duplicated.');
+        nativeTargets.set(sourceId,id);
+      }
       // Each picture slot becomes the picture, from its upload. SharePoint draws a list item's bullet or number below
       // a picture that starts the item (measured 2026-09-30), so such an item first gets a line of its own for the
       // marker, a paragraph holding one zero-width space, which puts the marker above the picture.
@@ -391,6 +427,19 @@ export function serializeCanvas(model,assetReceipts,siteMetadata,{idFactory=()=>
         fileName:r.serverRelativeUrl.split('/').at(-1),siteId:site.siteId,webId:site.webId,listId:r.listId.toLowerCase(),uniqueId:r.uniqueId.toLowerCase(),
         isStretchEnabled:false,imgWidth:r.width,imgHeight:r.height,isCaptionHeightMigrated:true,...resize},containsDynamicDataSource:false
     }};
+  }
+  if(model.sourceKind==='file')for(const control of controls){
+    if(control.controlType!==4)continue;
+    // The viewer regenerates heading IDs. Its native text-part UUID remains
+    // an actual fragment target when that part is edited, including paragraphs.
+    // Only already validated anchor tags/attributes are rewritten; user-visible
+    // text, original source IDs and external addresses stay byte-for-byte.
+    control.innerHTML=control.innerHTML.replace(/<\s*a(?:\s[^<>]*?|)\s*>/gi,tag=>tag.replace(/(\s+href\s*=\s*)(["'])(.*?)\2/i,(attribute,prefix,quote,raw)=>{
+      const href=attributeValue(raw);if(!href.startsWith('#'))return attribute;
+      const target=nativeTargets.get(decodeURIComponent(href.slice(1)));
+      if(!target)fail('invalid-model','A local document link target is missing.');
+      return `${prefix}${quote}#${target}${quote}`;
+    }));
   }
   // The page's text is written for SharePoint's current editor, CKEditor 5 (text content version 5), as its
   // own editor marks a page it saves and as PnP Core does; a page without the mark is drawn by the earlier

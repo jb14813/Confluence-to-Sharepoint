@@ -1,0 +1,4 @@
+clang version 21.0.0git (https:/github.com/llvm/llvm-project 0f0079c29da4b4d5bbd43dced1db9ad6c6d11008)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /emsdk/upstream/bin

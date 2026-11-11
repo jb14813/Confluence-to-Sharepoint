@@ -34,10 +34,10 @@ async function validateDocx(bytes) {
   const main = zip.file('word/document.xml');
   if (!main || !zip.file('[Content_Types].xml') || !zip.file('_rels/.rels'))
     fail('The file is not a valid Word document.', 'INVALID_DOCUMENT');
-  const xml = await main.async('string');
   let document;
   try {
-    document = new EngineXml.DOMParser({onError() {throw new Error('Invalid XML');}}).parseFromString(xml,'application/xml');
+    const {parseOfficeXml}=await import('./office-xml.js');
+    document = parseOfficeXml(await main.async('uint8array'),EngineXml.DOMParser);
   } catch {fail('The Word document XML is invalid.', 'INVALID_DOCUMENT');}
   const ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
   if (document.doctype || document.documentElement?.namespaceURI !== ns || document.documentElement.localName !== 'document' || document.getElementsByTagNameNS(ns,'body').length !== 1)
@@ -92,10 +92,23 @@ async function extractPdfForms(bytes) {
   try {
     const error = pdf.loadFromData(bytes);
     if (error) fail(error === 4 ? 'Password-protected PDFs are not supported.' : 'The PDF could not be opened.', error === 4 ? 'ENCRYPTED_DOCUMENT' : 'INVALID_DOCUMENT');
+    const info = pdf.getDocumentInfo();
+    if (info?.HasXFA === true)
+      fail('XFA forms cannot be recreated as interactive SharePoint controls. Use a standard AcroForm PDF.', 'UNSUPPORTED_PDF_FORM');
+    if (info?.HasXFA !== false || !Number.isSafeInteger(info.AcroFormFieldCount) || info.AcroFormFieldCount < 0)
+      fail('The PDF form capabilities could not be verified. No content was imported.', 'PDF_FORM_METADATA_UNVERIFIED');
     const raw = pdf.getInteractiveFormsInfo();
+    const fields = Array.isArray(raw?.Fields) ? raw.Fields.length : 0;
+    if ((info.AcroFormFieldCount > 0) !== (fields > 0))
+      fail('The original PDF form fields could not be read completely. No content was imported.', 'PDF_FORM_METADATA_UNVERIFIED');
     const pages = pdf.getPages().map(({W,H,Dpi,Rotate,originIndex}) => ({W,H,Dpi,Rotate,originIndex}));
     if (!pages.length) fail('The PDF contains no readable pages.', 'INVALID_DOCUMENT');
-    return {...raw,pages};
+    const {readPdfTextCapabilities}=await import('./pdf-text.js');
+    const text=readPdfTextCapabilities(info,pages.length);
+    // The upstream reader omits Fields/Parents when their counts are zero.
+    // Normalize only its native-confirmed empty no-form result; partial
+    // records still fail instead of losing interactive fields.
+    return {forms:{...(raw && Object.keys(raw).length === 0 ? {Fields:[],Parents:[]} : raw),pages},text};
   } finally {pdf.close();}
 }
 
@@ -104,29 +117,65 @@ self.onmessage = async ({data}) => {
     importScripts(new URL('jszip.min.js',vendor).href,new URL('xmldom.js',vendor).href);
     const {extension,bytes} = data;
     if (!(bytes instanceof Uint8Array) || !['docx','doc','odt','rtf','txt','pdf'].includes(extension)) fail('Invalid engine request.', 'INVALID_INPUT');
-    await validateInput(extension,bytes);
-    let pdfForms = null;
-    if (extension === 'pdf') pdfForms = await extractPdfForms(bytes);
+    let htmlImport=null,htmlMedia=null,inputExtension=extension,inputBytes=bytes;
+    if(extension==='doc'){
+      const {isMhtmlDocument,parseMhtml}=await import('./mhtml.js');
+      if(isMhtmlDocument(bytes)){
+        const parsed=parseMhtml(bytes);
+        htmlImport={html:parsed.html,rootLocation:parsed.rootLocation,resources:parsed.resources};htmlMedia=parsed.media;
+        // The existing SDK reconstructs HTML. Native x2t supplies only its
+        // ordinary empty document model; MHTML never enters the crashing path.
+        inputExtension='rtf';inputBytes=new TextEncoder().encode('{\\rtf1\\ansi }');
+      }
+    }
+    await validateInput(inputExtension,inputBytes);
+    let pdfForms = null,pdfText=null,pdfAssociationType=2;
+    if (extension === 'pdf') {const source=await extractPdfForms(bytes);pdfForms=source.forms;pdfText=source.text;}
     let docxBytes = bytes;
     if (extension !== 'docx') {
       // drawingfile keeps a private Module; remove its compatibility DOM shims
       // before x2t detects its dedicated-worker environment.
       delete self.window; delete self.document;
       const module = await loadConverter();
-      const from = `/working/input.${extension}`, to = '/working/output.docx';
-      module.FS.writeFile(from,bytes);
-      module.FS.writeFile('/working/params.xml',`<TaskQueueDataConvert><m_sFileFrom>${from}</m_sFileFrom><m_sFileTo>${to}</m_sFileTo><m_sThemeDir>/working/themes</m_sThemeDir><m_sFontDir>/working/fonts</m_sFontDir><m_nCsvTxtEncoding>46</m_nCsvTxtEncoding><m_bIsNoBase64>false</m_bIsNoBase64></TaskQueueDataConvert>`);
-      const code = module.ccall('main1','number',['string'],['/working/params.xml']);
+      const from = `/working/input.${inputExtension}`, to = '/working/output.docx';
+      module.FS.writeFile(from,inputBytes);
+      const parameters=request=>`<TaskQueueDataConvert><m_sFileFrom>${from}</m_sFileFrom><m_sFileTo>${to}</m_sFileTo><m_sThemeDir>/working/themes</m_sThemeDir><m_sFontDir>/working/fonts</m_sFontDir><m_nCsvTxtEncoding>46</m_nCsvTxtEncoding><m_bIsNoBase64>false</m_bIsNoBase64>${extension==='pdf'?`<m_oTextParams><m_nTextAssociationType>${request}</m_nTextAssociationType></m_oTextParams>`:''}</TaskQueueDataConvert>`;
+      module.FS.writeFile('/working/params.xml',parameters(2));
+      let code = module.ccall('main1','number',['string'],['/working/params.xml']);
+      if(extension==='pdf'&&code!==0&&code!==55){
+        // Upstream request3 selects native PlainParagraph enum4. Start a fresh
+        // conversion and retain every later source/resource verification.
+        if(module.FS.analyzePath(to).exists)module.FS.unlink(to);
+        module.FS.writeFile('/working/params.xml',parameters(3));
+        code=module.ccall('main1','number',['string'],['/working/params.xml']);
+        pdfAssociationType=4;
+      }
       if (code !== 0) fail(code === 55 ? 'Password-protected documents are not supported.' : `The local engine could not convert the document (code ${code}).`, code === 55 ? 'ENCRYPTED_DOCUMENT' : 'CONVERSION_FAILED');
       docxBytes = module.FS.readFile(to);
       await validateDocx(docxBytes);
     }
     const warnings = extension === 'pdf' ? [
-      {code:'PDF_RECONSTRUCTION_REVIEW',message:'Review the reconstructed PDF layout. Tables may become positioned shapes. Original form definitions are retained separately.'},
+      {code:'PDF_RECONSTRUCTION_REVIEW',message:'Review the reconstructed PDF layout and colors. PDF viewers can display colors differently. Tables may become positioned shapes. Original form definitions are retained separately.'},
       {code:'PDF_FORM_CAPABILITIES',message:'AcroForm definitions are retained. XFA, digital signatures and PDF scripts are not recreated. Scanned pages require a separate capability review.'},
     ] : [];
     const zip = await validateDocx(docxBytes), media = {};
+    const layoutFile=zip.file('word/fts-pdf-layout.xml'),drawingsFile=zip.file('word/fts-pdf-drawings.xml');let nativeTables,nativeDrawings;
+    if(extension==='pdf'){
+      if(!layoutFile||layoutFile._data?.uncompressedSize>1024*1024)
+        fail('The PDF table layout could not be verified. No content was imported.','PDF_LAYOUT_UNVERIFIED');
+      const {readPdfNativeLayout}=await import('./pdf-native-layout.js');
+      nativeTables=readPdfNativeLayout(await layoutFile.async('uint8array'),pdfForms.pages,EngineXml.DOMParser);
+      if((nativeTables.textAssociationType??2)!==pdfAssociationType)fail('The native PDF conversion mode could not be verified.','PDF_ORDER_UNVERIFIED');
+      if(!drawingsFile||drawingsFile._data?.uncompressedSize>16*1024*1024)
+        fail('The PDF drawing sources could not be verified. No content was imported.','PDF_DRAWINGS_UNVERIFIED');
+      const {readPdfDrawings}=await import('./pdf-drawings.js');
+      nativeDrawings=readPdfDrawings(await drawingsFile.async('uint8array'),{pages:pdfForms.pages,pdfText,nativeTables},EngineXml.DOMParser);
+    }else if(layoutFile||drawingsFile)fail('The Office document contains unexpected PDF conversion metadata.','INVALID_DOCUMENT');
     for (const [name,file] of Object.entries(zip.files)) if (!file.dir && /^word\/media\/[^/]+$/.test(name)) media[name] = await file.async('uint8array');
+    if(htmlMedia)for(const [name,value] of Object.entries(htmlMedia)){
+      if(Object.hasOwn(media,name))fail('The Word archive conflicts with a reconstructed resource.','INVALID_MHTML');
+      media[name]=value;
+    }
     // Reuse the same initialized converter for the SDK's documented DOCY model.
     const module = extension === 'docx' ? await loadConverter() : Module;
     module.FS.writeFile('/working/model.docx',docxBytes);
@@ -134,8 +183,10 @@ self.onmessage = async ({data}) => {
     const code = module.ccall('main1','number',['string'],['/working/params.xml']);
     if (code !== 0) fail('The Office model could not be reconstructed.', 'CONVERSION_FAILED');
     const officeBin = module.FS.readFile('/working/model.bin');
-    const transfers = [docxBytes.buffer,officeBin.buffer,...Object.values(media).map(bytes => bytes.buffer)];
-    self.postMessage({result:{docxBytes,officeBin,media,pdfForms,warnings}},transfers);
+    const {collectNativeMedia}=await import('./native-media.js');
+    const nativeMedia=await collectNativeMedia(module.FS,media,docxBytes);
+    const transfers = [docxBytes.buffer,officeBin.buffer,...Object.values(media).map(bytes => bytes.buffer),...(nativeMedia?.files.map(file=>file.bytes.buffer)??[])];
+    self.postMessage({result:{docxBytes,officeBin,media,pdfForms,warnings,...(nativeMedia?{nativeMedia}:{}),...(pdfText?{pdfText,pdfLayout:{version:1,textAssociationType:pdfAssociationType,flowGeometry:pdfAssociationType===2?'native-plain-line-v1':'native-plain-paragraph-v1',nativeTables,nativeDrawings}}:{}),...(htmlImport?{htmlImport}:{})}},transfers);
   } catch (error) {
     self.postMessage({error:{message:error?.message || 'The local document could not be read.',code:error?.code || 'INVALID_DOCUMENT'}});
   }

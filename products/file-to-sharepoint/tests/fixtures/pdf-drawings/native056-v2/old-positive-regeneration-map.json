@@ -1,0 +1,97 @@
+{
+  "scope": "Input regeneration map only. No old V1 fields are inferred or mutated. Two of ten old positives already have genuine same-input V2 counterparts; seven pinned inputs and one fresh zero-control job remain.",
+  "minimalRemainingPinnedInputCount": 7,
+  "freshEmptyInputNeeded": true,
+  "jobs": [
+    {
+      "oldFixture": "cell-figure-alpha-gap",
+      "sourcePdfSha256": "272f6df59b129aa642244d44550305f61b78d7e8dd57e510681e5a0fedc58904",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/table-cell-figure-qa-043/controls/alpha-gap.pdf"
+      ],
+      "status": "Already genuinely regenerated in native056-v2/alpha-gap.json; original PDF hash matches."
+    },
+    {
+      "oldFixture": "cell-figure-filled-curve-gap",
+      "sourcePdfSha256": "c76df579b179c5056fb850824c476d9b4411a76456406f7ce07e81c332fc62ef",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/table-cell-figure-qa-043/controls/filled-curve-gap.pdf"
+      ],
+      "status": "Already genuinely regenerated in native056-v2/filled-curve-gap.json; original PDF hash matches."
+    },
+    {
+      "oldFixture": "cell-figure-triangle-gap",
+      "sourcePdfSha256": "2bb60693dc61c2e1a6f7c82c4a887770314a0e85289d819a10eb563a43621501",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/table-cell-figure-qa-043/controls/triangle-gap.pdf"
+      ],
+      "status": "Pending fresh conversion with final reviewedV2 runtime, actual Reader original source context, DOCX\u2192BIN and SDK capture; never fill original flags into v1."
+    },
+    {
+      "oldFixture": "core",
+      "sourcePdfSha256": "3b98ede589f89d026b97cb098ae85235c4164a2adc514ff0cb63a2397d2eee7f",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/exports/262183.pdf"
+      ],
+      "status": "Pending fresh conversion with final reviewedV2 runtime, actual Reader original source context, DOCX\u2192BIN and SDK capture; never fill original flags into v1."
+    },
+    {
+      "oldFixture": "list-cell",
+      "sourcePdfSha256": "7351fe1ffb4d7a16783a3abab93052c03edb5a3ebb25c6a55207fd145dc03591",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/exports/1802241.pdf"
+      ],
+      "status": "Pending fresh conversion with final reviewedV2 runtime, actual Reader original source context, DOCX\u2192BIN and SDK capture; never fill original flags into v1."
+    },
+    {
+      "oldFixture": "paint-after",
+      "sourcePdfSha256": "621e6b7d28bca6be35fbf0996988796678cfec56971a1b415ce9261e8347873d",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/glyph-paint-provenance-qa-028/controls/paint-after-text-runs.pdf"
+      ],
+      "status": "Pending fresh conversion with final reviewedV2 runtime, actual Reader original source context, DOCX\u2192BIN and SDK capture; never fill original flags into v1."
+    },
+    {
+      "oldFixture": "paint-before",
+      "sourcePdfSha256": "947f19d1e67eb5a2fa07390260cc9c75b084fcc098f635a1bfcdc55399f96233",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/glyph-paint-provenance-qa-028/controls/paint-before-text-runs.pdf"
+      ],
+      "status": "Pending fresh conversion with final reviewedV2 runtime, actual Reader original source context, DOCX\u2192BIN and SDK capture; never fill original flags into v1."
+    },
+    {
+      "oldFixture": "paint-between",
+      "sourcePdfSha256": "69e4c4e2aafb6527e1d10351b0090342c445099bfeb181f604b6f228c4e72884",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/glyph-paint-provenance-qa-028/controls/paint-between-text-runs.pdf"
+      ],
+      "status": "Pending fresh conversion with final reviewedV2 runtime, actual Reader original source context, DOCX\u2192BIN and SDK capture; never fill original flags into v1."
+    },
+    {
+      "oldFixture": "reflected-image",
+      "sourcePdfSha256": "c536da45d8da3b9620419b77d37d217db16fc2724f14a65ddb24f499942ddafa",
+      "sourcePaths": [
+        ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/image-reflection-qa-021/controls/rotate30-h1-v1.pdf"
+      ],
+      "status": "Pending fresh conversion with final reviewedV2 runtime, actual Reader original source context, DOCX\u2192BIN and SDK capture; never fill original flags into v1."
+    },
+    {
+      "oldFixture": "zero",
+      "sourcePdfSha256": null,
+      "sourcePaths": [],
+      "status": "Original v1 source hash is null/unproven; do NOT upgrade. Author and hash a fresh empty PDF, then actual Reader/nativeV2/SDK conversion for a new zero-record fixture."
+    }
+  ],
+  "pendingClipInputs": [
+    {
+      "path": ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/table-cell-clip-qa-048/controls/triangle-contained-nonzero.pdf",
+      "sha256": "fa1058048b0e0572119efe51aabed9c6682b69647f84e71483fdde738f771d12",
+      "scope": "Clip mode0 containing original evenOdd fill. New derived056 clip replay not yet acceptance-proven; requires actual V2 XML/PNG/source pixel and SDK capture."
+    },
+    {
+      "path": ".artifacts/confluence-document-acceptance-2026-11-09/type3-probe/table-cell-clip-qa-048/controls/triangle-contained-evenodd.pdf",
+      "sha256": "3d3d2f2060d8863c6485a3d339d1a206a36b395e8909f8b21707df21dfe2a4eb",
+      "scope": "Clip mode1 equivalent simple rectangle. No V2 clip-positive fixture is fabricated from earlier v1 proof."
+    }
+  ]
+}

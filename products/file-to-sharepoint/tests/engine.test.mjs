@@ -6,11 +6,15 @@ import {fileURLToPath} from 'node:url';
 import {access,mkdir,mkdtemp,readdir,readFile,writeFile,cp} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import JSZip from 'jszip';
+import {build} from 'esbuild';
 import {fixtures} from './engine-fixtures.mjs';
 
 const product=fileURLToPath(new URL('..',import.meta.url));
 const workspace=path.resolve(product,'../..');
 const artifacts=path.join(workspace,'.artifacts/onlyoffice-eval');
+// Source-build trials can test a complete staged vendor tree before adopting
+// its bytes in production. Installed extensions have no environment override.
+const vendorPath=path.resolve(process.env.C2S_ENGINE_VENDOR_DIR||path.join(product,'vendor'));
 const exists=async p=>{try{await access(p);return true}catch{return false}};
 async function browserPath(){
  for(const p of [process.env.EXTENSION_CHROME_PATH,process.env.CHROME_PATH,chromium.executablePath()])if(p&&await exists(p))return p;
@@ -21,12 +25,19 @@ async function browserPath(){
 }
 
 test('real engine adapter converts locally in strict MV3 and rejects unsafe/failed inputs',{timeout:180000},async t=>{
+ for(const name of ['x2t.js','x2t.wasm','drawingfile.js','drawingfile.wasm','jszip.min.js','xmldom.js'])assert.ok(await exists(path.join(vendorPath,name)),`Complete staged vendor tree required: ${name}`);
  await mkdir(artifacts,{recursive:true});
  const dir=await mkdtemp(path.join(artifacts,'adapter-test-')),ext=path.join(dir,'extension');await mkdir(ext);
  if(await exists(path.join(product,'src/engine')))await cp(path.join(product,'src/engine'),path.join(ext,'src/engine'),{recursive:true});
- if(await exists(path.join(product,'vendor')))await cp(path.join(product,'vendor'),path.join(ext,'vendor'),{recursive:true});
+ await build({entryPoints:[path.join(product,'src/engine/html-resources.js')],outfile:path.join(ext,'src/engine/html-resources.js'),bundle:true,format:'esm',platform:'browser',target:'chrome127'});
+ await build({entryPoints:[path.join(product,'src/engine/sandbox-svg.js')],outfile:path.join(ext,'src/engine/sandbox-svg.js'),bundle:true,format:'iife',globalName:'FtsSvg',platform:'browser',target:'chrome127'});
+ if(await exists(vendorPath))await cp(vendorPath,path.join(ext,'vendor'),{recursive:true});
  const workerFile=path.join(ext,'src/engine/worker.js');
- if(await exists(workerFile))await writeFile(workerFile,`// Test-only worker request observation; shipped adapter is unchanged.\nconst observedRequests=[];const originalFetch=self.fetch.bind(self);self.fetch=(input,options)=>{observedRequests.push(String(input?.url||input));return originalFetch(input,options)};const originalScripts=self.importScripts.bind(self);self.importScripts=(...urls)=>{observedRequests.push(...urls.map(String));return originalScripts(...urls)};const originalPost=self.postMessage.bind(self);self.postMessage=(data,transfer)=>{if(data.result)data.result.engineRequests=observedRequests;return originalPost(data,transfer)};\n`+await readFile(workerFile,'utf8'));
+ if(await exists(workerFile)){
+  const source=await readFile(workerFile,'utf8'),boundary="let code = module.ccall('main1'";
+  assert.equal(source.split(boundary).length,2,'Observe the first source→DOCX call, before fallback or DOCX→BIN');
+  await writeFile(workerFile,`// Test-only worker request/phase observation; shipped adapter is unchanged.\nconst observedRequests=[];const originalFetch=self.fetch.bind(self);self.fetch=(input,options)=>{observedRequests.push(String(input?.url||input));return originalFetch(input,options)};const originalScripts=self.importScripts.bind(self);self.importScripts=(...urls)=>{observedRequests.push(...urls.map(String));return originalScripts(...urls)};const originalPost=self.postMessage.bind(self);self.postMessage=(data,transfer)=>{if(data.result)data.result.engineRequests=observedRequests;return originalPost(data,transfer)};\n`+source.replace(boundary,"if(data.observeNativePhase)self.postMessage({nativePhase:'conversion-started'});\n      "+boundary));
+ }
  await writeFile(path.join(ext,'manifest.json'),JSON.stringify({manifest_version:3,name:'Engine adapter test',version:'1.0.0',background:{service_worker:'background.js'},sandbox:{pages:['src/engine/sandbox.html']},content_security_policy:{extension_pages:"script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",sandbox:"sandbox allow-scripts; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; object-src 'none'; connect-src 'self'"}}));
  await writeFile(path.join(ext,'background.js'),'void 0;');
  await writeFile(path.join(ext,'index.html'),'<html><body><script type="module" src="test.js"></script></body></html>');
@@ -58,10 +69,16 @@ test('real engine adapter converts locally in strict MV3 and rejects unsafe/fail
    for(const [name,bytes] of Object.entries(result.media))assert.deepEqual(Buffer.from(bytes),await zip.file(name).async('nodebuffer'),'Media bytes must match the source document');
    if(name.endsWith('.txt'))assert.match(xml,/Crème brûlée, élève/);
    if(name.endsWith('.pdf')){
-    for(const text of ['Left cell','Right cell','Name:','Alice','Approved:','Department:','Engineering'])assert.ok(model.includes(text),`Missing textbox: ${text}`);
-    assert.match(model,/"drawingType":"anchor"/);assert.match(model,/"positionH"/);assert.match(model,/"custGeom"/);assert.ok(Object.keys(result.media).some(n=>n.endsWith('.jpg')));
+    for(const text of ['ONLYOFFICE Import Evidence','Editable paragraph alpha beta 123.','Left cell','Right cell','Name:','Approved:','Department:'])assert.ok(model.includes(text),`Missing PDF body text: ${text}`);
+    const sourceText=result.pdfText.pages.map(page=>page.text).join('\n');
+    for(const value of ['Alice','Engineering']){
+     assert.ok(!sourceText.includes(value),'Widget appearance values must remain separate from PDF body text');
+     assert.ok(!model.includes(value),'Interactive widget values must not be duplicated in editable page content');
+    }
+    assert.match(model,/"drawingType":"anchor"/);assert.match(model,/"positionH"/);assert.match(model,/"custGeom"/);assert.ok(Object.keys(result.media).length>0);
     const shapes=[],drawings=[];const walk=value=>{if(!value||typeof value!=='object')return;if(value.type==='shape')shapes.push(value);if(value.type==='paraDrawing')drawings.push(value);for(const child of Object.values(value))walk(child)};walk(result.officeDocument);
-    const nontext=shapes.filter(shape=>!shape.content);assert.equal(nontext.length,9);
+    const nontext=shapes.filter(shape=>!shape.content);assert.equal(nontext.length,0,'Source table rules must become editable cell borders rather than raster decorations');
+    assert.equal(shapes.filter(shape=>shape.content).length,3,'The three source field labels remain editable textboxes');
     assert.deepEqual(Object.keys(result.decorations).sort(),nontext.map(shape=>shape.id).sort());
     for(const shape of shapes.filter(shape=>shape.content))assert.equal(result.decorations[shape.id],undefined,'Editable textbox must never become a decoration');
     for(const value of Object.values(result.decorations)){
@@ -69,9 +86,13 @@ test('real engine adapter converts locally in strict MV3 and rejects unsafe/fail
     }
     const nonempty=await page.evaluate(async values=>{const results=[];for(const value of values){const image=await createImageBitmap(new Blob([new Uint8Array(value.bytes)],{type:value.mime})),canvas=new OffscreenCanvas(image.width,image.height),ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);const rgba=ctx.getImageData(0,0,image.width,image.height).data;let visible=false;for(let i=3;i<rgba.length;i+=4)if(rgba[i]){visible=true;break}results.push(visible);image.close()}return results;},Object.values(result.decorations));
     assert.ok(nonempty.every(Boolean),'Every exported table line, box and control outline must contain visible pixels');
-    const table=drawings.find(d=>d.extent?.cx===5207000&&d.extent?.cy===762000),tablePng=result.decorations[table.graphic.id];
-    const pixels=await page.evaluate(async value=>{const image=await createImageBitmap(new Blob([new Uint8Array(value.bytes)],{type:value.mime}));const canvas=new OffscreenCanvas(image.width,image.height),ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);const data=ctx.getImageData(0,0,image.width,image.height).data;let opaque=0;for(let i=3;i<data.length;i+=4)if(data[i])opaque++;return {width:image.width,height:image.height,opaque,pixels:image.width*image.height};},tablePng);
-    assert.equal(pixels.width,tablePng.width);assert.equal(pixels.height,tablePng.height);assert.ok(pixels.opaque>100&&pixels.opaque<pixels.pixels/2,'Native table-line raster must retain lines and transparent interior');
+    const tables=[];const collectTables=value=>{if(!value||typeof value!=='object')return;if(value.type==='table')tables.push(value);for(const child of Object.values(value))collectTables(child);};collectTables(result.officeDocument);
+    assert.equal(tables.length,1,'The source grid must be one editable table');
+    assert.deepEqual(result.pdfLayout.nativeTables.tables.map(table=>({rows:table.rows,columns:table.columns,cells:table.cells.length})),[{rows:2,columns:2,cells:4}]);
+    assert.equal(tables[0].content.length,2);assert.ok(tables[0].content.every(row=>row.content.length===2));
+    const borders=[...xml.matchAll(/<w:tcBorders>(.*?)<\/w:tcBorders>/g)].map(match=>match[1]);
+    assert.equal(borders.length,4,'Every native table cell must retain its source rules');
+    for(const border of borders)for(const side of ['top','bottom','left','right'])assert.match(border,new RegExp(`<w:${side} w:val="single" w:sz="8" w:space="0" w:color="000000"`));
     assert.match(xml,/txbxContent/);assert.ok(Object.keys(zip.files).some(n=>n.startsWith('word/media/')));
     const {Fields,Parents,pages}=result.pdfForms;assert.equal(pages.length,1);
     assert.equal(Fields.find(f=>f.name==='person_name').value,'Alice');assert.ok(Fields.every(f=>f.rect&&Number.isInteger(f.page)));
@@ -81,6 +102,33 @@ test('real engine adapter converts locally in strict MV3 and rejects unsafe/fail
     assert.ok(result.warnings.some(w=>w.code==='PDF_RECONSTRUCTION_REVIEW'));
    }else assert.equal(result.pdfForms,null);
   });
+  const imageFixtures=JSON.parse(await readFile(new URL('./fixtures/pdf-images.json',import.meta.url),'utf8'));
+  for(const fixture of imageFixtures)await t.test(`PDF source image pixels and dimensions: ${fixture.name}`,async()=>{
+   const result=await invoke(fixture.name,fixture.pdf);assert.equal(result.error,undefined,JSON.stringify(result));
+   const comparison=await page.evaluate(async({fixture,media})=>{
+    const decode=async bytes=>{
+     const image=await createImageBitmap(new Blob([new Uint8Array(bytes)]),{colorSpaceConversion:'none'});
+     try{const canvas=new OffscreenCanvas(image.width,image.height),ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);return {width:image.width,height:image.height,rgba:ctx.getImageData(0,0,image.width,image.height).data};}
+     finally{image.close();}
+    };
+    const digest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
+    const originalBytes=Uint8Array.from(atob(fixture.original),c=>c.charCodeAt(0)),original=await decode(originalBytes),candidates=[];
+    for(const [name,bytes] of Object.entries(media)){
+     const actual=await decode(bytes);let changedPixels=null,maxChannelDifference=null;
+     if(actual.width===original.width&&actual.height===original.height){
+      changedPixels=0;maxChannelDifference=0;
+      for(let offset=0;offset<actual.rgba.length;offset+=4){let changed=false;for(let channel=0;channel<4;channel++){const delta=Math.abs(actual.rgba[offset+channel]-original.rgba[offset+channel]);maxChannelDifference=Math.max(maxChannelDifference,delta);if(delta)changed=true;}if(changed)changedPixels++;}
+     }
+     candidates.push({name,width:actual.width,height:actual.height,rgbaSha256:await digest(actual.rgba),changedPixels,maxChannelDifference});
+    }
+    return {source:{width:original.width,height:original.height,rgbaSha256:await digest(original.rgba),referencePngSha256:await digest(originalBytes)},candidates};
+   },{fixture,media:result.media});
+   await writeFile(path.join(dir,fixture.name+'.comparison.json'),JSON.stringify(comparison,null,2));
+   for(const [name,bytes] of Object.entries(result.media))await writeFile(path.join(dir,fixture.name+'-'+path.basename(name)),Buffer.from(bytes));
+   assert.equal(comparison.source.width,fixture.width);assert.equal(comparison.source.height,fixture.height);
+   assert.ok(comparison.candidates.some(image=>image.width===fixture.width&&image.height===fixture.height),`Source dimensions must survive PDF conversion: ${JSON.stringify(comparison)}`);
+   assert.ok(comparison.candidates.some(image=>image.changedPixels===0),`Source pixels must survive PDF conversion without a second lossy encode: ${JSON.stringify(comparison)}`);
+  });
   await t.test('rejects unsupported, corrupt and spoofed documents',async()=>{
    for(const [name,data] of [['bad.exe',fixtures['sample.txt']],['../bad.pdf',fixtures['sample.pdf']],['bad.docx',fixtures['sample.txt']],['bad.pdf',fixtures['sample.txt']],['bad.odt',fixtures['sample.txt']]]){
     const result=await invoke(name,data);assert.ok(result.error,`${name} must fail`);assert.equal(result.docxBytes,undefined);
@@ -88,6 +136,9 @@ test('real engine adapter converts locally in strict MV3 and rejects unsafe/fail
    const z=new JSZip();z.file('unrelated.txt','hello');const result=await invoke('fake.docx',await z.generateAsync({type:'base64'}));assert.ok(result.error);
    const spoof=await JSZip.loadAsync(Buffer.from(fixtures['sample.docx'],'base64'));spoof.file('word/document.xml','not XML: document http://schemas.openxmlformats.org/wordprocessingml/2006/main');
    assert.ok((await invoke('spoof.docx',await spoof.generateAsync({type:'base64'}))).error,'Malformed main XML must fail');
+   const privateMetadata=await JSZip.loadAsync(Buffer.from(fixtures['sample.docx'],'base64'));
+   privateMetadata.file('word/fts-pdf-layout.xml','<pdfLayout xmlns="urn:fts:pdf-layout:1" version="1" complete="true" coordinateSpace="displayed-crop-top-left-pt" sourcePageCount="1"/>');
+   assert.equal((await invoke('forged-pdf-layout.docx',await privateMetadata.generateAsync({type:'base64'}))).code,'INVALID_DOCUMENT','Only native PDF conversion may produce the private source-grid contract');
   });
   await t.test('rejects encrypted, truncated and oversized input without success',async()=>{
    assert.equal((await invoke('encrypted.pdf',fixtures['encrypted.pdf'])).code,'ENCRYPTED_DOCUMENT');
@@ -105,6 +156,26 @@ test('real engine adapter converts locally in strict MV3 and rejects unsafe/fail
    },fixtures['sample.pdf']);assert.equal(result,'AbortError');
    assert.equal((await invoke('timeout.pdf',fixtures['sample.pdf'],{timeoutMs:1})).code,'ENGINE_TIMEOUT');
    assert.equal((await invoke('retry.docx',fixtures['sample.docx'])).error,undefined);
+  });
+  await t.test('abort after real large-image native conversion starts terminates its worker and permits recovery',async()=>{
+   const fixture=imageFixtures.find(item=>item.name==='image-large.pdf');
+   const outcome=await page.evaluate(async base64=>{
+    const NativeWorker=globalThis.Worker;let started;
+    const nativeStarted=new Promise(resolve=>{started=resolve;});
+    // Observe the real native call boundary in the test copy. Neither the
+    // converter nor its CPU work is replaced, delayed or simulated.
+    globalThis.Worker=class extends NativeWorker {
+     postMessage(data,transfers){return super.postMessage({...data,observeNativePhase:true},transfers);}
+     set onmessage(listener){super.onmessage=event=>{if(event.data?.nativePhase==='conversion-started'){started();return;}listener(event);};}
+    };
+    try{
+     const controller=new AbortController(),bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+     const conversion=window.engine.convertDocument({name:'large.pdf',bytes},{signal:controller.signal}).then(()=>({success:true}),error=>({name:error.name,code:error.code}));
+     await Promise.race([nativeStarted,conversion.then(result=>{throw Error('Conversion settled before the observed native call: '+JSON.stringify(result));})]);controller.abort();return {result:await conversion,frames:document.querySelectorAll('iframe').length};
+    }finally{globalThis.Worker=NativeWorker;}
+   },fixture.pdf);
+   assert.equal(outcome.result.name,'AbortError');assert.equal(outcome.frames,0);
+   assert.equal((await invoke('after-active-abort.docx',fixtures['sample-rich.docx'])).error,undefined);
   });
   await t.test('sandbox has no extension API; abort disposes it and forged messages are ignored',async()=>{
    const state=await page.evaluate(async base64=>{

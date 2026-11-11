@@ -1,0 +1,47 @@
+{
+  "description": "Original4x2red/blue fixtures generated with Pillow; static and2frame PNG/APNG,GIF,WebP. No external source assets.",
+  "images": [
+    {
+      "mime": "image/png",
+      "animated": false,
+      "width": 4,
+      "height": 2,
+      "base64": "iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAYAAAB/qH1jAAAAFElEQVR4nGP8z8DwnwEJMCFzQGwAPycCArHCx8kAAAAASUVORK5CYII="
+    },
+    {
+      "mime": "image/png",
+      "animated": true,
+      "width": 4,
+      "height": 2,
+      "base64": "iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAYAAAB/qH1jAAAACGFjVEwAAAACAAAAAPONk3AAAAAaZmNUTAAAAAAAAAAEAAAAAgAAAAAAAAAAAGQD6AAAnImEDgAAABRJREFUeJxj/M/A8J8BCTAhc0BsAD8nAgKxwsfJAAAAGmZjVEwAAAABAAAABAAAAAIAAAAAAAAAAABkA+gAAAf6btoAAAAYZmRBVAAAAAJ4nGNkYPj/nwEJMCFzQGwAPSkCAhew50YAAAAASUVORK5CYII="
+    },
+    {
+      "mime": "image/gif",
+      "animated": false,
+      "width": 4,
+      "height": 2,
+      "base64": "R0lGODlhBAACAIEAAP8AAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQACgAAACwAAAAABAACAAAIBwABCBwoMCAAOw=="
+    },
+    {
+      "mime": "image/gif",
+      "animated": true,
+      "width": 4,
+      "height": 2,
+      "base64": "R0lGODlhBAACAIEAAP8AAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQACgAAACwAAAAABAACAAAIBwABCBwoMCAAIfkEAQoAAQAsAAAAAAQAAgCBAAD/AAAAAAAAAAAACAcAAQgcKDAgADs="
+    },
+    {
+      "mime": "image/webp",
+      "animated": false,
+      "width": 4,
+      "height": 2,
+      "base64": "UklGRjwAAABXRUJQVlA4IDAAAADQAQCdASoEAAIAAUAmJaACdLoB+AADsAD+8ut//NgVzXPv9//S4P0uD9Lg/9KQAAA="
+    },
+    {
+      "mime": "image/webp",
+      "animated": true,
+      "width": 4,
+      "height": 2,
+      "base64": "UklGRsQAAABXRUJQVlA4WAoAAAACAAAAAwAAAQAAQU5JTQYAAAAAAAAAAABBTk1GSgAAAAAAAAAAAAMAAAEAAGQAAAJWUDggMgAAADABAJ0BKgQAAgABQCYloAADcAD+8ut///mwP/bz/wR6Af//0uD//pcH//S4P/SkAAAAQU5NRkYAAAAAAAAAAAADAAABAABkAAAAVlA4IC4AAAA0AQCdASoEAAIAAAAmJaAAA3AA/vtV4///S4P/+lwf/9Lg/9Lg//rV5Vesq6AA"
+    }
+  ]
+}

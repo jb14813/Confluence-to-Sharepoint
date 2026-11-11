@@ -4,18 +4,24 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {checkCanvasBlock,serializeCanvas} from '../../../src/sharepoint/canvas.js';
 import {sha256Hex} from '../../../src/transfer/limits.js';
+import JSZip from 'jszip';
+import {fixtures} from './engine-fixtures.mjs';
 
 const {adaptDocument}=await import('../src/content/index.js').catch(error=>{
   if(error.code==='ERR_MODULE_NOT_FOUND')return {};
   throw error;
 });
 const fixture=async name=>JSON.parse(await readFile(new URL(`fixtures/content-${name}.json`,import.meta.url)));
-const png=Uint8Array.from(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64'));
+const sourceWord=await JSZip.loadAsync(Buffer.from(fixtures['sample-rich.docx'],'base64'));
+const png=await sourceWord.file('word/media/image1.png').async('uint8array');
 const bytes=new TextEncoder().encode('original source bytes');
-const measureImage=async()=>({width:1,height:1});
+// These pure tests use the real 2:1 fixture's PNG dimensions. Browser tests
+// independently decode its pixels; a square stand-in would falsely request a
+// nonuniform viewport and exercise a browser renderer inside a Node unit test.
+const measureImage=async blob=>{const data=await blob.arrayBuffer(),header=new DataView(data);return {width:header.getUint32(16),height:header.getUint32(20)};};
 const run=async(officeDocument,extra={},name='source.docx')=>{
   assert.equal(typeof adaptDocument,'function','The reconstructed content adapter must exist');
-  return adaptDocument({name,bytes,result:{officeDocument,media:{'word/media/image1.png':png,'word/media/image1.jpg':Uint8Array.of(255,216,255,224,0,0,255,217)},pdfForms:null,warnings:[],...extra}},{measureImage});
+  return adaptDocument({name,bytes,result:{officeDocument,media:{'word/media/image1.png':png,'word/media/image1.jpg':png},pdfForms:null,warnings:[],...extra}},{measureImage});
 };
 const text=adapted=>adapted.model.blocks.filter(b=>b.type==='text').map(b=>b.html).join('');
 
@@ -29,7 +35,7 @@ test('ordinary reconstructed Word retains four editable table cells, bold text a
   assert.equal(adapted.model.assets.length,1);
   assert.equal(adapted.model.assets[0].id,id);
   assert.deepEqual(new Uint8Array(await adapted.pictures.get(id).arrayBuffer()),png);
-  assert.equal(adapted.model.assets[0].width,1);
+  assert.equal(adapted.model.assets[0].width,100);
   for(const block of adapted.model.blocks)assert.doesNotThrow(()=>checkCanvasBlock(block));
   assert.equal(adapted.formDefinition,null);
   assert.equal(adapted.model.sourceMetadata,undefined);
@@ -65,6 +71,14 @@ test('styles inherit by source IDs, text stays escaped, Unicode survives and sou
   checkCanvasBlock(adapted.model.blocks[0]);
 });
 
+test('native Word RGB highlights preserve their background without replacing foreground color',async()=>{
+  const doc={type:'document',content:[{type:'paragraph',content:[{type:'run',rPr:{color:{r:18,g:52,b:86},highlight:{r:255,g:238,b:0}},content:['Highlighted source words']}]}]};
+  const a=await run(doc);
+  assert.match(text(a),/color:#123456/);assert.match(text(a),/background-color:#ffee00/);
+  assert.deepEqual(a.model.warnings.filter(w=>w.blocking),[]);
+  checkCanvasBlock(a.model.blocks[0]);
+});
+
 test('missing, external, ambiguous or unsupported media blocks adaptation instead of making a partial document',async()=>{
   const doc=await fixture('word');
   await assert.rejects(run(doc,{media:{}}),{code:'missing-image'});
@@ -73,16 +87,16 @@ test('missing, external, ambiguous or unsupported media blocks adaptation instea
   await assert.rejects(run(doc),{code:'unsafe-image-reference'});
   image.blipFill.rasterImageId='image1.png';
   await assert.rejects(run(doc,{media:{'word/media/image1.png':png,'other/image1.png':png}}),{code:'ambiguous-image'});
-  await assert.rejects(run(doc,{media:{'word/media/image1.png':new TextEncoder().encode('<svg onload=alert(1)>')}}),{code:'unsupported-image'});
+  await assert.rejects(run(doc,{media:{'word/media/image1.png':new TextEncoder().encode('<svg onload=alert(1)>')}}),{code:'HTML_RESOURCE_BLOCKED'});
 });
 
-test('unknown reconstructed content and merged table cells cannot silently report full fidelity',async()=>{
+test('unknown reconstructed content cannot silently report full fidelity and isolated merge anchors are valid',async()=>{
   const doc={type:'document',content:[{type:'paragraph',content:[{type:'run',content:['Keep me']},{type:'equation',content:['x+y']}]}]};
   const adapted=await run(doc);
   assert.match(text(adapted),/Keep me/);assert.match(text(adapted),/x\+y/);
   assert.ok(adapted.model.warnings.some(w=>w.code==='unsupported-content'&&w.blocking));
   const table=await fixture('word');table.content.find(n=>n.type==='table').content[0].content[0].tcPr.vMerge='restart';
-  assert.ok((await run(table)).model.warnings.some(w=>w.code==='vertical-cell-merge'&&w.material));
+  assert.deepEqual((await run(table)).model.warnings.filter(w=>w.blocking),[]);
 });
 
 test('original PDF fields become runtime-valid logical fields preserving export values, parents and safe keys',async()=>{
@@ -119,10 +133,17 @@ test('script-dependent, signed, multiselect and invalid PDF definitions fail clo
   await assert.rejects(run(doc,{pdfForms:{...forms,pages}}),{code:'unsupported-form'});
 });
 
+test('partial PDF form metadata cannot be mistaken for an empty form',async()=>{
+  const doc={type:'document',content:[{type:'paragraph',content:['Editable PDF text']}]};
+  for(const pdfForms of [{pages:[]},{Fields:null,pages:[]},{Parents:[{i:1,name:'lost'}],pages:[]}])
+    await assert.rejects(run(doc,{pdfForms},'partial.pdf'),{code:'unsupported-form'});
+  assert.equal((await run(doc,{pdfForms:{Fields:[],Parents:[],pages:[]}},'plain.pdf')).formDefinition,null);
+});
+
 test('native table and picture slot output serializes through the shared SharePoint writer',async()=>{
   const adapted=await run(await fixture('word'));
   const asset=adapted.model.assets[0],id=asset.id;
-  const receipt={assetId:id,width:1,height:1,listId:'11111111-1111-4111-8111-111111111111',uniqueId:'22222222-2222-4222-8222-222222222222',serverRelativeUrl:`/sites/review/SiteAssets/sha256-${id}.png`,absoluteUrl:`https://tenant.sharepoint.com/sites/review/SiteAssets/sha256-${id}.png`};
+  const receipt={assetId:id,width:100,height:50,listId:'11111111-1111-4111-8111-111111111111',uniqueId:'22222222-2222-4222-8222-222222222222',serverRelativeUrl:`/sites/review/SiteAssets/sha256-${id}.png`,absoluteUrl:`https://tenant.sharepoint.com/sites/review/SiteAssets/sha256-${id}.png`};
   const canvas=serializeCanvas(adapted.model,[receipt],{siteId:'33333333-3333-4333-8333-333333333333',webId:'44444444-4444-4444-8444-444444444444',siteUrl:'https://tenant.sharepoint.com/sites/review'});
   assert.ok(canvas.CanvasContent1.includes('Left editable cell'));
   assert.ok(canvas.CanvasContent1.includes(`sha256-${id}.png`));
@@ -130,10 +151,10 @@ test('native table and picture slot output serializes through the shared SharePo
 
 test('engine-rendered nontext decorations preserve pixels, geometry and mixed-run text formatting',async()=>{
   const doc={type:'document',content:[{type:'paragraph',content:[{type:'run',rPr:{b:true},content:['Before ',{type:'paraDrawing',drawingType:'anchor',extent:{cx:952500,cy:476250},positionH:{posOffset:95250,relativeFrom:'page'},positionV:{posOffset:190500,relativeFrom:'page'},graphic:{id:'shape1',type:'shape',content:null,spPr:{custGeom:{pathLst:[{commands:[{id:'moveTo',pt:{x:'0',y:'0'}}]}]}}}},' After']}]}]};
-  const adapted=await run(doc,{decorations:{shape1:{bytes:png,mime:'image/png',width:1,height:1}}});
+  const adapted=await run(doc,{decorations:{shape1:{bytes:png,mime:'image/png',width:100,height:50}}});
   assert.ok(!adapted.model.warnings.some(w=>w.blocking));
-  assert.match(text(adapted),/<strong>Before <\/strong>/);
-  assert.match(text(adapted),/<strong> After<\/strong>/);
+  assert.match(text(adapted),/<strong><span[^>]*>Before <\/span><\/strong>/);
+  assert.match(text(adapted),/<strong><span[^>]*> After<\/span><\/strong>/);
   assert.equal(adapted.preview.drawings[0].assetId,await sha256Hex(png));
   assert.deepEqual(adapted.preview.drawings[0].geometry,{x:10,y:20,width:100,height:50,unit:'px',horizontalReference:'page',verticalReference:'page'});
   assert.deepEqual(new Uint8Array(await adapted.pictures.get(await sha256Hex(png)).arrayBuffer()),png);
@@ -144,8 +165,8 @@ test('conditional table styles preserve colored bold header cells and nested not
   const adapted=await run(doc);
   assert.match(text(adapted),/background-color:#ffff00/);
   assert.match(text(adapted),/color:#ff0000/);
-  assert.match(text(adapted),/<strong>Header<\/strong>/);
-  assert.ok(adapted.model.warnings.some(w=>w.code==='notes-adaptation-required'&&w.blocking));
+  assert.match(text(adapted),/<strong><span[^>]*>Header<\/span><\/strong>/);
+  assert.ok(adapted.model.warnings.some(w=>w.code==='document-parts-unverified'&&w.blocking));
 });
 
 test('radio group identity and required/read-only flags come from its parent even when widgets expose defaults',async()=>{

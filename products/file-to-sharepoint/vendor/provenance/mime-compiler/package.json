@@ -1,0 +1,30 @@
+{
+  "name": "confluence-to-sharepoint",
+  "version": "0.7.2",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "Import Confluence pages and local documents into editable, unpublished SharePoint drafts",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage tests/*.test.mjs",
+    "package": "node scripts/package.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "harness:start": "node scripts/harness.mjs start",
+    "harness:restart": "node scripts/harness.mjs restart",
+    "harness:status": "node scripts/harness.mjs status",
+    "harness:reload": "node scripts/harness.mjs reload",
+    "harness:capture": "node scripts/harness.mjs capture",
+    "harness:import": "node scripts/harness.mjs import",
+    "harness:run": "node scripts/harness.mjs run",
+    "harness:stop": "node scripts/harness.mjs stop",
+    "harness:sweep": "node scripts/harness.mjs sweep"
+  },
+  "devDependencies": {
+    "emojibase-data": "17.0.0",
+    "esbuild": "0.25.9",
+    "jszip": "3.10.1",
+    "playwright": "1.55.1"
+  }
+}

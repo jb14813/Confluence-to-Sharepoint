@@ -19,13 +19,13 @@
       "files": [
         {
           "file": "drawingfile.js",
-          "bytes": 131210,
-          "sha256": "c1421f8310eb9267818c6fd81f410b7898808fac305b604ac1c41254eb753aac"
+          "bytes": 131891,
+          "sha256": "c8d8b7547fc89040e129e8cc0b3603d9b92e679aa08bf023821ad532e55c3560"
         },
         {
           "file": "drawingfile.wasm",
-          "bytes": 10053147,
-          "sha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85"
+          "bytes": 10115720,
+          "sha256": "9b1de1b12078daa6c3dc3019bc2c0a4430950dd37b82bc75c4718dcd70717c37"
         }
       ],
       "recipes": [
@@ -85,7 +85,7 @@
   "proof": {
     "origin": "Font runtime has exact official SDK git blob identity. Drawing runtime was rebuilt from the publisher-associated core source using the retained no-OpenSSL recipe.",
     "sourceAssociation": "publisher release Git submodule tree ties exact engine-containing SDK to exact core source; core deployment recipes explicitly copy output into these SDK paths",
-    "reproducibility": "Drawing JS/WASM and Word SDK bundles were each reproduced exactly from both original acquisition sources and the filtered preferred-source deliveries using retained recipes and pinned inputs. Unchanged publisher font WASM is not claimed locally reproducible."
+    "reproducibility": "Current drawing JS/WASM reproduced exactly across two fresh source/compiler directories from the filtered preferred-source delivery using the retained recipe and pinned archives, with no native build objects reused. The unchanged Word SDK retains its original and filtered source reproduction evidence. Unchanged publisher font WASM is not claimed locally reproducible."
   },
   "preferredSourceInputs": [
     {
@@ -260,7 +260,7 @@
   "validation": {
     "publisherDrawingPair": "Historical official drawing pair passed16 tests before the OpenSSL implementation source audit; that pair has been replaced.",
     "catalogCodec": "exact base64 decode/encode roundtrip,288 records",
-    "currentDrawingBuild": "16 strict offline MV3 engine/content/vendor tests passed with the no-OpenSSL source-built drawing runtime."
+    "currentDrawingBuild": "38 strict offline MV3 engine/content/vendor tests passed with the adopted no-OpenSSL capability runtime; 12 direct native metadata cases also passed."
   },
   "evidenceFiles": [
     "provenance/sdk/drawingfile-source.json",

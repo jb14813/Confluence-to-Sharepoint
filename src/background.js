@@ -14,7 +14,7 @@ import {fail} from './background/checks.js';
 import {withinSite} from './sharepoint/session.js';
 import {createAssetRouteListener} from './sharepoint/route-cache.js';
 
-const SHORTCUT='guide-shortcut',MEMORY='site-memory',POPUP='c2s-popup';
+const SHORTCUT='guide-shortcut',FILE_SHORTCUT='file-import-shortcut',MEMORY='site-memory',POPUP='c2s-popup';
 const tabId=Number.isInteger,text=value=>typeof value==='string',textOrNull=value=>value===null||typeof value==='string';
 const windowId=value=>value==null||Number.isInteger(value),batchId=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const ids=value=>Array.isArray(value)&&value.length>0&&value.length<=2000&&value.every(id=>typeof id==='string'&&id.length>0&&id.length<=4096);
@@ -97,11 +97,15 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     await recoverStep('Refresh',()=>dashboard.recover(),false);
   });
   const workspaceOpener=filename=>{
-    let opening=null;
-    return ()=>{
-    if(opening)return opening;
-    opening=(async()=>{const url=chromeApi.runtime.getURL(filename),open=(await chromeApi.tabs.query({url})).find(tab=>tab.url===url);
-      if(open){await chromeApi.tabs.update(open.id,{active:true});await chromeApi.windows.update(open.windowId,{focused:true});return {tabId:open.id};}
+    let opening=null,openingSite=null;
+    return function openWorkspace(siteUrl=null){
+    if(opening)return !siteUrl||siteUrl===openingSite?opening:opening.catch(()=>{}).then(()=>openWorkspace(siteUrl));
+    openingSite=siteUrl;
+    opening=(async()=>{const base=chromeApi.runtime.getURL(filename),url=siteUrl?`${base}#site=${encodeURIComponent(siteUrl)}`:base;
+      // tabs.query cannot reveal extension-page URLs without the broad tabs
+      // permission. Runtime contexts identify only this extension's own tabs.
+      const open=(await chromeApi.runtime.getContexts({contextTypes:['TAB']})).find(view=>view.frameId===0&&view.tabId>=0&&typeof view.documentUrl==='string'&&view.documentUrl.split('#')[0]===base);
+      if(open){await chromeApi.tabs.update(open.tabId,{active:true,...(siteUrl&&open.documentUrl!==url?{url}:{})});await chromeApi.windows.update(open.windowId,{focused:true});return {tabId:open.tabId};}
       return {tabId:(await chromeApi.tabs.create({url,active:true})).id};
     })().finally(()=>{opening=null;});return opening;
     };
@@ -119,8 +123,8 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
       return {...await dashboard.state(),batch,job:jobState.job,capture:jobState.capture,canStart:!blocker,canContinue:!batch?.limitReached&&!dashboard.ownsWork()&&!bulk.ownsWork()&&!transfer,blocker};},
     'dashboard-refresh':async options=>{if((await jobs.state()).running)throw fail('job-busy','Wait for the current capture or send.');if(bulk.ownsWork())throw fail('batch-busy','Wait for the batch to finish or stop after its current item.');return dashboard.refresh(options);},
     'dashboard-stop-refresh':()=>dashboard.stopRefresh(),
-    'open-dashboard':openDashboard,
-    'open-file-import':openFileImport,
+    'open-dashboard':()=>openDashboard(),
+    'open-file-import':()=>openFileImport(),
     'batch-start':options=>{withoutRefresh();return bulk.start(options);},
     'batch-stop':options=>bulk.stop(options),
     'batch-continue':options=>{withoutRefresh();return bulk.continue(options);},
@@ -173,6 +177,16 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     if(message?.channel===SHORTCUT){
       if(message.action!=='open-popup'||Object.keys(message).length!==2||!pageSender(sender,runtimeId))return false;
       openPopup(chromeApi,sender.tab).then(reply);return true;
+    }
+    if(message?.channel===FILE_SHORTCUT){
+      const from=pageSender(sender,runtimeId),site=siteKey(message.siteUrl);
+      if(message.action!=='open-file-import'||!only(message,['channel','action','siteUrl'])||!from||!site||!withinSite(from.href,site))return false;
+      ready.then(async()=>{
+        const tab=await chromeApi.tabs.get(sender.tab.id),current=new URL(tab.url);
+        if(current.origin!==from.origin||current.pathname.toLowerCase()!==from.pathname.toLowerCase()||!withinSite(current.href,site))throw fail('site-changed','The SharePoint page changed. Use Import a file on the current page.');
+        return openFileImport(site);
+      }).then(result=>reply({ok:true,result}),error=>reply({ok:false,error:{code:error?.code??'workspace-unavailable',message:error?.message??'File import could not be opened. Use the extension icon.'}}));
+      return true;
     }
     if(message?.channel===MEMORY){
       const from=pageSender(sender,runtimeId),page=message.page;let site=null;

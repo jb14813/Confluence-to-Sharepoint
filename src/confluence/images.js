@@ -1,3 +1,4 @@
+import {rasterizeSvg} from '../transfer/svg.js';
 import {badMetadata} from './html.js';
 import {MAX_PICTURE_BYTES,SHAREPOINT_COLUMN_WIDTH,sha256Hex} from '../transfer/limits.js';
 
@@ -172,44 +173,6 @@ async function readBytes(response, received = () => {}, guard = part => part) {
     bytes=new Uint8Array(await guard(response.arrayBuffer()));checkSize(bytes.byteLength);
   }
   return bytes;
-}
-
-/**
- * Draws an SVG picture to PNG, because SharePoint image controls take bitmap
- * formats and an SVG file could carry script into the SharePoint site. An SVG
- * drawn as an image runs no scripts and loads no other files. The PNG is twice
- * the larger of the picture's own width and the widest Confluence shows it at,
- * at most twice a SharePoint column: sharp on high-density screens where the
- * page shows it, and when it is made larger in SharePoint up to its own size,
- * as an original picture of that size would be. Returns the PNG and the
- * picture's own width, at most a SharePoint column.
- */
-async function rasterizeSvg(bytes, displayWidth) {
-  const invalid = () => fail('unsupported-image', 'An SVG picture on this page could not be converted to PNG.');
-  const svg = new globalThis.DOMParser().parseFromString(new TextDecoder().decode(bytes), SVG).documentElement;
-  if(svg?.localName!=='svg' || svg.namespaceURI!=='http://www.w3.org/2000/svg') invalid();
-  const url = URL.createObjectURL(new Blob([bytes],{type:SVG}));
-  try {
-    const image = globalThis.document.createElement('img');
-    image.src = url;
-    try { await image.decode(); } catch { invalid(); }
-    // The picture's own size: absolute width and height, else its view box, else the browser's reading of it.
-    const length = value => /^\s*\d+(?:\.\d+)?(?:px)?\s*$/.test(value ?? '') ? parseFloat(value) : 0;
-    const box = (svg.getAttribute('viewBox') ?? '').trim().split(/[\s,]+/).map(Number), boxRatio = box[2] > 0 && box[3] > 0 ? box[3] / box[2] : 0;
-    let width = length(svg.getAttribute('width')), height = length(svg.getAttribute('height'));
-    if(!width && !height && boxRatio) { width = box[2]; height = box[3]; }
-    else if(width && !height && boxRatio) height = width * boxRatio;
-    else if(height && !width && boxRatio) width = height / boxRatio;
-    if(!(width > 0 && height > 0)) { width = image.naturalWidth || 300; height = image.naturalHeight || 150; }
-    const drawn = Math.min(Math.max(displayWidth > 0 ? displayWidth : 0, width), SHAREPOINT_COLUMN_WIDTH);
-    const scale = Math.min(2 * drawn / width, MAX_CANVAS_SIDE / Math.max(width, height), Math.sqrt(MAX_CANVAS_PIXELS / (width * height)));
-    const canvas = globalThis.document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(width * scale)); canvas.height = Math.max(1, Math.round(height * scale));
-    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-    const png = await new Promise(resolve => { try { canvas.toBlob(resolve, 'image/png'); } catch { resolve(null); } });
-    if(!png) invalid();
-    return {bytes:new Uint8Array(await png.arrayBuffer()), ownWidth:Math.max(1, Math.round(Math.min(width, SHAREPOINT_COLUMN_WIDTH)))};
-  } finally { URL.revokeObjectURL(url); }
 }
 
 // A download that sends nothing for this long is given up: one picture must not hold the capture until its time limit.

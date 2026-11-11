@@ -1818,7 +1818,7 @@
     },
     {
       "name": "HEIF / libde265 / x265 implementations",
-      "basis": "Positive binary evidence: all18 imported HEIF API functions are bound by x2t.js to abort missing-function stubs (.stub=true), including allocation/encode/decode/image operations; exact import bindings are in runtimeImportEvidence. Native-host codec build archives are not copied into final WASM link. Publisher drawing/font source manifests omit HEIF. Complete codec source archives remain retained as build dependencies."
+      "basis": "The guarded Emscripten ximacfg.h profile disables the unsupported HEIF decoder branch. Actual current JS/WASM has zero HEIF imports, compared with18 historical missing-function stubs. The final generated link includes no HEIF/libde265/x265 implementation library, and reviewed translation units contain no implementation source. Host-tool source archives remain retained as build dependencies; drawing/font manifests omit HEIF."
     },
     {
       "name": "AGG GPC and examples",
@@ -1844,32 +1844,32 @@
     "newSourceArchiveBytes": 31894675
   },
   "runtimeImportEvidence": {
-    "method": "Named missing-function abort stubs in shipped JS correlated to actual WASM function import descriptors; retained records independently supplied by final-link audit. A source-build dependency alone is not treated as incorporated code.",
+    "method": "Actual current JS missing-function abort bodies/import table correlated independently with current WASM import descriptors, plus final generated em++ compile/archive/link Makefiles and reproduced delivered-source build outputs. A repository or host-tool dependency alone is not treated as incorporated implementation. Full redacted final review is pinned by finalCompileTrace.",
     "artifacts": [
       {
         "file": "x2t.js",
-        "bytes": 140773,
-        "sha256": "e2f79cf6b71d10a7b5db695dcb4043afb1c5e0412520201bf71d6f12f97648d7"
+        "bytes": 137170,
+        "sha256": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46"
       },
       {
         "file": "x2t.wasm",
-        "bytes": 38768424,
-        "sha256": "d5e67dec96ad28f0057818cc6f4faf599f1bc982e150efb44e1605dd23a655c2"
+        "bytes": 38867906,
+        "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
       }
     ],
-    "wasmImportCount": 173,
+    "wasmImportCount": 155,
     "confirmedAbortImports": [
       {
         "function": "_ASN1_INTEGER_free",
         "missingSymbol": "ASN1_INTEGER_free",
         "importBindings": [
           {
-            "name": "Wa",
+            "name": "Ua",
             "function": "_ASN1_INTEGER_free",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Wa",
+                "name": "Ua",
                 "kind": "function"
               }
             ]
@@ -1881,12 +1881,12 @@
         "missingSymbol": "ASN1_INTEGER_to_BN",
         "importBindings": [
           {
-            "name": "Xa",
+            "name": "Va",
             "function": "_ASN1_INTEGER_to_BN",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Xa",
+                "name": "Va",
                 "kind": "function"
               }
             ]
@@ -1898,12 +1898,12 @@
         "missingSymbol": "BIO_ctrl",
         "importBindings": [
           {
-            "name": "u",
+            "name": "t",
             "function": "_BIO_ctrl",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "u",
+                "name": "t",
                 "kind": "function"
               }
             ]
@@ -1983,348 +1983,8 @@
         "missingSymbol": "BIO_write",
         "importBindings": [
           {
-            "name": "Ma",
-            "function": "_BIO_write",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ma",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_BN_add",
-        "missingSymbol": "BN_add",
-        "importBindings": [
-          {
-            "name": "Ua",
-            "function": "_BN_add",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ua",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_BN_bn2dec",
-        "missingSymbol": "BN_bn2dec",
-        "importBindings": [
-          {
-            "name": "Ta",
-            "function": "_BN_bn2dec",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ta",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_BN_free",
-        "missingSymbol": "BN_free",
-        "importBindings": [
-          {
-            "name": "W",
-            "function": "_BN_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "W",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_BN_hex2bn",
-        "missingSymbol": "BN_hex2bn",
-        "importBindings": [
-          {
-            "name": "Va",
-            "function": "_BN_hex2bn",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Va",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_CRYPTO_free",
-        "missingSymbol": "CRYPTO_free",
-        "importBindings": [
-          {
-            "name": "Sa",
-            "function": "_CRYPTO_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Sa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_ERR_error_string",
-        "missingSymbol": "ERR_error_string",
-        "importBindings": [
-          {
-            "name": "C",
-            "function": "_ERR_error_string",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "C",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_ERR_get_error",
-        "missingSymbol": "ERR_get_error",
-        "importBindings": [
-          {
-            "name": "D",
-            "function": "_ERR_get_error",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "D",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_ERR_print_errors",
-        "missingSymbol": "ERR_print_errors",
-        "importBindings": [
-          {
-            "name": "Ya",
-            "function": "_ERR_print_errors",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ya",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_DigestInit",
-        "missingSymbol": "EVP_DigestInit",
-        "importBindings": [
-          {
-            "name": "T",
-            "function": "_EVP_DigestInit",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "T",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_DigestSign",
-        "missingSymbol": "EVP_DigestSign",
-        "importBindings": [
-          {
-            "name": "U",
-            "function": "_EVP_DigestSign",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "U",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_DigestSignInit",
-        "missingSymbol": "EVP_DigestSignInit",
-        "importBindings": [
-          {
-            "name": "Oa",
-            "function": "_EVP_DigestSignInit",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Oa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_DigestUpdate",
-        "missingSymbol": "EVP_DigestUpdate",
-        "importBindings": [
-          {
-            "name": "S",
-            "function": "_EVP_DigestUpdate",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "S",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_DigestVerify",
-        "missingSymbol": "EVP_DigestVerify",
-        "importBindings": [
-          {
-            "name": "va",
-            "function": "_EVP_DigestVerify",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "va",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_DigestVerifyInit",
-        "missingSymbol": "EVP_DigestVerifyInit",
-        "importBindings": [
-          {
-            "name": "wa",
-            "function": "_EVP_DigestVerifyInit",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "wa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_MD_CTX_free",
-        "missingSymbol": "EVP_MD_CTX_free",
-        "importBindings": [
-          {
-            "name": "z",
-            "function": "_EVP_MD_CTX_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "z",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_MD_CTX_new",
-        "missingSymbol": "EVP_MD_CTX_new",
-        "importBindings": [
-          {
-            "name": "A",
-            "function": "_EVP_MD_CTX_new",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "A",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_PKEY_free",
-        "missingSymbol": "EVP_PKEY_free",
-        "importBindings": [
-          {
-            "name": "t",
-            "function": "_EVP_PKEY_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "t",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_SignFinal",
-        "missingSymbol": "EVP_SignFinal",
-        "importBindings": [
-          {
-            "name": "Na",
-            "function": "_EVP_SignFinal",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Na",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_VerifyFinal",
-        "missingSymbol": "EVP_VerifyFinal",
-        "importBindings": [
-          {
-            "name": "ua",
-            "function": "_EVP_VerifyFinal",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ua",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_sha1",
-        "missingSymbol": "EVP_sha1",
-        "importBindings": [
-          {
             "name": "Ka",
-            "function": "_EVP_sha1",
+            "function": "_BIO_write",
             "wasmImports": [
               {
                 "module": "a",
@@ -2336,16 +1996,16 @@
         ]
       },
       {
-        "function": "_EVP_sha224",
-        "missingSymbol": "EVP_sha224",
+        "function": "_BN_add",
+        "missingSymbol": "BN_add",
         "importBindings": [
           {
-            "name": "kc",
-            "function": "_EVP_sha224",
+            "name": "Sa",
+            "function": "_BN_add",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "kc",
+                "name": "Sa",
                 "kind": "function"
               }
             ]
@@ -2353,488 +2013,12 @@
         ]
       },
       {
-        "function": "_EVP_sha256",
-        "missingSymbol": "EVP_sha256",
-        "importBindings": [
-          {
-            "name": "Z",
-            "function": "_EVP_sha256",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Z",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_sha384",
-        "missingSymbol": "EVP_sha384",
-        "importBindings": [
-          {
-            "name": "X",
-            "function": "_EVP_sha384",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "X",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_EVP_sha512",
-        "missingSymbol": "EVP_sha512",
-        "importBindings": [
-          {
-            "name": "V",
-            "function": "_EVP_sha512",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "V",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_OBJ_nid2ln",
-        "missingSymbol": "OBJ_nid2ln",
-        "importBindings": [
-          {
-            "name": "Fa",
-            "function": "_OBJ_nid2ln",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Fa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_OBJ_obj2nid",
-        "missingSymbol": "OBJ_obj2nid",
-        "importBindings": [
-          {
-            "name": "Q",
-            "function": "_OBJ_obj2nid",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Q",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_OPENSSL_config",
-        "missingSymbol": "OPENSSL_config",
-        "importBindings": [
-          {
-            "name": "ab",
-            "function": "_OPENSSL_config",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ab",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_OPENSSL_init_crypto",
-        "missingSymbol": "OPENSSL_init_crypto",
-        "importBindings": [
-          {
-            "name": "Y",
-            "function": "_OPENSSL_init_crypto",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Y",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_OPENSSL_sk_pop_free",
-        "missingSymbol": "OPENSSL_sk_pop_free",
-        "importBindings": [
-          {
-            "name": "ba",
-            "function": "_OPENSSL_sk_pop_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ba",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PEM_read_bio_PrivateKey",
-        "missingSymbol": "PEM_read_bio_PrivateKey",
-        "importBindings": [
-          {
-            "name": "jc",
-            "function": "_PEM_read_bio_PrivateKey",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "jc",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PEM_read_bio_X509",
-        "missingSymbol": "PEM_read_bio_X509",
-        "importBindings": [
-          {
-            "name": "gb",
-            "function": "_PEM_read_bio_X509",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "gb",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PEM_read_bio_X509_AUX",
-        "missingSymbol": "PEM_read_bio_X509_AUX",
-        "importBindings": [
-          {
-            "name": "cb",
-            "function": "_PEM_read_bio_X509_AUX",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "cb",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PKCS12_free",
-        "missingSymbol": "PKCS12_free",
-        "importBindings": [
-          {
-            "name": "B",
-            "function": "_PKCS12_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "B",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PKCS12_parse",
-        "missingSymbol": "PKCS12_parse",
-        "importBindings": [
-          {
-            "name": "da",
-            "function": "_PKCS12_parse",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "da",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PKCS7_final",
-        "missingSymbol": "PKCS7_final",
-        "importBindings": [
-          {
-            "name": "Ia",
-            "function": "_PKCS7_final",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ia",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PKCS7_free",
-        "missingSymbol": "PKCS7_free",
-        "importBindings": [
-          {
-            "name": "R",
-            "function": "_PKCS7_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "R",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PKCS7_sign",
-        "missingSymbol": "PKCS7_sign",
-        "importBindings": [
-          {
-            "name": "La",
-            "function": "_PKCS7_sign",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "La",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PKCS7_sign_add_signer",
-        "missingSymbol": "PKCS7_sign_add_signer",
-        "importBindings": [
-          {
-            "name": "Ja",
-            "function": "_PKCS7_sign_add_signer",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ja",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_PKCS7_verify",
-        "missingSymbol": "PKCS7_verify",
-        "importBindings": [
-          {
-            "name": "P",
-            "function": "_PKCS7_verify",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "P",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_SHA1",
-        "missingSymbol": "SHA1",
-        "importBindings": [
-          {
-            "name": "xa",
-            "function": "_SHA1",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "xa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_SHA224",
-        "missingSymbol": "SHA224",
-        "importBindings": [
-          {
-            "name": "Ba",
-            "function": "_SHA224",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ba",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_SHA256",
-        "missingSymbol": "SHA256",
-        "importBindings": [
-          {
-            "name": "Aa",
-            "function": "_SHA256",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Aa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_SHA384",
-        "missingSymbol": "SHA384",
-        "importBindings": [
-          {
-            "name": "za",
-            "function": "_SHA384",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "za",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_SHA512",
-        "missingSymbol": "SHA512",
-        "importBindings": [
-          {
-            "name": "ya",
-            "function": "_SHA512",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ya",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_X509_NAME_oneline",
-        "missingSymbol": "X509_NAME_oneline",
-        "importBindings": [
-          {
-            "name": "Qa",
-            "function": "_X509_NAME_oneline",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Qa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_X509_STORE_add_cert",
-        "missingSymbol": "X509_STORE_add_cert",
-        "importBindings": [
-          {
-            "name": "Da",
-            "function": "_X509_STORE_add_cert",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Da",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_X509_STORE_free",
-        "missingSymbol": "X509_STORE_free",
-        "importBindings": [
-          {
-            "name": "Ca",
-            "function": "_X509_STORE_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ca",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_X509_STORE_new",
-        "missingSymbol": "X509_STORE_new",
-        "importBindings": [
-          {
-            "name": "Ea",
-            "function": "_X509_STORE_new",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ea",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_X509_free",
-        "missingSymbol": "X509_free",
-        "importBindings": [
-          {
-            "name": "s",
-            "function": "_X509_free",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "s",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_X509_get_issuer_name",
-        "missingSymbol": "X509_get_issuer_name",
+        "function": "_BN_bn2dec",
+        "missingSymbol": "BN_bn2dec",
         "importBindings": [
           {
             "name": "Ra",
-            "function": "_X509_get_issuer_name",
+            "function": "_BN_bn2dec",
             "wasmImports": [
               {
                 "module": "a",
@@ -2846,16 +2030,16 @@
         ]
       },
       {
-        "function": "_X509_get_pubkey",
-        "missingSymbol": "X509_get_pubkey",
+        "function": "_BN_free",
+        "missingSymbol": "BN_free",
         "importBindings": [
           {
-            "name": "O",
-            "function": "_X509_get_pubkey",
+            "name": "T",
+            "function": "_BN_free",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "O",
+                "name": "T",
                 "kind": "function"
               }
             ]
@@ -2863,16 +2047,16 @@
         ]
       },
       {
-        "function": "_X509_get_serialNumber",
-        "missingSymbol": "X509_get_serialNumber",
+        "function": "_BN_hex2bn",
+        "missingSymbol": "BN_hex2bn",
         "importBindings": [
           {
-            "name": "$a",
-            "function": "_X509_get_serialNumber",
+            "name": "Ta",
+            "function": "_BN_hex2bn",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "$a",
+                "name": "Ta",
                 "kind": "function"
               }
             ]
@@ -2880,12 +2064,148 @@
         ]
       },
       {
-        "function": "_X509_get_signature_nid",
-        "missingSymbol": "X509_get_signature_nid",
+        "function": "_CRYPTO_free",
+        "missingSymbol": "CRYPTO_free",
+        "importBindings": [
+          {
+            "name": "Qa",
+            "function": "_CRYPTO_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Qa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_ERR_error_string",
+        "missingSymbol": "ERR_error_string",
+        "importBindings": [
+          {
+            "name": "B",
+            "function": "_ERR_error_string",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "B",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_ERR_get_error",
+        "missingSymbol": "ERR_get_error",
+        "importBindings": [
+          {
+            "name": "C",
+            "function": "_ERR_get_error",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "C",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_ERR_print_errors",
+        "missingSymbol": "ERR_print_errors",
+        "importBindings": [
+          {
+            "name": "Wa",
+            "function": "_ERR_print_errors",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Wa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestInit",
+        "missingSymbol": "EVP_DigestInit",
+        "importBindings": [
+          {
+            "name": "Q",
+            "function": "_EVP_DigestInit",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Q",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestSign",
+        "missingSymbol": "EVP_DigestSign",
+        "importBindings": [
+          {
+            "name": "R",
+            "function": "_EVP_DigestSign",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "R",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestSignInit",
+        "missingSymbol": "EVP_DigestSignInit",
+        "importBindings": [
+          {
+            "name": "Ma",
+            "function": "_EVP_DigestSignInit",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ma",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestUpdate",
+        "missingSymbol": "EVP_DigestUpdate",
+        "importBindings": [
+          {
+            "name": "P",
+            "function": "_EVP_DigestUpdate",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "P",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_DigestVerify",
+        "missingSymbol": "EVP_DigestVerify",
         "importBindings": [
           {
             "name": "ta",
-            "function": "_X509_get_signature_nid",
+            "function": "_EVP_DigestVerify",
             "wasmImports": [
               {
                 "module": "a",
@@ -2897,16 +2217,16 @@
         ]
       },
       {
-        "function": "_X509_getm_notAfter",
-        "missingSymbol": "X509_getm_notAfter",
+        "function": "_EVP_DigestVerifyInit",
+        "missingSymbol": "EVP_DigestVerifyInit",
         "importBindings": [
           {
-            "name": "Za",
-            "function": "_X509_getm_notAfter",
+            "name": "ua",
+            "function": "_EVP_DigestVerifyInit",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Za",
+                "name": "ua",
                 "kind": "function"
               }
             ]
@@ -2914,12 +2234,216 @@
         ]
       },
       {
-        "function": "_X509_getm_notBefore",
-        "missingSymbol": "X509_getm_notBefore",
+        "function": "_EVP_MD_CTX_free",
+        "missingSymbol": "EVP_MD_CTX_free",
+        "importBindings": [
+          {
+            "name": "y",
+            "function": "_EVP_MD_CTX_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "y",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_MD_CTX_new",
+        "missingSymbol": "EVP_MD_CTX_new",
+        "importBindings": [
+          {
+            "name": "z",
+            "function": "_EVP_MD_CTX_new",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "z",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_PKEY_free",
+        "missingSymbol": "EVP_PKEY_free",
+        "importBindings": [
+          {
+            "name": "s",
+            "function": "_EVP_PKEY_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "s",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_SignFinal",
+        "missingSymbol": "EVP_SignFinal",
+        "importBindings": [
+          {
+            "name": "La",
+            "function": "_EVP_SignFinal",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "La",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_VerifyFinal",
+        "missingSymbol": "EVP_VerifyFinal",
+        "importBindings": [
+          {
+            "name": "sa",
+            "function": "_EVP_VerifyFinal",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "sa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha1",
+        "missingSymbol": "EVP_sha1",
+        "importBindings": [
+          {
+            "name": "Ia",
+            "function": "_EVP_sha1",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ia",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha224",
+        "missingSymbol": "EVP_sha224",
+        "importBindings": [
+          {
+            "name": "Ub",
+            "function": "_EVP_sha224",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ub",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha256",
+        "missingSymbol": "EVP_sha256",
+        "importBindings": [
+          {
+            "name": "W",
+            "function": "_EVP_sha256",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "W",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha384",
+        "missingSymbol": "EVP_sha384",
+        "importBindings": [
+          {
+            "name": "U",
+            "function": "_EVP_sha384",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "U",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_EVP_sha512",
+        "missingSymbol": "EVP_sha512",
+        "importBindings": [
+          {
+            "name": "S",
+            "function": "_EVP_sha512",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "S",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OBJ_nid2ln",
+        "missingSymbol": "OBJ_nid2ln",
+        "importBindings": [
+          {
+            "name": "Da",
+            "function": "_OBJ_nid2ln",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Da",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OBJ_obj2nid",
+        "missingSymbol": "OBJ_obj2nid",
+        "importBindings": [
+          {
+            "name": "N",
+            "function": "_OBJ_obj2nid",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "N",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OPENSSL_config",
+        "missingSymbol": "OPENSSL_config",
         "importBindings": [
           {
             "name": "_a",
-            "function": "_X509_getm_notBefore",
+            "function": "_OPENSSL_config",
             "wasmImports": [
               {
                 "module": "a",
@@ -2931,16 +2455,492 @@
         ]
       },
       {
+        "function": "_OPENSSL_init_crypto",
+        "missingSymbol": "OPENSSL_init_crypto",
+        "importBindings": [
+          {
+            "name": "V",
+            "function": "_OPENSSL_init_crypto",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "V",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_OPENSSL_sk_pop_free",
+        "missingSymbol": "OPENSSL_sk_pop_free",
+        "importBindings": [
+          {
+            "name": "X",
+            "function": "_OPENSSL_sk_pop_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "X",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PEM_read_bio_PrivateKey",
+        "missingSymbol": "PEM_read_bio_PrivateKey",
+        "importBindings": [
+          {
+            "name": "Tb",
+            "function": "_PEM_read_bio_PrivateKey",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Tb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PEM_read_bio_X509",
+        "missingSymbol": "PEM_read_bio_X509",
+        "importBindings": [
+          {
+            "name": "bb",
+            "function": "_PEM_read_bio_X509",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "bb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PEM_read_bio_X509_AUX",
+        "missingSymbol": "PEM_read_bio_X509_AUX",
+        "importBindings": [
+          {
+            "name": "ab",
+            "function": "_PEM_read_bio_X509_AUX",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ab",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS12_free",
+        "missingSymbol": "PKCS12_free",
+        "importBindings": [
+          {
+            "name": "A",
+            "function": "_PKCS12_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "A",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS12_parse",
+        "missingSymbol": "PKCS12_parse",
+        "importBindings": [
+          {
+            "name": "_",
+            "function": "_PKCS12_parse",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "_",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_final",
+        "missingSymbol": "PKCS7_final",
+        "importBindings": [
+          {
+            "name": "Ga",
+            "function": "_PKCS7_final",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ga",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_free",
+        "missingSymbol": "PKCS7_free",
+        "importBindings": [
+          {
+            "name": "O",
+            "function": "_PKCS7_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "O",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_sign",
+        "missingSymbol": "PKCS7_sign",
+        "importBindings": [
+          {
+            "name": "Ja",
+            "function": "_PKCS7_sign",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ja",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_sign_add_signer",
+        "missingSymbol": "PKCS7_sign_add_signer",
+        "importBindings": [
+          {
+            "name": "Ha",
+            "function": "_PKCS7_sign_add_signer",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ha",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_PKCS7_verify",
+        "missingSymbol": "PKCS7_verify",
+        "importBindings": [
+          {
+            "name": "M",
+            "function": "_PKCS7_verify",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "M",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA1",
+        "missingSymbol": "SHA1",
+        "importBindings": [
+          {
+            "name": "va",
+            "function": "_SHA1",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "va",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA224",
+        "missingSymbol": "SHA224",
+        "importBindings": [
+          {
+            "name": "za",
+            "function": "_SHA224",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "za",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA256",
+        "missingSymbol": "SHA256",
+        "importBindings": [
+          {
+            "name": "ya",
+            "function": "_SHA256",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ya",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA384",
+        "missingSymbol": "SHA384",
+        "importBindings": [
+          {
+            "name": "xa",
+            "function": "_SHA384",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "xa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_SHA512",
+        "missingSymbol": "SHA512",
+        "importBindings": [
+          {
+            "name": "wa",
+            "function": "_SHA512",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "wa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_NAME_oneline",
+        "missingSymbol": "X509_NAME_oneline",
+        "importBindings": [
+          {
+            "name": "Oa",
+            "function": "_X509_NAME_oneline",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Oa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_STORE_add_cert",
+        "missingSymbol": "X509_STORE_add_cert",
+        "importBindings": [
+          {
+            "name": "Ba",
+            "function": "_X509_STORE_add_cert",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ba",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_STORE_free",
+        "missingSymbol": "X509_STORE_free",
+        "importBindings": [
+          {
+            "name": "Aa",
+            "function": "_X509_STORE_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Aa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_STORE_new",
+        "missingSymbol": "X509_STORE_new",
+        "importBindings": [
+          {
+            "name": "Ca",
+            "function": "_X509_STORE_new",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ca",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_free",
+        "missingSymbol": "X509_free",
+        "importBindings": [
+          {
+            "name": "r",
+            "function": "_X509_free",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "r",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_issuer_name",
+        "missingSymbol": "X509_get_issuer_name",
+        "importBindings": [
+          {
+            "name": "Pa",
+            "function": "_X509_get_issuer_name",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Pa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_pubkey",
+        "missingSymbol": "X509_get_pubkey",
+        "importBindings": [
+          {
+            "name": "L",
+            "function": "_X509_get_pubkey",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "L",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_serialNumber",
+        "missingSymbol": "X509_get_serialNumber",
+        "importBindings": [
+          {
+            "name": "Za",
+            "function": "_X509_get_serialNumber",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Za",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_get_signature_nid",
+        "missingSymbol": "X509_get_signature_nid",
+        "importBindings": [
+          {
+            "name": "ra",
+            "function": "_X509_get_signature_nid",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "ra",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_getm_notAfter",
+        "missingSymbol": "X509_getm_notAfter",
+        "importBindings": [
+          {
+            "name": "Xa",
+            "function": "_X509_getm_notAfter",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Xa",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_X509_getm_notBefore",
+        "missingSymbol": "X509_getm_notBefore",
+        "importBindings": [
+          {
+            "name": "Ya",
+            "function": "_X509_getm_notBefore",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Ya",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "function": "_X509_print_ex",
         "missingSymbol": "X509_print_ex",
         "importBindings": [
           {
-            "name": "sa",
+            "name": "qa",
             "function": "_X509_print_ex",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "sa",
+                "name": "qa",
                 "kind": "function"
               }
             ]
@@ -2986,12 +2986,12 @@
         "missingSymbol": "_ZN8COFDFileC1EPN7NSFonts17IApplicationFontsE",
         "importBindings": [
           {
-            "name": "N",
+            "name": "K",
             "function": "__ZN8COFDFileC1EPN7NSFonts17IApplicationFontsE",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "N",
+                "name": "K",
                 "kind": "function"
               }
             ]
@@ -3037,12 +3037,12 @@
         "missingSymbol": "_ZN8NSJSBase10CJSContext13GetExceptionsEv",
         "importBindings": [
           {
-            "name": "Tb",
+            "name": "Sb",
             "function": "__ZN8NSJSBase10CJSContext13GetExceptionsEv",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Tb",
+                "name": "Sb",
                 "kind": "function"
               }
             ]
@@ -3054,12 +3054,12 @@
         "missingSymbol": "_ZN8NSJSBase10CJSContext14isSnapshotUsedEv",
         "importBindings": [
           {
-            "name": "ha",
+            "name": "ea",
             "function": "__ZN8NSJSBase10CJSContext14isSnapshotUsedEv",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "ha",
+                "name": "ea",
                 "kind": "function"
               }
             ]
@@ -3071,12 +3071,12 @@
         "missingSymbol": "_ZN8NSJSBase10CJSContext4ExitEv",
         "importBindings": [
           {
-            "name": "Lb",
+            "name": "Kb",
             "function": "__ZN8NSJSBase10CJSContext4ExitEv",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Lb",
+                "name": "Kb",
                 "kind": "function"
               }
             ]
@@ -3088,12 +3088,12 @@
         "missingSymbol": "_ZN8NSJSBase10CJSContext5EnterEv",
         "importBindings": [
           {
-            "name": "Mb",
+            "name": "Lb",
             "function": "__ZN8NSJSBase10CJSContext5EnterEv",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Mb",
+                "name": "Lb",
                 "kind": "function"
               }
             ]
@@ -3122,263 +3122,8 @@
         "missingSymbol": "_ZN8NSJSBase10CJSContext9GetGlobalEv",
         "importBindings": [
           {
-            "name": "ia",
-            "function": "__ZN8NSJSBase10CJSContext9GetGlobalEv",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ia",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
-        "missingSymbol": "_ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
-        "importBindings": [
-          {
-            "name": "I",
-            "function": "__ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "I",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8NSJSBase10CJSContextC1ERKb",
-        "missingSymbol": "_ZN8NSJSBase10CJSContextC1ERKb",
-        "importBindings": [
-          {
-            "name": "Vb",
-            "function": "__ZN8NSJSBase10CJSContextC1ERKb",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Vb",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8NSJSBase10CJSContextD1Ev",
-        "missingSymbol": "_ZN8NSJSBase10CJSContextD1Ev",
-        "importBindings": [
-          {
-            "name": "ga",
-            "function": "__ZN8NSJSBase10CJSContextD1Ev",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ga",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8NSJSBase14CreateDefaultsEv",
-        "missingSymbol": "_ZN8NSJSBase14CreateDefaultsEv",
-        "importBindings": [
-          {
-            "name": "Ub",
-            "function": "__ZN8NSJSBase14CreateDefaultsEv",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Ub",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
-        "importBindings": [
-          {
-            "name": "na",
-            "function": "__ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "na",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
-        "importBindings": [
-          {
-            "name": "ra",
-            "function": "__ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ra",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
-        "importBindings": [
-          {
-            "name": "qa",
-            "function": "__ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "qa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
-        "importBindings": [
-          {
-            "name": "oa",
-            "function": "__ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "oa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
-        "importBindings": [
-          {
-            "name": "la",
-            "function": "__ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "la",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
-        "importBindings": [
-          {
-            "name": "pa",
-            "function": "__ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "pa",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
-        "importBindings": [
-          {
-            "name": "Kb",
-            "function": "__ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "Kb",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
-        "importBindings": [
-          {
-            "name": "ma",
-            "function": "__ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ma",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverterC1Ev",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverterC1Ev",
-        "importBindings": [
-          {
-            "name": "M",
-            "function": "__ZN8StarMath18CStarMathConverterC1Ev",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "M",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "__ZN8StarMath18CStarMathConverterD1Ev",
-        "missingSymbol": "_ZN8StarMath18CStarMathConverterD1Ev",
-        "importBindings": [
-          {
-            "name": "L",
-            "function": "__ZN8StarMath18CStarMathConverterD1Ev",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "L",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_d2i_PKCS12_bio",
-        "missingSymbol": "d2i_PKCS12_bio",
-        "importBindings": [
-          {
             "name": "fa",
-            "function": "_d2i_PKCS12_bio",
+            "function": "__ZN8NSJSBase10CJSContext9GetGlobalEv",
             "wasmImports": [
               {
                 "module": "a",
@@ -3390,16 +3135,16 @@
         ]
       },
       {
-        "function": "_d2i_PKCS7_bio",
-        "missingSymbol": "d2i_PKCS7_bio",
+        "function": "__ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
+        "missingSymbol": "_ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
         "importBindings": [
           {
-            "name": "Ga",
-            "function": "_d2i_PKCS7_bio",
+            "name": "H",
+            "function": "__ZN8NSJSBase10CJSContext9runScriptERKNSt3__212basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEEN8NSCommon9smart_ptrINS_11CJSTryCatchEEERKNS2_IwNS3_IwEENS5_IwEEEE",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Ga",
+                "name": "H",
                 "kind": "function"
               }
             ]
@@ -3407,16 +3152,16 @@
         ]
       },
       {
-        "function": "_d2i_PKCS8PrivateKey_bio",
-        "missingSymbol": "d2i_PKCS8PrivateKey_bio",
+        "function": "__ZN8NSJSBase10CJSContextC1ERKb",
+        "missingSymbol": "_ZN8NSJSBase10CJSContextC1ERKb",
         "importBindings": [
           {
-            "name": "Sb",
-            "function": "_d2i_PKCS8PrivateKey_bio",
+            "name": "ha",
+            "function": "__ZN8NSJSBase10CJSContextC1ERKb",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Sb",
+                "name": "ha",
                 "kind": "function"
               }
             ]
@@ -3424,16 +3169,16 @@
         ]
       },
       {
-        "function": "_d2i_PrivateKey_bio",
-        "missingSymbol": "d2i_PrivateKey_bio",
+        "function": "__ZN8NSJSBase10CJSContextD1Ev",
+        "missingSymbol": "_ZN8NSJSBase10CJSContextD1Ev",
         "importBindings": [
           {
-            "name": "ac",
-            "function": "_d2i_PrivateKey_bio",
+            "name": "da",
+            "function": "__ZN8NSJSBase10CJSContextD1Ev",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "ac",
+                "name": "da",
                 "kind": "function"
               }
             ]
@@ -3441,16 +3186,16 @@
         ]
       },
       {
-        "function": "_d2i_X509_bio",
-        "missingSymbol": "d2i_X509_bio",
+        "function": "__ZN8NSJSBase14CreateDefaultsEv",
+        "missingSymbol": "_ZN8NSJSBase14CreateDefaultsEv",
         "importBindings": [
           {
-            "name": "bb",
-            "function": "_d2i_X509_bio",
+            "name": "ga",
+            "function": "__ZN8NSJSBase14CreateDefaultsEv",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "bb",
+                "name": "ga",
                 "kind": "function"
               }
             ]
@@ -3458,16 +3203,16 @@
         ]
       },
       {
-        "function": "_heif_context_alloc",
-        "missingSymbol": "heif_context_alloc",
+        "function": "__ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
         "importBindings": [
           {
-            "name": "q",
-            "function": "_heif_context_alloc",
+            "name": "la",
+            "function": "__ZN8StarMath18CStarMathConverter11SetBaseBoldEb",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "q",
+                "name": "la",
                 "kind": "function"
               }
             ]
@@ -3475,16 +3220,16 @@
         ]
       },
       {
-        "function": "_heif_context_encode_image",
-        "missingSymbol": "heif_context_encode_image",
+        "function": "__ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
         "importBindings": [
           {
-            "name": "$b",
-            "function": "_heif_context_encode_image",
+            "name": "pa",
+            "function": "__ZN8StarMath18CStarMathConverter11SetBaseFontERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "$b",
+                "name": "pa",
                 "kind": "function"
               }
             ]
@@ -3492,16 +3237,16 @@
         ]
       },
       {
-        "function": "_heif_context_free",
-        "missingSymbol": "heif_context_free",
+        "function": "__ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
         "importBindings": [
           {
-            "name": "Xb",
-            "function": "_heif_context_free",
+            "name": "oa",
+            "function": "__ZN8StarMath18CStarMathConverter11SetBaseSizeERKj",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Xb",
+                "name": "oa",
                 "kind": "function"
               }
             ]
@@ -3509,16 +3254,16 @@
         ]
       },
       {
-        "function": "_heif_context_get_encoder_for_format",
-        "missingSymbol": "heif_context_get_encoder_for_format",
+        "function": "__ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
         "importBindings": [
           {
-            "name": "bc",
-            "function": "_heif_context_get_encoder_for_format",
+            "name": "ma",
+            "function": "__ZN8StarMath18CStarMathConverter13SetBaseItalicEb",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "bc",
+                "name": "ma",
                 "kind": "function"
               }
             ]
@@ -3526,46 +3271,12 @@
         ]
       },
       {
-        "function": "_heif_context_get_primary_image_handle",
-        "missingSymbol": "heif_context_get_primary_image_handle",
-        "importBindings": [
-          {
-            "name": "ic",
-            "function": "_heif_context_get_primary_image_handle",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ic",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_heif_context_read_from_file",
-        "missingSymbol": "heif_context_read_from_file",
-        "importBindings": [
-          {
-            "name": "K",
-            "function": "_heif_context_read_from_file",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "K",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_heif_context_read_from_memory_without_copy",
-        "missingSymbol": "heif_context_read_from_memory_without_copy",
+        "function": "__ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
         "importBindings": [
           {
             "name": "ja",
-            "function": "_heif_context_read_from_memory_without_copy",
+            "function": "__ZN8StarMath18CStarMathConverter14GetFormulaSizeEv",
             "wasmImports": [
               {
                 "module": "a",
@@ -3577,16 +3288,16 @@
         ]
       },
       {
-        "function": "_heif_context_write_to_file",
-        "missingSymbol": "heif_context_write_to_file",
+        "function": "__ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
         "importBindings": [
           {
-            "name": "_b",
-            "function": "_heif_context_write_to_file",
+            "name": "na",
+            "function": "__ZN8StarMath18CStarMathConverter16SetBaseAlignmentERKj",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "_b",
+                "name": "na",
                 "kind": "function"
               }
             ]
@@ -3594,16 +3305,16 @@
         ]
       },
       {
-        "function": "_heif_decode_image",
-        "missingSymbol": "heif_decode_image",
+        "function": "__ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
         "importBindings": [
           {
-            "name": "hc",
-            "function": "_heif_decode_image",
+            "name": "Jb",
+            "function": "__ZN8StarMath18CStarMathConverter17ConvertEQNToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEE",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "hc",
+                "name": "Jb",
                 "kind": "function"
               }
             ]
@@ -3611,16 +3322,16 @@
         ]
       },
       {
-        "function": "_heif_encoder_release",
-        "missingSymbol": "heif_encoder_release",
+        "function": "__ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
         "importBindings": [
           {
-            "name": "Wb",
-            "function": "_heif_encoder_release",
+            "name": "ka",
+            "function": "__ZN8StarMath18CStarMathConverter22ConvertStarMathToOOXmlERKNSt3__212basic_stringIwNS1_11char_traitsIwEENS1_9allocatorIwEEEERKj",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Wb",
+                "name": "ka",
                 "kind": "function"
               }
             ]
@@ -3628,63 +3339,12 @@
         ]
       },
       {
-        "function": "_heif_image_add_plane",
-        "missingSymbol": "heif_image_add_plane",
-        "importBindings": [
-          {
-            "name": "dc",
-            "function": "_heif_image_add_plane",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "dc",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_heif_image_create",
-        "missingSymbol": "heif_image_create",
-        "importBindings": [
-          {
-            "name": "ec",
-            "function": "_heif_image_create",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "ec",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_heif_image_get_plane",
-        "missingSymbol": "heif_image_get_plane",
-        "importBindings": [
-          {
-            "name": "cc",
-            "function": "_heif_image_get_plane",
-            "wasmImports": [
-              {
-                "module": "a",
-                "name": "cc",
-                "kind": "function"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "function": "_heif_image_get_plane_readonly",
-        "missingSymbol": "heif_image_get_plane_readonly",
+        "function": "__ZN8StarMath18CStarMathConverterC1Ev",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverterC1Ev",
         "importBindings": [
           {
             "name": "J",
-            "function": "_heif_image_get_plane_readonly",
+            "function": "__ZN8StarMath18CStarMathConverterC1Ev",
             "wasmImports": [
               {
                 "module": "a",
@@ -3696,16 +3356,16 @@
         ]
       },
       {
-        "function": "_heif_image_get_primary_height",
-        "missingSymbol": "heif_image_get_primary_height",
+        "function": "__ZN8StarMath18CStarMathConverterD1Ev",
+        "missingSymbol": "_ZN8StarMath18CStarMathConverterD1Ev",
         "importBindings": [
           {
-            "name": "fc",
-            "function": "_heif_image_get_primary_height",
+            "name": "I",
+            "function": "__ZN8StarMath18CStarMathConverterD1Ev",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "fc",
+                "name": "I",
                 "kind": "function"
               }
             ]
@@ -3713,16 +3373,16 @@
         ]
       },
       {
-        "function": "_heif_image_get_primary_width",
-        "missingSymbol": "heif_image_get_primary_width",
+        "function": "_d2i_PKCS12_bio",
+        "missingSymbol": "d2i_PKCS12_bio",
         "importBindings": [
           {
-            "name": "gc",
-            "function": "_heif_image_get_primary_width",
+            "name": "aa",
+            "function": "_d2i_PKCS12_bio",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "gc",
+                "name": "aa",
                 "kind": "function"
               }
             ]
@@ -3730,16 +3390,16 @@
         ]
       },
       {
-        "function": "_heif_image_handle_release",
-        "missingSymbol": "heif_image_handle_release",
+        "function": "_d2i_PKCS7_bio",
+        "missingSymbol": "d2i_PKCS7_bio",
         "importBindings": [
           {
-            "name": "Zb",
-            "function": "_heif_image_handle_release",
+            "name": "Ea",
+            "function": "_d2i_PKCS7_bio",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Zb",
+                "name": "Ea",
                 "kind": "function"
               }
             ]
@@ -3747,16 +3407,50 @@
         ]
       },
       {
-        "function": "_heif_image_release",
-        "missingSymbol": "heif_image_release",
+        "function": "_d2i_PKCS8PrivateKey_bio",
+        "missingSymbol": "d2i_PKCS8PrivateKey_bio",
         "importBindings": [
           {
-            "name": "Yb",
-            "function": "_heif_image_release",
+            "name": "Fb",
+            "function": "_d2i_PKCS8PrivateKey_bio",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Yb",
+                "name": "Fb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_d2i_PrivateKey_bio",
+        "missingSymbol": "d2i_PrivateKey_bio",
+        "importBindings": [
+          {
+            "name": "Mb",
+            "function": "_d2i_PrivateKey_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "Mb",
+                "kind": "function"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "function": "_d2i_X509_bio",
+        "missingSymbol": "d2i_X509_bio",
+        "importBindings": [
+          {
+            "name": "$a",
+            "function": "_d2i_X509_bio",
+            "wasmImports": [
+              {
+                "module": "a",
+                "name": "$a",
                 "kind": "function"
               }
             ]
@@ -3768,12 +3462,12 @@
         "missingSymbol": "i2d_PKCS7_bio",
         "importBindings": [
           {
-            "name": "Ha",
+            "name": "Fa",
             "function": "_i2d_PKCS7_bio",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Ha",
+                "name": "Fa",
                 "kind": "function"
               }
             ]
@@ -3785,12 +3479,12 @@
         "missingSymbol": "i2d_X509_bio",
         "importBindings": [
           {
-            "name": "Pa",
+            "name": "Na",
             "function": "_i2d_X509_bio",
             "wasmImports": [
               {
                 "module": "a",
-                "name": "Pa",
+                "name": "Na",
                 "kind": "function"
               }
             ]
@@ -3798,7 +3492,18 @@
         ]
       }
     ],
-    "confirmedHeifAbortImports": 18
+    "confirmedHeifAbortImports": 0,
+    "confirmedCryptoAbortImports": 71,
+    "finalCompileTrace": {
+      "file": "provenance/converter/final-native-proof.json",
+      "bytes": 23288,
+      "sha256": "3e911ea904e051c405c7b35aac88ab603cef496ca27feb5d0ede735c8654f56e"
+    },
+    "reviewHelper": {
+      "file": "provenance/converter/review-native-inputs.mjs",
+      "bytes": 6637,
+      "sha256": "b0436930fd09a2384479d48e8e8c2f7b090ac5f11dc3760ff648f46e9d6cb12d"
+    }
   },
   "embeddedFontPrograms": [
     {
@@ -4033,13 +3738,13 @@
     "outputs": [
       {
         "file": "drawingfile.js",
-        "bytes": 131210,
-        "sha256": "c1421f8310eb9267818c6fd81f410b7898808fac305b604ac1c41254eb753aac"
+        "bytes": 131891,
+        "sha256": "c8d8b7547fc89040e129e8cc0b3603d9b92e679aa08bf023821ad532e55c3560"
       },
       {
         "file": "drawingfile.wasm",
-        "bytes": 10053147,
-        "sha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85"
+        "bytes": 10115720,
+        "sha256": "9b1de1b12078daa6c3dc3019bc2c0a4430950dd37b82bc75c4718dcd70717c37"
       }
     ],
     "recipeTransform": {
@@ -4055,14 +3760,84 @@
     },
     "verifiedBuildHelpers": [
       {
+        "file": "scripts/build-drawing-runtime.mjs",
+        "bytes": 4677,
+        "sha256": "9fcef0df4420e826d67ce39f540726206858333817479b74087cdb3e1f618c0d"
+      },
+      {
+        "file": "scripts/drawing-recipe-inputs.mjs",
+        "bytes": 877,
+        "sha256": "2b12086d87d08627ba1c8fa51842f077c27d4019cb3fab347119d99fa5ce4e86"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/.gitattributes",
+        "bytes": 84,
+        "sha256": "561dfdfe982595f5554c6a9bd15557d677661e6f9de9c3f435ca599751f7d0c7"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/patch-drawing.py",
+        "bytes": 3391,
+        "sha256": "d94e81cb69bf5f5da35e3d234f0e0bf22ad330e4d90229b57f8274b9e944f569"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/patch-graphics-blend.py",
+        "bytes": 1915,
+        "sha256": "2b06ff2533fb13da941d52baacb2a3c0ed3fa6eba674f2f37a336630a9caa1ad"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/patch-pdf-font-metrics.py",
+        "bytes": 1043,
+        "sha256": "90599edf6a405a13fb8d069d0de4355582e52d812b8aa222e32afe2a5d44ba74"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/patch-pdf-text.py",
+        "bytes": 6578,
+        "sha256": "932297aa05c0ee0c9b372ce0754705f799aa78011fb993dbc4f7f7045d40a310"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/pdf-actual-text-run.h",
+        "bytes": 4072,
+        "sha256": "acdf0dc8b5f2964f558de6d389eb1d449c3437f0e1c6407b559895be056cd6d3"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/pdf-capture-raster-density.h",
+        "bytes": 5268,
+        "sha256": "5005eed71ea17ababee57429b5e0c39a3a742f3e79368ad7719b56d676ecc495"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/pdf-font-metrics.json",
+        "bytes": 2709,
+        "sha256": "62ad9c96828ac14e9fd82fce6caa795d3bdafc190a4f8dd5c774fd95b45aa4f5"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/pdf-font-metrics.patch",
+        "bytes": 2346,
+        "sha256": "31281c0bbedf873c0b95a3083ce90c7d06adc3edd43d9b9ea0d1bc8e45bc698a"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/pdf-text-capabilities.h",
+        "bytes": 28139,
+        "sha256": "46867f4e6a7f269de645e35e96818226e0f4778c40246cad47d057d786554985"
+      },
+      {
+        "file": "scripts/drawing-runtime-inputs/pdf-text-order.h",
+        "bytes": 9892,
+        "sha256": "5a8deb8d8f3ba6cc5b0508dcd2a10d02765d34c331e446021e119285ddde195f"
+      },
+      {
         "file": "scripts/drawing-runtime-inputs/rebuild.sh",
         "bytes": 2190,
         "sha256": "98a7388b4bca0acd1294935057ca18ff8c00aaef62485777feab5acec171e276"
       },
       {
-        "file": "scripts/drawing-runtime-inputs/patch-drawing.py",
-        "bytes": 1353,
-        "sha256": "6f2f71da8d7b2200b979ea67d242000786329980af3a5ab95c64fc472d961eef"
+        "file": "scripts/drawing-runtime-inputs/straight-blend-adaptor.h",
+        "bytes": 1378,
+        "sha256": "0b67cbe3c87292733edf33b4174f28d01d73c93b1bd03aca3112ee6d731c8f78"
+      },
+      {
+        "file": "scripts/source-archive.mjs",
+        "bytes": 2682,
+        "sha256": "5fa559949caae4908d98929991cba42b9c2f6325cbdb0e196d090f124fb0189a"
       }
     ],
     "verifiedLocalSourceMaterials": [
@@ -4085,15 +3860,17 @@
     "validation": {
       "successfulActualCompile": true,
       "distributedOutputBytesAndHashesMatch": true,
-      "actualOfflineMv3EngineAndContentTestsPassed": 16,
-      "freshRecipeReplay": "Separately required and recorded by drawing-build-provenance.json and release gate; native license review does not substitute for reproduction."
+      "actualOfflineMv3EngineAndContentTestsPassed": 46,
+      "freshRecipeReplay": "One clean preferred-source/compiler recipe invocation reproduced both accepted reader011 byte hashes; see drawing-build-provenance.json and provenance/drawing/native-source-reproduction.json.",
+      "nativeStrictCases": 67,
+      "privateCorpusDocuments": 175
     }
   },
   "historicalReleaseFinding": {
     "finding": "Publisher drawing recipe defined USE_OPENSSL_HASH; Decrypt.cc textually included OpenSSL1.1.1f SHA512/mem_clr C sources. No applicable OpenSSL/AGPL linking exception was found in pinned source licenses.",
     "resolution": "Replaced drawing JS/WASM with verified local source build using existing Xpdf hash branch; no custom cryptography implementation was added.",
     "supersededDrawingWasmSha256": "2e12c88e7d4e13297dfae9e5ab2836d3434e45acdf771d28e8eac88db7a8d33d",
-    "currentDrawingWasmSha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85",
+    "currentDrawingWasmSha256": "9b1de1b12078daa6c3dc3019bc2c0a4430950dd37b82bc75c4718dcd70717c37",
     "resolved": true
   }
 }

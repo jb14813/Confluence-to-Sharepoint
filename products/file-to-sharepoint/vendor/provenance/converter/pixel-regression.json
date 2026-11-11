@@ -1,0 +1,164 @@
+{
+  "cases": [
+    {
+      "name": "image-opaque.pdf",
+      "passed": true,
+      "source": {
+        "width": 100,
+        "height": 50,
+        "rgbaSha256": "b6fe954f0ec6addb45b55db12f4cf8c9a6d1a8d6462a5db3379301063b3c1ec3",
+        "referencePngSha256": "42f416c46b6b4a02af8080dcd565721be8ac7ea63c5742d3954fc6bec8078617"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 100,
+          "height": 50,
+          "rgbaSha256": "b6fe954f0ec6addb45b55db12f4cf8c9a6d1a8d6462a5db3379301063b3c1ec3",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    },
+    {
+      "name": "image-large.pdf",
+      "passed": true,
+      "source": {
+        "width": 1601,
+        "height": 1237,
+        "rgbaSha256": "49fcfa08f839f9587226ae2cd60a36d8cd2d355485b5b40b32488dc901a47511",
+        "referencePngSha256": "5430b04489d1c0736532824796212815792fd3f907167fd957f8e63a1a905f4e"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 1601,
+          "height": 1237,
+          "rgbaSha256": "49fcfa08f839f9587226ae2cd60a36d8cd2d355485b5b40b32488dc901a47511",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    },
+    {
+      "name": "image-alpha.pdf",
+      "passed": true,
+      "source": {
+        "width": 128,
+        "height": 64,
+        "rgbaSha256": "d6ab3bd220f146d56a12f6b0505e3429d9192650ce78ccfdd9dc1c85edfe7470",
+        "referencePngSha256": "fd322a7ef27fa2f9ade838d97dcfd9a7e9852862f1329c8ecec81ca0c4bd0bd0"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 128,
+          "height": 64,
+          "rgbaSha256": "d6ab3bd220f146d56a12f6b0505e3429d9192650ce78ccfdd9dc1c85edfe7470",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    },
+    {
+      "name": "image-jpeg.pdf",
+      "passed": true,
+      "source": {
+        "width": 160,
+        "height": 96,
+        "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+        "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 160,
+          "height": 96,
+          "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    },
+    {
+      "name": "image-jpeg-subsampled.pdf",
+      "passed": true,
+      "source": {
+        "width": 160,
+        "height": 96,
+        "rgbaSha256": "47e18aab9ddb03eda67d313fcdef9a67804c5e20e25e577c21e60f7d61b4ec94",
+        "referencePngSha256": "8fe10fd41d8c8425c16a7df89550dae9f49f3a8919c4bbb6413b02cf11c36f07"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 160,
+          "height": 96,
+          "rgbaSha256": "47e18aab9ddb03eda67d313fcdef9a67804c5e20e25e577c21e60f7d61b4ec94",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    },
+    {
+      "name": "image-jpeg-progressive.pdf",
+      "passed": true,
+      "source": {
+        "width": 160,
+        "height": 96,
+        "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+        "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 160,
+          "height": 96,
+          "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    },
+    {
+      "name": "image-jpeg-gray.pdf",
+      "passed": true,
+      "source": {
+        "width": 160,
+        "height": 96,
+        "rgbaSha256": "adbb34843eb9464ee1b03ed608719c7e5f42fcd6f1d8530bb8b2d7b987d6df85",
+        "referencePngSha256": "c0f3639055817715a961210a59da2cf2c9a195316a76d714e4682b597880a593"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 160,
+          "height": 96,
+          "rgbaSha256": "adbb34843eb9464ee1b03ed608719c7e5f42fcd6f1d8530bb8b2d7b987d6df85",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    },
+    {
+      "name": "image-jpeg-cmyk.pdf",
+      "passed": true,
+      "source": {
+        "width": 160,
+        "height": 96,
+        "rgbaSha256": "31d906f364b21bfb1168d73493164a1254aa318fcf45d312e0a4dd821cda2bfb",
+        "referencePngSha256": "b7aa051fd5c5d0fc6978eb704de51c22e108c640948324fbcd8bf7e25474bf03"
+      },
+      "candidates": [
+        {
+          "name": "word/media/image1.png",
+          "width": 160,
+          "height": 96,
+          "rgbaSha256": "31d906f364b21bfb1168d73493164a1254aa318fcf45d312e0a4dd821cda2bfb",
+          "changedPixels": 0,
+          "maxChannelDifference": 0
+        }
+      ]
+    }
+  ]
+}

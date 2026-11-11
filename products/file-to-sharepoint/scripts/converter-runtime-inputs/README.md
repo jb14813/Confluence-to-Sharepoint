@@ -1,0 +1,13 @@
+# Native converter preferred source
+
+`prepare-context.py` verifies every selected archive before extraction and builds a fresh context from the pinned source and compiler archives. Its existing image, text, form, paragraph, graphics and layout repairs run in order. The final `pdf-native-drawings-v2` bundle contains the cumulative native drawing/source-ledger changes through the approved normal-flow implementation.
+
+Each bundle records the SHA-256 of every complete input and output file. `patch-pdf-native-runtime.py` computes and verifies all outputs before writing any source. A different input, missing prerequisite, changed hunk or changed complete output aborts the whole bundle. Keep this mechanism when updating the source delta; do not add a migration or a compatibility rewrite for previously prepared contexts.
+
+The final native bundle retains verified table reconstruction for PlainLine enum2. The existing x2t request switch maps XML request3 to native PlainParagraph enum4. That native mode skips table reconstruction before it mutates the page, retains the complete original text/paint/clip ledger and existing Normal/derived-image guards, and writes `textAssociationType="4"` in the native layout root with zero native tables. Consumers must verify that actual metadata. Request4 does not select PlainParagraph in the pinned upstream switch.
+
+The normal-flow fill/stroke repair permits folding only when immutable native path commands and coordinates match exactly and both source operations are unclipped. Clipped operations remain separate. Mode2 preserves its established behavior. Output identifiers are native per-process counters: repeated conversions can change linked fontstyle/docPr identifiers while retaining content, style definitions, source geometry and media.
+
+A release build must start from a newly prepared archive context with no core compiler objects or libraries. The owned build worker is bounded to four CPUs, 8 GiB and one concurrent build step. Core compilation runs without network access. The Dockerfile's explicit host-network APT bootstrap is a separate toolchain acquisition step; cached toolchain/dependency stages are recorded, and clean verification forces all core/converter compilation stages to execute. Release flags omit the diagnostic profiling and symbol-map options.
+
+`build-converter-runtime.mjs --offline` also verifies the maintained recipe and output hashes in `vendor/converter-build-provenance.json`. New source outputs remain unadopted until their actual converter/SDK/media acceptance is complete and the parent release workflow updates those pins. Source preparation or a cached diagnostic compiler image alone is not release reproduction.

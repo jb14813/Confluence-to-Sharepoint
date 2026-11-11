@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "modification": "Expose PDF form capabilities from the existing parsed catalog through CPdfReader::GetInfo; no parser, scanner or crypto implementation added.",
+  "source": {
+    "repository": "https://github.com/ONLYOFFICE/core",
+    "commit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
+    "file": "core/PdfFile/PdfReader.cpp",
+    "originalSha256": "0efe8a3f1bc9a8a7d88ae85f98ea8a44a8c12d945e86ee870325be1a80b25136",
+    "modified": {
+      "file": "core/PdfFile/PdfReader.cpp",
+      "bytes": 61642,
+      "sha256": "3710ed1dddcdec297cc689bce372f3c18b943c62071d423e42d816170cb50818"
+    }
+  },
+  "contract": {
+    "HasXFA": "Boolean; true for a non-null parsed AcroForm XFA entry, including a stream or packet array.",
+    "AcroFormFieldCount": "Integer; 0 for no AcroForm or an empty Fields array; positive root Fields array length; -1 for missing or malformed AcroForm/Fields metadata."
+  },
+  "editablePatch": "scripts/drawing-runtime-inputs/patch-drawing.py",
+  "diff": "provenance/drawing/pdf-capabilities.patch",
+  "nativeValidation": {
+    "method": "Direct source-built native reader metadata; separate strict offline MV3 tests exercise the full production conversion/adaptation chain.",
+    "cases": [
+      {
+        "name": "xfa-only.pdf",
+        "sha256": "69fa10db475dac6e0747f4e93a29a8420638efd312a505367e88cb972d06d4dd",
+        "expected": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 0
+        },
+        "actual": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 0
+        }
+      },
+      {
+        "name": "xfa-packets.pdf",
+        "sha256": "9601fd19a46c43962f55a3e817bf075c16f6c88c7707da9f84c01d198d669cff",
+        "expected": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 0
+        },
+        "actual": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 0
+        }
+      },
+      {
+        "name": "xfa-hybrid.pdf",
+        "sha256": "13f258d50f074a79a01c989ae160d176fb438b9e7db23d593caae1987b6aa647",
+        "expected": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 1
+        },
+        "actual": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 1
+        }
+      },
+      {
+        "name": "malformed-acroform.pdf",
+        "sha256": "769e777d0845a1d833df82e70adbb8b91cf94e225e32d043402538bd8e859be6",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        }
+      },
+      {
+        "name": "empty-acroform.pdf",
+        "sha256": "41d59bd224d2cf8aeffcadb59d6e2acbc6467470e1afc980e3b867f791a018dd",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 0
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 0
+        }
+      },
+      {
+        "name": "form-integer.pdf",
+        "sha256": "4ddb11cfe2a8aec73f90c91eacb3ce920ad6696d3214a63e3ddd58e1c9059aca",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        }
+      },
+      {
+        "name": "fields-missing.pdf",
+        "sha256": "b5282049b3820c5c1a5f84d7c851b60b97a5ad25d0d48d05273b34c893c40feb",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        }
+      },
+      {
+        "name": "fields-null.pdf",
+        "sha256": "f6c18444efa45a72f8237b8a22776a420b99da1e84b936e3cd35312af010bc0a",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": -1
+        }
+      },
+      {
+        "name": "xfa-null.pdf",
+        "sha256": "0637402fa368e6c0e9ef7ce1e4c12ebf342709fdd69290a2147a35ac2acdea2b",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 0
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 0
+        }
+      },
+      {
+        "name": "xfa-string.pdf",
+        "sha256": "ff36e02935f54d1b2b404ce9806268af84b462082f706539e297dca99b32803d",
+        "expected": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 0
+        },
+        "actual": {
+          "HasXFA": true,
+          "AcroFormFieldCount": 0
+        }
+      },
+      {
+        "name": "sample.pdf",
+        "sha256": "2cf4c9ae1223623aeab3923ca75a1c149d7b13b26d730c19f19f4114821ab8bd",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 4
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 4
+        }
+      },
+      {
+        "name": "image-opaque.pdf",
+        "sha256": "8e0f62f3044c6f40960f37ca2c22af42a9cc1beca0d2dddd6961f4acf2aaa80d",
+        "expected": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 0
+        },
+        "actual": {
+          "HasXFA": false,
+          "AcroFormFieldCount": 0
+        }
+      }
+    ],
+    "remoteRequests": [],
+    "errors": []
+  }
+}

@@ -1,0 +1,3117 @@
+{
+  "scope": "GENUINE native056 V2 XML + original Reader011 context + actual SDK serialization. No assumed flags on v1 fixtures. Not final flow/SP acceptance.",
+  "name": "star-evenodd",
+  "sourcePdfFile": "star-evenodd.pdf",
+  "sourcePdfSha256": "8ad9732c4f7fd77aabc4017820a1bb05b29f90a366499cc0aa452ed05f5f990d",
+  "nativeDocxSha256": "f5de776baa3a0c3d876ef872b91024a06c1116c3a93b4674a931528d9f404752",
+  "privatePartSha256": "debb92f5bfd74962b70f77e12c425cb46740abc27f6475dcf6483968cecc0c83",
+  "options": {
+    "pages": [
+      {
+        "W": 400,
+        "H": 250,
+        "Dpi": 72,
+        "Rotate": 0,
+        "originIndex": 0,
+        "fonts": [],
+        "fontsUpdateType": 0,
+        "text": null
+      }
+    ],
+    "pdfText": {
+      "version": 1,
+      "pages": [
+        {
+          "pageIndex": 0,
+          "text": "Before  Right\nAfter\n",
+          "unicodeScalars": 20,
+          "meaningfulScalars": 16,
+          "bodyTextOps": 16,
+          "bodyImageOps": 0,
+          "bodyPathOps": 6,
+          "capture": {
+            "required": false,
+            "dpi": 96,
+            "width": 534,
+            "height": 334
+          }
+        }
+      ],
+      "order": {
+        "version": 1,
+        "coordinateSpace": "displayed-crop-top-left-pt",
+        "pages": [
+          {
+            "pageIndex": 0,
+            "widthPt": 400,
+            "heightPt": 250,
+            "rotation": 0,
+            "unicodeScalars": [
+              66,
+              101,
+              102,
+              111,
+              114,
+              101,
+              65,
+              102,
+              116,
+              101,
+              114,
+              82,
+              105,
+              103,
+              104,
+              116
+            ],
+            "scalarBoxesPt": [
+              [
+                72,
+                87.102,
+                79.337,
+                97.277
+              ],
+              [
+                79.337,
+                87.102,
+                85.453,
+                97.277
+              ],
+              [
+                85.453,
+                87.102,
+                88.511,
+                97.277
+              ],
+              [
+                88.511,
+                87.102,
+                94.627,
+                97.277
+              ],
+              [
+                94.627,
+                87.102,
+                98.29,
+                97.277
+              ],
+              [
+                98.29,
+                87.102,
+                104.406,
+                97.277
+              ],
+              [
+                72,
+                157.102,
+                79.337,
+                167.277
+              ],
+              [
+                79.337,
+                157.102,
+                82.395,
+                167.277
+              ],
+              [
+                82.395,
+                157.102,
+                85.453,
+                167.277
+              ],
+              [
+                85.453,
+                157.102,
+                91.569,
+                167.277
+              ],
+              [
+                91.569,
+                157.102,
+                95.232,
+                167.277
+              ],
+              [
+                214,
+                87.102,
+                221.942,
+                97.277
+              ],
+              [
+                221.942,
+                87.102,
+                224.384,
+                97.277
+              ],
+              [
+                224.384,
+                87.102,
+                230.5,
+                97.277
+              ],
+              [
+                230.5,
+                87.102,
+                236.616,
+                97.277
+              ],
+              [
+                236.616,
+                87.102,
+                239.674,
+                97.277
+              ]
+            ],
+            "wordStarts": [
+              0,
+              6,
+              11
+            ],
+            "lineStarts": [
+              0,
+              6,
+              11
+            ],
+            "paragraphStarts": [
+              0,
+              11
+            ]
+          }
+        ]
+      }
+    },
+    "nativeTables": {
+      "version": 1,
+      "complete": true,
+      "coordinateSpace": "displayed-crop-top-left-pt",
+      "sourcePageCount": 1,
+      "tables": [
+        {
+          "ordinal": 0,
+          "pageIndex": 0,
+          "rows": 1,
+          "columns": 2,
+          "cells": [
+            {
+              "row": 0,
+              "column": 0,
+              "rowSpan": 1,
+              "columnSpan": 1,
+              "leftPt": 60.5,
+              "topPt": 60.5,
+              "rightPt": 200.5,
+              "bottomPt": 190.5
+            },
+            {
+              "row": 0,
+              "column": 1,
+              "rowSpan": 1,
+              "columnSpan": 1,
+              "leftPt": 200.5,
+              "topPt": 60.5,
+              "rightPt": 340.5,
+              "bottomPt": 190.5
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "document": {
+    "type": "document",
+    "textPr": {
+      "b": false,
+      "bCs": false,
+      "caps": false,
+      "color": {
+        "auto": true,
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "cs": false,
+      "dstrike": false,
+      "highlight": "none",
+      "i": false,
+      "iCs": false,
+      "lang": {
+        "bidi": "ar-SA",
+        "eastAsia": "en-US",
+        "val": "en-US"
+      },
+      "position": 0,
+      "rFonts": {
+        "ascii": "Times New Roman",
+        "cs": "Times New Roman",
+        "eastAsiaTheme": "minorHAnsi",
+        "hAnsi": "Times New Roman"
+      },
+      "fontFamily": {
+        "name": "Times New Roman",
+        "idx": -1
+      },
+      "rtl": false,
+      "smallCaps": false,
+      "spacing": 0,
+      "strike": false,
+      "sz": 20,
+      "szCs": 20,
+      "u": false,
+      "vanish": false,
+      "vertAlign": "baseline",
+      "bFromDocument": true,
+      "type": "textPr"
+    },
+    "paraPr": {
+      "contextualSpacing": false,
+      "ind": {
+        "left": 0,
+        "right": 0,
+        "firstLine": 0
+      },
+      "jc": "start",
+      "keepLines": false,
+      "keepNext": false,
+      "pageBreakBefore": false,
+      "suppressLineNumbers": false,
+      "pBdr": {
+        "between": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "bottom": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "left": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "right": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "top": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        }
+      },
+      "shd": {
+        "val": "nil",
+        "color": {
+          "auto": false,
+          "r": 255,
+          "g": 255,
+          "b": 255
+        }
+      },
+      "spacing": {
+        "before": 0,
+        "beforeAutoSpacing": "off",
+        "after": 0,
+        "afterAutoSpacing": "off",
+        "lineRule": "auto",
+        "line": 240
+      },
+      "tabs": [],
+      "widowControl": true,
+      "bFromDocument": true,
+      "type": "paraPr"
+    },
+    "theme": {
+      "name": "Office Theme",
+      "objectDefaults": {},
+      "themeElements": {
+        "clrScheme": {
+          "name": "Office",
+          "dk1": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 0,
+                "green": 0,
+                "blue": 0,
+                "alpha": 255
+              },
+              "id": "windowText",
+              "type": "sys"
+            },
+            "type": "uniColor"
+          },
+          "lt1": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 255,
+                "green": 255,
+                "blue": 255,
+                "alpha": 255
+              },
+              "id": "window",
+              "type": "sys"
+            },
+            "type": "uniColor"
+          },
+          "dk2": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 31,
+                "green": 73,
+                "blue": 125,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "lt2": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 238,
+                "green": 236,
+                "blue": 225,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "accent1": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 79,
+                "green": 129,
+                "blue": 189,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "accent2": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 192,
+                "green": 80,
+                "blue": 77,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "accent3": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 155,
+                "green": 187,
+                "blue": 89,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "accent4": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 128,
+                "green": 100,
+                "blue": 162,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "accent5": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 75,
+                "green": 172,
+                "blue": 198,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "accent6": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 247,
+                "green": 150,
+                "blue": 70,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "hlink": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 0,
+                "green": 0,
+                "blue": 255,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "folHlink": {
+            "rgba": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 255
+            },
+            "color": {
+              "rgba": {
+                "red": 128,
+                "green": 0,
+                "blue": 128,
+                "alpha": 255
+              },
+              "type": "srgb"
+            },
+            "type": "uniColor"
+          },
+          "type": "clrScheme"
+        },
+        "fmtScheme": {
+          "name": "Office",
+          "bgFillStyleLst": [
+            {
+              "fill": {
+                "color": {
+                  "rgba": {
+                    "red": 0,
+                    "green": 0,
+                    "blue": 0,
+                    "alpha": 255
+                  },
+                  "color": {
+                    "rgba": {
+                      "red": 0,
+                      "green": 0,
+                      "blue": 0,
+                      "alpha": 255
+                    },
+                    "id": 14,
+                    "type": "scheme"
+                  },
+                  "mods": [],
+                  "type": "uniColor"
+                },
+                "type": "solid"
+              },
+              "transparent": null,
+              "type": "fill"
+            },
+            {
+              "fill": {
+                "gsLst": [
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "tint",
+                          "val": 40000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 350000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 0,
+                    "type": "gradStop"
+                  },
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "tint",
+                          "val": 45000
+                        },
+                        {
+                          "name": "shade",
+                          "val": 99000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 350000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 40000,
+                    "type": "gradStop"
+                  },
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "shade",
+                          "val": 20000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 255000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 100000,
+                    "type": "gradStop"
+                  }
+                ],
+                "lin": null,
+                "path": {
+                  "path": "circle",
+                  "fillToRect": null
+                },
+                "rotWithShape": true,
+                "type": "gradFill"
+              },
+              "transparent": null,
+              "type": "fill"
+            },
+            {
+              "fill": {
+                "gsLst": [
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "tint",
+                          "val": 80000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 300000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 0,
+                    "type": "gradStop"
+                  },
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "shade",
+                          "val": 30000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 200000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 100000,
+                    "type": "gradStop"
+                  }
+                ],
+                "lin": null,
+                "path": {
+                  "path": "circle",
+                  "fillToRect": null
+                },
+                "rotWithShape": true,
+                "type": "gradFill"
+              },
+              "transparent": null,
+              "type": "fill"
+            }
+          ],
+          "fillStyleLst": [
+            {
+              "fill": {
+                "color": {
+                  "rgba": {
+                    "red": 0,
+                    "green": 0,
+                    "blue": 0,
+                    "alpha": 255
+                  },
+                  "color": {
+                    "rgba": {
+                      "red": 0,
+                      "green": 0,
+                      "blue": 0,
+                      "alpha": 255
+                    },
+                    "id": 14,
+                    "type": "scheme"
+                  },
+                  "mods": [],
+                  "type": "uniColor"
+                },
+                "type": "solid"
+              },
+              "transparent": null,
+              "type": "fill"
+            },
+            {
+              "fill": {
+                "gsLst": [
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "tint",
+                          "val": 50000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 300000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 0,
+                    "type": "gradStop"
+                  },
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "tint",
+                          "val": 37000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 300000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 35000,
+                    "type": "gradStop"
+                  },
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "tint",
+                          "val": 15000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 350000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 100000,
+                    "type": "gradStop"
+                  }
+                ],
+                "lin": {
+                  "ang": 16200000,
+                  "scaled": true
+                },
+                "path": null,
+                "rotWithShape": true,
+                "type": "gradFill"
+              },
+              "transparent": null,
+              "type": "fill"
+            },
+            {
+              "fill": {
+                "gsLst": [
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "shade",
+                          "val": 51000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 130000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 0,
+                    "type": "gradStop"
+                  },
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "shade",
+                          "val": 93000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 130000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 80000,
+                    "type": "gradStop"
+                  },
+                  {
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "color": {
+                        "rgba": {
+                          "red": 0,
+                          "green": 0,
+                          "blue": 0,
+                          "alpha": 255
+                        },
+                        "id": 14,
+                        "type": "scheme"
+                      },
+                      "mods": [
+                        {
+                          "name": "shade",
+                          "val": 94000
+                        },
+                        {
+                          "name": "satMod",
+                          "val": 135000
+                        }
+                      ],
+                      "type": "uniColor"
+                    },
+                    "pos": 100000,
+                    "type": "gradStop"
+                  }
+                ],
+                "lin": {
+                  "ang": 16200000,
+                  "scaled": false
+                },
+                "path": null,
+                "rotWithShape": true,
+                "type": "gradFill"
+              },
+              "transparent": null,
+              "type": "fill"
+            }
+          ],
+          "lnStyleLst": [
+            {
+              "fill": {
+                "fill": {
+                  "color": {
+                    "rgba": {
+                      "red": 0,
+                      "green": 0,
+                      "blue": 0,
+                      "alpha": 255
+                    },
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "id": 14,
+                      "type": "scheme"
+                    },
+                    "mods": [
+                      {
+                        "name": "shade",
+                        "val": 95000
+                      },
+                      {
+                        "name": "satMod",
+                        "val": 105000
+                      }
+                    ],
+                    "type": "uniColor"
+                  },
+                  "type": "solid"
+                },
+                "transparent": null,
+                "type": "fill"
+              },
+              "algn": "ctr",
+              "cap": "flat",
+              "cmpd": "sng",
+              "w": 9525,
+              "prstDash": "solid",
+              "type": "stroke"
+            },
+            {
+              "fill": {
+                "fill": {
+                  "color": {
+                    "rgba": {
+                      "red": 0,
+                      "green": 0,
+                      "blue": 0,
+                      "alpha": 255
+                    },
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "id": 14,
+                      "type": "scheme"
+                    },
+                    "mods": [],
+                    "type": "uniColor"
+                  },
+                  "type": "solid"
+                },
+                "transparent": null,
+                "type": "fill"
+              },
+              "algn": "ctr",
+              "cap": "flat",
+              "cmpd": "sng",
+              "w": 25400,
+              "prstDash": "solid",
+              "type": "stroke"
+            },
+            {
+              "fill": {
+                "fill": {
+                  "color": {
+                    "rgba": {
+                      "red": 0,
+                      "green": 0,
+                      "blue": 0,
+                      "alpha": 255
+                    },
+                    "color": {
+                      "rgba": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0,
+                        "alpha": 255
+                      },
+                      "id": 14,
+                      "type": "scheme"
+                    },
+                    "mods": [],
+                    "type": "uniColor"
+                  },
+                  "type": "solid"
+                },
+                "transparent": null,
+                "type": "fill"
+              },
+              "algn": "ctr",
+              "cap": "flat",
+              "cmpd": "sng",
+              "w": 38100,
+              "prstDash": "solid",
+              "type": "stroke"
+            }
+          ],
+          "type": "fmtScheme"
+        },
+        "fontScheme": {
+          "name": "Office",
+          "majorFont": {
+            "cs": "Arial",
+            "ea": "Arial",
+            "latin": "Cambria"
+          },
+          "minorFont": {
+            "cs": "Arial",
+            "ea": "Arial",
+            "latin": "Calibri"
+          },
+          "type": "fontScheme"
+        }
+      },
+      "extraClrSchemeLst": [],
+      "isThemeOverride": false,
+      "id": "662"
+    },
+    "sectPr": {
+      "cols": {
+        "col": [],
+        "equalWidth": true,
+        "num": 1,
+        "sep": false,
+        "space": 1701
+      },
+      "endnotePr": {},
+      "footerReference": {
+        "first": null,
+        "default": null,
+        "even": null
+      },
+      "footnotePr": {},
+      "headerReference": {
+        "first": null,
+        "default": null,
+        "even": null
+      },
+      "pgBorders": {
+        "bottom": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "left": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "right": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "top": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "sz": 4,
+          "space": 0,
+          "value": "none"
+        },
+        "display": "allPages",
+        "offsetFrom": "text",
+        "zOrder": "front"
+      },
+      "pgMar": {
+        "bottom": 0,
+        "footer": 0,
+        "gutter": 0,
+        "header": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0
+      },
+      "pgNumType": {
+        "start": -1
+      },
+      "pgSz": {
+        "h": 5000,
+        "orinet": "portrait",
+        "w": 7999
+      },
+      "rtlGutter": false,
+      "titlePg": false,
+      "type": "nextPage"
+    },
+    "content": [
+      {
+        "bFromDocument": true,
+        "pPr": {
+          "spacing": {
+            "lineRule": "exact",
+            "line": 1
+          },
+          "bFromDocument": true,
+          "type": "paraPr"
+        },
+        "rPr": {
+          "bFromDocument": true,
+          "type": "textPr"
+        },
+        "content": [
+          {
+            "bFromDocument": true,
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "content": [],
+            "footnotes": [],
+            "endnotes": [],
+            "reviewType": "common",
+            "type": "run"
+          },
+          {
+            "bFromDocument": true,
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "content": [],
+            "footnotes": [],
+            "endnotes": [],
+            "reviewType": "common",
+            "type": "endRun"
+          }
+        ],
+        "changes": [],
+        "type": "paragraph"
+      },
+      {
+        "bPresentation": false,
+        "tblGrid": [
+          {
+            "w": 2800,
+            "type": "gridCol"
+          },
+          {
+            "w": 2800,
+            "type": "gridCol"
+          }
+        ],
+        "tblPr": {
+          "tblBorders": {},
+          "tblCellMar": {},
+          "tblLayout": "fixed",
+          "tblLook": {
+            "firstColumn": true,
+            "firstRow": true,
+            "lastColumn": false,
+            "lastRow": false,
+            "noHBand": false,
+            "noVBand": true
+          },
+          "tblOverlap": "overlap",
+          "tblpPr": {
+            "horzAnchor": "page",
+            "vertAnchor": "page",
+            "tblpX": 1210,
+            "tblpY": 1210,
+            "bottomFromText": 0,
+            "leftFromText": 0,
+            "rightFromText": 0,
+            "topFromText": 0
+          },
+          "tblW": {
+            "type": "dxa",
+            "w": 5600
+          },
+          "inline": false,
+          "type": "tablePr"
+        },
+        "content": [
+          {
+            "content": [
+              {
+                "content": {
+                  "bPresentation": false,
+                  "content": [
+                    {
+                      "bFromDocument": true,
+                      "pPr": {
+                        "ind": {
+                          "left": 229
+                        },
+                        "spacing": {
+                          "before": 480,
+                          "lineRule": "exact",
+                          "line": 275
+                        },
+                        "bFromDocument": true,
+                        "type": "paraPr",
+                        "pStyle": "669"
+                      },
+                      "rPr": {
+                        "bFromDocument": true,
+                        "type": "textPr"
+                      },
+                      "content": [
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "spacing": -1,
+                            "bFromDocument": true,
+                            "type": "textPr",
+                            "rStyle": "668"
+                          },
+                          "content": [
+                            "Before"
+                          ],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "run"
+                        },
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "bFromDocument": true,
+                            "type": "textPr"
+                          },
+                          "content": [],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "endRun"
+                        }
+                      ],
+                      "changes": [],
+                      "type": "paragraph"
+                    },
+                    {
+                      "bFromDocument": true,
+                      "pPr": {
+                        "spacing": {
+                          "before": 390,
+                          "after": 0,
+                          "lineRule": "exact",
+                          "line": 435
+                        },
+                        "bFromDocument": true,
+                        "type": "paraPr"
+                      },
+                      "rPr": {
+                        "bFromDocument": true,
+                        "type": "textPr"
+                      },
+                      "content": [
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "bFromDocument": true,
+                            "type": "textPr"
+                          },
+                          "content": [
+                            {
+                              "docPr": {
+                                "descr": null,
+                                "hidden": null,
+                                "id": 1,
+                                "name": "Verified PDF derived vector",
+                                "title": null
+                              },
+                              "effectExtent": {
+                                "b": 0,
+                                "l": 0,
+                                "r": 0,
+                                "t": 0
+                              },
+                              "extent": {
+                                "cy": 276224,
+                                "cx": 581024
+                              },
+                              "graphic": {
+                                "extX": 0,
+                                "extY": 0,
+                                "blipFill": {
+                                  "blip": [
+                                    {
+                                      "amt": null,
+                                      "type": "alphaModFix"
+                                    }
+                                  ],
+                                  "srcRect": {
+                                    "b": 100,
+                                    "l": 0,
+                                    "r": 100,
+                                    "t": 0
+                                  },
+                                  "tile": null,
+                                  "stretch": {
+                                    "fillRect": null
+                                  },
+                                  "rotWithShape": null,
+                                  "rasterImageId": "image1.png",
+                                  "type": "blipFill"
+                                },
+                                "nvPicPr": {
+                                  "cNvPr": {
+                                    "descr": null,
+                                    "hidden": null,
+                                    "id": 1,
+                                    "name": "Picture 1",
+                                    "title": null
+                                  },
+                                  "nvPr": {
+                                    "isPhoto": null,
+                                    "userDrawn": null
+                                  },
+                                  "cNvPicPr": {
+                                    "picLocks": {
+                                      "noChangeArrowheads": true
+                                    }
+                                  }
+                                },
+                                "spPr": {
+                                  "custGeom": {
+                                    "ahLst": {
+                                      "ahPolar": [],
+                                      "ahXY": []
+                                    },
+                                    "avLst": {},
+                                    "adjLst": {},
+                                    "cnxLst": [],
+                                    "gdLst": [],
+                                    "pathLst": [
+                                      {
+                                        "commands": [
+                                          {
+                                            "id": "moveTo",
+                                            "pt": {
+                                              "x": "0",
+                                              "y": "0"
+                                            }
+                                          },
+                                          {
+                                            "id": "lnTo",
+                                            "pt": {
+                                              "x": "581024",
+                                              "y": "0"
+                                            }
+                                          },
+                                          {
+                                            "id": "lnTo",
+                                            "pt": {
+                                              "x": "581024",
+                                              "y": "276224"
+                                            }
+                                          },
+                                          {
+                                            "id": "lnTo",
+                                            "pt": {
+                                              "x": "0",
+                                              "y": "276224"
+                                            }
+                                          },
+                                          {
+                                            "id": "close"
+                                          }
+                                        ],
+                                        "extrusionOk": false,
+                                        "fill": "norm",
+                                        "h": 276224,
+                                        "stroke": true,
+                                        "w": 581024
+                                      }
+                                    ],
+                                    "rect": {
+                                      "l": "l",
+                                      "t": "t",
+                                      "r": "r",
+                                      "b": "b"
+                                    },
+                                    "preset": null
+                                  },
+                                  "effectDag": null,
+                                  "effectLst": null,
+                                  "ln": {
+                                    "fill": {
+                                      "fill": {
+                                        "type": "noFill"
+                                      },
+                                      "transparent": null,
+                                      "type": "fill"
+                                    },
+                                    "algn": null,
+                                    "w": null,
+                                    "prstDash": null,
+                                    "type": "stroke"
+                                  },
+                                  "fill": {
+                                    "fill": {
+                                      "type": "noFill"
+                                    },
+                                    "transparent": null,
+                                    "type": "fill"
+                                  },
+                                  "xfrm": {
+                                    "ext": {
+                                      "cx": 581024,
+                                      "cy": 276224
+                                    },
+                                    "off": {
+                                      "x": 0,
+                                      "y": 0
+                                    },
+                                    "flipH": null,
+                                    "flipV": null,
+                                    "rot": null,
+                                    "chOffX": null,
+                                    "chOffY": null,
+                                    "chExtX": null,
+                                    "chExtY": null
+                                  },
+                                  "bwMode": 0
+                                },
+                                "type": "image",
+                                "id": "695"
+                              },
+                              "positionH": {
+                                "relativeFrom": "column",
+                                "posOffset": 0,
+                                "percent": false
+                              },
+                              "positionV": {
+                                "relativeFrom": "paragraph",
+                                "posOffset": 0,
+                                "percent": false
+                              },
+                              "simplePos": {
+                                "x": 0,
+                                "y": 0,
+                                "use": false
+                              },
+                              "distB": 0,
+                              "distL": 0,
+                              "distR": 0,
+                              "distT": 0,
+                              "allowOverlap": true,
+                              "behindDoc": false,
+                              "hidden": null,
+                              "layoutInCell": true,
+                              "locked": false,
+                              "cNvGraphicFramePr": {
+                                "graphicFrameLocks": {}
+                              },
+                              "relativeHeight": 2048,
+                              "wrapType": "through",
+                              "drawingType": "inline",
+                              "type": "paraDrawing",
+                              "wrapThrough": {
+                                "edited": true
+                              }
+                            }
+                          ],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "run"
+                        },
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "bFromDocument": true,
+                            "type": "textPr"
+                          },
+                          "content": [],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "endRun"
+                        }
+                      ],
+                      "changes": [],
+                      "type": "paragraph"
+                    },
+                    {
+                      "bFromDocument": true,
+                      "pPr": {
+                        "ind": {
+                          "left": 229
+                        },
+                        "spacing": {
+                          "before": 300,
+                          "lineRule": "exact",
+                          "line": 275
+                        },
+                        "bFromDocument": true,
+                        "type": "paraPr",
+                        "pStyle": "669"
+                      },
+                      "rPr": {
+                        "bFromDocument": true,
+                        "type": "textPr"
+                      },
+                      "content": [
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "spacing": -1,
+                            "bFromDocument": true,
+                            "type": "textPr",
+                            "rStyle": "668"
+                          },
+                          "content": [
+                            "After"
+                          ],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "run"
+                        },
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "bFromDocument": true,
+                            "type": "textPr"
+                          },
+                          "content": [],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "endRun"
+                        }
+                      ],
+                      "changes": [],
+                      "type": "paragraph"
+                    }
+                  ],
+                  "type": "docContent"
+                },
+                "tcPr": {
+                  "gridSpan": 1,
+                  "tcBorders": {
+                    "bottom": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 8,
+                      "space": 0,
+                      "value": "single"
+                    },
+                    "end": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 8,
+                      "space": 0,
+                      "value": "single"
+                    },
+                    "start": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 7,
+                      "space": 0,
+                      "value": "single"
+                    },
+                    "top": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 7,
+                      "space": 0,
+                      "value": "single"
+                    }
+                  },
+                  "tcMar": {
+                    "bottom": {
+                      "type": "dxa",
+                      "w": 0
+                    },
+                    "left": {
+                      "type": "dxa",
+                      "w": 0
+                    },
+                    "right": {
+                      "type": "dxa",
+                      "w": 0
+                    },
+                    "top": {
+                      "type": "dxa",
+                      "w": 0
+                    }
+                  },
+                  "tcW": {
+                    "type": "dxa",
+                    "w": 2800
+                  },
+                  "type": "tableCellPr"
+                },
+                "id": "678",
+                "type": "tblCell",
+                "ftsVerticalAlign": "top"
+              },
+              {
+                "content": {
+                  "bPresentation": false,
+                  "content": [
+                    {
+                      "bFromDocument": true,
+                      "pPr": {
+                        "ind": {
+                          "left": 270
+                        },
+                        "spacing": {
+                          "before": 480,
+                          "lineRule": "exact",
+                          "line": 275
+                        },
+                        "bFromDocument": true,
+                        "type": "paraPr",
+                        "pStyle": "669"
+                      },
+                      "rPr": {
+                        "bFromDocument": true,
+                        "type": "textPr"
+                      },
+                      "content": [
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "spacing": -1,
+                            "bFromDocument": true,
+                            "type": "textPr",
+                            "rStyle": "668"
+                          },
+                          "content": [
+                            "Right"
+                          ],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "run"
+                        },
+                        {
+                          "bFromDocument": true,
+                          "rPr": {
+                            "bFromDocument": true,
+                            "type": "textPr"
+                          },
+                          "content": [],
+                          "footnotes": [],
+                          "endnotes": [],
+                          "reviewType": "common",
+                          "type": "endRun"
+                        }
+                      ],
+                      "changes": [],
+                      "type": "paragraph"
+                    }
+                  ],
+                  "type": "docContent"
+                },
+                "tcPr": {
+                  "gridSpan": 1,
+                  "tcBorders": {
+                    "bottom": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 8,
+                      "space": 0,
+                      "value": "single"
+                    },
+                    "end": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 7,
+                      "space": 0,
+                      "value": "single"
+                    },
+                    "start": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 8,
+                      "space": 0,
+                      "value": "single"
+                    },
+                    "top": {
+                      "color": {
+                        "auto": false,
+                        "r": 76,
+                        "g": 76,
+                        "b": 76
+                      },
+                      "sz": 7,
+                      "space": 0,
+                      "value": "single"
+                    }
+                  },
+                  "tcMar": {
+                    "bottom": {
+                      "type": "dxa",
+                      "w": 0
+                    },
+                    "left": {
+                      "type": "dxa",
+                      "w": 0
+                    },
+                    "right": {
+                      "type": "dxa",
+                      "w": 0
+                    },
+                    "top": {
+                      "type": "dxa",
+                      "w": 0
+                    }
+                  },
+                  "tcW": {
+                    "type": "dxa",
+                    "w": 2800
+                  },
+                  "type": "tableCellPr"
+                },
+                "id": "707",
+                "type": "tblCell",
+                "ftsVerticalAlign": "top"
+              }
+            ],
+            "reviewInfo": {
+              "userId": "",
+              "author": "",
+              "date": "",
+              "moveType": "noMove",
+              "prevType": -1
+            },
+            "reviewType": "common",
+            "trPr": {
+              "trHeight": {
+                "val": 2600,
+                "hRule": "exact"
+              },
+              "type": "tableRowPr"
+            },
+            "type": "tblRow"
+          }
+        ],
+        "changes": [],
+        "type": "table"
+      }
+    ],
+    "styles": {
+      "664": {
+        "basedOn": null,
+        "name": "Default Paragraph Font",
+        "pPr": {
+          "bFromDocument": true,
+          "type": "paraPr"
+        },
+        "rPr": {
+          "bFromDocument": true,
+          "type": "textPr"
+        },
+        "semiHidden": true,
+        "tblPr": {
+          "tblBorders": {},
+          "tblCellMar": {},
+          "tblOverlap": "never",
+          "inline": false,
+          "type": "tablePr"
+        },
+        "tblStylePr": {
+          "band1Horz": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedRow",
+            "type": "tableStylePr"
+          },
+          "band1Vert": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedColumn",
+            "type": "tableStylePr"
+          },
+          "band2Horz": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedRowEven",
+            "type": "tableStylePr"
+          },
+          "band2Vert": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedColumnEven",
+            "type": "tableStylePr"
+          },
+          "firstCol": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "firstColumn",
+            "type": "tableStylePr"
+          },
+          "firstRow": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "firstRow",
+            "type": "tableStylePr"
+          },
+          "lastCol": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "lastColumn",
+            "type": "tableStylePr"
+          },
+          "lastRow": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "lastRow",
+            "type": "tableStylePr"
+          },
+          "neCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "topRightCell",
+            "type": "tableStylePr"
+          },
+          "nwCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "topLeftCell",
+            "type": "tableStylePr"
+          },
+          "seCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bottomRightCell",
+            "type": "tableStylePr"
+          },
+          "swCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bottomLeftCell",
+            "type": "tableStylePr"
+          },
+          "wholeTable": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "wholeTable",
+            "type": "tableStylePr"
+          }
+        },
+        "tcPr": {
+          "tcBorders": {},
+          "type": "tableCellPr"
+        },
+        "trPr": {
+          "type": "tableRowPr"
+        },
+        "uiPriority": 1,
+        "unhideWhenUsed": true,
+        "customStyle": false,
+        "styleId": "664",
+        "styleType": "characterStyle",
+        "type": "style"
+      },
+      "668": {
+        "basedOn": "664",
+        "name": "fontstyle01",
+        "pPr": {
+          "bFromDocument": true,
+          "type": "paraPr"
+        },
+        "rPr": {
+          "color": {
+            "auto": false,
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "rFonts": {
+            "ascii": "Nimbus Sans",
+            "cs": "Nimbus Sans",
+            "hAnsi": "Nimbus Sans"
+          },
+          "sz": 22,
+          "szCs": 22,
+          "bFromDocument": true,
+          "type": "textPr"
+        },
+        "tblPr": {
+          "tblBorders": {},
+          "tblCellMar": {},
+          "tblOverlap": "never",
+          "inline": false,
+          "type": "tablePr"
+        },
+        "tblStylePr": {
+          "band1Horz": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedRow",
+            "type": "tableStylePr"
+          },
+          "band1Vert": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedColumn",
+            "type": "tableStylePr"
+          },
+          "band2Horz": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedRowEven",
+            "type": "tableStylePr"
+          },
+          "band2Vert": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedColumnEven",
+            "type": "tableStylePr"
+          },
+          "firstCol": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "firstColumn",
+            "type": "tableStylePr"
+          },
+          "firstRow": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "firstRow",
+            "type": "tableStylePr"
+          },
+          "lastCol": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "lastColumn",
+            "type": "tableStylePr"
+          },
+          "lastRow": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "lastRow",
+            "type": "tableStylePr"
+          },
+          "neCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "topRightCell",
+            "type": "tableStylePr"
+          },
+          "nwCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "topLeftCell",
+            "type": "tableStylePr"
+          },
+          "seCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bottomRightCell",
+            "type": "tableStylePr"
+          },
+          "swCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bottomLeftCell",
+            "type": "tableStylePr"
+          },
+          "wholeTable": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "wholeTable",
+            "type": "tableStylePr"
+          }
+        },
+        "tcPr": {
+          "tcBorders": {},
+          "type": "tableCellPr"
+        },
+        "trPr": {
+          "type": "tableRowPr"
+        },
+        "customStyle": true,
+        "styleId": "668",
+        "styleType": "characterStyle",
+        "type": "style"
+      },
+      "669": {
+        "basedOn": null,
+        "name": "Normal",
+        "pPr": {
+          "bFromDocument": true,
+          "type": "paraPr"
+        },
+        "qFormat": true,
+        "rPr": {
+          "bFromDocument": true,
+          "type": "textPr"
+        },
+        "tblPr": {
+          "tblBorders": {},
+          "tblCellMar": {},
+          "tblOverlap": "never",
+          "inline": false,
+          "type": "tablePr"
+        },
+        "tblStylePr": {
+          "band1Horz": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedRow",
+            "type": "tableStylePr"
+          },
+          "band1Vert": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedColumn",
+            "type": "tableStylePr"
+          },
+          "band2Horz": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedRowEven",
+            "type": "tableStylePr"
+          },
+          "band2Vert": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bandedColumnEven",
+            "type": "tableStylePr"
+          },
+          "firstCol": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "firstColumn",
+            "type": "tableStylePr"
+          },
+          "firstRow": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "firstRow",
+            "type": "tableStylePr"
+          },
+          "lastCol": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "lastColumn",
+            "type": "tableStylePr"
+          },
+          "lastRow": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "lastRow",
+            "type": "tableStylePr"
+          },
+          "neCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "topRightCell",
+            "type": "tableStylePr"
+          },
+          "nwCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "topLeftCell",
+            "type": "tableStylePr"
+          },
+          "seCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bottomRightCell",
+            "type": "tableStylePr"
+          },
+          "swCell": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "bottomLeftCell",
+            "type": "tableStylePr"
+          },
+          "wholeTable": {
+            "pPr": {
+              "bFromDocument": true,
+              "type": "paraPr"
+            },
+            "rPr": {
+              "bFromDocument": true,
+              "type": "textPr"
+            },
+            "tblPr": {
+              "tblBorders": {},
+              "tblCellMar": {},
+              "tblOverlap": "never",
+              "inline": false,
+              "type": "tablePr"
+            },
+            "tcPr": {
+              "tcBorders": {},
+              "type": "tableCellPr"
+            },
+            "trPr": {
+              "type": "tableRowPr"
+            },
+            "styleType": "wholeTable",
+            "type": "tableStylePr"
+          }
+        },
+        "tcPr": {
+          "tcBorders": {},
+          "type": "tableCellPr"
+        },
+        "trPr": {
+          "type": "tableRowPr"
+        },
+        "uiPriority": 0,
+        "unhideWhenUsed": true,
+        "customStyle": false,
+        "styleId": "669",
+        "styleType": "paragraphStyle",
+        "type": "style"
+      }
+    }
+  },
+  "media": [
+    {
+      "resourceName": "word/media/image1.png",
+      "pngSha256": "8be301760d0a085b81fb13b4f77d9d9b27943be0ce949816086574833def0fef",
+      "bytesBase64": "iVBORw0KGgoAAAANSUhEUgAAAHoAAAA6CAYAAAB/AU2IAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAHHElEQVR4nO2caaweUxjHf63aaom9Tg6C2FIEraSlYg2NohKqJXoJbg6pJRUfbMEHu0QQaw4a3GstUrXU0hCtJfa11lBLTo9dKW2p3vrwzO3c1n23ec+ZmfetX9Iv78x5nif93zn/c2aemQFERBl3NLAX0OWtfi9mrlZEGbcacDAwAbjMW/1FrFwDYgUGUMYNBGYBo4APgC7gXm/1vJh5y44ybg+gAzgO2By41Ft9ccycUYUGUMbtBLwLrJn81AM8j4j+qLf6j9g1lAFl3BbA8YjAO/c5NAcY5q3+O2b+6EIDKOMuAC7v59CfwDRE9Jne6qV51JMXyrj1gKMRcfcHBq50Sg+wt7f6tdi15CX0IOANYPcqp3ngfsTP382jrhgkvnsIIu6RwOAqp1/vrT47j7pyERqW+9LrwKA6Tv+Q1M9d1MICoYwbRuq7Q+oY8iWwq7d6YdTCEnITGkAZdyVwXgNDeoAXENEfKZufK+O2JPXdoQ0OP8hb/Xz4qvonb6HXQhZmO2YYvpDUz58rys8T3x2HiLsf//XderjTW90ZtLAa5Co0gDJuH2TL1Uzu70j9/J0ghVUhWWP09d21mwg3Dxjqrf4tRG31krvQAMq4m4DTA4Wbg1zl3aH9XBk3nNR3NwsU9khv9fRAseqmKKHXRQTaKmDYXj/vRvx8QcbatgQmJv8a9d1aPOStnhA4Zl0UIjSAMm408HSk8AuBx5Ar/dlafq6MW58VfTfG/8vPyJT9Q4TYNSlMaABl3N3ACZHTfI/4+T19/Tzx3dGIuGNpznfrocNb3R05R0WKFnoj4CPq23eGYA7wCbJSHkU4363FU97qw3LK1S9ZtgbB8Fb/ApyRQ6pvgSuB8d7qccAxyALrLiD23nwBcGrkHDUp9IruRRn3CHBU4LALgKmIT8/yVvdUyD0Y2TJ1IFuo1QLXMclbfWvgmA1TFqE3R6bwDZsMtRRZ4HUB073VixqsYwhypXcAw5qsBeBF4ABv9bIAsZqiFEIDKONOAqZkHP4mIu4DoVa1yridSbdZW2QIsQjYzVv9eYh6mqU0QgMo455FOi7q4Rtkz9ztrf44Yk0DkS1XB7IFW6/Ooed6q6+JVVejlE3orZEnV+tUOOV3Ut+dXcl3Y5H4+VhE9NFU9vM3gZFler5eKqEBlHFnATf0+ekfUt99vFHfjUXi58ciog/vc2gJsKe3+v1CCqtAGYUeCMwGVif13R+Lrao6yrihpH5+t7f6ooJL+g+lEjqZuicClwJre6sXF1tRYyjjdgUscAcw1Vv9e8ElLadwoZVxGyA3MDqAfUhrusJbfWFhhTVI0kL0MjAi+WkR8DgyKz3trf6nqNqguKdXqwOHIuIeQdoh2peliNe1RP+YMm4ycF2Fwz8CDyDPz9/Ir6qUvDtMRiDiTgA2qWPIO8AIb/WSqIU1iTJuW6RvvVojYC+fkG4Lv45aWB/y6OvehnShskOGEOd7q68KW1U4lHEDgJnAgQ0OXYZ02nQjfh614ySK0Invjkeu3lFN5vkLucP0aYjaQqOM6wRubzLMYlb08+AzWDChE98dg4h7OP37blZeBvbN+wZJLZRxGrlHv37AsD+R+vnroYI2LbQybiSp727cdEWVOcNbfXPE+A2RTNnTkDtlsfiU1M+/aiZQJqGTxUev727fTAEN8AewS54LmGoo4yYgV14eLANeQqb2qd7q+Y0GqFtoZdyGrOi7RfAMcGjRj/2UcZsgU/amBaT/i9TPZ9Tr51WFVsatQeq7hxHWd7Nyorf6niILUMZ1IbNZ0fwEPIj4edUX9foVWhm3FyLueOL6bhZ+RbopvysiuTJuDPBkEblr8Bmpn89d+eByoRPf7UD+UrfLrbxsPOytPibvpElb8ByyNSLkxTJkl9KF9JHPBxigjNsNEXhvSnDvuwFeAh7NOectyJ63VVgMPAHc10rCroAyTiELog1ySjkL2L/ohWBWCm33bQZvtQfOySndYqCzVUWGFhYawFs9BXguh1SXlKXJLystLXSCQb6FEou3gGsjxs+Flhc6uTUYq0FhCXBymZr8stLyQifcCLwSIe7VZWvyy0pbCJ081epEbg+G4mOkd60taAuhAZIm/ssChesBTon9kbc8aRuhE64CQnxz9EZv9asB4pSGthI66bQ8GWkszMpc4i3uCqOthAbwVr9Nc9sh462OuV0rhLYTOuES5GlOo0zxVs8MXUwZaEuhkzc8OpEnOXUPI79bqrnTlkIDeKtnA7c1MGRSlhadVqFthU44F3mPuhZTvdXTYhdTJG0tdPJRudNqnJbXB3MKpa2FBvBWz0C6LSoxuaiPvOVJ2wudMBnoT8wZ3upqfwRtwyohdPI9szNX+rmeab1tWCWEBvBWP4S8WdHLed7qehZqbcEqI3TCJGA+8umMwj/y9j8RUcZNVMZleX23pfkXWfowaaUypM4AAAAASUVORK5CYII=",
+      "width": 122,
+      "height": 58,
+      "rgbaSha256": "8031720b4ac71668bf931914d106743190564b857b669d8754743f61fbe5354d"
+    }
+  ]
+}

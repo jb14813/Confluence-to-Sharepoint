@@ -1,0 +1,828 @@
+--- a/core/PdfFile/SrcReader/RendererOutputDev.cpp
++++ b/core/PdfFile/SrcReader/RendererOutputDev.cpp
+@@ -28,6 +28,7 @@
+ #include "../lib/xpdf/ErrorCodes.h"
+ #include "../lib/xpdf/GfxState.h"
+ #include "../lib/xpdf/GfxFont.h"
++#include "../lib/xpdf/TextOutputDev.h"
+ #include "../lib/fofi/FoFiTrueType.h"
+ #include "../lib/fofi/FoFiType1C.h"
+ #include "../lib/fofi/FoFiIdentifier.h"
+@@ -54,6 +55,7 @@
+ #include "../../DesktopEditor/graphics/AlphaMask.h"
+ #include "../Resources/BaseFonts.h"
+ #include <new>
++#include <memory>
+ 
+ #ifndef BUILDING_WASM_MODULE
+ #define FONTS_USE_AFM_SETTINGS
+@@ -441,6 +443,17 @@
+ 	//--------------------------------------------------------------------------------------
+ 	RendererOutputDev::RendererOutputDev(IRenderer* pRenderer, NSFonts::IFontManager* pFontManager, CPdfFontList* pFontList)
+ 	{
++		m_pActualTextPage = NULL;
++		m_pActualTextState = NULL;
++		m_bActualTextEmission = false;
++		m_nActualTextGlyphs = 0;
++		m_pDocxTransparencyTarget = NULL;
++		m_pDocxTransparencyRenderer = NULL;
++		m_pDocxTransparencyFrame = NULL;
++		m_bDocxTransparencyFailed = false;
++		m_bDocxTransparencyIsolated = m_bDocxTransparencyOuterEnded = false;
++		m_dDocxTransparencyWidthMM = m_dDocxTransparencyHeightMM = 0;
++		m_dDocxTransparencyScale = 96.0 / 72.0;
+ 		m_pFontManager  = pFontManager;
+ 		m_pFontList     = pFontList;
+ 
+@@ -470,6 +483,11 @@
+ 	}
+ 	RendererOutputDev::~RendererOutputDev()
+ 	{
++		RELEASEOBJECT(m_pActualTextPage);
++		RELEASEOBJECT(m_pActualTextState);
++		RELEASEINTERFACE(m_pDocxTransparencyRenderer);
++		RELEASEOBJECT(m_pDocxTransparencyFrame);
++		m_pDocxTransparencyTarget = NULL;
+ 		m_pRenderer = NULL;
+ 		RELEASEINTERFACE(m_pSoftMask);
+ 	}
+@@ -493,6 +511,13 @@
+ 	}
+ 	void RendererOutputDev::endPage()
+ 	{
++		if (m_pActualTextPage) { FailDocxTransparency(); return; }
++		if (m_bDocxTransparencyFailed) return;
++		if (m_pDocxTransparencyTarget)
++		{
++			if (!m_sCS.empty()) { FailDocxTransparency(); return; }
++			FinishDocxTransparency(NULL);
++		}
+ 		m_pRenderer->EndCommand(c_nPageType);
+ 	}
+ 	void RendererOutputDev::saveState(GfxState* pGState)
+@@ -526,6 +551,8 @@
+ 		}
+ 
+ 		m_pSoftMask = m_sStates.back().pSoftMask;
++		if (c_nDocxWriter == m_lRendererType && m_pSoftMask && !m_bDocxTransparencyFailed)
++			BeginDocxTransparency(pGState);
+ 		if (c_nGrRenderer == m_lRendererType)
+ 		{
+ 			if (NSGraphics::IGraphicsRenderer* GRenderer = dynamic_cast<NSGraphics::IGraphicsRenderer*>(m_pRenderer))
+@@ -538,6 +565,8 @@
+ 		updateAll(pGState);
+ 		if (bClipChanged)
+ 			UpdateAllClip(pGState);
++		if (m_pDocxTransparencyTarget && !m_pSoftMask && m_sCS.empty())
++			FinishDocxTransparency(pGState);
+ 	}
+ 	void RendererOutputDev::updateCTM(GfxState* pGState, double dMatrix11, double dMatrix12, double dMatrix21, double dMatrix22, double dMatrix31, double dMatrix32)
+ 	{
+@@ -638,6 +667,12 @@
+ 	}
+ 	void RendererOutputDev::updateBlendMode(GfxState* pGState)
+ 	{
++		// An internal blend has a complete backdrop only inside this capture's
++		// isolated outer group, before that outer group's final paint.
++		if (m_pDocxTransparencyTarget && pGState->getBlendMode() != gfxBlendNormal &&
++			(!m_bDocxTransparencyIsolated || m_bDocxTransparencyOuterEnded ||
++			 pGState->getBlendMode() < gfxBlendNormal || pGState->getBlendMode() > gfxBlendExclusion))
++		{ FailDocxTransparency(); return; }
+ 		if (((GlobalParamsAdaptor*)globalParams)->getDrawFormField())
+ 			return;
+ 
+@@ -2407,6 +2442,8 @@
+ 	}
+ 	void RendererOutputDev::drawString(GfxState* pGState, GString* seString)
+ 	{
++		// Text in a masked/group raster cannot become an editable text image.
++		if (m_pDocxTransparencyTarget) { FailDocxTransparency(); return; }
+ 		// Checking the presence of a list of fonts
+ 		if (NULL == m_pFontList)
+ 			return;
+@@ -2449,6 +2486,16 @@
+ 	}
+ 	void RendererOutputDev::drawChar(GfxState* pGState, double dX, double dY, double dDx, double dDy, double dOriginX, double dOriginY, CharCode nCode, int nBytesCount, Unicode* pUnicode, int nUnicodeLen)
+ 	{
++		// Text in a masked/group raster cannot become an editable text image.
++		if (m_pDocxTransparencyTarget) { FailDocxTransparency(); return; }
++		if (m_pActualTextPage)
++		{
++			if (++m_nActualTextGlyphs > 1048576 || !m_actualTextRun.Add(pGState, dX, dY, dDx, dDy, dOriginX, dOriginY, nBytesCount))
++			{ FailDocxTransparency(); return; }
++			if (!m_pActualTextState) m_pActualTextState = pGState->copy(gTrue);
++			m_pActualTextPage->drawChar(pGState, dX, dY, dDx, dDy, dOriginX, dOriginY, nCode, nBytesCount, pUnicode, nUnicodeLen);
++			return;
++		}
+ 		// Checking the presence of a list of fonts
+ 		if (NULL == m_pFontList)
+ 			return;
+@@ -2561,6 +2608,9 @@
+ 			}
+ 		}
+ 
++		if (m_bActualTextEmission)
++			wsUnicodeText = NSStringExt::CConverter::GetUnicodeFromUTF32(pUnicode, nUnicodeLen);
++
+ 		unsigned int unGidsCount = 0;
+ 		unsigned int unGid       = 0;
+ 		if (NULL != oEntry.pCodeToGID && nCode < oEntry.unLenGID && oEntry.pCodeToGID[nCode])
+@@ -2580,6 +2630,8 @@
+ 				unGidsCount = 1;
+ 			}
+ 		}
++
++		if (m_bActualTextEmission) { unGid = 0; unGidsCount = 0; }
+ 
+ 		if (nRenderMode == 0 || nRenderMode == 4 || nRenderMode == 6 || m_bDrawOnlyText)
+ 		{
+@@ -2714,9 +2766,56 @@
+ 		m_pRenderer->put_PenSize(dOldWidth);
+ 	}
+ 
++	void RendererOutputDev::beginActualText(GfxState* state, Unicode* text, int length)
++	{
++		if (c_nDocxWriter != m_lRendererType) return;
++		if (m_pActualTextPage || length < 1 || length > 1048576 || !text)
++		{ FailDocxTransparency(); return; }
++		for (int i = 0; i < length; ++i)
++		{
++			const unsigned int u = text[i];
++			if (!(u == 9 || u == 10 || u == 13 || (u >= 0x20 && u <= 0xD7FF) ||
++				(u >= 0xE000 && u <= 0xFFFD) || (u >= 0x10000 && u <= 0x10FFFF)))
++			{ FailDocxTransparency(); return; }
++		}
++		TextOutputControl control;
++		m_pActualTextPage = new TextOutputDev(static_cast<char*>(NULL), &control, gFalse);
++		m_pActualTextPage->startPage(0, state);
++		m_pActualTextPage->beginActualText(state, text, length);
++		m_nActualTextGlyphs = 0;
++		m_actualTextRun.Reset();
++	}
++	void RendererOutputDev::unclosedActualText(GfxState*)
++	{
++		if (c_nDocxWriter == m_lRendererType) FailDocxTransparency();
++	}
++	void RendererOutputDev::endActualText(GfxState* state)
++	{
++		if (!m_pActualTextPage) return;
++		std::unique_ptr<TextOutputDev> span(m_pActualTextPage);
++		std::unique_ptr<GfxState> runState(m_pActualTextState);
++		m_pActualTextPage = NULL;
++		m_pActualTextState = NULL;
++		if (m_bDocxTransparencyFailed) return;
++		Unicode* text = NULL; int length = 0, bytes = 0;
++		double x = 0, y = 0, dx = 0, dy = 0;
++		if (!span->getPendingActualTextSpan(&text, &length, &x, &y, &dx, &dy, &bytes) || !runState || !m_actualTextRun.SameEndClip(state))
++		{ FailDocxTransparency(); return; }
++		if (!runState->getFont() || runState->getRender() != 0 ||
++			!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(dx) || !std::isfinite(dy))
++		{ FailDocxTransparency(); return; }
++		// This is exactly the span replay used by TextPage::endActualText.
++		updateAll(runState.get());
++		m_bActualTextEmission = true;
++		drawChar(runState.get(), x, y, dx, dy, 0, 0, 0, bytes, text, length);
++		m_bActualTextEmission = false;
++		updateAll(state);
++		UpdateAllClip(state);
++	}
++
+ 	GBool RendererOutputDev::shouldDrawAnnotation(Annot* annotation)
+ 	{
+-		if (!m_bDrawOnlyText && c_nDocxWriter != m_lRendererType) return gTrue;
++		if (!m_bDrawOnlyText && c_nDocxWriter != m_lRendererType && NULL == m_pDocxTransparencyTarget) return gTrue;
+ 		GString* type = annotation ? annotation->getType() : NULL;
+ 		return type && type->cmp("Widget") != 0;
+ 	}
+@@ -2795,6 +2894,7 @@
+ 	}
+ 	void RendererOutputDev::drawImageMask(GfxState* pGState, Gfx *gfx, Object* pRef, Stream* pStream, int nWidth, int nHeight, GBool bInvert, GBool bInlineImage, GBool interpolate)
+ 	{
++		if (!CheckDocxTransparencyImage(pGState, nWidth, nHeight)) return;
+ 		if (m_bDrawOnlyText || pGState->getFillColorSpace()->isNonMarking())
+ 			return;
+ 
+@@ -2871,6 +2971,7 @@
+ 	}
+ 	void RendererOutputDev::setSoftMaskFromImageMask(GfxState* pGState, Gfx *gfx, Object* pRef, Stream* pStream, int nWidth, int nHeight, GBool bInvert, GBool bInlineImage, GBool interpolate)
+ 	{
++		if (c_nDocxWriter == m_lRendererType || m_pDocxTransparencyTarget) { FailDocxTransparency(); return; }
+ 		if (m_bDrawOnlyText || pGState->getFillColorSpace()->isNonMarking())
+ 			return;
+ 
+@@ -3092,6 +3193,7 @@
+ 	}
+ 	void RendererOutputDev::drawImage(GfxState* pGState, Gfx *gfx, Object* pRef, Stream* pStream, int nWidth, int nHeight, GfxImageColorMap* pColorMap, int* pMaskColors, GBool bInlineImg, GBool interpolate)
+ 	{
++		if (!CheckDocxTransparencyImage(pGState, nWidth, nHeight)) return;
+ 		if (m_bDrawOnlyText)
+ 			return;
+ 
+@@ -3129,6 +3231,7 @@
+ 	}
+ 	void RendererOutputDev::drawMaskedImage(GfxState* pGState, Gfx *gfx, Object* pRef, Stream* pStream, int nWidth, int nHeight, GfxImageColorMap* pColorMap, Object* pStreamRef, Stream* pMaskStream, int nMaskWidth, int nMaskHeight, GBool bMaskInvert, GBool interpolate)
+ 	{
++		if (!CheckDocxTransparencyImage(pGState, std::max(nWidth, nMaskWidth), std::max(nHeight, nMaskHeight))) return;
+ 		if (m_bDrawOnlyText)
+ 			return;
+ 
+@@ -3274,6 +3377,7 @@
+ 	}
+ 	void RendererOutputDev::drawSoftMaskedImage(GfxState* pGState, Gfx *gfx, Object* pRef, Stream* pStream, int nWidth, int nHeight, GfxImageColorMap* pColorMap, Object* maskRef, Stream* pMaskStream, int nMaskWidth, int nMaskHeight, GfxImageColorMap* pMaskColorMap, double* pMatteColor, GBool interpolate)
+ 	{
++		if (!CheckDocxTransparencyImage(pGState, std::max(nWidth, nMaskWidth), std::max(nHeight, nMaskHeight))) return;
+ 		if (m_bDrawOnlyText)
+ 			return;
+ 
+@@ -3506,11 +3610,107 @@
+ 		DoTransform(arrMatrix, &dShiftX, &dShiftY, true);
+ 		m_pRenderer->DrawImage(&oImage, dShiftX, dShiftY, PDFCoordsToMM(1), PDFCoordsToMM(1));
+ 	}
++	void RendererOutputDev::FailDocxTransparency()
++	{
++		m_bDocxTransparencyFailed = true;
++		if (m_pbBreak) *m_pbBreak = true;
++	}
++	bool RendererOutputDev::CheckDocxTransparencyImage(GfxState* pGState, int width, int height)
++	{
++		if (!m_pDocxTransparencyTarget) return true;
++		const double* matrix = pGState->getCTM();
++		const double sx = m_pDocxTransparencyFrame->get_Width() / pGState->getPageWidth();
++		const double sy = m_pDocxTransparencyFrame->get_Height() / pGState->getPageHeight();
++		const double displayedWidth = hypot(matrix[0] * sx, matrix[1] * sy);
++		const double displayedHeight = hypot(matrix[2] * sx, matrix[3] * sy);
++		// A bounded frame cannot preserve a raster with more source samples than
++		// displayed pixels. Refuse instead of silently reducing image detail.
++		// 1e-9 covers only floating arithmetic around an integral pixel count.
++		if (width <= 0 || height <= 0 || !std::isfinite(displayedWidth) || !std::isfinite(displayedHeight) ||
++			width > displayedWidth + 1e-9 || height > displayedHeight + 1e-9)
++		{ FailDocxTransparency(); return false; }
++		return true;
++	}
++	bool RendererOutputDev::BeginDocxTransparency(GfxState* pGState)
++	{
++		if (m_bDocxTransparencyFailed) return false;
++		if (m_pDocxTransparencyTarget) return true;
++		const double width = ceil(pGState->getPageWidth() * m_dDocxTransparencyScale);
++		const double height = ceil(pGState->getPageHeight() * m_dDocxTransparencyScale);
++		if (!std::isfinite(width) || !std::isfinite(height) || width <= 0 || height <= 0 || width > 4096 || height > 4096 || width * height > 9 * 1024 * 1024)
++		{ FailDocxTransparency(); return false; }
++		const int w = static_cast<int>(width), h = static_cast<int>(height);
++		BYTE* buffer = new(std::nothrow) BYTE[static_cast<size_t>(w) * h * 4];
++		if (!buffer) { FailDocxTransparency(); return false; }
++		memset(buffer, 0, static_cast<size_t>(w) * h * 4);
++		CBgraFrame* frame = new(std::nothrow) CBgraFrame();
++		if (!frame) { delete[] buffer; FailDocxTransparency(); return false; }
++		frame->put_Data(buffer); frame->put_Width(w); frame->put_Height(h); frame->put_Stride(-w * 4);
++		NSGraphics::IGraphicsRenderer* renderer = NSGraphics::Create();
++		if (!renderer) { delete frame; FailDocxTransparency(); return false; }
++		renderer->CreateFromBgraFrame(frame); renderer->SetSwapRGB(false); renderer->SetFontManager(m_pFontManager);
++		m_dDocxTransparencyWidthMM = PDFCoordsToMM(pGState->getPageWidth());
++		m_dDocxTransparencyHeightMM = PDFCoordsToMM(pGState->getPageHeight());
++		renderer->put_Width(m_dDocxTransparencyWidthMM); renderer->put_Height(m_dDocxTransparencyHeightMM);
++		m_bDocxTransparencyIsolated = m_bDocxTransparencyOuterEnded = false;
++		m_pDocxTransparencyTarget = m_pRenderer;
++		m_pDocxTransparencyRenderer = renderer; m_pDocxTransparencyFrame = frame;
++		m_pRenderer = renderer; m_lRendererType = c_nGrRenderer;
++		// The fresh renderer starts at identity; its transform cache must too.
++		m_arrMatrix[0] = m_arrMatrix[3] = 1; m_arrMatrix[1] = m_arrMatrix[2] = m_arrMatrix[4] = m_arrMatrix[5] = 0;
++		renderer->SetSoftMask(m_pSoftMask);
++		updateAll(pGState); UpdateAllClip(pGState);
++		return true;
++	}
++	void RendererOutputDev::FinishDocxTransparency(GfxState* pGState)
++	{
++		if (!m_pDocxTransparencyTarget || m_bDocxTransparencyFailed) return;
++		const int width = m_pDocxTransparencyFrame->get_Width(), height = m_pDocxTransparencyFrame->get_Height();
++		BYTE* pixels = m_pDocxTransparencyFrame->get_Data();
++		int left = width, right = -1, top = height, bottom = -1;
++		for (int y = 0; y < height; ++y)
++			for (int x = 0; x < width; ++x)
++				if (pixels[(static_cast<size_t>(y) * width + x) * 4 + 3])
++				{ left = std::min(left, x); right = std::max(right, x); top = std::min(top, y); bottom = std::max(bottom, y); }
++		// Only the existing graphics renderer painted these pixels; the mask's
++		// private layer was consumed by CreateSoftMask, never emitted as content.
++		IRenderer* target = m_pDocxTransparencyTarget;
++		m_pRenderer = target; m_lRendererType = c_nDocxWriter; m_pDocxTransparencyTarget = NULL;
++		// The native bitmap already contains the complete source clip. The
++		// suspended DOCX target retains an earlier clip until state is restored.
++		target->BeginCommand(c_nResetClipType);
++		target->EndCommand(c_nResetClipType);
++		target->ResetTransform();
++		m_arrMatrix[0] = m_arrMatrix[3] = 1; m_arrMatrix[1] = m_arrMatrix[2] = m_arrMatrix[4] = m_arrMatrix[5] = 0;
++		if (right >= left && bottom >= top)
++		{
++			const int w = right - left + 1, h = bottom - top + 1;
++			std::vector<BYTE> crop(static_cast<size_t>(w) * h * 4);
++			for (int y = 0; y < h; ++y)
++				memcpy(crop.data() + static_cast<size_t>(y) * w * 4, pixels + (static_cast<size_t>(top + y) * width + left) * 4, static_cast<size_t>(w) * 4);
++			Aggplus::CImage image; image.Create(crop.data(), w, h, -w * 4, true);
++			// Alpha bounds and crop bytes above use physical buffer row order.
++			// AGG's negative-stride frame starts logical top at the last row.
++			const int logicalTop = m_pDocxTransparencyFrame->get_Stride() < 0 ? height - 1 - bottom : top;
++			target->DrawImage(&image, left * m_dDocxTransparencyWidthMM / width, logicalTop * m_dDocxTransparencyHeightMM / height,
++				w * m_dDocxTransparencyWidthMM / width, h * m_dDocxTransparencyHeightMM / height);
++		}
++		RELEASEINTERFACE(m_pDocxTransparencyRenderer); RELEASEOBJECT(m_pDocxTransparencyFrame);
++		m_bDocxTransparencyIsolated = m_bDocxTransparencyOuterEnded = false;
++		if (pGState) { updateAll(pGState); UpdateAllClip(pGState); }
++	}
+ 	void RendererOutputDev::beginTransparencyGroup(GfxState* pGState, double* pBBox, GfxColorSpace* pBlendingColorSpace, GBool bIsolated, GBool bKnockout, GBool bForSoftMask)
+ 	{
+-		if (c_nGrRenderer != m_lRendererType)
+-			return;
+-
++		if (m_bDocxTransparencyFailed) return;
++		if (c_nDocxWriter == m_lRendererType && !BeginDocxTransparency(pGState)) return;
++		if (m_pDocxTransparencyTarget)
++		{
++			if (m_sCS.empty()) { m_bDocxTransparencyIsolated = bIsolated; m_bDocxTransparencyOuterEnded = false; }
++			const size_t depth = m_sCS.size() + 1;
++			const size_t bytes = static_cast<size_t>(m_pDocxTransparencyFrame->get_Width()) * m_pDocxTransparencyFrame->get_Height() * 4;
++			if (bKnockout || depth > 16 || bytes * (depth + 2) > 128 * 1024 * 1024) { FailDocxTransparency(); return; }
++		}
++		if (c_nGrRenderer != m_lRendererType) return;
+ 		m_pRenderer->BeginCommand(c_nLayerType);
+ 		m_sCS.push_back(GfxOutputCS());
+ 		m_sCS.back().bKnockout = bKnockout;
+@@ -3519,9 +3719,14 @@
+ 	}
+ 	void RendererOutputDev::endTransparencyGroup(GfxState* pGState)
+ 	{
++		if (m_pDocxTransparencyTarget && m_sCS.size() == 1) m_bDocxTransparencyOuterEnded = true;
+ 	}
+ 	void RendererOutputDev::paintTransparencyGroup(GfxState* pGState, double* pBBox)
+ 	{
++		if (m_bDocxTransparencyFailed) return;
++		if (m_pDocxTransparencyTarget && (m_sCS.empty() ||
++			(m_sCS.size() == 1 && pGState->getBlendMode() != gfxBlendNormal)))
++		{ FailDocxTransparency(); return; }
+ 		if (c_nGrRenderer != m_lRendererType)
+ 			return;
+ 
+@@ -3530,9 +3735,17 @@
+ 		m_pRenderer->EndCommand(c_nLayerType);
+ 
+ 		m_sCS.pop_back();
++		if (m_pDocxTransparencyTarget && !m_pSoftMask && m_sCS.empty()) FinishDocxTransparency(pGState);
+ 	}
+ 	void RendererOutputDev::setSoftMask(GfxState* pGState, double* pBBox, GBool bAlpha, Function* pTransferFunc, GfxColor* pBackdropColor)
+ 	{
++		if (m_bDocxTransparencyFailed) return;
++		if (m_pDocxTransparencyTarget && (pTransferFunc || m_sCS.empty())) { FailDocxTransparency(); return; }
++		if (m_pDocxTransparencyTarget && !bAlpha && pBackdropColor && m_sCS.back().pBlendingCS)
++		{
++			GfxRGB color; m_sCS.back().pBlendingCS->getRGB(pBackdropColor, &color, gfxRenderingIntentAbsoluteColorimetric);
++			if (colToByte(color.r) || colToByte(color.g) || colToByte(color.b)) { FailDocxTransparency(); return; }
++		}
+ 		if (c_nGrRenderer != m_lRendererType)
+ 			return;
+ 		NSGraphics::IGraphicsRenderer* GRenderer = dynamic_cast<NSGraphics::IGraphicsRenderer*>(m_pRenderer);
+@@ -3542,9 +3755,10 @@
+ 		RELEASEINTERFACE(m_pSoftMask);
+ 
+ 		m_pSoftMask = GRenderer->CreateSoftMask(bAlpha);
++		if (!m_pSoftMask) { if (m_pDocxTransparencyTarget) FailDocxTransparency(); return; }
+ 		m_pSoftMask->AddRef();
+ 
+-		if (!bAlpha && m_sCS.back().pBlendingCS)
++		if (!bAlpha && pBackdropColor && m_sCS.back().pBlendingCS)
+ 		{
+ 			GfxRGB c;
+ 			m_sCS.back().pBlendingCS->getRGB(pBackdropColor, &c, GfxRenderingIntent::gfxRenderingIntentAbsoluteColorimetric);
+@@ -3578,14 +3792,19 @@
+ 		}
+ 
+ 		m_sCS.pop_back();
++		// A consumed mask definition cannot supply the visible body backdrop.
++		if (m_pDocxTransparencyTarget && m_sCS.empty())
++			m_bDocxTransparencyIsolated = m_bDocxTransparencyOuterEnded = false;
+ 	}
+ 	void RendererOutputDev::clearSoftMask(GfxState* pGState)
+ 	{
++		if (m_bDocxTransparencyFailed) return;
+ 		if (c_nGrRenderer != m_lRendererType)
+ 			return;
+ 		if (NSGraphics::IGraphicsRenderer* GRenderer = dynamic_cast<NSGraphics::IGraphicsRenderer*>(m_pRenderer))
+ 			GRenderer->SetSoftMask(NULL);
+ 		RELEASEINTERFACE(m_pSoftMask);
++		if (m_pDocxTransparencyTarget && m_sCS.empty()) FinishDocxTransparency(pGState);
+ 	}
+ 	void RendererOutputDev::NewPDF(XRef* pXref)
+ 	{
+--- a/core/PdfFile/SrcReader/RendererOutputDev.h
++++ b/core/PdfFile/SrcReader/RendererOutputDev.h
+@@ -34,7 +34,12 @@
+ #include "../lib/xpdf/OutputDev.h"
+ 
+ #include "GfxClip.h"
++#include "PdfActualTextRun.h"
+ #include <stack>
++
++class TextOutputDev;
++class CBgraFrame;
++namespace NSGraphics { class IGraphicsRenderer; }
+ 
+ namespace PdfReader
+ {
+@@ -129,12 +134,12 @@
+ 		GBool shouldDrawAnnotation(Annot* annotation) override;
+ 		GBool shouldDrawFormFields() override
+ 		{
+-			return !m_bDrawOnlyText && c_nDocxWriter != m_lRendererType;
++			return !m_bDrawOnlyText && c_nDocxWriter != m_lRendererType && NULL == m_pDocxTransparencyTarget;
+ 		}
+ 
+ 		virtual GBool interpretType3Chars() override
+ 		{
+-			return !m_bDrawOnlyText && c_nDocxWriter != m_lRendererType;
++			return !m_bDrawOnlyText && c_nDocxWriter != m_lRendererType && NULL == m_pDocxTransparencyTarget;
+ 		}
+ 		virtual GBool useFillAndStroke()
+ 		{
+@@ -155,6 +160,7 @@
+ 		}
+ 		virtual GBool isStopped()
+ 		{
++			if (m_bDocxTransparencyFailed) return true;
+ 			if (NULL != m_pbBreak)
+ 				return *m_pbBreak;
+ 			else
+@@ -216,6 +222,9 @@
+ 		virtual void endStringOp(GfxState *pGState) override;
+ 		virtual void drawString(GfxState *pGState, GString *seString) override;
+ 		virtual void drawChar(GfxState *pGState, double dX, double dY, double dDx, double dDy, double dOriginX, double dOriginY, CharCode nCode, int nBytesCount, Unicode *pUnicode, int nUnicodeLen) override;
++		void beginActualText(GfxState* state, Unicode* text, int length) override;
++		void endActualText(GfxState* state) override;
++		void unclosedActualText(GfxState* state) override;
+ 		GBool beginType3Char(GfxState *state, double x, double y, double dx, double dy, CharCode code, Unicode *u, int uLen) override;
+ 		void endType3Char(GfxState *pGState) override;
+ 		//----- Additional features
+@@ -239,6 +248,7 @@
+ 		virtual void clearSoftMask(GfxState *pGState) override;
+ 		//----- Additional features for this device
+ 		void NewPDF(XRef *pXref);
++		void SetDocxTransparencyScale(double scale) { m_dDocxTransparencyScale = scale; }
+ 		void SetBreak(bool* pbBreak)
+ 		{
+ 			m_pbBreak = pbBreak;
+@@ -269,6 +279,10 @@
+ 			GfxOutputCS() : bKnockout(false), pBlendingCS(NULL) {}
+ 		};
+ 
++		bool CheckDocxTransparencyImage(GfxState* pGState, int width, int height);
++		bool BeginDocxTransparency(GfxState* pGState);
++		void FinishDocxTransparency(GfxState* pGState);
++		void FailDocxTransparency();
+ 		void DoPath(GfxState *pGState, GfxPath *pPath, double dPageHeight, double *pCTM, GfxClipMatrix* pCTM2 = NULL);
+ 		void ClipToText(const std::wstring& wsFontName, const std::wstring& wsFontPath, double dFontSize, int nFontStyle, double* pMatrix, const std::wstring& wsText, double dX, double dY, double dWidth = 0, double dHeight = 0, double dBaseLineOffset = 0);
+ 		void AddClip(GfxState* pGState, GfxOutputState* pState, int nIndex);
+@@ -277,9 +291,23 @@
+ 		void DoTransform(double *pMatrix, double *pdShiftX, double *pdShiftY, bool bText = false);
+ 	private:
+ 
++		IRenderer*                    m_pDocxTransparencyTarget;
++		NSGraphics::IGraphicsRenderer* m_pDocxTransparencyRenderer;
++		CBgraFrame*                   m_pDocxTransparencyFrame;
++		double                        m_dDocxTransparencyWidthMM, m_dDocxTransparencyHeightMM;
++		double                        m_dDocxTransparencyScale;
++		bool                          m_bDocxTransparencyFailed;
++		bool                          m_bDocxTransparencyIsolated, m_bDocxTransparencyOuterEnded;
++
+ 		IRenderer*                    m_pRenderer;
+ 		long                          m_lRendererType;
+ 		double                        m_arrMatrix[6];
++		TextOutputDev*               m_pActualTextPage;
++		GfxState*                    m_pActualTextState;
++		SemanticText::UniformRun      m_actualTextRun;
++		bool                         m_bActualTextEmission;
++		unsigned int                 m_nActualTextGlyphs;
++
+         NSFonts::IFontManager*        m_pFontManager;
+ 
+ 		XRef*                         m_pXref; // Xref table for this PDF document
+--- a/core/PdfFile/lib/xpdf/OutputDev.h
++++ b/core/PdfFile/lib/xpdf/OutputDev.h
+@@ -190,6 +190,8 @@
+   virtual void incCharCount(int nChars) {}
+   virtual void beginActualText(GfxState *state, Unicode *u, int uLen) {}
+   virtual void endActualText(GfxState *state) {}
++  // Notify source observers before native repair closes an unterminated span.
++  virtual void unclosedActualText(GfxState *state) {}
+ 
+   //----- additional
+   virtual GBool beginMarkedContent(GfxState *state, GString *s) { return gFalse; }
+--- a/core/PdfFile/PdfReader.cpp
++++ b/core/PdfFile/PdfReader.cpp
+@@ -34,6 +34,7 @@
+ #include "../DesktopEditor/graphics/MetafileToRenderer.h"
+ 
+ #include "SrcReader/Adaptors.h"
++#include "SrcReader/PdfCaptureRasterDensity.h"
+ #include "SrcReader/PdfAnnot.h"
+ #include "SrcReader/PdfFont.h"
+ #include "Resources/BaseFonts.h"
+@@ -666,6 +667,22 @@
+ #ifdef BUILDING_WASM_MODULE
+ 	nRotate = -pDoc->getPageRotate(nPageIndex);
+ #endif
++	LONG captureRendererType = 0;
++	pRenderer->get_Type(&captureRendererType);
++	if (captureRendererType == c_nDocxWriter)
++	{
++		// Observe the same native page/crop/rotation before allocating any capture.
++		// One scale is retained for the whole page, including saved mask buffers.
++		PdfReader::DocxCapture::RasterDensity density;
++		pDoc->displayPage(&density, nPageIndex, 72.0, 72.0, nRotate, gFalse, gTrue, gFalse);
++		if (!density.Finished())
++		{
++			if (pbBreak) *pbBreak = true;
++			((GlobalParamsAdaptor*)globalParams)->ClearRedact();
++			return;
++		}
++		oRendererOut.SetDocxTransparencyScale(density.scale);
++	}
+ 	pDoc->displayPage(&oRendererOut, nPageIndex, 72.0, 72.0, nRotate, gFalse, gTrue, gFalse);
+ 
+ 	((GlobalParamsAdaptor*)globalParams)->ClearRedact();
+--- a/core/PdfFile/lib/xpdf/Gfx.cc
++++ b/core/PdfFile/lib/xpdf/Gfx.cc
+@@ -4943,6 +4943,8 @@
+     restoreState();
+   }
+   while (markedContentStack->getLength() > 0) {
++    GfxMarkedContent* pending = (GfxMarkedContent*)markedContentStack->get(markedContentStack->getLength() - 1);
++    if (pending->kind == gfxMCActualText) out->unclosedActualText(state);
+     opEndMarkedContent(NULL, 0);
+   }
+ }
+--- a/core/PdfFile/lib/xpdf/TextOutputDev.h
++++ b/core/PdfFile/lib/xpdf/TextOutputDev.h
+@@ -487,6 +487,17 @@
+   void incCharCount(int nChars);
+   void beginActualText(GfxState *state, Unicode *u, int uLen);
+   void endActualText(GfxState *state);
++
++  // Expose the existing ActualText accumulator without changing its geometry.
++  GBool getPendingActualTextSpan(Unicode **u, int *length, double *x, double *y,
++                                double *dx, double *dy, int *nBytes) const {
++    if (!actualText || !actualTextNBytes) return gFalse;
++    *u = actualText; *length = actualTextLen;
++    *x = actualTextX0; *y = actualTextY0;
++    *dx = actualTextX1 - actualTextX0; *dy = actualTextY1 - actualTextY0;
++    *nBytes = actualTextNBytes;
++    return gTrue;
++  }
+   void addUnderline(double x0, double y0, double x1, double y1);
+   void addLink(double xMin, double yMin, double xMax, double yMax,
+ 	       Link *link);
+@@ -709,6 +720,11 @@
+   virtual void beginActualText(GfxState *state, Unicode *u, int uLen);
+   virtual void endActualText(GfxState *state);
+ 
++  GBool getPendingActualTextSpan(Unicode **u, int *length, double *x, double *y,
++                                double *dx, double *dy, int *nBytes) const {
++    return text->getPendingActualTextSpan(u, length, x, y, dx, dy, nBytes);
++  }
++
+   //----- path painting
+   virtual void stroke(GfxState *state);
+   virtual void fill(GfxState *state);
+--- a/core/DocxRenderer/DocxRenderer.cpp
++++ b/core/DocxRenderer/DocxRenderer.cpp
+@@ -105,8 +105,12 @@
+ 	int nPagesCount = pFile->GetPagesCount();
+ 	m_pInternal->m_oDocument.m_lNumberPages = nPagesCount;
+ 
++	bool stopped = false;
+ 	for (int i = 0; i < nPagesCount; ++i)
+-		DrawPage(pFile, i);
++	{
++		DrawPage(pFile, i, &stopped);
++		if (stopped) { m_pInternal->m_oDocument.Clear(); return 1; }
++	}
+ 
+ 	HRESULT hr = S_OK;
+ 	m_pInternal->m_oDocument.Write();
+@@ -179,7 +183,7 @@
+ 	m_pInternal->m_oDocument.m_oImageManager.m_pExternalStorage = pStorage;
+ }
+ 
+-void CDocxRenderer::DrawPage(IOfficeDrawingFile* pFile, size_t nPage)
++void CDocxRenderer::DrawPage(IOfficeDrawingFile* pFile, size_t nPage, bool* pBreak)
+ {
+ 	//std::cout << "Page " << i + 1 << "/" << nPagesCount << std::endl;
+ 	NewPage();
+@@ -197,7 +201,7 @@
+ 	put_Width(dWidth);
+ 	put_Height(dHeight);
+ 
+-	pFile->DrawPageOnRenderer(this, nPage, nullptr);
++	pFile->DrawPageOnRenderer(this, nPage, pBreak);
+ 
+ 	m_pInternal->m_oDocument.m_bIsDisablePageCommand = false;
+ 	EndCommand(c_nPageType);
+--- a/core/DocxRenderer/DocxRenderer.h
++++ b/core/DocxRenderer/DocxRenderer.h
+@@ -177,5 +177,5 @@
+ 	void SetExternalImageStorage(NSDocxRenderer::IImageStorage* pStorage);
+ private:
+ 	CDocxRenderer_Private* m_pInternal;
+-	void DrawPage(IOfficeDrawingFile* pFile, size_t nPage);
++	void DrawPage(IOfficeDrawingFile* pFile, size_t nPage, bool* pBreak = nullptr);
+ };
+--- /dev/null
++++ b/core/PdfFile/SrcReader/PdfCaptureRasterDensity.h
+@@ -0,0 +1,113 @@
++// Source raster sampling requirements for native DOCX transparency capture.
++// Xpdf owns PDF interpretation; this output device only observes image callbacks.
++#ifndef C2S_PDF_CAPTURE_RASTER_DENSITY_H
++#define C2S_PDF_CAPTURE_RASTER_DENSITY_H
++#include <algorithm>
++#include <cmath>
++#include <vector>
++#include "../lib/xpdf/Object.h"
++#include "../lib/xpdf/OutputDev.h"
++#include "../lib/xpdf/GfxState.h"
++#include "../lib/xpdf/Annot.h"
++namespace PdfReader { namespace DocxCapture {
++class RasterDensity : public OutputDev
++{
++    bool mask = false, delegating = false;
++    unsigned int groupDepth = 0, images = 0;
++    std::vector<bool> masks;
++    class ImageScope
++    {
++        bool& value; bool previous;
++    public:
++        explicit ImageScope(bool& flag) : value(flag), previous(flag) { value = true; }
++        ~ImageScope() { value = previous; }
++    };
++    void Image(GfxState* state, int width, int height, int maskWidth = 0, int maskHeight = 0)
++    {
++        if (delegating || (!mask && !groupDepth)) return;
++        if (++images > 65536) { complete = false; return; }
++        const double* matrix = state->getCTM();
++        const double x = std::hypot(matrix[0], matrix[1]);
++        const double y = std::hypot(matrix[2], matrix[3]);
++        if (!std::isfinite(x) || !std::isfinite(y) || x <= 0 || y <= 0 || width <= 0 || height <= 0 ||
++            maskWidth < 0 || maskHeight < 0)
++        { complete = false; return; }
++        const double needed = std::max(std::max(width, maskWidth) / x, std::max(height, maskHeight) / y);
++        if (!std::isfinite(needed)) { complete = false; return; }
++        scale = std::max(scale, needed);
++    }
++public:
++    bool complete = true;
++    double scale = 96.0 / 72.0;
++    GBool upsideDown() override { return gFalse; }
++    GBool useDrawChar() override { return gTrue; }
++    GBool interpretType3Chars() override { return gFalse; }
++    GBool shadedFill(GfxState*, GfxShading*) override { return gTrue; }
++    GBool shouldDrawFormFields() { return gFalse; }
++    GBool shouldDrawAnnotation(Annot* annotation)
++    {
++        GString* type = annotation ? annotation->getType() : NULL;
++        return type && type->cmp("Widget") != 0;
++    }
++    void saveState(GfxState*) override
++    {
++        if (masks.size() >= 4096) { complete = false; return; }
++        masks.push_back(mask);
++    }
++    void restoreState(GfxState*) override
++    {
++        if (masks.empty()) { complete = false; return; }
++        mask = masks.back(); masks.pop_back();
++    }
++    void beginTransparencyGroup(GfxState*, double*, GfxColorSpace*, GBool, GBool, GBool) override
++    {
++        if (groupDepth >= 4096) { complete = false; return; }
++        ++groupDepth;
++    }
++    void paintTransparencyGroup(GfxState*, double*) override
++    {
++        if (!groupDepth) { complete = false; return; }
++        --groupDepth;
++    }
++    void setSoftMask(GfxState*, double*, GBool, Function*, GfxColor*) override
++    {
++        if (!groupDepth) { complete = false; return; }
++        --groupDepth; mask = true;
++    }
++    void clearSoftMask(GfxState*) override { mask = false; }
++    void setSoftMaskFromImageMask(GfxState*, Gfx*, Object*, Stream*, int, int, GBool, GBool, GBool) override
++    { complete = false; }
++    void endPage() override { if (groupDepth) complete = false; }
++    // Gfx restores its initial page save only after endPage, in its destructor.
++    bool Finished() const { return complete && !groupDepth && masks.empty(); }
++    void drawImageMask(GfxState* state, Gfx* gfx, Object* ref, Stream* stream,
++        int width, int height, GBool invert, GBool inlineImage, GBool interpolate) override
++    {
++        Image(state, width, height); ImageScope scope(delegating);
++        OutputDev::drawImageMask(state, gfx, ref, stream, width, height, invert, inlineImage, interpolate);
++    }
++    void drawImage(GfxState* state, Gfx* gfx, Object* ref, Stream* stream,
++        int width, int height, GfxImageColorMap* colors, int* maskColors, GBool inlineImage, GBool interpolate) override
++    {
++        Image(state, width, height); ImageScope scope(delegating);
++        OutputDev::drawImage(state, gfx, ref, stream, width, height, colors, maskColors, inlineImage, interpolate);
++    }
++    void drawMaskedImage(GfxState* state, Gfx* gfx, Object* ref, Stream* stream,
++        int width, int height, GfxImageColorMap* colors, Object* maskRef, Stream* maskStream,
++        int maskWidth, int maskHeight, GBool invert, GBool interpolate) override
++    {
++        Image(state, width, height, maskWidth, maskHeight); ImageScope scope(delegating);
++        OutputDev::drawMaskedImage(state, gfx, ref, stream, width, height, colors, maskRef, maskStream,
++            maskWidth, maskHeight, invert, interpolate);
++    }
++    void drawSoftMaskedImage(GfxState* state, Gfx* gfx, Object* ref, Stream* stream,
++        int width, int height, GfxImageColorMap* colors, Object* maskRef, Stream* maskStream,
++        int maskWidth, int maskHeight, GfxImageColorMap* maskColors, double* matte, GBool interpolate) override
++    {
++        Image(state, width, height, maskWidth, maskHeight); ImageScope scope(delegating);
++        OutputDev::drawSoftMaskedImage(state, gfx, ref, stream, width, height, colors, maskRef, maskStream,
++            maskWidth, maskHeight, maskColors, matte, interpolate);
++    }
++};
++}}
++#endif
+--- /dev/null
++++ b/core/PdfFile/SrcReader/PdfActualTextRun.h
+@@ -0,0 +1,76 @@
++// Validate that author-provided ActualText replaces one uniform native run.
++// PDF decoding, state and span geometry remain owned by the existing reader.
++#ifndef C2S_PDF_ACTUAL_TEXT_RUN_H
++#define C2S_PDF_ACTUAL_TEXT_RUN_H
++#include <algorithm>
++#include <cmath>
++#include <limits>
++#include "../lib/xpdf/GfxFont.h"
++#include "../lib/xpdf/GfxState.h"
++namespace PdfReader { namespace SemanticText {
++class UniformRun
++{
++    bool seen = false;
++    int fontNum = 0, fontGen = 0;
++    double size = 0, opacity = 0, horizontal = 0, charSpace = 0, wordSpace = 0, rise = 0;
++    double textMatrix[6] = {}, matrix[6] = {};
++    double clip[4] = {};
++    GfxRGB color;
++    double endX = 0, endY = 0, directionX = 0, directionY = 0;
++    static bool Finite(const double* values, unsigned int count)
++    { for (unsigned int i = 0; i < count; ++i) if (!std::isfinite(values[i])) return false; return true; }
++    static double Epsilon(double x, double y)
++    { return std::max(1e-9, 64 * std::numeric_limits<double>::epsilon() * std::max(1.0, std::max(std::fabs(x), std::fabs(y)))); }
++public:
++    void Reset() { seen = false; }
++    bool HasGlyphs() const { return seen; }
++    bool SameEndClip(GfxState* state) const
++    {
++        if (!seen || !state) return false;
++        double bounds[4]; state->getClipBBox(&bounds[0], &bounds[1], &bounds[2], &bounds[3]);
++        for (unsigned int i = 0; i < 4; ++i) if (bounds[i] != clip[i]) return false;
++        return true;
++    }
++    bool Add(GfxState* state, double x, double y, double dx, double dy,
++        double originX, double originY, int bytes)
++    {
++        const double coordinates[] = {x, y, dx, dy, originX, originY};
++        GfxFont* font = state ? state->getFont() : NULL;
++        if (!font || bytes <= 0 || state->getRender() != 0 ||
++            state->getBlendMode() != gfxBlendNormal || !Finite(coordinates, 6)) return false;
++        const double* tm = state->getTextMat(); const double* ctm = state->getCTM();
++        double bounds[4]; state->getClipBBox(&bounds[0], &bounds[1], &bounds[2], &bounds[3]);
++        const double styles[] = {state->getFontSize(),state->getFillOpacity(),state->getHorizScaling(),
++            state->getCharSpace(),state->getWordSpace(),state->getRise()};
++        if (!Finite(tm, 6) || !Finite(ctm, 6) || !Finite(styles, 6) || !Finite(bounds, 4) || originX != 0 || originY != 0) return false;
++        GfxRGB rgb; state->getFillRGB(&rgb);
++        const Ref* ref = font->getID();
++        if (!seen)
++        {
++            fontNum = ref->num; fontGen = ref->gen;
++            size = styles[0]; opacity = styles[1]; horizontal = styles[2];
++            charSpace = styles[3]; wordSpace = styles[4]; rise = styles[5];
++            for (unsigned int i = 0; i < 6; ++i) { textMatrix[i] = tm[i]; matrix[i] = ctm[i]; }
++            for (unsigned int i = 0; i < 4; ++i) clip[i] = bounds[i];
++            color = rgb; directionX = dx; directionY = dy; seen = true;
++        }
++        else
++        {
++            if (ref->num != fontNum || ref->gen != fontGen || styles[0] != size || styles[1] != opacity ||
++                styles[2] != horizontal || styles[3] != charSpace || styles[4] != wordSpace || styles[5] != rise ||
++                rgb.r != color.r || rgb.g != color.g || rgb.b != color.b) return false;
++            for (unsigned int i = 0; i < 6; ++i) if (tm[i] != textMatrix[i] || ctm[i] != matrix[i]) return false;
++            for (unsigned int i = 0; i < 4; ++i) if (bounds[i] != clip[i]) return false;
++            const double epsilon = Epsilon(x, y);
++            if (std::fabs(x - endX) > epsilon || std::fabs(y - endY) > epsilon) return false;
++            if (directionX == 0 && directionY == 0) { directionX = dx; directionY = dy; }
++            const double scale = std::max(1.0, std::hypot(directionX, directionY) * std::hypot(dx, dy));
++            if (std::fabs(directionX * dy - directionY * dx) > epsilon * scale || directionX * dx + directionY * dy < 0)
++                return false;
++        }
++        endX = x + dx; endY = y + dy;
++        return std::isfinite(endX) && std::isfinite(endY);
++    }
++};
++}}
++#endif

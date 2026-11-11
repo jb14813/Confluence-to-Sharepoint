@@ -1,0 +1,2707 @@
+{
+  "schemaVersion": 1,
+  "status": "verified-local-source-build",
+  "upstream": {
+    "provenanceFile": "converter-provenance.json",
+    "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
+    "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+    "release": "v9.3.2+3",
+    "archiveSha256": "9fee31b60964d8145396bf1fb992f38ea3bf099a1c64e949fa4976c5c4fdd290"
+  },
+  "source": {
+    "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
+    "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+    "archiveFile": "x2t-source-7debf5e.tar.gz",
+    "coreGitTree": "e377e44a85db06dcf1ef027740c57137ea581844"
+  },
+  "preferredSourceInputs": [
+    {
+      "name": "CryptPad converter source including vendored core",
+      "file": "x2t-source-7debf5e.tar.gz",
+      "url": "https://codeload.github.com/cryptpad/onlyoffice-x2t-wasm/tar.gz/7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+      "bytes": 273752866,
+      "sha256": "baceed384a1cf7d3211b439328791461809025260fd194e87be1b1bdb64fe1ff",
+      "role": "source",
+      "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
+      "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32"
+    },
+    {
+      "name": "ONLYOFFICE build_tools",
+      "file": "build-tools-849d78f.tar.gz",
+      "url": "https://codeload.github.com/ONLYOFFICE/build_tools/tar.gz/849d78fea08ff3bf1329e7a7f31def02f30d0918",
+      "bytes": 6727977,
+      "sha256": "0d24b2bb1a39db5971b6c3643e79b72c2bae15cdeea44b4d888aa77a5059f34d",
+      "role": "source",
+      "repository": "https://github.com/ONLYOFFICE/build_tools",
+      "commit": "849d78fea08ff3bf1329e7a7f31def02f30d0918"
+    },
+    {
+      "name": "emsdk4.0.11 source/manifest",
+      "file": "emsdk-d49219d.tar.gz",
+      "url": "https://codeload.github.com/emscripten-core/emsdk/tar.gz/d49219d03a41cd12f95a33ba84273c20d41fd350",
+      "bytes": 200340,
+      "sha256": "dd4ade42e07560abed1bafe14e3bf5a9c2d5679bf1eacb4f4b408ee9c4795364",
+      "role": "toolchain-source",
+      "repository": "https://github.com/emscripten-core/emsdk",
+      "commit": "d49219d03a41cd12f95a33ba84273c20d41fd350"
+    },
+    {
+      "name": "Emscripten4.0.11 linked runtime and port recipes",
+      "file": "emscripten-4182f94.tar.gz",
+      "url": "https://codeload.github.com/emscripten-core/emscripten/tar.gz/4182f94222db892e16961fbbfd8097c0797d30c4",
+      "bytes": 34009977,
+      "sha256": "f5756a5440744f19d4714a360f4e12d56fa343b7b9c51aa4f65abb04b2ef8afe",
+      "role": "toolchain-runtime-source",
+      "repository": "https://github.com/emscripten-core/emscripten",
+      "commit": "4182f94222db892e16961fbbfd8097c0797d30c4"
+    },
+    {
+      "name": "Hyphen historical source",
+      "file": "hyphen-dcd90f0.tar.gz",
+      "url": "https://codeload.github.com/hunspell/hyphen/tar.gz/dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e",
+      "bytes": 302604,
+      "sha256": "73b65e5b8e9243b13c8f82d719f95fd8f5924723587f5d1097b44c51b36db602",
+      "role": "source",
+      "repository": "https://github.com/hunspell/hyphen",
+      "commit": "dcd90f0056cfbcbd2d389b7a13db45ddf5b0b98e"
+    },
+    {
+      "name": "librevenge",
+      "file": "librevenge-becd044b.tar.gz",
+      "url": "https://codeload.github.com/Distrotech/librevenge/tar.gz/becd044b519ab83893ad6398e3cbb499a7f0aaf4",
+      "bytes": 546817,
+      "sha256": "5e1d9ec2663990c63127775441f19d48b794a4bf8a50352658976f2d0527bd98",
+      "repository": "https://github.com/Distrotech/librevenge",
+      "commit": "becd044b519ab83893ad6398e3cbb499a7f0aaf4",
+      "role": "dependency-source"
+    },
+    {
+      "name": "mdds",
+      "file": "mdds-07831589.tar.gz",
+      "url": "https://codeload.github.com/kohei-us/mdds/tar.gz/0783158939c6ce4b0b1b89e345ab983ccb0f0ad0",
+      "bytes": 754285,
+      "sha256": "7839df303834f939b249b0eb450a2a2b30b390096569967213f1afe56db7002a",
+      "repository": "https://github.com/kohei-us/mdds",
+      "commit": "0783158939c6ce4b0b1b89e345ab983ccb0f0ad0",
+      "role": "dependency-source"
+    },
+    {
+      "name": "glm",
+      "file": "glm-33b4a621.tar.gz",
+      "url": "https://codeload.github.com/g-truc/glm/tar.gz/33b4a621a697a305bc3a7610d290677b96beb181",
+      "bytes": 4575890,
+      "sha256": "fa761b941987933884b0d21d5b86930789061f026ba163d47cebbc5b00be277b",
+      "repository": "https://github.com/g-truc/glm",
+      "commit": "33b4a621a697a305bc3a7610d290677b96beb181",
+      "role": "dependency-source"
+    },
+    {
+      "name": "libodfgen",
+      "file": "libodfgen-8ef8c171.tar.gz",
+      "url": "https://codeload.github.com/Distrotech/libodfgen/tar.gz/8ef8c171ebe3c5daebdce80ee422cf7bb96aa3bc",
+      "bytes": 136890,
+      "sha256": "c6dd47cc88683c7589dbaac5bdc94e492333c53def88a0f40a004d3f1379d063",
+      "repository": "https://github.com/Distrotech/libodfgen",
+      "commit": "8ef8c171ebe3c5daebdce80ee422cf7bb96aa3bc",
+      "role": "dependency-source"
+    },
+    {
+      "name": "libetonyek",
+      "file": "libetonyek-cb396b4a.tar.gz",
+      "url": "https://codeload.github.com/LibreOffice/libetonyek/tar.gz/cb396b4a9453a457469b62a740d8fb933c9442c3",
+      "bytes": 1565209,
+      "sha256": "951ebb7e7c9f254f9bfede0574247392d0ccaf7397a4e1b0f3b95db16564e923",
+      "repository": "https://github.com/LibreOffice/libetonyek",
+      "commit": "cb396b4a9453a457469b62a740d8fb933c9442c3",
+      "role": "dependency-source"
+    },
+    {
+      "name": "gumbo-parser",
+      "file": "gumbo-parser-aa91b27b.tar.gz",
+      "url": "https://codeload.github.com/google/gumbo-parser/tar.gz/aa91b27b02c0c80c482e24348a457ed7c3c088e0",
+      "bytes": 2119724,
+      "sha256": "f2d899ad9f96da1461710148dc1dc84c8519d9ec342d70bdb7a2c1f61dba3678",
+      "repository": "https://github.com/google/gumbo-parser",
+      "commit": "aa91b27b02c0c80c482e24348a457ed7c3c088e0",
+      "role": "dependency-source"
+    },
+    {
+      "name": "katana-parser",
+      "file": "katana-parser-be6df458.tar.gz",
+      "url": "https://codeload.github.com/jasenhuang/katana-parser/tar.gz/be6df458d4540eee375c513958dcb862a391cdd1",
+      "bytes": 97792,
+      "sha256": "3522aa95456f2faa7f43052c5f38c4d5cff8320f9a69fe6aac33eb1dda7b91b5",
+      "repository": "https://github.com/jasenhuang/katana-parser",
+      "commit": "be6df458d4540eee375c513958dcb862a391cdd1",
+      "role": "dependency-source"
+    },
+    {
+      "name": "md4c",
+      "file": "md4c-481fbfbd.tar.gz",
+      "url": "https://codeload.github.com/mity/md4c/tar.gz/481fbfbdf72daab2912380d62bb5f2187d438408",
+      "bytes": 238870,
+      "sha256": "07252052c3e3c23efeab44b6d52d093817102b2b500353889d72c241a1b76a79",
+      "repository": "https://github.com/mity/md4c",
+      "commit": "481fbfbdf72daab2912380d62bb5f2187d438408",
+      "role": "dependency-source"
+    },
+    {
+      "name": "harfbuzz",
+      "file": "harfbuzz-894a1f72.tar.gz",
+      "url": "https://codeload.github.com/harfbuzz/harfbuzz/tar.gz/894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "bytes": 36010701,
+      "sha256": "17eda8a9861d347a6e95cd2b3112301ce90dcc649b0e96623cc89c6ca4180e66",
+      "repository": "https://github.com/harfbuzz/harfbuzz",
+      "commit": "894a1f72ee93a1fd8dc1d9218cb3fd8f048be29a",
+      "role": "dependency-source"
+    },
+    {
+      "name": "boost",
+      "file": "boost-ad09f667.tar.gz",
+      "url": "https://codeload.github.com/boostorg/boost/tar.gz/ad09f667e61e18f5c31590941e748ac38e5a81bf",
+      "bytes": 801108,
+      "sha256": "8ce5a7853a0ac5be4fa772cb3ecfc0b52df72ff17192e978172e377508099138",
+      "repository": "https://github.com/boostorg/boost",
+      "commit": "ad09f667e61e18f5c31590941e748ac38e5a81bf",
+      "role": "dependency-source"
+    },
+    {
+      "name": "brotli",
+      "file": "brotli-a47d7475.tar.gz",
+      "url": "https://codeload.github.com/google/brotli/tar.gz/a47d7475063eb223c87632eed806c0070e70da29",
+      "bytes": 638452,
+      "sha256": "49b657a4321cb00e388863dec8d0558b94ec47100d619b837d570a58bba71379",
+      "repository": "https://github.com/google/brotli",
+      "commit": "a47d7475063eb223c87632eed806c0070e70da29",
+      "role": "dependency-source"
+    },
+    {
+      "name": "openssl",
+      "file": "openssl-36eadf1f.tar.gz",
+      "url": "https://codeload.github.com/openssl/openssl/tar.gz/36eadf1f84daa965041cce410b4ff32cbda4ef08",
+      "bytes": 9974022,
+      "sha256": "1363fad0711483bd8ec1c1e3a4357bf00b39197da2dc04b1fa66b6a3605eb1f2",
+      "repository": "https://github.com/openssl/openssl",
+      "commit": "36eadf1f84daa965041cce410b4ff32cbda4ef08",
+      "role": "dependency-source"
+    },
+    {
+      "name": "libde265",
+      "file": "libde265-7ba65889.tar.gz",
+      "url": "https://codeload.github.com/strukturag/libde265/tar.gz/7ba65889d3d6d8a0d99b5360b028243ba843be3a",
+      "bytes": 439851,
+      "sha256": "9dedf12d5b5047c270d1fc54f5d92fc29d9ea21b94d3f2d998200258353189a0",
+      "repository": "https://github.com/strukturag/libde265",
+      "commit": "7ba65889d3d6d8a0d99b5360b028243ba843be3a",
+      "role": "dependency-source"
+    },
+    {
+      "name": "libheif",
+      "file": "libheif-bf35e9eb.tar.gz",
+      "url": "https://codeload.github.com/strukturag/libheif/tar.gz/bf35e9eb25af8f2b7917996ad9ba849d922f8d15",
+      "bytes": 1508237,
+      "sha256": "26b65010689a026291bc5d8ee55fcce19e00c802dab29bb052e33785d1df6a13",
+      "repository": "https://github.com/strukturag/libheif",
+      "commit": "bf35e9eb25af8f2b7917996ad9ba849d922f8d15",
+      "role": "dependency-source"
+    },
+    {
+      "name": "x265 historical Release_4.1 branch",
+      "file": "x265-32e25ffc.tar.gz",
+      "url": "https://bitbucket.org/multicoreware/x265_git/get/32e25ffcf810c5fe284901859b369270824c4596.tar.gz",
+      "bytes": 1726344,
+      "sha256": "a0ea944c18744b88a3cff054022654532b219f8adba05bb53de8a5de1e002288",
+      "role": "source",
+      "repository": "https://bitbucket.org/multicoreware/x265_git",
+      "commit": "32e25ffcf810c5fe284901859b369270824c4596"
+    },
+    {
+      "name": "Emscripten ICU68.2 port",
+      "file": "icu4c-68_2-src.zip",
+      "url": "https://api.github.com/repos/unicode-org/icu/releases/assets/29708024?download=1",
+      "bytes": 26023195,
+      "sha256": "047e621bf3ddde8682a569ff26cbfdd27225f892adab76d32c56094823323865",
+      "role": "source",
+      "headers": {
+        "Accept": "application/octet-stream"
+      },
+      "sha512": "12c3db5966c234c94e7918fb8acc8bd0838edc36a620f3faa788e7ff27b06f1aa431eb117401026e3963622b9323212f444b735d5c9dd3d0b82d772a4834b993"
+    },
+    {
+      "name": "Emscripten Boost1.83 header port",
+      "file": "boost-headers-1.83.0.zip",
+      "url": "https://api.github.com/repos/emscripten-ports/boost/releases/assets/128901739?download=1",
+      "bytes": 25974117,
+      "sha256": "66cc701002c558afb5baf7e1a163ca7f8c3d4c80e7ec4ffb7c66dfcb32ac9358",
+      "role": "source",
+      "headers": {
+        "Accept": "application/octet-stream"
+      },
+      "sha512": "82e3a64e55caac0254f9e6b179437ad9421943b8f73957285978dad16c24dcae6372c464909fdc085b9790662b6a3af5163140b1e456705e80fda51c5fe3c243"
+    },
+    {
+      "name": "Boost1.84 libs/accumulators",
+      "file": "boost-accumulators-9d9e5dae.tar.gz",
+      "url": "https://codeload.github.com/boostorg/accumulators/tar.gz/9d9e5dae2202660f57e2dc91efb620aa001525b3",
+      "bytes": 130729,
+      "sha256": "6c11f9384de561265da4146d07768ba537780a537c8a82e5cc4c55955710c89d",
+      "repository": "https://github.com/boostorg/accumulators",
+      "commit": "9d9e5dae2202660f57e2dc91efb620aa001525b3",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/accumulators"
+    },
+    {
+      "name": "Boost1.84 libs/algorithm",
+      "file": "boost-algorithm-32c5a632.tar.gz",
+      "url": "https://codeload.github.com/boostorg/algorithm/tar.gz/32c5a6327cfdca5d41ce0f1d8849b811886daa2f",
+      "bytes": 1670902,
+      "sha256": "ea149d5ea35af6b32567a2dc2d565f7232f733ae92430f37cf2da448ec910cf5",
+      "repository": "https://github.com/boostorg/algorithm",
+      "commit": "32c5a6327cfdca5d41ce0f1d8849b811886daa2f",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/algorithm"
+    },
+    {
+      "name": "Boost1.84 libs/align",
+      "file": "boost-align-5ad7df63.tar.gz",
+      "url": "https://codeload.github.com/boostorg/align/tar.gz/5ad7df63cd792fbdb801d600b93cad1a432f0151",
+      "bytes": 18735,
+      "sha256": "3a4084cf20e79df5389874fb8711f7beb8dc461575cea467fc1679b33ea8a8c1",
+      "repository": "https://github.com/boostorg/align",
+      "commit": "5ad7df63cd792fbdb801d600b93cad1a432f0151",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/align"
+    },
+    {
+      "name": "Boost1.84 libs/any",
+      "file": "boost-any-a25b013d.tar.gz",
+      "url": "https://codeload.github.com/boostorg/any/tar.gz/a25b013d53c3af489f4f331753fecf19227ce357",
+      "bytes": 26353,
+      "sha256": "5af9090c1db780ef062c7282982b779b1f4778876c0673a1c785253a3480a7a5",
+      "repository": "https://github.com/boostorg/any",
+      "commit": "a25b013d53c3af489f4f331753fecf19227ce357",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/any"
+    },
+    {
+      "name": "Boost1.84 libs/array",
+      "file": "boost-array-ecc47cb4.tar.gz",
+      "url": "https://codeload.github.com/boostorg/array/tar.gz/ecc47cb42c98261d6abf39fb5575c38eac6db748",
+      "bytes": 18376,
+      "sha256": "314f9fc83c8911c4e8d4cccc24dce1d8f44ada0cc8484797c1cfe7690d6918eb",
+      "repository": "https://github.com/boostorg/array",
+      "commit": "ecc47cb42c98261d6abf39fb5575c38eac6db748",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/array"
+    },
+    {
+      "name": "Boost1.84 libs/asio",
+      "file": "boost-asio-222ce926.tar.gz",
+      "url": "https://codeload.github.com/boostorg/asio/tar.gz/222ce926cdef798ad081adfaa7f8bb4ec63b8a5f",
+      "bytes": 2747004,
+      "sha256": "e6c190823459199089664883077cf662e979c8bf7187c04c929a38b0bbffd135",
+      "repository": "https://github.com/boostorg/asio",
+      "commit": "222ce926cdef798ad081adfaa7f8bb4ec63b8a5f",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/asio"
+    },
+    {
+      "name": "Boost1.84 libs/assert",
+      "file": "boost-assert-9067f098.tar.gz",
+      "url": "https://codeload.github.com/boostorg/assert/tar.gz/9067f0987bb952d8ff266529d03e39aa1af3ffee",
+      "bytes": 20197,
+      "sha256": "1befdeca13699d8cb070b86cf05ecfcc827a1d9165154e0faf4f1f33e6f7f1f4",
+      "repository": "https://github.com/boostorg/assert",
+      "commit": "9067f0987bb952d8ff266529d03e39aa1af3ffee",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/assert"
+    },
+    {
+      "name": "Boost1.84 libs/assign",
+      "file": "boost-assign-ababd479.tar.gz",
+      "url": "https://codeload.github.com/boostorg/assign/tar.gz/ababd47970e8a5fa1bebc8ccad526c4f25bd867a",
+      "bytes": 48840,
+      "sha256": "5f160f53622b9fd373b73a764ba94a9a8ed8ec1b7d962441be92331175455760",
+      "repository": "https://github.com/boostorg/assign",
+      "commit": "ababd47970e8a5fa1bebc8ccad526c4f25bd867a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/assign"
+    },
+    {
+      "name": "Boost1.84 libs/atomic",
+      "file": "boost-atomic-607c57bd.tar.gz",
+      "url": "https://codeload.github.com/boostorg/atomic/tar.gz/607c57bdce154c3ec02ce77f477cb1e2d5d47396",
+      "bytes": 198682,
+      "sha256": "466b8ba103ee271ae3cccd7afaac95ab1e85396bd0eb488d23734de780325dae",
+      "repository": "https://github.com/boostorg/atomic",
+      "commit": "607c57bdce154c3ec02ce77f477cb1e2d5d47396",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/atomic"
+    },
+    {
+      "name": "Boost1.84 libs/beast",
+      "file": "boost-beast-d0dd9c50.tar.gz",
+      "url": "https://codeload.github.com/boostorg/beast/tar.gz/d0dd9c50694bcbb8836775e780eb046f66b3e1d7",
+      "bytes": 2681274,
+      "sha256": "7d5c39dff09244f65f7425b2ff6db48f3bfce953555f036b96c9b5c03b31a647",
+      "repository": "https://github.com/boostorg/beast",
+      "commit": "d0dd9c50694bcbb8836775e780eb046f66b3e1d7",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/beast"
+    },
+    {
+      "name": "Boost1.84 libs/bimap",
+      "file": "boost-bimap-e5c2657a.tar.gz",
+      "url": "https://codeload.github.com/boostorg/bimap/tar.gz/e5c2657a9e2d6184622ad4ccd1373e6c60a7efca",
+      "bytes": 1128486,
+      "sha256": "990f638667199d23dd35bb1e632296e446a03c48cd84d30b62ff6aba46bc7538",
+      "repository": "https://github.com/boostorg/bimap",
+      "commit": "e5c2657a9e2d6184622ad4ccd1373e6c60a7efca",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/bimap"
+    },
+    {
+      "name": "Boost1.84 libs/bind",
+      "file": "boost-bind-586d4e1f.tar.gz",
+      "url": "https://codeload.github.com/boostorg/bind/tar.gz/586d4e1fb0d52ca0943779182bba6e87d5f04a75",
+      "bytes": 91996,
+      "sha256": "93f3498883c7459a973af6ec8c8699ab8d63d28cf1cd20922c8c014e2fb29a7c",
+      "repository": "https://github.com/boostorg/bind",
+      "commit": "586d4e1fb0d52ca0943779182bba6e87d5f04a75",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/bind"
+    },
+    {
+      "name": "Boost1.84 libs/callable_traits",
+      "file": "boost-callable_traits-2a56a3a2.tar.gz",
+      "url": "https://codeload.github.com/boostorg/callable_traits/tar.gz/2a56a3a2496cdb66496f844db55085dd992d5e49",
+      "bytes": 58947,
+      "sha256": "53a3db8b623e423ffafe7746a070cc80a84f60488d65f01c89c1635daf7d65aa",
+      "repository": "https://github.com/boostorg/callable_traits",
+      "commit": "2a56a3a2496cdb66496f844db55085dd992d5e49",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/callable_traits"
+    },
+    {
+      "name": "Boost1.84 libs/chrono",
+      "file": "boost-chrono-7fb03662.tar.gz",
+      "url": "https://codeload.github.com/boostorg/chrono/tar.gz/7fb03662e547b962f002f06cac404af7b66e301e",
+      "bytes": 203215,
+      "sha256": "25bc5fd156cd37bb91e951f2e9259ca591cc6dccd1ba74e6acfa0d834e12bb36",
+      "repository": "https://github.com/boostorg/chrono",
+      "commit": "7fb03662e547b962f002f06cac404af7b66e301e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/chrono"
+    },
+    {
+      "name": "Boost1.84 libs/circular_buffer",
+      "file": "boost-circular_buffer-a08a5b55.tar.gz",
+      "url": "https://codeload.github.com/boostorg/circular_buffer/tar.gz/a08a5b55ee82e0c2487523471379ac53a23935dc",
+      "bytes": 115510,
+      "sha256": "49e409c545776e67531392506cb3d8a152c50b6d532fa5ea880a5cf088213a7e",
+      "repository": "https://github.com/boostorg/circular_buffer",
+      "commit": "a08a5b55ee82e0c2487523471379ac53a23935dc",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/circular_buffer"
+    },
+    {
+      "name": "Boost1.84 libs/cobalt",
+      "file": "boost-cobalt-820f9c39.tar.gz",
+      "url": "https://codeload.github.com/boostorg/cobalt/tar.gz/820f9c3906c236e6fd316cba4736c87e16b4eacb",
+      "bytes": 110267,
+      "sha256": "2de8118d5333f3a4bbcaf5b6585fdc8c628e8d173e90fd848e0c2d8048ae4f86",
+      "repository": "https://github.com/boostorg/cobalt",
+      "commit": "820f9c3906c236e6fd316cba4736c87e16b4eacb",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/cobalt"
+    },
+    {
+      "name": "Boost1.84 libs/compat",
+      "file": "boost-compat-0008d02a.tar.gz",
+      "url": "https://codeload.github.com/boostorg/compat/tar.gz/0008d02a6211fb598b8f76c4edc92b949150fae4",
+      "bytes": 12347,
+      "sha256": "923d70b4805649c5133943b186e683f36b9414a134fc60fd325575d9f449698c",
+      "repository": "https://github.com/boostorg/compat",
+      "commit": "0008d02a6211fb598b8f76c4edc92b949150fae4",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/compat"
+    },
+    {
+      "name": "Boost1.84 libs/compatibility",
+      "file": "boost-compatibility-d0caac5c.tar.gz",
+      "url": "https://codeload.github.com/boostorg/compatibility/tar.gz/d0caac5c346f7e24b4f8ec1e55110119492b64bd",
+      "bytes": 8463,
+      "sha256": "0339ae3edebbde895a5bba06a16d755763c754c3c0e6eb48cf133f26e7871714",
+      "repository": "https://github.com/boostorg/compatibility",
+      "commit": "d0caac5c346f7e24b4f8ec1e55110119492b64bd",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/compatibility"
+    },
+    {
+      "name": "Boost1.84 libs/compute",
+      "file": "boost-compute-36350b7d.tar.gz",
+      "url": "https://codeload.github.com/boostorg/compute/tar.gz/36350b7de849300bd3d72a05d8bf890ca405a014",
+      "bytes": 377161,
+      "sha256": "a4b54f3a00f64316fd8abf364f9c460863306303ba6a02e6cf250aaa2606d2ca",
+      "repository": "https://github.com/boostorg/compute",
+      "commit": "36350b7de849300bd3d72a05d8bf890ca405a014",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/compute"
+    },
+    {
+      "name": "Boost1.84 libs/concept_check",
+      "file": "boost-concept_check-37c9bddf.tar.gz",
+      "url": "https://codeload.github.com/boostorg/concept_check/tar.gz/37c9bddf0bdefaaae0ca5852c1a153d9fc43f278",
+      "bytes": 56197,
+      "sha256": "47ddb4ede1c3c66add658ff6ba421d4d820c643a4a004b52dc5f05fe85b5cefc",
+      "repository": "https://github.com/boostorg/concept_check",
+      "commit": "37c9bddf0bdefaaae0ca5852c1a153d9fc43f278",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/concept_check"
+    },
+    {
+      "name": "Boost1.84 libs/config",
+      "file": "boost-config-cbeca533.tar.gz",
+      "url": "https://codeload.github.com/boostorg/config/tar.gz/cbeca533d2113efbcffa84326111ad15a6a1f57a",
+      "bytes": 386191,
+      "sha256": "bc8ad8d0eaa711efe8f5543fd674a995bbfa916cf41de54283673d1b93d7c075",
+      "repository": "https://github.com/boostorg/config",
+      "commit": "cbeca533d2113efbcffa84326111ad15a6a1f57a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/config"
+    },
+    {
+      "name": "Boost1.84 libs/container",
+      "file": "boost-container-22357b34.tar.gz",
+      "url": "https://codeload.github.com/boostorg/container/tar.gz/22357b34b7a5ad94a307fb0df69ff5a1f05f0c83",
+      "bytes": 1412061,
+      "sha256": "5baaf3ecd505f712653c8b09f97d15442262de8f4b55c50c85dc709f40b98941",
+      "repository": "https://github.com/boostorg/container",
+      "commit": "22357b34b7a5ad94a307fb0df69ff5a1f05f0c83",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/container"
+    },
+    {
+      "name": "Boost1.84 libs/container_hash",
+      "file": "boost-container_hash-48a306dc.tar.gz",
+      "url": "https://codeload.github.com/boostorg/container_hash/tar.gz/48a306dcf236ae460d9ba55648d449ed7bea1dee",
+      "bytes": 64961,
+      "sha256": "c95df05cff3ff0dce1b29f7437967945a94973d2d077152c49950677723da588",
+      "repository": "https://github.com/boostorg/container_hash",
+      "commit": "48a306dcf236ae460d9ba55648d449ed7bea1dee",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/container_hash"
+    },
+    {
+      "name": "Boost1.84 libs/context",
+      "file": "boost-context-e9c3e56a.tar.gz",
+      "url": "https://codeload.github.com/boostorg/context/tar.gz/e9c3e56a334a86966f3b807565afcbb157413c11",
+      "bytes": 205181,
+      "sha256": "d5eeb60a63d34199d74e399f4312735a46420715b6d41b0ab3c9698a0c0502e5",
+      "repository": "https://github.com/boostorg/context",
+      "commit": "e9c3e56a334a86966f3b807565afcbb157413c11",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/context"
+    },
+    {
+      "name": "Boost1.84 libs/contract",
+      "file": "boost-contract-eca93d24.tar.gz",
+      "url": "https://codeload.github.com/boostorg/contract/tar.gz/eca93d24b5d3bb909ed64c12b5feb5296c5cc070",
+      "bytes": 241718,
+      "sha256": "903a04e3fa3fcc0dc5593b669995fcb494dc69bb6ddca6a05e8ae644de64daec",
+      "repository": "https://github.com/boostorg/contract",
+      "commit": "eca93d24b5d3bb909ed64c12b5feb5296c5cc070",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/contract"
+    },
+    {
+      "name": "Boost1.84 libs/conversion",
+      "file": "boost-conversion-5cf5f783.tar.gz",
+      "url": "https://codeload.github.com/boostorg/conversion/tar.gz/5cf5f78376c8562c168e322ba64b5a94c1f29a6c",
+      "bytes": 13171,
+      "sha256": "aed6e1e4a3a5b736f5e08d6c368bff7ee1249bdd87fae5661c11d1dc0e0be366",
+      "repository": "https://github.com/boostorg/conversion",
+      "commit": "5cf5f78376c8562c168e322ba64b5a94c1f29a6c",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/conversion"
+    },
+    {
+      "name": "Boost1.84 libs/convert",
+      "file": "boost-convert-1dd2ca23.tar.gz",
+      "url": "https://codeload.github.com/boostorg/convert/tar.gz/1dd2ca23cb74991d420ea85b9b764f0ac76367c1",
+      "bytes": 142191,
+      "sha256": "2232e0dd6e4d6760ddc960cca6bd32e846cf72220036a27c1e379224d153a245",
+      "repository": "https://github.com/boostorg/convert",
+      "commit": "1dd2ca23cb74991d420ea85b9b764f0ac76367c1",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/convert"
+    },
+    {
+      "name": "Boost1.84 libs/core",
+      "file": "boost-core-7cbbb08e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/core/tar.gz/7cbbb08e7be8114d4285e15634fc6b5ae23c17f6",
+      "bytes": 163406,
+      "sha256": "86c8048a2c8eebd27ddba09cde33e0d6de22a8547f943890c354aa455034d4b9",
+      "repository": "https://github.com/boostorg/core",
+      "commit": "7cbbb08e7be8114d4285e15634fc6b5ae23c17f6",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/core"
+    },
+    {
+      "name": "Boost1.84 libs/coroutine",
+      "file": "boost-coroutine-1e1347c0.tar.gz",
+      "url": "https://codeload.github.com/boostorg/coroutine/tar.gz/1e1347c0b1910b9310ec1719edad8b0bf2fd03c8",
+      "bytes": 131590,
+      "sha256": "1ef5391d7a2687ca6cf6ab3662d341d64510f5d62636354e10402e4b0cbf33b7",
+      "repository": "https://github.com/boostorg/coroutine",
+      "commit": "1e1347c0b1910b9310ec1719edad8b0bf2fd03c8",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/coroutine"
+    },
+    {
+      "name": "Boost1.84 libs/coroutine2",
+      "file": "boost-coroutine2-d7e1c1c4.tar.gz",
+      "url": "https://codeload.github.com/boostorg/coroutine2/tar.gz/d7e1c1c4abcf8c1e90097279e485edea0b253a80",
+      "bytes": 111762,
+      "sha256": "a51b993b1565cc216ce61d00296c2ef8f9af46fcdfcef5dd559b9a8c3830b173",
+      "repository": "https://github.com/boostorg/coroutine2",
+      "commit": "d7e1c1c4abcf8c1e90097279e485edea0b253a80",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/coroutine2"
+    },
+    {
+      "name": "Boost1.84 libs/crc",
+      "file": "boost-crc-e3b1e568.tar.gz",
+      "url": "https://codeload.github.com/boostorg/crc/tar.gz/e3b1e56890a701ded5e66929579fb7fa62ac6bcc",
+      "bytes": 48442,
+      "sha256": "53d8e4f4b429d94b69d98a2dae405ad2edcba4e959f4a92f84af036d15c7d339",
+      "repository": "https://github.com/boostorg/crc",
+      "commit": "e3b1e56890a701ded5e66929579fb7fa62ac6bcc",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/crc"
+    },
+    {
+      "name": "Boost1.84 libs/date_time",
+      "file": "boost-date_time-85e637cb.tar.gz",
+      "url": "https://codeload.github.com/boostorg/date_time/tar.gz/85e637cb325208c2af9af791c3a1948b4888c6cd",
+      "bytes": 343033,
+      "sha256": "ccc3445566a0cde8950e86433a118050c81bc9099000629115c6344b838bd89f",
+      "repository": "https://github.com/boostorg/date_time",
+      "commit": "85e637cb325208c2af9af791c3a1948b4888c6cd",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/date_time"
+    },
+    {
+      "name": "Boost1.84 libs/describe",
+      "file": "boost-describe-c89e4dd3.tar.gz",
+      "url": "https://codeload.github.com/boostorg/describe/tar.gz/c89e4dd3db81eb4f2867b2bc965d161f51cc316c",
+      "bytes": 41577,
+      "sha256": "217a7c54b909116eb4875479bc6e713e0a7bab46a5f3f52652276abe01d53e88",
+      "repository": "https://github.com/boostorg/describe",
+      "commit": "c89e4dd3db81eb4f2867b2bc965d161f51cc316c",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/describe"
+    },
+    {
+      "name": "Boost1.84 libs/detail",
+      "file": "boost-detail-845567f0.tar.gz",
+      "url": "https://codeload.github.com/boostorg/detail/tar.gz/845567f026b6e7606b237c92aa8337a1457b672b",
+      "bytes": 73918,
+      "sha256": "97e35dffd4cbbcf20492800fdbb586189f089a8a5d789fc0fd14641207a2d34d",
+      "repository": "https://github.com/boostorg/detail",
+      "commit": "845567f026b6e7606b237c92aa8337a1457b672b",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/detail"
+    },
+    {
+      "name": "Boost1.84 libs/dll",
+      "file": "boost-dll-482c5b3b.tar.gz",
+      "url": "https://codeload.github.com/boostorg/dll/tar.gz/482c5b3b033c4480b80def793045d4681b8ab35e",
+      "bytes": 90443,
+      "sha256": "3b0fd6dd0ef64b65e288262d1ea723e6595a6b2a86728121dcde651a84e3b293",
+      "repository": "https://github.com/boostorg/dll",
+      "commit": "482c5b3b033c4480b80def793045d4681b8ab35e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/dll"
+    },
+    {
+      "name": "Boost1.84 libs/dynamic_bitset",
+      "file": "boost-dynamic_bitset-8e20aa14.tar.gz",
+      "url": "https://codeload.github.com/boostorg/dynamic_bitset/tar.gz/8e20aa1462bf6dcadc338835df529a6d568431b1",
+      "bytes": 61688,
+      "sha256": "9914ceeb667bd576f3088b24f6fc5500c056ef252778f49280ec499bc07871cb",
+      "repository": "https://github.com/boostorg/dynamic_bitset",
+      "commit": "8e20aa1462bf6dcadc338835df529a6d568431b1",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/dynamic_bitset"
+    },
+    {
+      "name": "Boost1.84 libs/endian",
+      "file": "boost-endian-c9b436e5.tar.gz",
+      "url": "https://codeload.github.com/boostorg/endian/tar.gz/c9b436e5dfce85e8ae365e5aabbb872dd35c29eb",
+      "bytes": 81143,
+      "sha256": "4787c1fd83d88e17aea532a4f1f1513dd5fef34cfa650231235ae5c7831eafe0",
+      "repository": "https://github.com/boostorg/endian",
+      "commit": "c9b436e5dfce85e8ae365e5aabbb872dd35c29eb",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/endian"
+    },
+    {
+      "name": "Boost1.84 libs/exception",
+      "file": "boost-exception-11f102a9.tar.gz",
+      "url": "https://codeload.github.com/boostorg/exception/tar.gz/11f102a9872f2d12f4a75bca8c5daafaded2eb97",
+      "bytes": 119114,
+      "sha256": "fc29a6404d25bbab0a01ad559b0af475f1e9280d4569ddcf51ba11dc4a90d990",
+      "repository": "https://github.com/boostorg/exception",
+      "commit": "11f102a9872f2d12f4a75bca8c5daafaded2eb97",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/exception"
+    },
+    {
+      "name": "Boost1.84 libs/fiber",
+      "file": "boost-fiber-88b8304e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/fiber/tar.gz/88b8304e78dfab4baee5d6beca09938d2826061a",
+      "bytes": 637148,
+      "sha256": "03b758bfa2c2a85051d8688f5552965566b645eb4ec164684f4d81fa5dbb066e",
+      "repository": "https://github.com/boostorg/fiber",
+      "commit": "88b8304e78dfab4baee5d6beca09938d2826061a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/fiber"
+    },
+    {
+      "name": "Boost1.84 libs/filesystem",
+      "file": "boost-filesystem-e299a19e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/filesystem/tar.gz/e299a19eb51e6ef0e2428acca4a439a07ce0aa99",
+      "bytes": 286358,
+      "sha256": "b60135ee1e7d4b9e788df29e6a28628431c88185432da4c02997115527742558",
+      "repository": "https://github.com/boostorg/filesystem",
+      "commit": "e299a19eb51e6ef0e2428acca4a439a07ce0aa99",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/filesystem"
+    },
+    {
+      "name": "Boost1.84 libs/flyweight",
+      "file": "boost-flyweight-e9f3a0a0.tar.gz",
+      "url": "https://codeload.github.com/boostorg/flyweight/tar.gz/e9f3a0a005eca8baa377f13423107b35985d9119",
+      "bytes": 223271,
+      "sha256": "4d8b91d48c1539e120c839d7d08bc469d1f6b2f89fae8becd2a2a29203621960",
+      "repository": "https://github.com/boostorg/flyweight",
+      "commit": "e9f3a0a005eca8baa377f13423107b35985d9119",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/flyweight"
+    },
+    {
+      "name": "Boost1.84 libs/foreach",
+      "file": "boost-foreach-cc2f75ae.tar.gz",
+      "url": "https://codeload.github.com/boostorg/foreach/tar.gz/cc2f75ae30492b9de69b3b692f5c59afcb7dea5e",
+      "bytes": 21030,
+      "sha256": "746268376d71020fe4d76ba99b284c438ce8a93d8f14f2256edb8c7e5f898d79",
+      "repository": "https://github.com/boostorg/foreach",
+      "commit": "cc2f75ae30492b9de69b3b692f5c59afcb7dea5e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/foreach"
+    },
+    {
+      "name": "Boost1.84 libs/format",
+      "file": "boost-format-78ef371d.tar.gz",
+      "url": "https://codeload.github.com/boostorg/format/tar.gz/78ef371d2d90462671b90c3af407fae07820b193",
+      "bytes": 73168,
+      "sha256": "f641531a6a0f39fc518f8e29c63369fa218037d5c4447e1e92a1c90a8f5b5254",
+      "repository": "https://github.com/boostorg/format",
+      "commit": "78ef371d2d90462671b90c3af407fae07820b193",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/format"
+    },
+    {
+      "name": "Boost1.84 libs/function",
+      "file": "boost-function-d5667840.tar.gz",
+      "url": "https://codeload.github.com/boostorg/function/tar.gz/d56678401d3c720b6f24a23bca239157eacbf1b1",
+      "bytes": 51193,
+      "sha256": "e93e451bdf17f570c22d57f211eacb81f2d0b46ce1a5260d465fad083d409773",
+      "repository": "https://github.com/boostorg/function",
+      "commit": "d56678401d3c720b6f24a23bca239157eacbf1b1",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/function"
+    },
+    {
+      "name": "Boost1.84 libs/function_types",
+      "file": "boost-function_types-89533587.tar.gz",
+      "url": "https://codeload.github.com/boostorg/function_types/tar.gz/895335874d67987ada0d8bf6ca1725e70642ed49",
+      "bytes": 76427,
+      "sha256": "8f63597ed3203939e8068d932bc94b4d96324b7fbf27414a80c99a50e2992ca6",
+      "repository": "https://github.com/boostorg/function_types",
+      "commit": "895335874d67987ada0d8bf6ca1725e70642ed49",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/function_types"
+    },
+    {
+      "name": "Boost1.84 libs/functional",
+      "file": "boost-functional-6a573e4b.tar.gz",
+      "url": "https://codeload.github.com/boostorg/functional/tar.gz/6a573e4b8333ee63ee62ce95558c3667348db233",
+      "bytes": 57167,
+      "sha256": "b1d71e7963cad639252bb3835ae7061fc2e9a4ecca0f02b3ca945a7f5cc7f1dd",
+      "repository": "https://github.com/boostorg/functional",
+      "commit": "6a573e4b8333ee63ee62ce95558c3667348db233",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/functional"
+    },
+    {
+      "name": "Boost1.84 libs/fusion",
+      "file": "boost-fusion-7d4c03fa.tar.gz",
+      "url": "https://codeload.github.com/boostorg/fusion/tar.gz/7d4c03fa032299f2d46149b7b3136c9fd43e4f81",
+      "bytes": 720158,
+      "sha256": "509ed2e15bc8a99576a8acf0477d87e214061e03d37e0cb59dbcff02455c79ef",
+      "repository": "https://github.com/boostorg/fusion",
+      "commit": "7d4c03fa032299f2d46149b7b3136c9fd43e4f81",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/fusion"
+    },
+    {
+      "name": "Boost1.84 libs/geometry",
+      "file": "boost-geometry-da14168e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/geometry/tar.gz/da14168e35676ede1e1cbfdc31dbba5c7632e06b",
+      "bytes": 5818974,
+      "sha256": "8f4f63bc03ca08f63b593e47da748df23c4d1dd64f1b8b3bd0b6ccc44b1a6f71",
+      "repository": "https://github.com/boostorg/geometry",
+      "commit": "da14168e35676ede1e1cbfdc31dbba5c7632e06b",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/geometry"
+    },
+    {
+      "name": "Boost1.84 libs/gil",
+      "file": "boost-gil-8994c2ff.tar.gz",
+      "url": "https://codeload.github.com/boostorg/gil/tar.gz/8994c2ff8ed8b88e0ffef9658a4c603c4a001fad",
+      "bytes": 4429009,
+      "sha256": "6ad60f728b74263c2fd1deddcb5c9f9810be93e75f71bf5964c6df73263adf8e",
+      "repository": "https://github.com/boostorg/gil",
+      "commit": "8994c2ff8ed8b88e0ffef9658a4c603c4a001fad",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/gil"
+    },
+    {
+      "name": "Boost1.84 libs/graph",
+      "file": "boost-graph-a649be53.tar.gz",
+      "url": "https://codeload.github.com/boostorg/graph/tar.gz/a649be53bd90ab3365c6c0c44414c80907cfd8a1",
+      "bytes": 5441937,
+      "sha256": "ebf9dc16199a271bfe8a231a69633dbb2c86103cd565c244a40595d70408edcd",
+      "repository": "https://github.com/boostorg/graph",
+      "commit": "a649be53bd90ab3365c6c0c44414c80907cfd8a1",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/graph"
+    },
+    {
+      "name": "Boost1.84 libs/graph_parallel",
+      "file": "boost-graph_parallel-5520a561.tar.gz",
+      "url": "https://codeload.github.com/boostorg/graph_parallel/tar.gz/5520a5617d2763c48a06a4ff277ad76e665c7cf3",
+      "bytes": 947456,
+      "sha256": "06730b67995d2ceb500206a6cdb8b94c1fb4636a236be56281f8f25f564c3b2b",
+      "repository": "https://github.com/boostorg/graph_parallel",
+      "commit": "5520a5617d2763c48a06a4ff277ad76e665c7cf3",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/graph_parallel"
+    },
+    {
+      "name": "Boost1.84 libs/hana",
+      "file": "boost-hana-e8205519.tar.gz",
+      "url": "https://codeload.github.com/boostorg/hana/tar.gz/e820551959996bc031e72622fd731e9e7acd95b0",
+      "bytes": 663402,
+      "sha256": "4e079ee8342229b69676c52d206f725983eaaa261309d7b6f299fdb4f2c167cd",
+      "repository": "https://github.com/boostorg/hana",
+      "commit": "e820551959996bc031e72622fd731e9e7acd95b0",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/hana"
+    },
+    {
+      "name": "Boost1.84 libs/headers",
+      "file": "boost-headers-0456900f.tar.gz",
+      "url": "https://codeload.github.com/boostorg/headers/tar.gz/0456900fadde4b07c84760eadea4ccc9f948fe28",
+      "bytes": 1587,
+      "sha256": "6a9c7c38df0296302cfb4e1069b8a460fd4962223d38d7dbafdc0d6db0c838f8",
+      "repository": "https://github.com/boostorg/headers",
+      "commit": "0456900fadde4b07c84760eadea4ccc9f948fe28",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/headers"
+    },
+    {
+      "name": "Boost1.84 libs/heap",
+      "file": "boost-heap-dc2f19f8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/heap/tar.gz/dc2f19f8815cbe0654df61bfc5f31ad8b06fc883",
+      "bytes": 51046,
+      "sha256": "7b8bf8c7c9a6929c9ed8baf3de1d5c451c0f560c8f26ba8a7c335fa640527691",
+      "repository": "https://github.com/boostorg/heap",
+      "commit": "dc2f19f8815cbe0654df61bfc5f31ad8b06fc883",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/heap"
+    },
+    {
+      "name": "Boost1.84 libs/histogram",
+      "file": "boost-histogram-a29729e6.tar.gz",
+      "url": "https://codeload.github.com/boostorg/histogram/tar.gz/a29729e6682652800b06dc8aded29bbeb4acea61",
+      "bytes": 300228,
+      "sha256": "bc0a448b16975063e640c8b24ee935d4e0c38edb2150c9a2e027436f80b66ec1",
+      "repository": "https://github.com/boostorg/histogram",
+      "commit": "a29729e6682652800b06dc8aded29bbeb4acea61",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/histogram"
+    },
+    {
+      "name": "Boost1.84 libs/hof",
+      "file": "boost-hof-63ac019f.tar.gz",
+      "url": "https://codeload.github.com/boostorg/hof/tar.gz/63ac019fca325038bfb4f56db17fbb281d2b5f49",
+      "bytes": 121056,
+      "sha256": "6fdf4c8cdacdab077e7cd42710873955f47d79dcc42f1f2c3c9f14a9a04d4525",
+      "repository": "https://github.com/boostorg/hof",
+      "commit": "63ac019fca325038bfb4f56db17fbb281d2b5f49",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/hof"
+    },
+    {
+      "name": "Boost1.84 libs/icl",
+      "file": "boost-icl-2741c3a1.tar.gz",
+      "url": "https://codeload.github.com/boostorg/icl/tar.gz/2741c3a1b7b79f7326360c26c3e1588b385c9e53",
+      "bytes": 2190015,
+      "sha256": "683bce41ccf5187f72a5b1e848dfa9a4be49e1fc76afa9b3d66f19232dc52156",
+      "repository": "https://github.com/boostorg/icl",
+      "commit": "2741c3a1b7b79f7326360c26c3e1588b385c9e53",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/icl"
+    },
+    {
+      "name": "Boost1.84 libs/integer",
+      "file": "boost-integer-e7ed9918.tar.gz",
+      "url": "https://codeload.github.com/boostorg/integer/tar.gz/e7ed9918c16f11a9b885b043f7aa7994b3e21582",
+      "bytes": 47104,
+      "sha256": "d488313f0df23d04b68639c6701e29a0b4f003e7a698178f333ab8a2936b7a46",
+      "repository": "https://github.com/boostorg/integer",
+      "commit": "e7ed9918c16f11a9b885b043f7aa7994b3e21582",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/integer"
+    },
+    {
+      "name": "Boost1.84 libs/interprocess",
+      "file": "boost-interprocess-a0c5a8ff.tar.gz",
+      "url": "https://codeload.github.com/boostorg/interprocess/tar.gz/a0c5a8ff176434c9024d4540ce092a2eebb8c5c3",
+      "bytes": 421280,
+      "sha256": "da69e9fd826e6d49ce38a973bdb2b5c169779b6eec8926e9791029ad63f9505e",
+      "repository": "https://github.com/boostorg/interprocess",
+      "commit": "a0c5a8ff176434c9024d4540ce092a2eebb8c5c3",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/interprocess"
+    },
+    {
+      "name": "Boost1.84 libs/intrusive",
+      "file": "boost-intrusive-1014e97f.tar.gz",
+      "url": "https://codeload.github.com/boostorg/intrusive/tar.gz/1014e97fb28ec0b512cb875579fd43c9189a3ec3",
+      "bytes": 335190,
+      "sha256": "4c6805661594f9d46bf605efd34aadd88fef3a067f7708bbac263046323124de",
+      "repository": "https://github.com/boostorg/intrusive",
+      "commit": "1014e97fb28ec0b512cb875579fd43c9189a3ec3",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/intrusive"
+    },
+    {
+      "name": "Boost1.84 libs/io",
+      "file": "boost-io-342e4c6d.tar.gz",
+      "url": "https://codeload.github.com/boostorg/io/tar.gz/342e4c6d10d586058818daa84201a2d301357a53",
+      "bytes": 17472,
+      "sha256": "77b9f299a9fe989332e038bfca88c16fef57b37b0c7e51005b512fb3c01beabf",
+      "repository": "https://github.com/boostorg/io",
+      "commit": "342e4c6d10d586058818daa84201a2d301357a53",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/io"
+    },
+    {
+      "name": "Boost1.84 libs/iostreams",
+      "file": "boost-iostreams-6be38c34.tar.gz",
+      "url": "https://codeload.github.com/boostorg/iostreams/tar.gz/6be38c3449a64b15213c6a490d357c9a2ac2470b",
+      "bytes": 431427,
+      "sha256": "a748b87535af394d2da746a58c27973219c8f25f6a515ef008a3d1a111b01e47",
+      "repository": "https://github.com/boostorg/iostreams",
+      "commit": "6be38c3449a64b15213c6a490d357c9a2ac2470b",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/iostreams"
+    },
+    {
+      "name": "Boost1.84 libs/iterator",
+      "file": "boost-iterator-ae5d7d8c.tar.gz",
+      "url": "https://codeload.github.com/boostorg/iterator/tar.gz/ae5d7d8c0c578844077ca94b72c526d82fb5d3ba",
+      "bytes": 1524666,
+      "sha256": "c94b487127d888dc67be1d695fc8ecae26b94a6f862765ae8bb9ea832844e9ed",
+      "repository": "https://github.com/boostorg/iterator",
+      "commit": "ae5d7d8c0c578844077ca94b72c526d82fb5d3ba",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/iterator"
+    },
+    {
+      "name": "Boost1.84 libs/json",
+      "file": "boost-json-ae03c6b8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/json/tar.gz/ae03c6b8217865d04c46ca061a10c3faae7ffcc6",
+      "bytes": 4511425,
+      "sha256": "81a9333a63664acff126f3cda51f411eb198ca8fc266c04778e3d3fc6512dc96",
+      "repository": "https://github.com/boostorg/json",
+      "commit": "ae03c6b8217865d04c46ca061a10c3faae7ffcc6",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/json"
+    },
+    {
+      "name": "Boost1.84 libs/lambda",
+      "file": "boost-lambda-1555e9c7.tar.gz",
+      "url": "https://codeload.github.com/boostorg/lambda/tar.gz/1555e9c7fff978d94359fc3f6312187e1e2647d5",
+      "bytes": 138668,
+      "sha256": "d6981fd12df96f70a3a67c3680e23cae8a1623d45be3775b9183157d83d9298f",
+      "repository": "https://github.com/boostorg/lambda",
+      "commit": "1555e9c7fff978d94359fc3f6312187e1e2647d5",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/lambda"
+    },
+    {
+      "name": "Boost1.84 libs/lambda2",
+      "file": "boost-lambda2-62815a69.tar.gz",
+      "url": "https://codeload.github.com/boostorg/lambda2/tar.gz/62815a69bfaf6d0fac5ace703737e7a9b4899139",
+      "bytes": 12560,
+      "sha256": "e45649674d88bd402cf2f5d37e6f6976dae65c783c582af321197c5e5e2a979d",
+      "repository": "https://github.com/boostorg/lambda2",
+      "commit": "62815a69bfaf6d0fac5ace703737e7a9b4899139",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/lambda2"
+    },
+    {
+      "name": "Boost1.84 libs/leaf",
+      "file": "boost-leaf-d8aae791.tar.gz",
+      "url": "https://codeload.github.com/boostorg/leaf/tar.gz/d8aae791332a1307ee5a14561a9f7636649e62b9",
+      "bytes": 280947,
+      "sha256": "94fc3ffff8bcfc0f5a773a57b4fb88a5bfecc158559717fce900d08637f43257",
+      "repository": "https://github.com/boostorg/leaf",
+      "commit": "d8aae791332a1307ee5a14561a9f7636649e62b9",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/leaf"
+    },
+    {
+      "name": "Boost1.84 libs/lexical_cast",
+      "file": "boost-lexical_cast-1ca93a8e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/lexical_cast/tar.gz/1ca93a8e275c88efd83b3d622547faef697e0f42",
+      "bytes": 61782,
+      "sha256": "aeaf9f93bffbfe856c597c12b5e1f3cb4fca8ecc6dec92eea9ce0511d9992e5e",
+      "repository": "https://github.com/boostorg/lexical_cast",
+      "commit": "1ca93a8e275c88efd83b3d622547faef697e0f42",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/lexical_cast"
+    },
+    {
+      "name": "Boost1.84 libs/local_function",
+      "file": "boost-local_function-099e96be.tar.gz",
+      "url": "https://codeload.github.com/boostorg/local_function/tar.gz/099e96bef0e5f2d513940c5987958121ca6f6e02",
+      "bytes": 435027,
+      "sha256": "45713213c0667c2147fd2f23a99094fd7ef504c316b32765c09fb22559877720",
+      "repository": "https://github.com/boostorg/local_function",
+      "commit": "099e96bef0e5f2d513940c5987958121ca6f6e02",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/local_function"
+    },
+    {
+      "name": "Boost1.84 libs/locale",
+      "file": "boost-locale-dece8c66.tar.gz",
+      "url": "https://codeload.github.com/boostorg/locale/tar.gz/dece8c663300b176d830dafcaafbc8dc6d71f470",
+      "bytes": 409477,
+      "sha256": "46cd26daf887bae2625020cbb86f1ba7567640e320f2dfb4f0667170260ab08b",
+      "repository": "https://github.com/boostorg/locale",
+      "commit": "dece8c663300b176d830dafcaafbc8dc6d71f470",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/locale"
+    },
+    {
+      "name": "Boost1.84 libs/lockfree",
+      "file": "boost-lockfree-fdd4d063.tar.gz",
+      "url": "https://codeload.github.com/boostorg/lockfree/tar.gz/fdd4d0632dd0904f6e9c656c45397fe8ef985bc9",
+      "bytes": 35121,
+      "sha256": "eca9b3e85feb79c42b9a7e5744d8dfaf57215b639f296c9a9552f39e9b48f303",
+      "repository": "https://github.com/boostorg/lockfree",
+      "commit": "fdd4d0632dd0904f6e9c656c45397fe8ef985bc9",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/lockfree"
+    },
+    {
+      "name": "Boost1.84 libs/log",
+      "file": "boost-log-8b921b63.tar.gz",
+      "url": "https://codeload.github.com/boostorg/log/tar.gz/8b921b6352e76ff54f5674c864d1f4f749c9158b",
+      "bytes": 657684,
+      "sha256": "295d29aa275cb4070dbee8d6866cb1fa0de1c4b62fb525cf8bb68de0a9bf2dfe",
+      "repository": "https://github.com/boostorg/log",
+      "commit": "8b921b6352e76ff54f5674c864d1f4f749c9158b",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/log"
+    },
+    {
+      "name": "Boost1.84 libs/logic",
+      "file": "boost-logic-14577849.tar.gz",
+      "url": "https://codeload.github.com/boostorg/logic/tar.gz/145778490c2d332c1411df6a5274a4b53ec3e091",
+      "bytes": 21295,
+      "sha256": "46762588818772a3dbb7f6174a65364aa2d1feb0d87cdc7ebb683fe650841eb4",
+      "repository": "https://github.com/boostorg/logic",
+      "commit": "145778490c2d332c1411df6a5274a4b53ec3e091",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/logic"
+    },
+    {
+      "name": "Boost1.84 libs/math",
+      "file": "boost-math-44af29a7.tar.gz",
+      "url": "https://codeload.github.com/boostorg/math/tar.gz/44af29a78c85ee89ce37f7f43d532afd05c3d981",
+      "bytes": 28213960,
+      "sha256": "904eddcbe22aeb30b04d4fd98be3f60e31ecab1bf94ab4a07e594fc1f3c75e39",
+      "repository": "https://github.com/boostorg/math",
+      "commit": "44af29a78c85ee89ce37f7f43d532afd05c3d981",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/math"
+    },
+    {
+      "name": "Boost1.84 libs/metaparse",
+      "file": "boost-metaparse-0ef448c1.tar.gz",
+      "url": "https://codeload.github.com/boostorg/metaparse/tar.gz/0ef448c1a7ce22b5de514f9cd504c323c28f4379",
+      "bytes": 3540832,
+      "sha256": "86da80d1f921e6403187af6e8f3dab657b1174372408f35fc57d37029c2526c5",
+      "repository": "https://github.com/boostorg/metaparse",
+      "commit": "0ef448c1a7ce22b5de514f9cd504c323c28f4379",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/metaparse"
+    },
+    {
+      "name": "Boost1.84 libs/move",
+      "file": "boost-move-f1fbb451.tar.gz",
+      "url": "https://codeload.github.com/boostorg/move/tar.gz/f1fbb45134065deebe95249c616a967d4b66c809",
+      "bytes": 129470,
+      "sha256": "867c5b187e3ada28191d01c2eb2d5ad1df4dc2d15f8e32c6bd7cb626048d80e3",
+      "repository": "https://github.com/boostorg/move",
+      "commit": "f1fbb45134065deebe95249c616a967d4b66c809",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/move"
+    },
+    {
+      "name": "Boost1.84 libs/mp11",
+      "file": "boost-mp11-391e23ae.tar.gz",
+      "url": "https://codeload.github.com/boostorg/mp11/tar.gz/391e23ae716aec4d59f6c7272e49e1dd8c01dcdb",
+      "bytes": 122007,
+      "sha256": "5372e808bd1d7353740ee7663b0c7bd7b83c2f307941c8d4ad4c98fc6819e1c9",
+      "repository": "https://github.com/boostorg/mp11",
+      "commit": "391e23ae716aec4d59f6c7272e49e1dd8c01dcdb",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/mp11"
+    },
+    {
+      "name": "Boost1.84 libs/mpi",
+      "file": "boost-mpi-347595c7.tar.gz",
+      "url": "https://codeload.github.com/boostorg/mpi/tar.gz/347595c77379ac5cbfc6e4474fe315398fef355e",
+      "bytes": 187948,
+      "sha256": "55c93f973344edacb4289f46e64c1a230b23c41815af1d2add17eb953e43f927",
+      "repository": "https://github.com/boostorg/mpi",
+      "commit": "347595c77379ac5cbfc6e4474fe315398fef355e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/mpi"
+    },
+    {
+      "name": "Boost1.84 libs/mpl",
+      "file": "boost-mpl-b440c45c.tar.gz",
+      "url": "https://codeload.github.com/boostorg/mpl/tar.gz/b440c45c2810acbddc917db057f2e5194da1a199",
+      "bytes": 1512845,
+      "sha256": "ba89a5a95bdb33b99fa5080c30249fab21576debded604b922396c1fb3e5d7a9",
+      "repository": "https://github.com/boostorg/mpl",
+      "commit": "b440c45c2810acbddc917db057f2e5194da1a199",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/mpl"
+    },
+    {
+      "name": "Boost1.84 libs/msm",
+      "file": "boost-msm-f932a51e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/msm/tar.gz/f932a51ef0f7a136312c7d2949fb69963cb46830",
+      "bytes": 1639710,
+      "sha256": "6933bf17ccde1f3b75f1a0ef18ac0a79c8cb39ba4eb0e71c7b1b500572242ce2",
+      "repository": "https://github.com/boostorg/msm",
+      "commit": "f932a51ef0f7a136312c7d2949fb69963cb46830",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/msm"
+    },
+    {
+      "name": "Boost1.84 libs/multi_array",
+      "file": "boost-multi_array-0c5348be.tar.gz",
+      "url": "https://codeload.github.com/boostorg/multi_array/tar.gz/0c5348bef71b890c4bd06eff1ee5ebda69e7b27a",
+      "bytes": 92894,
+      "sha256": "19cc5b68e8350ad27c9504c39dbb221956013d10a352b3a2e202f9ea5e18b2c4",
+      "repository": "https://github.com/boostorg/multi_array",
+      "commit": "0c5348bef71b890c4bd06eff1ee5ebda69e7b27a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/multi_array"
+    },
+    {
+      "name": "Boost1.84 libs/multi_index",
+      "file": "boost-multi_index-fab1601a.tar.gz",
+      "url": "https://codeload.github.com/boostorg/multi_index/tar.gz/fab1601a4239e957c128d7d113b812dfaddc06fd",
+      "bytes": 456412,
+      "sha256": "d37c75e680cd9fc716d1ba95101962105e36c60db7630ef96dc1522a69277db2",
+      "repository": "https://github.com/boostorg/multi_index",
+      "commit": "fab1601a4239e957c128d7d113b812dfaddc06fd",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/multi_index"
+    },
+    {
+      "name": "Boost1.84 libs/multiprecision",
+      "file": "boost-multiprecision-de3aded8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/multiprecision/tar.gz/de3aded8632e0ef0f17dcaf274f5699a25139738",
+      "bytes": 4147165,
+      "sha256": "5c212b383aca5c18f1f6e7cb0dc62a23a21774422392c4d1456af8acd540a89d",
+      "repository": "https://github.com/boostorg/multiprecision",
+      "commit": "de3aded8632e0ef0f17dcaf274f5699a25139738",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/multiprecision"
+    },
+    {
+      "name": "Boost1.84 libs/mysql",
+      "file": "boost-mysql-b6d6242e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/mysql/tar.gz/b6d6242e6e75b6f91f64d5d1a28b990e3d76b49e",
+      "bytes": 534033,
+      "sha256": "2e7ba645017901800d33dc7d01009d7c8f2e9c84b61cc52d3d004055904631b2",
+      "repository": "https://github.com/boostorg/mysql",
+      "commit": "b6d6242e6e75b6f91f64d5d1a28b990e3d76b49e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/mysql"
+    },
+    {
+      "name": "Boost1.84 libs/nowide",
+      "file": "boost-nowide-fa32a525.tar.gz",
+      "url": "https://codeload.github.com/boostorg/nowide/tar.gz/fa32a525977e978d690abedecbc23b2011f3105b",
+      "bytes": 109708,
+      "sha256": "f5a6a51515bbfcfb5cf1c1d5042e35e6eecd90cf83bc2283b5cf38df45a401fe",
+      "repository": "https://github.com/boostorg/nowide",
+      "commit": "fa32a525977e978d690abedecbc23b2011f3105b",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/nowide"
+    },
+    {
+      "name": "Boost1.84 libs/numeric/conversion",
+      "file": "boost-numeric_conversion-50a1eae9.tar.gz",
+      "url": "https://codeload.github.com/boostorg/numeric_conversion/tar.gz/50a1eae942effb0a9b90724323ef8f2a67e7984a",
+      "bytes": 94973,
+      "sha256": "599de024f076f03b75c341672eb0fbf6c64ad42018f62be1d92e9061938ea0f8",
+      "repository": "https://github.com/boostorg/numeric_conversion",
+      "commit": "50a1eae942effb0a9b90724323ef8f2a67e7984a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/numeric/conversion"
+    },
+    {
+      "name": "Boost1.84 libs/numeric/interval",
+      "file": "boost-interval-2eda7413.tar.gz",
+      "url": "https://codeload.github.com/boostorg/interval/tar.gz/2eda7413ac16dd4158005446438daf8a7e435dd9",
+      "bytes": 79877,
+      "sha256": "8f5e9911051b500b840b24a318a3ed89781809e222ed9f74e20b58e8c922cc61",
+      "repository": "https://github.com/boostorg/interval",
+      "commit": "2eda7413ac16dd4158005446438daf8a7e435dd9",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/numeric/interval"
+    },
+    {
+      "name": "Boost1.84 libs/numeric/odeint",
+      "file": "boost-odeint-13f5b5c1.tar.gz",
+      "url": "https://codeload.github.com/boostorg/odeint/tar.gz/13f5b5c1efbeb7c9eedc91463489de4adcf8d368",
+      "bytes": 509312,
+      "sha256": "2bf59b75c84da765344c29f02ecb26bdbf75921e8960c0a24a37a1b6ff554192",
+      "repository": "https://github.com/boostorg/odeint",
+      "commit": "13f5b5c1efbeb7c9eedc91463489de4adcf8d368",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/numeric/odeint"
+    },
+    {
+      "name": "Boost1.84 libs/numeric/ublas",
+      "file": "boost-ublas-92088850.tar.gz",
+      "url": "https://codeload.github.com/boostorg/ublas/tar.gz/9208885085dbfa8ec82c4023ff7d72741785e27a",
+      "bytes": 434014,
+      "sha256": "20ae79fd2a7a5dd69267dc658462949d382574b7701130c19b3a20967f6670d7",
+      "repository": "https://github.com/boostorg/ublas",
+      "commit": "9208885085dbfa8ec82c4023ff7d72741785e27a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/numeric/ublas"
+    },
+    {
+      "name": "Boost1.84 libs/optional",
+      "file": "boost-optional-c60db277.tar.gz",
+      "url": "https://codeload.github.com/boostorg/optional/tar.gz/c60db27762ff9cc16529e069c3c15f2fa898f994",
+      "bytes": 236308,
+      "sha256": "f602eeac6fb9e9a1a96e7e321dea6a386ad9f23dae29e95c97786f0d384cbb48",
+      "repository": "https://github.com/boostorg/optional",
+      "commit": "c60db27762ff9cc16529e069c3c15f2fa898f994",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/optional"
+    },
+    {
+      "name": "Boost1.84 libs/outcome",
+      "file": "boost-outcome-ef6a992b.tar.gz",
+      "url": "https://codeload.github.com/boostorg/outcome/tar.gz/ef6a992ba20baf38fa56fe2f3b2f223122adb384",
+      "bytes": 1163878,
+      "sha256": "b42e7f006bfe61c8e77aa94c703d027d6aab28b7a17b4f403d3859f3daa1a2f5",
+      "repository": "https://github.com/boostorg/outcome",
+      "commit": "ef6a992ba20baf38fa56fe2f3b2f223122adb384",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/outcome"
+    },
+    {
+      "name": "Boost1.84 libs/parameter",
+      "file": "boost-parameter-c4a9b940.tar.gz",
+      "url": "https://codeload.github.com/boostorg/parameter/tar.gz/c4a9b94080d64c6cc9108f4117f61bbb78ad8ae5",
+      "bytes": 214555,
+      "sha256": "3d61b7bdd91f23315436311a013ed021dc06233dc7a72711833d5a2e75a46c1f",
+      "repository": "https://github.com/boostorg/parameter",
+      "commit": "c4a9b94080d64c6cc9108f4117f61bbb78ad8ae5",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/parameter"
+    },
+    {
+      "name": "Boost1.84 libs/parameter_python",
+      "file": "boost-parameter_python-1f7f9ce9.tar.gz",
+      "url": "https://codeload.github.com/boostorg/parameter_python/tar.gz/1f7f9ce9930119f0dda7dcd5e1ec3b5ed7c6b091",
+      "bytes": 14117,
+      "sha256": "589f75a46735fda3a238e0813f95481b7a71ff7a37e909b8fdfbad4786eda8e0",
+      "repository": "https://github.com/boostorg/parameter_python",
+      "commit": "1f7f9ce9930119f0dda7dcd5e1ec3b5ed7c6b091",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/parameter_python"
+    },
+    {
+      "name": "Boost1.84 libs/pfr",
+      "file": "boost-pfr-98789f61.tar.gz",
+      "url": "https://codeload.github.com/boostorg/pfr/tar.gz/98789f610a8bab53d5523157ff6a3fac7606764a",
+      "bytes": 76716,
+      "sha256": "90afbe59dd03dc4307c8b740e63bc77ab4435da60690a2fc6916c9c563603160",
+      "repository": "https://github.com/boostorg/pfr",
+      "commit": "98789f610a8bab53d5523157ff6a3fac7606764a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/pfr"
+    },
+    {
+      "name": "Boost1.84 libs/phoenix",
+      "file": "boost-phoenix-8913607a.tar.gz",
+      "url": "https://codeload.github.com/boostorg/phoenix/tar.gz/8913607a3788cb82d48ed461ea59c919b7bad3df",
+      "bytes": 733750,
+      "sha256": "4bbcf8ab34150b7db3d1017c3238c1cc5aea0da2c7807acacce55458b22c7a5b",
+      "repository": "https://github.com/boostorg/phoenix",
+      "commit": "8913607a3788cb82d48ed461ea59c919b7bad3df",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/phoenix"
+    },
+    {
+      "name": "Boost1.84 libs/poly_collection",
+      "file": "boost-poly_collection-0b8bfc4c.tar.gz",
+      "url": "https://codeload.github.com/boostorg/poly_collection/tar.gz/0b8bfc4cff012d0f23049fc5a0009ac4abadceb4",
+      "bytes": 738228,
+      "sha256": "7599933afb82e758709753ac302b8b801557b469a2aaf22eb64eb540c80569df",
+      "repository": "https://github.com/boostorg/poly_collection",
+      "commit": "0b8bfc4cff012d0f23049fc5a0009ac4abadceb4",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/poly_collection"
+    },
+    {
+      "name": "Boost1.84 libs/polygon",
+      "file": "boost-polygon-8ba35b57.tar.gz",
+      "url": "https://codeload.github.com/boostorg/polygon/tar.gz/8ba35b57c1436c4b36f7544aadd78c2b24acc7db",
+      "bytes": 4616091,
+      "sha256": "e3a331f390d5958e7ec7ef8b12ee0f72234af2f9dc699027d669450404458690",
+      "repository": "https://github.com/boostorg/polygon",
+      "commit": "8ba35b57c1436c4b36f7544aadd78c2b24acc7db",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/polygon"
+    },
+    {
+      "name": "Boost1.84 libs/pool",
+      "file": "boost-pool-8ec1be1e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/pool/tar.gz/8ec1be1e82ba559744ecfa3c6ec13f71f9c175cc",
+      "bytes": 994732,
+      "sha256": "727acfbd394a2d4f3d6cc66db82b5c1eba25389f67829e0a5d256cef9f29eec3",
+      "repository": "https://github.com/boostorg/pool",
+      "commit": "8ec1be1e82ba559744ecfa3c6ec13f71f9c175cc",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/pool"
+    },
+    {
+      "name": "Boost1.84 libs/predef",
+      "file": "boost-predef-0fdfb49c.tar.gz",
+      "url": "https://codeload.github.com/boostorg/predef/tar.gz/0fdfb49c3a6789e50169a44e88a07cc889001106",
+      "bytes": 109131,
+      "sha256": "5ffe2e38af0c6d0dffc5659b6e79ce8775a7865a0eb4d93fc2b14f12b473bbd8",
+      "repository": "https://github.com/boostorg/predef",
+      "commit": "0fdfb49c3a6789e50169a44e88a07cc889001106",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/predef"
+    },
+    {
+      "name": "Boost1.84 libs/preprocessor",
+      "file": "boost-preprocessor-667e87b3.tar.gz",
+      "url": "https://codeload.github.com/boostorg/preprocessor/tar.gz/667e87b3392db338a919cbe0213979713aca52e3",
+      "bytes": 868088,
+      "sha256": "56e5c793082957fa64e7e4d48d4ad8626bc8923497be26fc33f12c1e9f93b0e6",
+      "repository": "https://github.com/boostorg/preprocessor",
+      "commit": "667e87b3392db338a919cbe0213979713aca52e3",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/preprocessor"
+    },
+    {
+      "name": "Boost1.84 libs/process",
+      "file": "boost-process-1873f344.tar.gz",
+      "url": "https://codeload.github.com/boostorg/process/tar.gz/1873f34435b87f99c2073543bf9f5d67f74cbdb8",
+      "bytes": 213576,
+      "sha256": "8eee4a83ea3262dd65e766b911125bc5e892f8a46e56cd5d209f566396238cd0",
+      "repository": "https://github.com/boostorg/process",
+      "commit": "1873f34435b87f99c2073543bf9f5d67f74cbdb8",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/process"
+    },
+    {
+      "name": "Boost1.84 libs/program_options",
+      "file": "boost-program_options-3aae04bf.tar.gz",
+      "url": "https://codeload.github.com/boostorg/program_options/tar.gz/3aae04bf6565af74899e9dfe6e147cc4cba1dad4",
+      "bytes": 134732,
+      "sha256": "1ff934c7531eca25227f77d31b8641f90be2e2069ac524166f55ecbc084e2f37",
+      "repository": "https://github.com/boostorg/program_options",
+      "commit": "3aae04bf6565af74899e9dfe6e147cc4cba1dad4",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/program_options"
+    },
+    {
+      "name": "Boost1.84 libs/property_map",
+      "file": "boost-property_map-e3a3c365.tar.gz",
+      "url": "https://codeload.github.com/boostorg/property_map/tar.gz/e3a3c3655f4118fd15a02d8315f86a48db7390fd",
+      "bytes": 42459,
+      "sha256": "8d677703df09754ddccd9a4b03c4c3b87034104a9b8c3c8f05d3cebe60aa94de",
+      "repository": "https://github.com/boostorg/property_map",
+      "commit": "e3a3c3655f4118fd15a02d8315f86a48db7390fd",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/property_map"
+    },
+    {
+      "name": "Boost1.84 libs/property_map_parallel",
+      "file": "boost-property_map_parallel-a2f90e96.tar.gz",
+      "url": "https://codeload.github.com/boostorg/property_map_parallel/tar.gz/a2f90e9660e4e7e012c0b54a1338d8e69fb71906",
+      "bytes": 16722,
+      "sha256": "3d58e2b485b32fba66d260762a4957ea3d61e1275d38c0cda1fc6e73cb5f1e7b",
+      "repository": "https://github.com/boostorg/property_map_parallel",
+      "commit": "a2f90e9660e4e7e012c0b54a1338d8e69fb71906",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/property_map_parallel"
+    },
+    {
+      "name": "Boost1.84 libs/property_tree",
+      "file": "boost-property_tree-4748bdb7.tar.gz",
+      "url": "https://codeload.github.com/boostorg/property_tree/tar.gz/4748bdb7b2acc7a5634187efd8d708ef9417ff0c",
+      "bytes": 159950,
+      "sha256": "f4646be35c1f1bc324ecec4b905cf1163868c38c7dc3dce612a0fa6fa1c8a607",
+      "repository": "https://github.com/boostorg/property_tree",
+      "commit": "4748bdb7b2acc7a5634187efd8d708ef9417ff0c",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/property_tree"
+    },
+    {
+      "name": "Boost1.84 libs/proto",
+      "file": "boost-proto-7f924934.tar.gz",
+      "url": "https://codeload.github.com/boostorg/proto/tar.gz/7f924934689b940f3a72212ab0f714ec6fd6e34b",
+      "bytes": 324757,
+      "sha256": "7ae177d6e5b441fc33daec99541df51a72ef957a80596fe7d928585798871124",
+      "repository": "https://github.com/boostorg/proto",
+      "commit": "7f924934689b940f3a72212ab0f714ec6fd6e34b",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/proto"
+    },
+    {
+      "name": "Boost1.84 libs/ptr_container",
+      "file": "boost-ptr_container-cf94735c.tar.gz",
+      "url": "https://codeload.github.com/boostorg/ptr_container/tar.gz/cf94735c87e073b33e54887a3d5e33598177ee1a",
+      "bytes": 172442,
+      "sha256": "082bf2a8368ade2c3fcf4076fb4da7994b86cb3c3414c052e1c785426d84cadc",
+      "repository": "https://github.com/boostorg/ptr_container",
+      "commit": "cf94735c87e073b33e54887a3d5e33598177ee1a",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/ptr_container"
+    },
+    {
+      "name": "Boost1.84 libs/python",
+      "file": "boost-python-47d5bc76.tar.gz",
+      "url": "https://codeload.github.com/boostorg/python/tar.gz/47d5bc76f69e20625214381c930a2fad5765e2b3",
+      "bytes": 617271,
+      "sha256": "834b6aee6082b970b65c720ea9992e27369758b829ed83181df6da615bc37361",
+      "repository": "https://github.com/boostorg/python",
+      "commit": "47d5bc76f69e20625214381c930a2fad5765e2b3",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/python"
+    },
+    {
+      "name": "Boost1.84 libs/qvm",
+      "file": "boost-qvm-c6b61349.tar.gz",
+      "url": "https://codeload.github.com/boostorg/qvm/tar.gz/c6b61349b2b4f493497272f94f2624e4631af875",
+      "bytes": 188562,
+      "sha256": "3737e00e0f6b9b7804c56e75156d6abefad986b6bebd6b49559f686f76c3a1e2",
+      "repository": "https://github.com/boostorg/qvm",
+      "commit": "c6b61349b2b4f493497272f94f2624e4631af875",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/qvm"
+    },
+    {
+      "name": "Boost1.84 libs/random",
+      "file": "boost-random-1c8e9acf.tar.gz",
+      "url": "https://codeload.github.com/boostorg/random/tar.gz/1c8e9acf2668b9d7d47068e620253120876d9088",
+      "bytes": 360913,
+      "sha256": "5d9458917b183fcc6fb4274291be8c3b77954eb8a47a82a9126c54c4301556c6",
+      "repository": "https://github.com/boostorg/random",
+      "commit": "1c8e9acf2668b9d7d47068e620253120876d9088",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/random"
+    },
+    {
+      "name": "Boost1.84 libs/range",
+      "file": "boost-range-88c6199a.tar.gz",
+      "url": "https://codeload.github.com/boostorg/range/tar.gz/88c6199aedf8bbb5a6a8966e534f9de99943cde2",
+      "bytes": 207448,
+      "sha256": "07aaf4db840ea1afe03fcd42eb83fccd3667277d93278b1e2d5211bd3e9de720",
+      "repository": "https://github.com/boostorg/range",
+      "commit": "88c6199aedf8bbb5a6a8966e534f9de99943cde2",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/range"
+    },
+    {
+      "name": "Boost1.84 libs/ratio",
+      "file": "boost-ratio-d5b33caa.tar.gz",
+      "url": "https://codeload.github.com/boostorg/ratio/tar.gz/d5b33caa7d564be9be6d962b18659b7741d764ac",
+      "bytes": 35488,
+      "sha256": "1705e6dcabf64d23d0c0cdaebc54dc1b1b3e43d04c0b7cce5c5eafe2178f764b",
+      "repository": "https://github.com/boostorg/ratio",
+      "commit": "d5b33caa7d564be9be6d962b18659b7741d764ac",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/ratio"
+    },
+    {
+      "name": "Boost1.84 libs/rational",
+      "file": "boost-rational-56462313.tar.gz",
+      "url": "https://codeload.github.com/boostorg/rational/tar.gz/564623136417068916495e2b24737054d607347c",
+      "bytes": 40231,
+      "sha256": "7591e87d8fae8ffa6d30677bc43f6337df65f78a223b717d30511b27adeb2f2b",
+      "repository": "https://github.com/boostorg/rational",
+      "commit": "564623136417068916495e2b24737054d607347c",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/rational"
+    },
+    {
+      "name": "Boost1.84 libs/redis",
+      "file": "boost-redis-0380e643.tar.gz",
+      "url": "https://codeload.github.com/boostorg/redis/tar.gz/0380e643ed33b89bd28d74b0532aa5599063b172",
+      "bytes": 100846,
+      "sha256": "a80b97f06d7989895835c6eb3f1eb26c9d495ec0b5a3f0f53ff341e6f8701dac",
+      "repository": "https://github.com/boostorg/redis",
+      "commit": "0380e643ed33b89bd28d74b0532aa5599063b172",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/redis"
+    },
+    {
+      "name": "Boost1.84 libs/regex",
+      "file": "boost-regex-4cbcd307.tar.gz",
+      "url": "https://codeload.github.com/boostorg/regex/tar.gz/4cbcd3078e6ae10d05124379623a1bf03fcb9350",
+      "bytes": 637913,
+      "sha256": "932f7933986f38ede4f8368ee7e7be8dd67f069d5d236f6478b689f9dbfe7a05",
+      "repository": "https://github.com/boostorg/regex",
+      "commit": "4cbcd3078e6ae10d05124379623a1bf03fcb9350",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/regex"
+    },
+    {
+      "name": "Boost1.84 libs/safe_numerics",
+      "file": "boost-safe_numerics-777e0be5.tar.gz",
+      "url": "https://codeload.github.com/boostorg/safe_numerics/tar.gz/777e0be5ec763d0333a717c5e421a4f7c5e5bdc9",
+      "bytes": 2418800,
+      "sha256": "d9d6a6ec1e00d1f18b46629534612046b86f003af77fc2f17b273dd9b5b05fff",
+      "repository": "https://github.com/boostorg/safe_numerics",
+      "commit": "777e0be5ec763d0333a717c5e421a4f7c5e5bdc9",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/safe_numerics"
+    },
+    {
+      "name": "Boost1.84 libs/scope_exit",
+      "file": "boost-scope_exit-60baaae4.tar.gz",
+      "url": "https://codeload.github.com/boostorg/scope_exit/tar.gz/60baaae454b2da887a31cf939e22015b6263c9e4",
+      "bytes": 50169,
+      "sha256": "4dec4ea79f3561701c9d75f58c79b46e531e221f80e7f2ebbd7d53bad6fc2245",
+      "repository": "https://github.com/boostorg/scope_exit",
+      "commit": "60baaae454b2da887a31cf939e22015b6263c9e4",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/scope_exit"
+    },
+    {
+      "name": "Boost1.84 libs/serialization",
+      "file": "boost-serialization-a20c4d97.tar.gz",
+      "url": "https://codeload.github.com/boostorg/serialization/tar.gz/a20c4d97c37e5f437c8ba78f296830edb79cff9e",
+      "bytes": 380894,
+      "sha256": "085bb6f2b1a27d79c4b3f7975ed8c788d1fb69ba5723982b6191468f362db7e0",
+      "repository": "https://github.com/boostorg/serialization",
+      "commit": "a20c4d97c37e5f437c8ba78f296830edb79cff9e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/serialization"
+    },
+    {
+      "name": "Boost1.84 libs/signals2",
+      "file": "boost-signals2-ac85388e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/signals2/tar.gz/ac85388e0af33880c1ff64b5cd7b7cb1537cd580",
+      "bytes": 105044,
+      "sha256": "2d7e6ffd1d8e2064b8e0c435397e64b7ef20ffd81f59159092e9bce8f2cb00c6",
+      "repository": "https://github.com/boostorg/signals2",
+      "commit": "ac85388e0af33880c1ff64b5cd7b7cb1537cd580",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/signals2"
+    },
+    {
+      "name": "Boost1.84 libs/smart_ptr",
+      "file": "boost-smart_ptr-763c7f56.tar.gz",
+      "url": "https://codeload.github.com/boostorg/smart_ptr/tar.gz/763c7f56cde9d029233cb03d574bc7e2b9e8864d",
+      "bytes": 180636,
+      "sha256": "590da5850fee628452b2672d8ae041f7d17005be5d64f7d0f999ab265e1832de",
+      "repository": "https://github.com/boostorg/smart_ptr",
+      "commit": "763c7f56cde9d029233cb03d574bc7e2b9e8864d",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/smart_ptr"
+    },
+    {
+      "name": "Boost1.84 libs/sort",
+      "file": "boost-sort-d12ad000.tar.gz",
+      "url": "https://codeload.github.com/boostorg/sort/tar.gz/d12ad000fc63d9c21e299c9ef420ccf85cba8548",
+      "bytes": 1437090,
+      "sha256": "d017fe5684e24575f70b5fe275316b059f350809e9b2c2dc45beb21953b623dc",
+      "repository": "https://github.com/boostorg/sort",
+      "commit": "d12ad000fc63d9c21e299c9ef420ccf85cba8548",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/sort"
+    },
+    {
+      "name": "Boost1.84 libs/spirit",
+      "file": "boost-spirit-59515f0e.tar.gz",
+      "url": "https://codeload.github.com/boostorg/spirit/tar.gz/59515f0e56aebdf958eadab30be99cac8872e723",
+      "bytes": 3387909,
+      "sha256": "4e51099ed4736921b963b6c0252193696c79477c3e2d5b2826bfe50dc240148a",
+      "repository": "https://github.com/boostorg/spirit",
+      "commit": "59515f0e56aebdf958eadab30be99cac8872e723",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/spirit"
+    },
+    {
+      "name": "Boost1.84 libs/stacktrace",
+      "file": "boost-stacktrace-4f2da0e6.tar.gz",
+      "url": "https://codeload.github.com/boostorg/stacktrace/tar.gz/4f2da0e653f93a2f6398b7f816f667bbe9699db9",
+      "bytes": 41713,
+      "sha256": "8ceca7da9d85c588ba28834dd440181f2ccdd743d54ceaf7a041f709b1a375d0",
+      "repository": "https://github.com/boostorg/stacktrace",
+      "commit": "4f2da0e653f93a2f6398b7f816f667bbe9699db9",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/stacktrace"
+    },
+    {
+      "name": "Boost1.84 libs/statechart",
+      "file": "boost-statechart-586445b8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/statechart/tar.gz/586445b824c5cf0e7e6ce4ff2df620fda5d0f0d7",
+      "bytes": 1024002,
+      "sha256": "4ef0e0cfb10c62b3e9fb3fe82428e0e808d73476d28b30be56e086107f1928e3",
+      "repository": "https://github.com/boostorg/statechart",
+      "commit": "586445b824c5cf0e7e6ce4ff2df620fda5d0f0d7",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/statechart"
+    },
+    {
+      "name": "Boost1.84 libs/static_assert",
+      "file": "boost-static_assert-ba72d334.tar.gz",
+      "url": "https://codeload.github.com/boostorg/static_assert/tar.gz/ba72d3340f3dc6e773868107f35902292f84b07e",
+      "bytes": 12875,
+      "sha256": "ce26763308895f4436644e56299cda4cf7dd3ec098d892829d6dbceb06a8ffc5",
+      "repository": "https://github.com/boostorg/static_assert",
+      "commit": "ba72d3340f3dc6e773868107f35902292f84b07e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/static_assert"
+    },
+    {
+      "name": "Boost1.84 libs/static_string",
+      "file": "boost-static_string-ac84c4f4.tar.gz",
+      "url": "https://codeload.github.com/boostorg/static_string/tar.gz/ac84c4f40ec38f7a7237255738e3e5259aa4a1a8",
+      "bytes": 79216,
+      "sha256": "268cd450282d83adef409d9fac90fe94db8a9a6dae9f0ea40f433d20c957eb24",
+      "repository": "https://github.com/boostorg/static_string",
+      "commit": "ac84c4f40ec38f7a7237255738e3e5259aa4a1a8",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/static_string"
+    },
+    {
+      "name": "Boost1.84 libs/stl_interfaces",
+      "file": "boost-stl_interfaces-df9e186b.tar.gz",
+      "url": "https://codeload.github.com/boostorg/stl_interfaces/tar.gz/df9e186bd6a755221b170786d5917ac259fb5192",
+      "bytes": 72544,
+      "sha256": "93c4040912047a3990e1a6e08ea3922d7eb30a22b9f51fb7a24e72f0328f3383",
+      "repository": "https://github.com/boostorg/stl_interfaces",
+      "commit": "df9e186bd6a755221b170786d5917ac259fb5192",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/stl_interfaces"
+    },
+    {
+      "name": "Boost1.84 libs/system",
+      "file": "boost-system-8bc32b72.tar.gz",
+      "url": "https://codeload.github.com/boostorg/system/tar.gz/8bc32b72674580a3d72af796a9cb2ef664bd7d53",
+      "bytes": 97801,
+      "sha256": "f2a5225b7066663e342c0df11c4a34053ece9d147c229807c4c31c03bca05988",
+      "repository": "https://github.com/boostorg/system",
+      "commit": "8bc32b72674580a3d72af796a9cb2ef664bd7d53",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/system"
+    },
+    {
+      "name": "Boost1.84 libs/test",
+      "file": "boost-test-0dcca181.tar.gz",
+      "url": "https://codeload.github.com/boostorg/test/tar.gz/0dcca181222978f15ff776e2d2940f98fceba1c1",
+      "bytes": 714682,
+      "sha256": "bf34fe62976954828be791fa9484c13c3f8499eb91bd0b3aa5c1d52bb6c3827e",
+      "repository": "https://github.com/boostorg/test",
+      "commit": "0dcca181222978f15ff776e2d2940f98fceba1c1",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/test"
+    },
+    {
+      "name": "Boost1.84 libs/thread",
+      "file": "boost-thread-aec18d33.tar.gz",
+      "url": "https://codeload.github.com/boostorg/thread/tar.gz/aec18d337f41d8e3081ee65f5cf3b5090179ab0e",
+      "bytes": 448506,
+      "sha256": "88d55521f2b9484479781b9cb550eef9b0f1b89923c41750acf07428ebf02b07",
+      "repository": "https://github.com/boostorg/thread",
+      "commit": "aec18d337f41d8e3081ee65f5cf3b5090179ab0e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/thread"
+    },
+    {
+      "name": "Boost1.84 libs/throw_exception",
+      "file": "boost-throw_exception-152b36e8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/throw_exception/tar.gz/152b36e86fd1e24fd5ced47697522d5947d69020",
+      "bytes": 19247,
+      "sha256": "80539e7e22c0ca7f7c6bb6f89a2c416d5f26aa493cd59f7c8e3efd032c762e04",
+      "repository": "https://github.com/boostorg/throw_exception",
+      "commit": "152b36e86fd1e24fd5ced47697522d5947d69020",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/throw_exception"
+    },
+    {
+      "name": "Boost1.84 libs/timer",
+      "file": "boost-timer-115d1907.tar.gz",
+      "url": "https://codeload.github.com/boostorg/timer/tar.gz/115d19072e4db871be38a52279c26d21f5805aae",
+      "bytes": 31289,
+      "sha256": "539ab85495bf6ab7aece8bfeb858feb94c45aa4e3999fd8d85a4d2c693947df1",
+      "repository": "https://github.com/boostorg/timer",
+      "commit": "115d19072e4db871be38a52279c26d21f5805aae",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/timer"
+    },
+    {
+      "name": "Boost1.84 libs/tokenizer",
+      "file": "boost-tokenizer-90106f15.tar.gz",
+      "url": "https://codeload.github.com/boostorg/tokenizer/tar.gz/90106f155bd72b62aaca0d9ad826f4132030dba0",
+      "bytes": 26073,
+      "sha256": "266827024eda508c036c9fa328a5749d2faf0a95ca08ba270ab0b1bbb03f859d",
+      "repository": "https://github.com/boostorg/tokenizer",
+      "commit": "90106f155bd72b62aaca0d9ad826f4132030dba0",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/tokenizer"
+    },
+    {
+      "name": "Boost1.84 libs/tti",
+      "file": "boost-tti-03734c54.tar.gz",
+      "url": "https://codeload.github.com/boostorg/tti/tar.gz/03734c54a51b6372ac3296d2fe5103b7360bcd3f",
+      "bytes": 70852,
+      "sha256": "f56ed54637f1162cd3805e446576a3c7bd29e6691462c8b6dedddaa03894a221",
+      "repository": "https://github.com/boostorg/tti",
+      "commit": "03734c54a51b6372ac3296d2fe5103b7360bcd3f",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/tti"
+    },
+    {
+      "name": "Boost1.84 libs/tuple",
+      "file": "boost-tuple-b67941dd.tar.gz",
+      "url": "https://codeload.github.com/boostorg/tuple/tar.gz/b67941dd7d03536a854b96f001954792311ab515",
+      "bytes": 31015,
+      "sha256": "2bf5f90cafe30ab0bbdfcb323a8baa871495227e8a62a09735e94d4deafbb201",
+      "repository": "https://github.com/boostorg/tuple",
+      "commit": "b67941dd7d03536a854b96f001954792311ab515",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/tuple"
+    },
+    {
+      "name": "Boost1.84 libs/type_erasure",
+      "file": "boost-type_erasure-729f3e73.tar.gz",
+      "url": "https://codeload.github.com/boostorg/type_erasure/tar.gz/729f3e739abc65d36d46df470c5bab735599d042",
+      "bytes": 105002,
+      "sha256": "930dad0a5b426703089d61b0ca47545b6df0e97e3bf8734fa610c7d50da3b583",
+      "repository": "https://github.com/boostorg/type_erasure",
+      "commit": "729f3e739abc65d36d46df470c5bab735599d042",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/type_erasure"
+    },
+    {
+      "name": "Boost1.84 libs/type_index",
+      "file": "boost-type_index-29ab3258.tar.gz",
+      "url": "https://codeload.github.com/boostorg/type_index/tar.gz/29ab3258a73215c67598383696c927887fc0cfeb",
+      "bytes": 41035,
+      "sha256": "7b405db94bbbadd8df7388291d5ba0b4f87177b174ed3e0ccf96125ce2aaccea",
+      "repository": "https://github.com/boostorg/type_index",
+      "commit": "29ab3258a73215c67598383696c927887fc0cfeb",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/type_index"
+    },
+    {
+      "name": "Boost1.84 libs/type_traits",
+      "file": "boost-type_traits-89f5011b.tar.gz",
+      "url": "https://codeload.github.com/boostorg/type_traits/tar.gz/89f5011b4a79d91e42735670e39f72cb25c86c72",
+      "bytes": 398937,
+      "sha256": "05edc2a674f3c77bf977206f3b512572cdc7cc32a862f5cf3cfd1dacd23bb423",
+      "repository": "https://github.com/boostorg/type_traits",
+      "commit": "89f5011b4a79d91e42735670e39f72cb25c86c72",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/type_traits"
+    },
+    {
+      "name": "Boost1.84 libs/typeof",
+      "file": "boost-typeof-4bc9de32.tar.gz",
+      "url": "https://codeload.github.com/boostorg/typeof/tar.gz/4bc9de322cd44373435540d4e6c8f207892fc9a0",
+      "bytes": 22202,
+      "sha256": "0685d245ee75a340020c2c1586242e67ea93cba3befa184dca0d3f6a44236165",
+      "repository": "https://github.com/boostorg/typeof",
+      "commit": "4bc9de322cd44373435540d4e6c8f207892fc9a0",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/typeof"
+    },
+    {
+      "name": "Boost1.84 libs/units",
+      "file": "boost-units-45787015.tar.gz",
+      "url": "https://codeload.github.com/boostorg/units/tar.gz/45787015dd8c11653eb988260acf05c4af9d42e5",
+      "bytes": 171088,
+      "sha256": "42553255a3296d6c77324c9f8791c3b84d266b6a697ab2b12a84fee5f20dc242",
+      "repository": "https://github.com/boostorg/units",
+      "commit": "45787015dd8c11653eb988260acf05c4af9d42e5",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/units"
+    },
+    {
+      "name": "Boost1.84 libs/unordered",
+      "file": "boost-unordered-f493603f.tar.gz",
+      "url": "https://codeload.github.com/boostorg/unordered/tar.gz/f493603f5cd2bd090be440cacfcaa95f2566059b",
+      "bytes": 3670259,
+      "sha256": "01b374fe34c13bded3433c6ca5ec22588c5bd9ef20c53fb83a5fe28957550838",
+      "repository": "https://github.com/boostorg/unordered",
+      "commit": "f493603f5cd2bd090be440cacfcaa95f2566059b",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/unordered"
+    },
+    {
+      "name": "Boost1.84 libs/url",
+      "file": "boost-url-7e47e9fe.tar.gz",
+      "url": "https://codeload.github.com/boostorg/url/tar.gz/7e47e9fef6fecce45f7c65277601b7e7ff38c365",
+      "bytes": 784039,
+      "sha256": "78a381028c616cfe0d3400c010df18a9d11d4db2ce06ece77e8e27b0136050e5",
+      "repository": "https://github.com/boostorg/url",
+      "commit": "7e47e9fef6fecce45f7c65277601b7e7ff38c365",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/url"
+    },
+    {
+      "name": "Boost1.84 libs/utility",
+      "file": "boost-utility-217f7346.tar.gz",
+      "url": "https://codeload.github.com/boostorg/utility/tar.gz/217f7346f63d189d2ba1093c42bf3db810a0550c",
+      "bytes": 159943,
+      "sha256": "76f3fc7d0d5928f94c7f008eaf4995be51a683b1ccdf18915ba00458a98b8fe3",
+      "repository": "https://github.com/boostorg/utility",
+      "commit": "217f7346f63d189d2ba1093c42bf3db810a0550c",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/utility"
+    },
+    {
+      "name": "Boost1.84 libs/uuid",
+      "file": "boost-uuid-2bc0c8e7.tar.gz",
+      "url": "https://codeload.github.com/boostorg/uuid/tar.gz/2bc0c8e71677f387afdc09bc4f8d609d2c74e80e",
+      "bytes": 62696,
+      "sha256": "756445670a27515a058f16e9b47142bd8308ded60d6b2adb5bec45010276e168",
+      "repository": "https://github.com/boostorg/uuid",
+      "commit": "2bc0c8e71677f387afdc09bc4f8d609d2c74e80e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/uuid"
+    },
+    {
+      "name": "Boost1.84 libs/variant",
+      "file": "boost-variant-9d1e62f3.tar.gz",
+      "url": "https://codeload.github.com/boostorg/variant/tar.gz/9d1e62f33cf75486fc12ab11aca9a3036623119e",
+      "bytes": 92396,
+      "sha256": "d04c830f546a3454086e95ad302de653953e771c61fba972cf4b4f5f993a686b",
+      "repository": "https://github.com/boostorg/variant",
+      "commit": "9d1e62f33cf75486fc12ab11aca9a3036623119e",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/variant"
+    },
+    {
+      "name": "Boost1.84 libs/variant2",
+      "file": "boost-variant2-9e4234bf.tar.gz",
+      "url": "https://codeload.github.com/boostorg/variant2/tar.gz/9e4234bfd5688c0272b641954ab2f23f8ce9c613",
+      "bytes": 51651,
+      "sha256": "87207e3a6c91aef03c0e377d4ed96ade7c445aae8db86ffd0c5b5e79b2c67556",
+      "repository": "https://github.com/boostorg/variant2",
+      "commit": "9e4234bfd5688c0272b641954ab2f23f8ce9c613",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/variant2"
+    },
+    {
+      "name": "Boost1.84 libs/vmd",
+      "file": "boost-vmd-34cad2c1.tar.gz",
+      "url": "https://codeload.github.com/boostorg/vmd/tar.gz/34cad2c1a574d445812c7c2432d3a5a5c843b412",
+      "bytes": 160815,
+      "sha256": "3daad2007e26072af8c081af5d721a9b4b1accb41807bb2b67e65a71c5b956ba",
+      "repository": "https://github.com/boostorg/vmd",
+      "commit": "34cad2c1a574d445812c7c2432d3a5a5c843b412",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/vmd"
+    },
+    {
+      "name": "Boost1.84 libs/wave",
+      "file": "boost-wave-e02cda69.tar.gz",
+      "url": "https://codeload.github.com/boostorg/wave/tar.gz/e02cda69e4d070fd9b16a39282d6b5c717cb3da4",
+      "bytes": 541407,
+      "sha256": "3c475a2bc47db6421a34b82db562630329c138c3a0960a9b749fb49ff73de1ad",
+      "repository": "https://github.com/boostorg/wave",
+      "commit": "e02cda69e4d070fd9b16a39282d6b5c717cb3da4",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/wave"
+    },
+    {
+      "name": "Boost1.84 libs/winapi",
+      "file": "boost-winapi-39396bd7.tar.gz",
+      "url": "https://codeload.github.com/boostorg/winapi/tar.gz/39396bd78254053f3137510478e8f956bd2b83d4",
+      "bytes": 133111,
+      "sha256": "76b09901bc8098ec5342c16657deb107935ad870a3d91a0995eee436908ac640",
+      "repository": "https://github.com/boostorg/winapi",
+      "commit": "39396bd78254053f3137510478e8f956bd2b83d4",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/winapi"
+    },
+    {
+      "name": "Boost1.84 libs/xpressive",
+      "file": "boost-xpressive-4679fbd2.tar.gz",
+      "url": "https://codeload.github.com/boostorg/xpressive/tar.gz/4679fbd23f962bfa78d44acf5fa48f6f790642c0",
+      "bytes": 224950,
+      "sha256": "0548785f1543908d4ebfacf97a8e7265d884940a45a8fe14136f63d4bf471b1b",
+      "repository": "https://github.com/boostorg/xpressive",
+      "commit": "4679fbd23f962bfa78d44acf5fa48f6f790642c0",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/xpressive"
+    },
+    {
+      "name": "Boost1.84 libs/yap",
+      "file": "boost-yap-ae49bf27.tar.gz",
+      "url": "https://codeload.github.com/boostorg/yap/tar.gz/ae49bf2744586e6bd6c0cedff4500a58a4386860",
+      "bytes": 128985,
+      "sha256": "be8c4fe7c667df4fccf3113716f014c6f716529a8bbccbdf5f9a0b60bd3d05d3",
+      "repository": "https://github.com/boostorg/yap",
+      "commit": "ae49bf2744586e6bd6c0cedff4500a58a4386860",
+      "role": "boost-submodule-source",
+      "sourcePath": "libs/yap"
+    },
+    {
+      "name": "Boost1.84 more",
+      "file": "boost-more-0d59bab4.tar.gz",
+      "url": "https://codeload.github.com/boostorg/more/tar.gz/0d59bab432e94fc6c42035401e5c07ef3d95e64d",
+      "bytes": 304798,
+      "sha256": "46a0b18262f59735ae3794e9c33f1ed04b03980d89f5228a83087dc544a85b2b",
+      "repository": "https://github.com/boostorg/more",
+      "commit": "0d59bab432e94fc6c42035401e5c07ef3d95e64d",
+      "role": "boost-submodule-source",
+      "sourcePath": "more"
+    },
+    {
+      "name": "Boost1.84 tools/auto_index",
+      "file": "boost-auto_index-d7fbfe23.tar.gz",
+      "url": "https://codeload.github.com/boostorg/auto_index/tar.gz/d7fbfe23f77be21fec6330984a19496112a734f2",
+      "bytes": 274776,
+      "sha256": "b715e0979f9f30697464295a7f6166590203b9dd0d4124a0163142bcf0b17c85",
+      "repository": "https://github.com/boostorg/auto_index",
+      "commit": "d7fbfe23f77be21fec6330984a19496112a734f2",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/auto_index"
+    },
+    {
+      "name": "Boost1.84 tools/bcp",
+      "file": "boost-bcp-e0b9262f.tar.gz",
+      "url": "https://codeload.github.com/boostorg/bcp/tar.gz/e0b9262f6ff4778973a29b601183f3f9367e69d2",
+      "bytes": 37467,
+      "sha256": "fe5e88065a91f487ba813fa1c1eff5764bb77cdddc05451f7b59d5b92df1aab3",
+      "repository": "https://github.com/boostorg/bcp",
+      "commit": "e0b9262f6ff4778973a29b601183f3f9367e69d2",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/bcp"
+    },
+    {
+      "name": "Boost1.84 tools/boost_install",
+      "file": "boost-boost_install-93bd5adb.tar.gz",
+      "url": "https://codeload.github.com/boostorg/boost_install/tar.gz/93bd5adb2363112a3da015af356537cbe10d4bb6",
+      "bytes": 1485875,
+      "sha256": "181bd2207977a4438de9d38a8a492d32026e3411310718993e3e57cae3910963",
+      "repository": "https://github.com/boostorg/boost_install",
+      "commit": "93bd5adb2363112a3da015af356537cbe10d4bb6",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/boost_install"
+    },
+    {
+      "name": "Boost1.84 tools/boostbook",
+      "file": "boost-boostbook-46c7732d.tar.gz",
+      "url": "https://codeload.github.com/boostorg/boostbook/tar.gz/46c7732d061a33381e6593139d10fb3d032845a4",
+      "bytes": 221649,
+      "sha256": "11ce385d9b3105692b5d8fb2546fd792d288f745adb198e3eb9bbaa95a11cf26",
+      "repository": "https://github.com/boostorg/boostbook",
+      "commit": "46c7732d061a33381e6593139d10fb3d032845a4",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/boostbook"
+    },
+    {
+      "name": "Boost1.84 tools/boostdep",
+      "file": "boost-boostdep-8f9cb2ef.tar.gz",
+      "url": "https://codeload.github.com/boostorg/boostdep/tar.gz/8f9cb2ef559fbe760f6522ddb8f693c02b83c032",
+      "bytes": 40898,
+      "sha256": "f3fa9aa2ac7c7ba9e112e7ecbb801d972efafa79eaabe7de2c2f2156292c4142",
+      "repository": "https://github.com/boostorg/boostdep",
+      "commit": "8f9cb2ef559fbe760f6522ddb8f693c02b83c032",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/boostdep"
+    },
+    {
+      "name": "Boost1.84 tools/build",
+      "file": "boost-build-8d86b9a8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/build/tar.gz/8d86b9a85407d73d6e8c631771f18c2a237d2d71",
+      "bytes": 982182,
+      "sha256": "d5b121dd07a00d94d771f23d608321353b63107f359182bbc84bbae7717e4e34",
+      "repository": "https://github.com/boostorg/build",
+      "commit": "8d86b9a85407d73d6e8c631771f18c2a237d2d71",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/build"
+    },
+    {
+      "name": "Boost1.84 tools/check_build",
+      "file": "boost-check_build-32ca50c8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/check_build/tar.gz/32ca50c8ccd35e0ff62301b53fddcc8945728c4a",
+      "bytes": 3056,
+      "sha256": "0f221f6bb400d4dcea23bdfaed850fc50e66481ec9c7b71bea6b704c2bba805b",
+      "repository": "https://github.com/boostorg/check_build",
+      "commit": "32ca50c8ccd35e0ff62301b53fddcc8945728c4a",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/check_build"
+    },
+    {
+      "name": "Boost1.84 tools/cmake",
+      "file": "boost-cmake-ff2f83ea.tar.gz",
+      "url": "https://codeload.github.com/boostorg/cmake/tar.gz/ff2f83eaac0a04000bd4dcbdd2cba7ad1bba6f43",
+      "bytes": 33835,
+      "sha256": "12b4493fc63def9aba32fb79bf72c3049070c82d4c0042b2fe6e444207eca658",
+      "repository": "https://github.com/boostorg/cmake",
+      "commit": "ff2f83eaac0a04000bd4dcbdd2cba7ad1bba6f43",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/cmake"
+    },
+    {
+      "name": "Boost1.84 tools/docca",
+      "file": "boost-docca-0ce4e198.tar.gz",
+      "url": "https://codeload.github.com/boostorg/docca/tar.gz/0ce4e198398dbb52f1de0029f4ed9b7d2bded273",
+      "bytes": 27362,
+      "sha256": "4ae432822eb25eaf93c5bb9b49ad8a55a3cbe779b5a0d7bfe4073a82438727b2",
+      "repository": "https://github.com/boostorg/docca",
+      "commit": "0ce4e198398dbb52f1de0029f4ed9b7d2bded273",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/docca"
+    },
+    {
+      "name": "Boost1.84 tools/inspect",
+      "file": "boost-inspect-db423bf8.tar.gz",
+      "url": "https://codeload.github.com/boostorg/inspect/tar.gz/db423bf897bcc6aa34231e5266442b75ee2a5666",
+      "bytes": 25364,
+      "sha256": "c0e88814b8bdb979f38e7f4ec05e4eb401e00b2927d85d31e1508e344a273312",
+      "repository": "https://github.com/boostorg/inspect",
+      "commit": "db423bf897bcc6aa34231e5266442b75ee2a5666",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/inspect"
+    },
+    {
+      "name": "Boost1.84 tools/litre",
+      "file": "boost-litre-564d4d8d.tar.gz",
+      "url": "https://codeload.github.com/boostorg/litre/tar.gz/564d4d8d30b7e03ac5e25d78e14d2c19fa321c83",
+      "bytes": 8554,
+      "sha256": "494a9001101d048d88a7ddb059b8a25a88b651f9884af362d057db694f0d0fea",
+      "repository": "https://github.com/boostorg/litre",
+      "commit": "564d4d8d30b7e03ac5e25d78e14d2c19fa321c83",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/litre"
+    },
+    {
+      "name": "Boost1.84 tools/quickbook",
+      "file": "boost-quickbook-01f924ad.tar.gz",
+      "url": "https://codeload.github.com/boostorg/quickbook/tar.gz/01f924addd4b24bc930dd6c8d0a7787d51f3f419",
+      "bytes": 486330,
+      "sha256": "6f8fc21d72605f6ef3070ce1df92ee05a17874ea2435e3386d6749b787d0b4a6",
+      "repository": "https://github.com/boostorg/quickbook",
+      "commit": "01f924addd4b24bc930dd6c8d0a7787d51f3f419",
+      "role": "boost-submodule-source",
+      "sourcePath": "tools/quickbook"
+    },
+    {
+      "name": "Emscripten4.0.11 Linux compiler distribution",
+      "file": "emscripten-4.0.11-wasm-binaries.tar.xz",
+      "url": "https://storage.googleapis.com/webassembly/emscripten-releases-builds/linux/7033fec38817ec01909b044ea0193ddd5057255c/wasm-binaries.tar.xz",
+      "bytes": 345588908,
+      "sha256": "f38e70b53be587e7c757f375b3452e259c70130d4b40db3213c95b7ae321f5d7",
+      "role": "compiler-binary"
+    },
+    {
+      "name": "Node22.16.0 compiler runtime forLinux",
+      "file": "node-v22.16.0-linux-x64.tar.xz",
+      "url": "https://storage.googleapis.com/webassembly/emscripten-releases-builds/deps/node-v22.16.0-linux-x64.tar.xz",
+      "bytes": 30425588,
+      "sha256": "f4cb75bb036f0d0eddf6b79d9596df1aaab9ddccd6a20bf489be5abe9467e84e",
+      "role": "compiler-binary"
+    }
+  ],
+  "build": {
+    "baseImage": {
+      "reference": "ubuntu:22.04",
+      "digest": "sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11"
+    },
+    "emscripten": "4.0.11",
+    "emsdkCommit": "d49219d03a41cd12f95a33ba84273c20d41fd350",
+    "buildToolsCommit": "849d78fea08ff3bf1329e7a7f31def02f30d0918",
+    "inputs": [
+      {
+        "file": "scripts/build-converter-runtime.mjs",
+        "bytes": 4947,
+        "sha256": "2462761fe92e3adff4641874110dc3a8ab5220abb094ad30dec1081ee86ac704",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-recipe-inputs.mjs",
+        "bytes": 1419,
+        "sha256": "5c8901a7f2136bb6842f87d64af43e7695966ed592448d6aa86eacea52810289"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/.gitattributes",
+        "bytes": 92,
+        "sha256": "b8fe59b77c614cfd4b2f454ca735cd6b9e1a7cc5f6d1b38b2786533b38551c9d",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/Dockerfile",
+        "bytes": 32719,
+        "sha256": "ffe1f3b279cd27c68f085ee1a90939d2a92715cde4016be60151f838309f6c4d",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/README.md",
+        "bytes": 2710,
+        "sha256": "8c6c5938035181fd397700f6a040af25e406060265cf97ec7053256e7025b7fc"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/build-djpeg.py",
+        "bytes": 967,
+        "sha256": "d4a243e595cb2566e395727af4fd8cd31c4f6dd4e1300992409d55941536bbca",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/capture-pixels.py",
+        "bytes": 2798,
+        "sha256": "dc61fcd11d2cdd987716a5f03e74186a5bc7317ede3964a942c6acffc0a4d8a3",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/capture-reference.mjs",
+        "bytes": 2630,
+        "sha256": "65d1f43f774f5a4ac5f26f335fed2f76cced6f073bc503919a700ab2fcb356e7",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/embuild.sh",
+        "bytes": 1614,
+        "sha256": "3adba910a2cca0ab812f54505b13653c8422ec505efb3dc69da95c747adcbee5",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/freeze-references.py",
+        "bytes": 6521,
+        "sha256": "fe0edfa1f9203cf63d4533155ef0271a4ead088c93e8d7abb05e6979d0597ac9",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/native-image-codecs.json",
+        "bytes": 8319,
+        "sha256": "30aeeee93cfe9f545f9b0e44a0381f5df99cc93088e19b6c41629aa79da20c10"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/native-image-codecs.patch",
+        "bytes": 5360,
+        "sha256": "905f55b3a546ae52db91cda31ad9d9e44b57e6b773d8b2128735984f5b4a7547"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-graphics-blend.py",
+        "bytes": 1915,
+        "sha256": "2b06ff2533fb13da941d52baacb2a3c0ed3fa6eba674f2f37a336630a9caa1ad"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-image-identity.py",
+        "bytes": 3635,
+        "sha256": "88661a58700051609cad2ebebcb8bfd661eccb7b53b290dfe6a22dfacdebf83c"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-images.py",
+        "bytes": 2210,
+        "sha256": "dd8a8bdd09238af75e1b46d647b0507699d01531a2b217ecdcfd2d95fedf5ae4",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-jpeg-decoder.py",
+        "bytes": 1352,
+        "sha256": "9890d9e16df3a67d88e5bded8e89a2bf8eb5248ebc04491aa3fdaca4a3c38793",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-pdf-form-body.py",
+        "bytes": 4228,
+        "sha256": "09e366d0b4267b9c4658a32bba23eac79beedff0ed07d02e116dc383eb448949"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-pdf-native-runtime.py",
+        "bytes": 2935,
+        "sha256": "efb54231b6e542ceadf8f0bfd9ce6d045e485345e2f172bba63b4d6ee47a8eca"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-pdf-paragraph-overlap.py",
+        "bytes": 1542,
+        "sha256": "6961cd0ac7498c3e0ffb7e9b968ed23d92ca184a4a582ac3ae33b7c3fc6b606f"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-pdf-text-shadow.py",
+        "bytes": 2773,
+        "sha256": "28149888d418edb5323154795d6d089b5b85157ab6b0b2a0ca804246cc79431d"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/patch-pdf-text.py",
+        "bytes": 3655,
+        "sha256": "2bb2cddef2a6574963bb9207b7a5cb89977ebb023963730995017074b02c8986"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pdf-native-drawings-v2.json",
+        "bytes": 179705,
+        "sha256": "8d31495d960b2e5c623d7f9563fcaa7def15093a8b8ad966c335d55aee8476be"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pdf-native-drawings-v2.patch",
+        "bytes": 139310,
+        "sha256": "b8cc2cff65f5b640ba6fc4ccb7dc43ac0dfda713e1d4749d1b125a6d95ac89cb"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pdf-native-layout.json",
+        "bytes": 36363,
+        "sha256": "2de66749536d793b96fa106f050c389f20e7feb476525c8e52a85823345cf2e6"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pdf-native-layout.patch",
+        "bytes": 25295,
+        "sha256": "3325dbd330c739980063447ec934a2528dd37b7cc8b06b88695d45c5567a0265"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pdf-native-runtime.json",
+        "bytes": 52017,
+        "sha256": "192319ae5542b6d420c354d962b775aea6b1145960cc92a3e7fad938b3ec5a8a"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pdf-native-runtime.patch",
+        "bytes": 37675,
+        "sha256": "50b082d216e3bc9e277d16f93bbb6e22a9df9f681da24ed5d2d4cbf01c4d7386"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pinned-git.py",
+        "bytes": 3230,
+        "sha256": "b8208a9457223638991d7014a01c5cf4edd757ff1dfa4fa609232502163585e5",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/pixel-identity-cache.h",
+        "bytes": 2220,
+        "sha256": "7700ffb6c14b098fd44f1bc7e71cc3c962d40fd2582e585f9093869499bccf2d"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/prepare-context.py",
+        "bytes": 4513,
+        "sha256": "9b6d0b34d7f43f90818a0ea77994678a51174a22148ed569f8080b7b15d2d4be",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/rebuild.sh",
+        "bytes": 1646,
+        "sha256": "b8c2a2d45327f45e5608a0b502b9f70aa3feefc207114320f4e0557d6d242c31",
+        "role": "build-recipe"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/seed-pinned-ports.py",
+        "bytes": 2011,
+        "sha256": "196afd5c79fbe83ec0994ea416b7ad6d5179cda289f4c5aa3b84d268b63bb5ed"
+      },
+      {
+        "file": "scripts/converter-runtime-inputs/straight-blend-adaptor.h",
+        "bytes": 1378,
+        "sha256": "0b67cbe3c87292733edf33b4174f28d01d73c93b1bd03aca3112ee6d731c8f78"
+      },
+      {
+        "file": "scripts/source-archive.mjs",
+        "bytes": 2682,
+        "sha256": "5fa559949caae4908d98929991cba42b9c2f6325cbdb0e196d090f124fb0189a"
+      },
+      {
+        "file": "vendor/provenance/converter/verification-inputs/engine-content.test.mjs",
+        "bytes": 19743,
+        "sha256": "71dfd23e95128268c15e3f5033cc9cc060b7f212267f448d472b87a8f6b4f8b1"
+      },
+      {
+        "file": "tests/engine-vendor.test.mjs",
+        "bytes": 4322,
+        "sha256": "2629b9d6b390272e9d20ecad73c9fff8a81ba99b2cfbadb4b4806f5a99221cde"
+      },
+      {
+        "file": "tests/engine.test.mjs",
+        "bytes": 21465,
+        "sha256": "7ff0e6d1edf5c6b87687140597ce8be9fbdde35b2361127004869b9b01b2b049",
+        "role": "verification"
+      },
+      {
+        "file": "tests/fixtures/pdf-images.json",
+        "bytes": 1445891,
+        "sha256": "e13a9295ed4228cc0808d22d193198223471800ddc43f084c7b482033bc923a2",
+        "role": "verification"
+      },
+      {
+        "file": "tests/fixtures/reference-pixels.mjs",
+        "bytes": 2985,
+        "sha256": "1e93ce64882d63b9758e4969edb8c20e3e644bc0328553fc94757892cfebc947"
+      },
+      {
+        "file": "vendor/provenance/converter/browser-reference-pixels.json",
+        "bytes": 3167,
+        "sha256": "ce9fcf0788664e5119c261f5444799b726ffc17243a86b67f25bbde52ab9301c"
+      },
+      {
+        "file": "vendor/provenance/converter/final-native-proof.json",
+        "bytes": 23288,
+        "sha256": "3e911ea904e051c405c7b35aac88ab603cef496ca27feb5d0ede735c8654f56e"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/compiler-hashes.txt",
+        "bytes": 287,
+        "sha256": "d9e307caa16a197293baef1427b16e6c4ec7d200e719158740b3a5c69fe3234b",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/compiler-version.txt",
+        "bytes": 190,
+        "sha256": "b26a04b8d2c8b03d07681da7b17071c8a0950573e0cac02d1edcf2c672834737",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/docxrenderer.Makefile",
+        "bytes": 47050,
+        "sha256": "cda3c7d1104e34ffdc410edfb3fcb8f03ed8251f4be612b0ff73a7b4306709eb",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/graphics.Makefile",
+        "bytes": 1968184,
+        "sha256": "423ea891c2c0484a7cda9c3be4e1ceac0559ebcd9fff70f7ee2a3d620ba7a3fb",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/host-packages.txt",
+        "bytes": 14089,
+        "sha256": "5630465d8c7b12af69e48fc4c5aa589af74dafd9ad12a532034d0f7b6b72c49e",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/modified-source-closure.json",
+        "bytes": 11944,
+        "sha256": "c2206c94e26da54434feda436fb0c8295da638780f04cf0c5395654495b9a69e"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/native-source-reproduction.json",
+        "bytes": 13837,
+        "sha256": "c28066e0286ad7de2c9d7f57e196ad6167cdb2fb7cca1dd2c0c9e1219c1203b5"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/ooxmlsignature.Makefile",
+        "bytes": 31518,
+        "sha256": "bcc8c02c3fa8534f071cac0132c3bd3088b824dfa4b707c806224cba683d4123",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/pdffile.Makefile",
+        "bytes": 263492,
+        "sha256": "6b683499f84f5f3d34d68135887042532e1ea16fbe7e3e669af4b57cb46b5345",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/source-guard-verification.json",
+        "bytes": 529,
+        "sha256": "a957639409506491cf3409885b3ed32a673e2cb9ea4ee529fe6d75ef01d35421"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/source-selection.json",
+        "bytes": 56753,
+        "sha256": "677c0ea91efb3848495ac3e5547fcb0fa1a805989989f98c3c12c7b4762a3ea0",
+        "role": "source-selection-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/x2t.Makefile",
+        "bytes": 188904,
+        "sha256": "9930a6d4720abd9f8d03beb2276197c3fb8da0634564c689be2f138b0c2d1bdd",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/pixel-reference-provenance.json",
+        "bytes": 30287,
+        "sha256": "52158d8ee4d3a7fd66e641935474d3581da8001d8957a136d479ce6ef35c5869",
+        "role": "verification"
+      },
+      {
+        "file": "vendor/provenance/converter/reference-inputs/original-image-capture/Dockerfile",
+        "bytes": 32579,
+        "sha256": "8f6609edbde2dc260a9dcb6fcc111c356e8fcb7a9bb0e8eafd9c8c4cc3f6bee7"
+      },
+      {
+        "file": "vendor/provenance/converter/reference-inputs/original-image-capture/embuild.sh",
+        "bytes": 1569,
+        "sha256": "f856acc07ce3333fefc173f387baa271ec3f9dd70106ec8ed92a9a9cd8dab162"
+      },
+      {
+        "file": "vendor/provenance/converter/reference-inputs/original-image-capture/prepare-context.py",
+        "bytes": 3333,
+        "sha256": "e98e345c1f91c5028fc211b96f50f1acd1bee1f02fe68213d16f81839eb865dc"
+      },
+      {
+        "file": "vendor/provenance/converter/reference-inputs/original-image-capture/rebuild.sh",
+        "bytes": 833,
+        "sha256": "2c4153d44499bc7535f9dbfdba372b3ef009258bc778efd03eb1fe9e845f154f"
+      },
+      {
+        "file": "vendor/provenance/converter/review-native-inputs.mjs",
+        "bytes": 6637,
+        "sha256": "b0436930fd09a2384479d48e8e8c2f7b090ac5f11dc3760ff648f46e9d6cb12d"
+      },
+      {
+        "file": "vendor/provenance/drawing/native-runtime-validation.json",
+        "bytes": 2514,
+        "sha256": "0de76182b746aca4ee2bd40573e1e8018450a6684c9d1d2c3741598e9570356e"
+      }
+    ],
+    "changes": [
+      "Use existing upstream PNG encoder for reconstructed raster output in both storage paths; remove renderer-only1200-pixel resampling policy.",
+      "Select existing Xpdf HAVE_JPEGLIB branch with already-vendored IJG8c; scoped JPEG_INT32 alias preserves library typedef; independently calibrated with existing upstream djpeg CLI.",
+      "Pinned local-source archive acquisition, compiler archive preload and bounded4-job development build; no installed-runtime helper.",
+      "Guarded source Unicode/ActualText, font identity, paragraph overlap and complete page/text/drawing source ledgers.",
+      "Preserve native drawing paths/clips and verified cell figures; fix straight/premultiplied alpha and source image identity.",
+      "Preserve original BMP/TIFF dimensions, TIFF straight alpha and orientation; retain the established native XHTML/CSS profile. Disable unsupported HEIF in the Emscripten image profile.",
+      "Retain table enum2 and the established normal paragraph enum4 fallback, signaled by verified native sidecar metadata; distinct/clipped source paints do not fold.",
+      "Use release flags without QA profiling, metrics observers or alternate order scans; force every core/native compilation stage uncached for independent reproduction."
+    ],
+    "command": "node products/file-to-sharepoint/scripts/build-converter-runtime.mjs --offline (Docker buildx on Linux or WSL; source-only input selection and pinned compiler distributions)",
+    "hostPackageManifest": "vendor/provenance/converter/local-build/host-packages.txt",
+    "evidence": [
+      {
+        "file": "vendor/provenance/converter/local-build/compiler-hashes.txt",
+        "bytes": 287,
+        "sha256": "d9e307caa16a197293baef1427b16e6c4ec7d200e719158740b3a5c69fe3234b",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/compiler-version.txt",
+        "bytes": 190,
+        "sha256": "b26a04b8d2c8b03d07681da7b17071c8a0950573e0cac02d1edcf2c672834737",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/docxrenderer.Makefile",
+        "bytes": 47050,
+        "sha256": "cda3c7d1104e34ffdc410edfb3fcb8f03ed8251f4be612b0ff73a7b4306709eb",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/graphics.Makefile",
+        "bytes": 1968184,
+        "sha256": "423ea891c2c0484a7cda9c3be4e1ceac0559ebcd9fff70f7ee2a3d620ba7a3fb",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/host-packages.txt",
+        "bytes": 14089,
+        "sha256": "5630465d8c7b12af69e48fc4c5aa589af74dafd9ad12a532034d0f7b6b72c49e",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/ooxmlsignature.Makefile",
+        "bytes": 31518,
+        "sha256": "bcc8c02c3fa8534f071cac0132c3bd3088b824dfa4b707c806224cba683d4123",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/pdffile.Makefile",
+        "bytes": 263492,
+        "sha256": "6b683499f84f5f3d34d68135887042532e1ea16fbe7e3e669af4b57cb46b5345",
+        "role": "generated-build-evidence"
+      },
+      {
+        "file": "vendor/provenance/converter/local-build/x2t.Makefile",
+        "bytes": 188904,
+        "sha256": "9930a6d4720abd9f8d03beb2276197c3fb8da0634564c689be2f138b0c2d1bdd",
+        "role": "generated-build-evidence"
+      }
+    ],
+    "resources": {
+      "cpus": 4,
+      "memoryGiB": 8,
+      "maxParallelSteps": 1,
+      "coreRunNetwork": "none",
+      "aptOnlyExistingHostNetworkException": true
+    }
+  },
+  "outputs": [
+    {
+      "file": "x2t.js",
+      "bytes": 137170,
+      "sha256": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46"
+    },
+    {
+      "file": "x2t.wasm",
+      "bytes": 38867906,
+      "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+    }
+  ],
+  "validation": {
+    "compile": "passed",
+    "pixelRegression": {
+      "passed": true,
+      "evidenceFile": "provenance/converter/pixel-regression.json",
+      "evidenceSha256": "74a8ba0a23bc91020115661c6ac224647eeec07c29b9e5eede21bb8ded0ee199",
+      "cases": [
+        {
+          "name": "image-opaque.pdf",
+          "passed": true,
+          "source": {
+            "width": 100,
+            "height": 50,
+            "rgbaSha256": "b6fe954f0ec6addb45b55db12f4cf8c9a6d1a8d6462a5db3379301063b3c1ec3",
+            "referencePngSha256": "42f416c46b6b4a02af8080dcd565721be8ac7ea63c5742d3954fc6bec8078617"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 100,
+              "height": 50,
+              "rgbaSha256": "b6fe954f0ec6addb45b55db12f4cf8c9a6d1a8d6462a5db3379301063b3c1ec3",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        },
+        {
+          "name": "image-large.pdf",
+          "passed": true,
+          "source": {
+            "width": 1601,
+            "height": 1237,
+            "rgbaSha256": "49fcfa08f839f9587226ae2cd60a36d8cd2d355485b5b40b32488dc901a47511",
+            "referencePngSha256": "5430b04489d1c0736532824796212815792fd3f907167fd957f8e63a1a905f4e"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 1601,
+              "height": 1237,
+              "rgbaSha256": "49fcfa08f839f9587226ae2cd60a36d8cd2d355485b5b40b32488dc901a47511",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        },
+        {
+          "name": "image-alpha.pdf",
+          "passed": true,
+          "source": {
+            "width": 128,
+            "height": 64,
+            "rgbaSha256": "d6ab3bd220f146d56a12f6b0505e3429d9192650ce78ccfdd9dc1c85edfe7470",
+            "referencePngSha256": "fd322a7ef27fa2f9ade838d97dcfd9a7e9852862f1329c8ecec81ca0c4bd0bd0"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 128,
+              "height": 64,
+              "rgbaSha256": "d6ab3bd220f146d56a12f6b0505e3429d9192650ce78ccfdd9dc1c85edfe7470",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        },
+        {
+          "name": "image-jpeg.pdf",
+          "passed": true,
+          "source": {
+            "width": 160,
+            "height": 96,
+            "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+            "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 160,
+              "height": 96,
+              "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        },
+        {
+          "name": "image-jpeg-subsampled.pdf",
+          "passed": true,
+          "source": {
+            "width": 160,
+            "height": 96,
+            "rgbaSha256": "47e18aab9ddb03eda67d313fcdef9a67804c5e20e25e577c21e60f7d61b4ec94",
+            "referencePngSha256": "8fe10fd41d8c8425c16a7df89550dae9f49f3a8919c4bbb6413b02cf11c36f07"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 160,
+              "height": 96,
+              "rgbaSha256": "47e18aab9ddb03eda67d313fcdef9a67804c5e20e25e577c21e60f7d61b4ec94",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        },
+        {
+          "name": "image-jpeg-progressive.pdf",
+          "passed": true,
+          "source": {
+            "width": 160,
+            "height": 96,
+            "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+            "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 160,
+              "height": 96,
+              "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        },
+        {
+          "name": "image-jpeg-gray.pdf",
+          "passed": true,
+          "source": {
+            "width": 160,
+            "height": 96,
+            "rgbaSha256": "adbb34843eb9464ee1b03ed608719c7e5f42fcd6f1d8530bb8b2d7b987d6df85",
+            "referencePngSha256": "c0f3639055817715a961210a59da2cf2c9a195316a76d714e4682b597880a593"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 160,
+              "height": 96,
+              "rgbaSha256": "adbb34843eb9464ee1b03ed608719c7e5f42fcd6f1d8530bb8b2d7b987d6df85",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        },
+        {
+          "name": "image-jpeg-cmyk.pdf",
+          "passed": true,
+          "source": {
+            "width": 160,
+            "height": 96,
+            "rgbaSha256": "31d906f364b21bfb1168d73493164a1254aa318fcf45d312e0a4dd821cda2bfb",
+            "referencePngSha256": "b7aa051fd5c5d0fc6978eb704de51c22e108c640948324fbcd8bf7e25474bf03"
+          },
+          "candidates": [
+            {
+              "name": "word/media/image1.png",
+              "width": 160,
+              "height": 96,
+              "rgbaSha256": "31d906f364b21bfb1168d73493164a1254aa318fcf45d312e0a4dd821cda2bfb",
+              "changedPixels": 0,
+              "maxChannelDifference": 0
+            }
+          ]
+        }
+      ],
+      "method": "All eight established independent image-reference cases passed again in the46-case strict offline MV3 adopted clean converter/reader acceptance; source PNG, IJG CLI and pre-export capture calibration metadata remains historical and unchanged."
+    },
+    "reproduction": {
+      "status": "outputs-reproduced",
+      "method": "Two independently prepared pinned188-archive preferred-source contexts; all24294 files and symlinks exact. Both clean builds force the same30 native stages to execute on a four-CPU8GiB single-step worker with core RUN network=none. Toolchain, dependency and Emscripten system/port caches may be reused; no converter/core/graphics/PDF/DocxRenderer objects or archives are source inputs. Raw executables are compared without normalization.",
+      "outputs": [
+        {
+          "file": "x2t.js",
+          "bytes": 137170,
+          "sha256": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46"
+        },
+        {
+          "file": "x2t.wasm",
+          "bytes": 38867906,
+          "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+        }
+      ],
+      "proofFile": "provenance/converter/local-build/native-source-reproduction.json",
+      "proofSha256": "c28066e0286ad7de2c9d7f57e196ad6167cdb2fb7cca1dd2c0c9e1219c1203b5"
+    },
+    "referenceProducer": {
+      "file": "provenance/converter/pixel-reference-provenance.json",
+      "sha256": "52158d8ee4d3a7fd66e641935474d3581da8001d8957a136d479ce6ef35c5869"
+    },
+    "browserReference": {
+      "file": "provenance/converter/browser-reference-pixels.json",
+      "sha256": "ce9fcf0788664e5119c261f5444799b726ffc17243a86b67f25bbde52ab9301c",
+      "generator": {
+        "file": "tests/fixtures/reference-pixels.mjs",
+        "bytes": 2985,
+        "sha256": "1e93ce64882d63b9758e4969edb8c20e3e644bc0328553fc94757892cfebc947"
+      }
+    },
+    "nativeRuntime": {
+      "focusedNativeStatusesExact": 39,
+      "successfulRawZipPayloadsExact": 36,
+      "sdkEncodedAndFullRgbaAssetsExact": 321,
+      "actualSourceSdkBindCases": 3,
+      "strictOfflineMv3TestsPassed": 46,
+      "sourceClosureFile": "provenance/converter/local-build/modified-source-closure.json",
+      "sourceGuardFile": "provenance/converter/local-build/source-guard-verification.json",
+      "offlineMv3ProofFile": "provenance/drawing/native-runtime-validation.json"
+    }
+  },
+  "fidelity": {
+    "preserved": "decoded raster pixels, alpha and original dimensions within existing resource limits",
+    "notClaimed": "original compressed PDF image stream/container bytes or identical native SharePoint page geometry"
+  },
+  "retainedVerificationInputs": {
+    "purpose": "Exact test source from native converter reproduction. This is historical verification input, not a compiler recipe. Current adapter tests remain under tests/engine-content.test.mjs and are rerun for host changes.",
+    "files": [
+      {
+        "originalFile": "tests/engine-content.test.mjs",
+        "retainedFile": "vendor/provenance/converter/verification-inputs/engine-content.test.mjs",
+        "sha256": "71dfd23e95128268c15e3f5033cc9cc060b7f212267f448d472b87a8f6b4f8b1",
+        "bytes": 19743
+      }
+    ]
+  }
+}

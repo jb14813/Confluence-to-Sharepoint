@@ -1,0 +1,31 @@
+--- a/core/PdfFile/PdfReader.cpp
++++ b/core/PdfFile/PdfReader.cpp
+@@ -874,6 +874,28 @@
+ 	}
+ 	oInfo.free();
+ 
++	bool bHasXFA = false;
++	int nAcroFormFieldCount = -1;
++	Catalog* pCatalog = pDoc->getCatalog();
++	Object* pAcroForm = pCatalog ? pCatalog->getAcroForm() : NULL;
++	if (pAcroForm && pAcroForm->isNull())
++		nAcroFormFieldCount = 0;
++	else if (pAcroForm && pAcroForm->isDict())
++	{
++		Object oXFA, oFields;
++		pAcroForm->dictLookup("XFA", &oXFA);
++		bHasXFA = !oXFA.isNull();
++		if (pAcroForm->dictLookup("Fields", &oFields)->isArray())
++			nAcroFormFieldCount = oFields.arrayGetLength();
++		oFields.free();
++		oXFA.free();
++	}
++	sRes += L"\"HasXFA\":";
++	sRes += bHasXFA ? L"true" : L"false";
++	sRes += L",\"AcroFormFieldCount\":";
++	sRes += std::to_wstring(nAcroFormFieldCount);
++	sRes += L",";
++
+ 	std::wstring version = std::to_wstring(pDoc->getPDFVersion());
+ 	std::wstring::size_type posDot = version.find('.');
+ 	if (posDot != std::wstring::npos)

@@ -2002,6 +2002,14 @@
       "repository": "https://github.com/emscripten-core/emscripten"
     },
     {
+      "name": "Emscripten4.0.11 Linux compiler distribution",
+      "file": "emscripten-4.0.11-wasm-binaries.tar.xz",
+      "url": "https://storage.googleapis.com/webassembly/emscripten-releases-builds/linux/7033fec38817ec01909b044ea0193ddd5057255c/wasm-binaries.tar.xz",
+      "bytes": 345588908,
+      "sha256": "f38e70b53be587e7c757f375b3452e259c70130d4b40db3213c95b7ae321f5d7",
+      "role": "compiler-binary"
+    },
+    {
       "name": "Emscripten4.0.11 linked runtime and port recipes",
       "file": "emscripten-4182f94.tar.gz",
       "url": "https://codeload.github.com/emscripten-core/emscripten/tar.gz/4182f94222db892e16961fbbfd8097c0797d30c4",
@@ -2259,6 +2267,14 @@
       "name": "node-v16.20.0-linux-x64.tar.xz"
     },
     {
+      "name": "Node22.16.0 compiler runtime forLinux",
+      "file": "node-v22.16.0-linux-x64.tar.xz",
+      "url": "https://storage.googleapis.com/webassembly/emscripten-releases-builds/deps/node-v22.16.0-linux-x64.tar.xz",
+      "bytes": 30425588,
+      "sha256": "f4cb75bb036f0d0eddf6b79d9596df1aaab9ddccd6a20bf489be5abe9467e84e",
+      "role": "compiler-binary"
+    },
+    {
       "name": "openssl",
       "file": "openssl-36eadf1f.tar.gz",
       "url": "https://codeload.github.com/openssl/openssl/tar.gz/36eadf1f84daa965041cce410b4ff32cbda4ef08",
@@ -2306,6 +2322,17 @@
       "license": "MIT",
       "repository": "https://github.com/preactjs/preact",
       "commit": "0dbe6367842c055637ba67814b37f488a9ad7211"
+    },
+    {
+      "name": "Proton maintained MIME parser source",
+      "file": "protontech-crypto-2.2.0.tgz",
+      "url": "https://registry.npmjs.org/@protontech/crypto/-/crypto-2.2.0.tgz",
+      "bytes": 115874,
+      "sha256": "6b523327ed72c6173f86c0ece970996174c6c81be5aa2f8ff8bd1c3da6ddeae4",
+      "integrity": "sha512-WjoNBMn07LxnYE6QLgniEnNfP0Apmvqgi8P48udFtvAxhSnVwiHqmXxMaVHJxBRaJev/DlOKJ67OGYj+3yGYPA==",
+      "repository": "https://github.com/ProtonMail/WebPackages",
+      "version": "2.2.0",
+      "role": "mime-parser-source"
     },
     {
       "file": "sdkjs-1b1c0fd7.tar.gz",

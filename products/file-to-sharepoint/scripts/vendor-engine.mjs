@@ -12,12 +12,22 @@ const download = process.argv.slice(2).includes('--fetch');
 const archives = new Map();
 let wordOutputs;
 let drawingOutputs;
+let converterOutputs;
+let mimeOutputs;
 if (process.argv.slice(2).some(arg => arg !== '--fetch')) throw new Error('Usage: node vendor-engine.mjs [--fetch]');
 for (const file of manifest.files) {
   if (!/^[\w.@/-]+$/.test(file.file) || file.file.split('/').some(part => !part || part === '..' || part === '.')) throw new Error('Invalid vendor manifest filename.');
   const destination = new URL(file.file,vendor);
   let bytes;
-  if (download && file.generator === 'drawing-runtime') {
+  if (download && file.generator === 'mime-parser') {
+    if (!mimeOutputs) mimeOutputs = (await import('./build-mime-parser.mjs')).buildMimeParser();
+    bytes = (await mimeOutputs).get(file.file);
+    if (!bytes) throw new Error(`Missing source-built MIME output: ${file.file}`);
+  } else if (download && file.generator === 'converter-runtime') {
+    if (!converterOutputs) converterOutputs = (await import('./build-converter-runtime.mjs')).buildConverterRuntime();
+    bytes = (await converterOutputs).get(file.file);
+    if (!bytes) throw new Error(`Missing source-built converter output: ${file.file}`);
+  } else if (download && file.generator === 'drawing-runtime') {
     if (!drawingOutputs) drawingOutputs = (await import('./build-drawing-runtime.mjs')).buildDrawingRuntime();
     bytes = (await drawingOutputs).get(file.file);
     if (!bytes) throw new Error(`Missing source-built drawing output: ${file.file}`);

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "scope": "Validation of adopted clean reader011 bytes and the independent clean converter outputs. Private corpus names/content are not included in this public summary. Fresh build reproduction is recorded separately.",
+  "nativeStrictCases": 67,
+  "nativeFormsAndViewerRgbaPairedExact": 67,
+  "formMetadata": [
+    {
+      "name": "form-only.pdf",
+      "HasXFA": false,
+      "AcroFormFieldCount": 1
+    },
+    {
+      "name": "form-body.pdf",
+      "HasXFA": false,
+      "AcroFormFieldCount": 1
+    },
+    {
+      "name": "form-vector-body.pdf",
+      "HasXFA": false,
+      "AcroFormFieldCount": 1
+    },
+    {
+      "name": "form-image-body.pdf",
+      "HasXFA": false,
+      "AcroFormFieldCount": 1
+    },
+    {
+      "name": "xfa-only.pdf",
+      "HasXFA": true,
+      "AcroFormFieldCount": 0
+    },
+    {
+      "name": "xfa-packets.pdf",
+      "HasXFA": true,
+      "AcroFormFieldCount": 0
+    },
+    {
+      "name": "xfa-hybrid.pdf",
+      "HasXFA": true,
+      "AcroFormFieldCount": 1
+    },
+    {
+      "name": "malformed-acroform.pdf",
+      "HasXFA": false,
+      "AcroFormFieldCount": -1
+    },
+    {
+      "name": "empty-acroform.pdf",
+      "HasXFA": false,
+      "AcroFormFieldCount": 0
+    }
+  ],
+  "privateCorpus": {
+    "documents": 175,
+    "strictCapabilitiesPassed": 175,
+    "sourceAndOrderExactToPreviouslyAcceptedReader": 175,
+    "qaFields": 0,
+    "blocked": 0,
+    "errors": 0
+  },
+  "cleanConverterAndReaderOfflineMv3": {
+    "command": "node --test products/file-to-sharepoint/tests/engine-vendor.test.mjs products/file-to-sharepoint/tests/engine.test.mjs products/file-to-sharepoint/tests/engine-content.test.mjs",
+    "tests": 46,
+    "passed": 46,
+    "failed": 0,
+    "skipped": 0,
+    "retainedLogSha256": "1e223ceaacd5278016a4f5580291ba4dde2554b8aa49616f562fedbfbef3ffee",
+    "sourcePins": [
+      {
+        "file": "tests/engine-vendor.test.mjs",
+        "bytes": 4322,
+        "sha256": "2629b9d6b390272e9d20ecad73c9fff8a81ba99b2cfbadb4b4806f5a99221cde"
+      },
+      {
+        "file": "tests/engine.test.mjs",
+        "bytes": 21465,
+        "sha256": "7ff0e6d1edf5c6b87687140597ce8be9fbdde35b2361127004869b9b01b2b049"
+      },
+      {
+        "file": "tests/engine-content.test.mjs",
+        "bytes": 19743,
+        "sha256": "71dfd23e95128268c15e3f5033cc9cc060b7f212267f448d472b87a8f6b4f8b1"
+      }
+    ]
+  },
+  "limits": "These source/order/pixel checks do not establish native SharePoint page-layout identity or final visual acceptance."
+}

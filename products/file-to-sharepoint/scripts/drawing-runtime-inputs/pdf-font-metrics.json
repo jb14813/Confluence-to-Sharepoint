@@ -1,0 +1,18 @@
+{
+  "before": "d489026984b8db47f63205f9ec5aad534da10610844394ffec7d7e21bbe49c3c",
+  "after": "db8ecdb62704a486f5f20c5ea6d3c7d41cb88a05eef677176120e5cef2f6b29b",
+  "hunks": [
+    {
+      "before": "#include <stddef.h>\n#include <math.h>\n#include <limits.h>\n#include <ctype.h>\n",
+      "after": "#include <stddef.h>\n#include <math.h>\n#include <cmath>\n#include <limits.h>\n#include <ctype.h>\n"
+    },
+    {
+      "before": "// TextFontInfo\n//------------------------------------------------------------------------\n\nTextFontInfo::TextFontInfo(GfxState *state) {\n",
+      "after": "// TextFontInfo\n//------------------------------------------------------------------------\n\n// Validate the parsed Type 3 coordinate profile before using the existing\n// transformed font size. FontBBox is an ink envelope for this subset, so keep\n// the existing TextFontInfo typography metrics for character/line grouping.\n// Keep the original width fallback for every unverified profile.\nstatic GBool getAxisType3BBoxMetrics(GfxFont *font, double &sourceAscent,\n                                   double &sourceDescent) {\n  if (!font || font->getType() != fontType3) return gFalse;\n  const double *matrix = font->getFontMatrix();\n  const double *box = font->getFontBBox();\n  if (!matrix || !box) return gFalse;\n  for (int i = 0; i < 6; ++i) if (!std::isfinite(matrix[i])) return gFalse;\n  for (int i = 0; i < 4; ++i) if (!std::isfinite(box[i])) return gFalse;\n  if (matrix[0] <= 0 || matrix[3] != -matrix[0] || matrix[1] != 0 ||\n      matrix[2] != 0 || matrix[4] != 0 || matrix[5] != 0 || box[2] <= box[0])\n    return gFalse;\n  const double y0 = matrix[3] * box[1], y1 = matrix[3] * box[3];\n  const double high = y0 > y1 ? y0 : y1, low = y0 < y1 ? y0 : y1;\n  if (!std::isfinite(high) || !std::isfinite(low) || high <= low) return gFalse;\n  sourceAscent = high;\n  sourceDescent = low;\n  return gTrue;\n}\n\nTextFontInfo::TextFontInfo(GfxState *state) {\n"
+    },
+    {
+      "before": "  gfxFont = state->getFont();\n  curFontSize = state->getTransformedFontSize();\n  if (gfxFont && gfxFont->getType() == fontType3) {\n    // This is a hack which makes it possible to deal with some Type 3\n    // fonts.  The problem is that it's impossible to know what the\n",
+      "after": "  gfxFont = state->getFont();\n  curFontSize = state->getTransformedFontSize();\n  double sourceAscent, sourceDescent;\n  if (gfxFont && gfxFont->getType() == fontType3 &&\n      !getAxisType3BBoxMetrics(gfxFont, sourceAscent, sourceDescent)) {\n    // This is a hack which makes it possible to deal with some Type 3\n    // fonts.  The problem is that it's impossible to know what the\n"
+    }
+  ]
+}

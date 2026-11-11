@@ -1,0 +1,51 @@
+--- a/core/PdfFile/lib/xpdf/TextOutputDev.cc
++++ b/core/PdfFile/lib/xpdf/TextOutputDev.cc
+@@ -16,6 +16,7 @@
+ #include <stdlib.h>
+ #include <stddef.h>
+ #include <math.h>
++#include <cmath>
+ #include <limits.h>
+ #include <ctype.h>
+ #ifdef _WIN32
+@@ -628,6 +629,29 @@
+ //------------------------------------------------------------------------
+ // TextFontInfo
+ //------------------------------------------------------------------------
++
++// Validate the parsed Type 3 coordinate profile before using the existing
++// transformed font size. FontBBox is an ink envelope for this subset, so keep
++// the existing TextFontInfo typography metrics for character/line grouping.
++// Keep the original width fallback for every unverified profile.
++static GBool getAxisType3BBoxMetrics(GfxFont *font, double &sourceAscent,
++                                   double &sourceDescent) {
++  if (!font || font->getType() != fontType3) return gFalse;
++  const double *matrix = font->getFontMatrix();
++  const double *box = font->getFontBBox();
++  if (!matrix || !box) return gFalse;
++  for (int i = 0; i < 6; ++i) if (!std::isfinite(matrix[i])) return gFalse;
++  for (int i = 0; i < 4; ++i) if (!std::isfinite(box[i])) return gFalse;
++  if (matrix[0] <= 0 || matrix[3] != -matrix[0] || matrix[1] != 0 ||
++      matrix[2] != 0 || matrix[4] != 0 || matrix[5] != 0 || box[2] <= box[0])
++    return gFalse;
++  const double y0 = matrix[3] * box[1], y1 = matrix[3] * box[3];
++  const double high = y0 > y1 ? y0 : y1, low = y0 < y1 ? y0 : y1;
++  if (!std::isfinite(high) || !std::isfinite(low) || high <= low) return gFalse;
++  sourceAscent = high;
++  sourceDescent = low;
++  return gTrue;
++}
+ 
+ TextFontInfo::TextFontInfo(GfxState *state) {
+   GfxFont *gfxFont;
+@@ -1242,7 +1266,9 @@
+   // adjust the font size
+   gfxFont = state->getFont();
+   curFontSize = state->getTransformedFontSize();
+-  if (gfxFont && gfxFont->getType() == fontType3) {
++  double sourceAscent, sourceDescent;
++  if (gfxFont && gfxFont->getType() == fontType3 &&
++      !getAxisType3BBoxMetrics(gfxFont, sourceAscent, sourceDescent)) {
+     // This is a hack which makes it possible to deal with some Type 3
+     // fonts.  The problem is that it's impossible to know what the
+     // base coordinate system used in the font is without actually

@@ -1,0 +1,640 @@
+--- a/core/DocxRenderer/src/logic/managers/FontManager.h
++++ b/core/DocxRenderer/src/logic/managers/FontManager.h
+@@ -1,6 +1,7 @@
+ ﻿#pragma once
+ #include <list>
+ #include <vector>
++#include <cstdint>
+ 
+ #include "../../../../DesktopEditor/graphics/structures.h"
+ #include "../../../../DesktopEditor/graphics/pro/Fonts.h"
+@@ -60,6 +61,22 @@
+ 		bool operator==(const CFontSelectParams& oOther);
+ 	};
+ 
++    struct CLoadedFontIdentity
++    {
++        const void* owner = nullptr;
++        const void* file = nullptr;
++        std::wstring path, name;
++        bool bold = false, italic = false;
++        long face = 0;
++        std::uint64_t generation = 0;
++        bool valid = false;
++        bool Matches(const CLoadedFontIdentity& other) const
++        {
++            return valid && other.valid && owner == other.owner && file == other.file &&
++                path == other.path && name == other.name && bold == other.bold && italic == other.italic &&
++                face == other.face && generation == other.generation;
++        }
++    };
+ 	// selects font according to parameters
+ 	class CFontSelector
+ 	{
+@@ -72,6 +89,8 @@
+ 			BYTE lRange;
+ 
+ 			std::wstring wsSelectedName;
++            bool usesLoadedFile = false;
++            CLoadedFontIdentity loaded;
+ 			bool bIsSelectedBold;
+ 			bool bIsSelectedItalic;
+ 		};
+@@ -81,10 +100,14 @@
+ 
+ 		void SelectFont(const CFontSelectParams& oFontSelectParams,
+ 		                const CFontMetrics& oFontMetrics,
+-		                const NSStringUtils::CStringUTF32& oText);
++		                const NSStringUtils::CStringUTF32& oText, const CLoadedFontIdentity& loaded);
+ 		std::wstring GetSelectedName() const noexcept;
+ 		bool IsSelectedBold() const noexcept;
+ 		bool IsSelectedItalic() const noexcept;
++        bool UsesLoadedFile() const noexcept { return m_bUsesLoadedFile; }
++        bool HasFailed() const noexcept { return m_bFailed; }
++        void SetFailure() noexcept { m_bFailed = true; }
++        void ResetFailure() noexcept { m_bFailed = false; }
+ 
+ 		const std::list<CFontSelectInfo>& GetCache() const;
+ 		void ClearCache();
+@@ -96,6 +119,7 @@
+ 		std::wstring m_wsSelectedName;
+ 		bool m_bIsSelectedBold;
+ 		bool m_bIsSelectedItalic;
++        bool m_bUsesLoadedFile = false, m_bFailed = false;
+ 
+ 		CUnicodeRanges m_oRanges;
+ 		void CheckRanges(UINT& lRange1, UINT& lRange2, UINT& lRange3, UINT& lRange4, BYTE& lRangeNum, BYTE& lRange);
+@@ -121,6 +145,7 @@
+ 		bool LoadFontByName(const NSStructures::CFont& oFont);
+ 
+ 		const CFontSelectParams& GetFontSelectParams() const noexcept;
++        CLoadedFontIdentity GetLoadedIdentity(const NSStructures::CFont& requested) const;
+ 		const CFontMetrics& GetFontMetrics() const noexcept;
+ 
+ 		double GetFontHeight() const;
+@@ -157,6 +182,7 @@
+ 		NSFonts::IFontManager* m_pManager;
+ 
+ 		NSStructures::CFont m_oFont;
++        std::uint64_t m_nLoadedGeneration = 0;
+ 		CFontMetrics m_oFontMetrics;
+ 		CFontSelectParams m_oFontSelectParams;
+ 
+--- a/core/DocxRenderer/src/logic/managers/FontManager.cpp
++++ b/core/DocxRenderer/src/logic/managers/FontManager.cpp
+@@ -1,4 +1,5 @@
+ #include "FontManager.h"
++#include <cmath>
+ 
+ #include "../../../../DesktopEditor/xml/include/xmlutils.h"
+ #include "../../../../DesktopEditor/common/Directory.h"
+@@ -320,7 +321,7 @@
+ 
+ 	void CFontSelector::SelectFont(const CFontSelectParams& oFontSelectParams,
+ 	                               const CFontMetrics& oFontMetrics,
+-	                               const NSStringUtils::CStringUTF32& oText)
++	                               const NSStringUtils::CStringUTF32& oText, const CLoadedFontIdentity& loaded)
+ 	{
+ 		BYTE lRangeNum	= 0xFF;
+ 		BYTE lRange		= 0xFF;
+@@ -330,11 +331,13 @@
+ 		for(auto it = m_arParamsCache.begin(); it != m_arParamsCache.end(); it++)
+ 		{
+ 			// Found in the cache, don't select anything, return it
+-			if(it->oFontSelectParams == oFontSelectParams && it->lRange == lRange && it->lRangeNum == lRangeNum)
++			if(it->oFontSelectParams == oFontSelectParams && it->lRange == lRange && it->lRangeNum == lRangeNum &&
++                (!it->usesLoadedFile || it->loaded.Matches(loaded)))
+ 			{
+ 				m_bIsSelectedBold = it->bIsSelectedBold;
+ 				m_bIsSelectedItalic = it->bIsSelectedItalic;
+ 				m_wsSelectedName = it->wsSelectedName;
++                m_bUsesLoadedFile = it->usesLoadedFile;
+ 
+ 				if(it != m_arParamsCache.begin())
+ 				{
+@@ -430,7 +433,36 @@
+ 		oFormat.wsName = new std::wstring(sFontNameSelect);
+ 
+ 		NSFonts::CFontInfo* pInfo = m_pManager->GetFontInfoByParams(oFormat);
+-
++        // The current manager has already loaded this exact file and face.
++        // An empty application font list must not erase its real metadata.
++        if (!pInfo)
++        {
++            m_bUsesLoadedFile = false;
++            m_bIsSelectedBold = m_bIsSelectedItalic = false;
++            m_wsSelectedName.clear();
++            const bool finite = std::isfinite(oFontMetrics.dEmHeight) && oFontMetrics.dEmHeight > 0 &&
++                std::isfinite(oFontMetrics.dAscent) && std::isfinite(oFontMetrics.dDescent) &&
++                std::isfinite(oFontMetrics.dLineSpacing) && std::isfinite(oFontMetrics.dBaselineOffset);
++            if (!loaded.valid || !finite || loaded.name.empty())
++            {
++                m_bFailed = true;
++                return; // Failed selections are never reusable cache entries.
++            }
++            m_bUsesLoadedFile = true;
++            m_wsSelectedName = loaded.name;
++            m_bIsSelectedBold = loaded.bold;
++            m_bIsSelectedItalic = loaded.italic;
++            oInfoCache.usesLoadedFile = true;
++            oInfoCache.loaded = loaded;
++            oInfoCache.bIsSelectedBold = m_bIsSelectedBold;
++            oInfoCache.bIsSelectedItalic = m_bIsSelectedItalic;
++            oInfoCache.wsSelectedName = m_wsSelectedName;
++            m_arParamsCache.push_back(oInfoCache);
++            return;
++        }
++
++
++        m_bUsesLoadedFile = false;
+ 		m_bIsSelectedBold = pInfo->m_bBold;
+ 		m_bIsSelectedItalic = pInfo->m_bItalic;
+ 		m_wsSelectedName = pInfo->m_wsFontName;
+@@ -535,9 +567,11 @@
+ 		if (m_oFont.IsEqual2(&oFont))
+ 			return true;
+ 
++        ++m_nLoadedGeneration;
+ 		if (!m_pManager->LoadFontFromFile(oFont.Path, (int)oFont.FaceIndex, (float)oFont.Size, c_dDpiX, c_dDpiY))
+ 			return false;
+ 
++
+ 		m_oFont = oFont;
+ 		m_pManager->AfterLoad();
+ 
+@@ -556,6 +590,7 @@
+ 		if (m_oFont.IsEqual2(&oFont))
+ 			return true;
+ 
++        ++m_nLoadedGeneration;
+ 		m_oFont = oFont;
+ 
+ 		if (!m_pManager->LoadFontByName(m_oFont.Name, (float)m_oFont.Size, m_oFont.GetStyle2(), c_dDpiX, c_dDpiY))
+@@ -568,6 +603,22 @@
+ 		return true;
+ 	}
+ 
++    CLoadedFontIdentity CFontManager::GetLoadedIdentity(const NSStructures::CFont& requested) const
++    {
++        CLoadedFontIdentity result;
++        result.owner = this;
++        result.file = m_pManager ? m_pManager->GetFile() : nullptr;
++        result.path = requested.Path; result.face = requested.FaceIndex; result.generation = m_nLoadedGeneration;
++        result.name = m_pManager ? m_pManager->GetName() : L"";
++        if (m_pManager && m_pManager->GetFile())
++        {
++            result.bold = m_pManager->GetFile()->IsBold();
++            result.italic = m_pManager->GetFile()->IsItalic();
++        }
++        result.valid = result.file && !result.name.empty() && !requested.Path.empty() && m_oFont.Path == requested.Path &&
++            m_oFont.FaceIndex == requested.FaceIndex && m_oFont.Size == requested.Size;
++        return result;
++    }
+ 	const CFontSelectParams& CFontManager::GetFontSelectParams() const noexcept
+ 	{
+ 		return m_oFontSelectParams;
+@@ -796,6 +847,7 @@
+ 
+ 	void CFontManager::ClearCache()
+ 	{
++        ++m_nLoadedGeneration;
+ 		m_oFont = {};
+ 		if (nullptr == m_pManager)
+ 			return;
+--- a/core/DocxRenderer/src/logic/elements/ContText.cpp
++++ b/core/DocxRenderer/src/logic/elements/ContText.cpp
+@@ -1260,7 +1260,7 @@
+ 		auto pCont = std::make_shared<CContText>(pFontManager);
+ 		const auto& oParams = pFontManager->GetFontSelectParams();
+ 		const auto& oMetrics = pFontManager->GetFontMetrics();
+-		m_pFontSelector->SelectFont(oParams, oMetrics, oText);
++		m_pFontSelector->SelectFont(oParams, oMetrics, oText, pFontManager->GetLoadedIdentity(oFont));
+ 
+ 		pCont->m_dBot    = dBot;
+ 		pCont->m_dTop    = dTop;
+@@ -1302,7 +1302,7 @@
+ 		pCont->m_wsOriginFontName = oFont.Name;
+ 		pCont->m_nOriginFontFaceIndex = oFont.FaceIndex;
+ 
+-		if (bUseDefaultFont)
++		if (bUseDefaultFont || m_pFontSelector->UsesLoadedFile())
+ 		{
+ 			pCont->m_oSelectedFont.Name = oFont.Name;
+ 			pCont->m_oSelectedFont.Path = oFont.Path;
+--- a/core/DocxRenderer/DocxRenderer.cpp
++++ b/core/DocxRenderer/DocxRenderer.cpp
+@@ -105,11 +105,12 @@
+ 	int nPagesCount = pFile->GetPagesCount();
+ 	m_pInternal->m_oDocument.m_lNumberPages = nPagesCount;
+ 
++	m_pInternal->m_oDocument.m_oFontSelector.ResetFailure();
+ 	bool stopped = false;
+ 	for (int i = 0; i < nPagesCount; ++i)
+ 	{
+ 		DrawPage(pFile, i, &stopped);
+-		if (stopped) { m_pInternal->m_oDocument.Clear(); return 1; }
++		if (stopped || m_pInternal->m_oDocument.m_oFontSelector.HasFailed()) { m_pInternal->m_oDocument.Clear(); return 1; }
+ 	}
+ 
+ 	HRESULT hr = S_OK;
+@@ -554,6 +555,7 @@
+ }
+ HRESULT CDocxRenderer::put_FontName(const std::wstring& wsName)
+ {
++	m_pInternal->m_oDocument.m_oCurrentPage.m_bSemanticSourceAdvance = false;
+ 	return m_pInternal->m_oDocument.put_FontName(wsName);
+ }
+ HRESULT CDocxRenderer::get_FontPath(std::wstring* wsPath)
+@@ -744,6 +746,7 @@
+ 	if (c_nFontSubstitution == lType)
+ 	{
+ 		m_pInternal->m_oDocument.m_oCurrentPage.m_bFontSubstitution = true;
++		m_pInternal->m_oDocument.m_oCurrentPage.m_bSemanticSourceAdvance = (lCommand == 1);
+ 	}
+ 	return S_OK;
+ }
+--- a/core/DocxRenderer/src/logic/Page.cpp
++++ b/core/DocxRenderer/src/logic/Page.cpp
+@@ -1,4 +1,5 @@
+ #include "Page.h"
++#include <cmath>
+ 
+ #include <memory>
+ #include <map>
+@@ -72,6 +73,7 @@
+ 		m_arLuminosityShapes.clear();
+ 
+ 		m_bFontSubstitution = false;
++		m_bSemanticSourceAdvance = false;
+ 	}
+ 
+ 	CPage::~CPage()
+@@ -294,6 +296,8 @@
+ 	        const double& fHeight,
+ 	        const double& fBaseLineOffset)
+ 	{
++		const bool sourceAdvance = m_bSemanticSourceAdvance;
++		m_bSemanticSourceAdvance = false;
+ 		// 9 - \t
+ 		if (*pUnicodes == 9)
+ 			return;
+@@ -320,7 +324,10 @@
+ 			m_bIsRecalcFontSize = false;
+ 		}
+ 		if (!m_oManagers.pFontManager->LoadFontByFile(m_oFont))
++		{
++			m_oManagers.pFontSelector->SetFailure();
+ 			return;
++		}
+ 
+ 		double _x = 0;
+ 		double _y = 0;
+@@ -344,6 +351,12 @@
+ 		double top = baseline - _h;
+ 		double left = dTextX;
+ 		double right = left + _w;
++        // Only the parsed, axis-aligned semantic Type3 caller supplies this
++        // advance. Ordinary PDF/XPS font measurement remains unchanged.
++        if (sourceAdvance && std::isfinite(dTextR) && std::isfinite(left) &&
++            dTextR > left && fHeight == 0)
++            right = dTextR;
++
+ 
+ 		// use forced fold option
+ 		const auto& oParams = m_oManagers.pFontManager->GetFontSelectParams();
+@@ -522,26 +535,59 @@
+ 				continue;
+ 			}
+ 
+-			bool skip = false;
+-			for (size_t i = 0; i < text_lines.size(); ++i)
+-			{
+-				if (fabs(text_lines[i]->m_dBot - cont->m_dBot) <= c_dTHE_SAME_STRING_Y_PRECISION_MM &&
+-				        fabs(curr_line->m_dRight - cont->m_dLeft) <= 2 * space_width)
+-				{
+-					curr_line = text_lines[i];
+-					cont->m_bPossibleHorSplit = true;
+-					curr_line->AddCont(cont);
+-					skip = true;
+-				}
+-			}
+-
+-			if (skip)
++			text_line_ptr_t candidate_line = nullptr;
++			bool ambiguous_line = false;
++			for (const auto& candidate : text_lines)
++			{
++				if (fabs(candidate->m_dBot - cont->m_dBot) > c_dTHE_SAME_STRING_Y_PRECISION_MM)
++					continue;
++				const bool adjacent = fabs(candidate->m_dRight - cont->m_dLeft) <= 2 * space_width;
++				// A later-painted font/color span can lie inside an existing line.
++				// Keep its native cont intact for the existing MergeConts ordering.
++				const bool contained = cont->m_dLeft >= candidate->m_dLeft && cont->m_dRight <= candidate->m_dRight;
++				if (!adjacent && !contained)
++					continue;
++				if (candidate_line) { ambiguous_line = true; break; }
++				candidate_line = candidate;
++			}
++
++			if (candidate_line && !ambiguous_line)
++			{
++				curr_line = candidate_line;
++				cont->m_bPossibleHorSplit = true;
++				curr_line->AddCont(cont);
+ 				continue;
++			}
+ 
+ 			curr_line = std::make_shared<CTextLine>();
+ 			curr_line->AddCont(cont);
+ 			text_lines.push_back(curr_line);
+ 		}
++
++		// Source paint order can put punctuation before the colored text which
++		// later expands a different line around it. Reconcile that contained
++		// line only when one native same-baseline parent is proved. Preserve
++		// original cont objects/styles for the existing MergeConts traversal.
++		if (text_lines.size() <= 4096)
++			for (size_t i = 0; i < text_lines.size(); ++i)
++			{
++				const auto inner = text_lines[i];
++				if (!inner) continue;
++				text_line_ptr_t parent = nullptr; bool ambiguous = false;
++				for (size_t j = 0; j < text_lines.size(); ++j)
++				{
++					const auto& outer = text_lines[j];
++					if (i == j || !outer || fabs(outer->m_dBot - inner->m_dBot) > c_dTHE_SAME_STRING_Y_PRECISION_MM ||
++						outer->m_dLeft > inner->m_dLeft || outer->m_dRight < inner->m_dRight ||
++						(outer->m_dLeft == inner->m_dLeft && outer->m_dRight == inner->m_dRight)) continue;
++					if (parent) { ambiguous = true; break; }
++					parent = outer;
++				}
++				if (!parent || ambiguous) continue;
++				for (const auto& cont : inner->m_arConts) if (cont) parent->AddCont(cont);
++				text_lines[i] = nullptr;
++			}
++		text_lines.erase(std::remove(text_lines.begin(), text_lines.end(), nullptr), text_lines.end());
+ 
+ 		for (size_t i = 0; i < text_lines.size(); i++)
+ 		{
+--- a/core/DocxRenderer/src/logic/Page.h
++++ b/core/DocxRenderer/src/logic/Page.h
+@@ -50,6 +50,7 @@
+ 		bool m_bIsBuildTables		   {false};
+ 		bool m_bIsLuminosityShapesFiled{false};
+ 		bool m_bFontSubstitution       {false};
++		bool m_bSemanticSourceAdvance  {false};
+ 		bool m_bFirstParagraphLineCorrection{false};
+ 
+ 		CPage(NSFonts::IApplicationFonts* pAppFonts, const CManagers& oManagers);
+--- a/core/PdfFile/SrcReader/RendererOutputDev.cpp
++++ b/core/PdfFile/SrcReader/RendererOutputDev.cpp
+@@ -24,6 +24,8 @@
+  */
+ 
+ #include "RendererOutputDev.h"
++#include "PdfSemanticAdvance.h"
++#include "PdfType3FontProfile.h"
+ #include "Adaptors.h"
+ #include "../lib/xpdf/ErrorCodes.h"
+ #include "../lib/xpdf/GfxState.h"
+@@ -1653,9 +1655,10 @@
+ 		if (fontType3 == pFont->getType() &&
+ 			(m_bDrawOnlyText || c_nDocxWriter == m_lRendererType) && wsFileName.empty())
+ 		{
++			const std::wstring base14Name = SemanticText::Type3Base14Name(m_pXref, pFont);
+ 			const BYTE* pData14 = NULL;
+ 			unsigned int nSize14 = 0;
+-			if (PdfReader::GetBaseFont(L"Helvetica", pData14, nSize14))
++			if (PdfReader::GetBaseFont(base14Name, pData14, nSize14))
+ 			{
+ #ifndef FONTS_USE_ONLY_MEMORY_STREAMS
+ 				std::wstring wsTempFileName;
+@@ -1675,13 +1678,13 @@
+ #else
+ 				CMemoryFontStream oMemoryFontStream;
+ 				oMemoryFontStream.fromBuffer((BYTE*)pData14, nSize14);
+-				wsFileName = L"Helvetica";
++				wsFileName = base14Name;
+ 				NSFonts::NSApplicationFontStream::GetGlobalMemoryStorage()->Add(wsFileName,
+ 					oMemoryFontStream.m_pData, (LONG)oMemoryFontStream.m_nSize, true);
+ #endif
+ 				if (!wsFileName.empty())
+ 				{
+-					wsFontName = L"Helvetica";
++					wsFontName = base14Name;
+ 					TFontEntry* pEntry = NULL;
+ 					if (m_pFontList->Find2(*pFont->getID(), &pEntry) && pEntry)
+ 					{
+@@ -1878,6 +1881,18 @@
+ 	}
+ 
+ 	GBool RendererOutputDev::shadedFill(GfxState* pGState, GfxShading* pShading)
++	{
++		// A shading operation contains no editable text or source raster image.
++		// Reuse native clipping/compositing instead of CPage's vector Boolean
++		// intersection, which can incorrectly discard a visible clipped gradient.
++		const bool ownCapture = !m_bDrawOnlyText && c_nDocxWriter == m_lRendererType &&
++			!m_pDocxTransparencyTarget && pShading && pShading->getType() >= 1 && pShading->getType() <= 7;
++		if (ownCapture && (!BeginDocxTransparency(pGState) || m_bDocxTransparencyFailed)) return gTrue;
++		const GBool handled = DrawNativeShading(pGState, pShading);
++		if (ownCapture) FinishDocxTransparency(pGState);
++		return handled;
++	}
++	GBool RendererOutputDev::DrawNativeShading(GfxState* pGState, GfxShading* pShading)
+ 	{
+ 		double x0, y0, x1, x2, y1, y2, r1, r2;
+ 		double xmin, xmax, ymin, ymax, r;
+@@ -2445,13 +2460,22 @@
+ 		// Text in a masked/group raster cannot become an editable text image.
+ 		if (m_pDocxTransparencyTarget) { FailDocxTransparency(); return; }
+ 		// Checking the presence of a list of fonts
+-		if (NULL == m_pFontList)
+-			return;
++		if (NULL == m_pFontList || !pGState->getFont())
++		{
++			if (c_nDocxWriter == m_lRendererType && pGState->getRender() != 3) FailDocxTransparency();
++			return;
++		}
+ 
+ 		// Checking the presence of the current font
+ 		TFontEntry oEntry;
+ 		if (!m_pFontList->GetFont(pGState->getFont()->getID(), &oEntry))
+-			return;
++		{
++			if (c_nDocxWriter == m_lRendererType && pGState->getRender() != 3) FailDocxTransparency();
++			return;
++		}
++
++		if (c_nDocxWriter == m_lRendererType && pGState->getRender() != 3 && oEntry.wsFilePath.empty())
++		{ FailDocxTransparency(); return; }
+ 
+ 		int nRendererMode = pGState->getRender();
+ 
+@@ -2497,13 +2521,22 @@
+ 			return;
+ 		}
+ 		// Checking the presence of a list of fonts
+-		if (NULL == m_pFontList)
+-			return;
++		if (NULL == m_pFontList || !pGState->getFont())
++		{
++			if (c_nDocxWriter == m_lRendererType && pGState->getRender() != 3) FailDocxTransparency();
++			return;
++		}
+ 
+ 		// Checking the presence of the current font
+ 		TFontEntry oEntry;
+ 		if (!m_pFontList->GetFont(pGState->getFont()->getID(), &oEntry))
+-			return;
++		{
++			if (c_nDocxWriter == m_lRendererType && pGState->getRender() != 3) FailDocxTransparency();
++			return;
++		}
++
++		if (c_nDocxWriter == m_lRendererType && pGState->getRender() != 3 && oEntry.wsFilePath.empty())
++		{ FailDocxTransparency(); return; }
+ 
+ 		int nRenderMode = pGState->getRender();
+ 		if (3 == nRenderMode && !m_bDrawOnlyText) // Invisible text
+@@ -2632,6 +2665,14 @@
+ 		}
+ 
+ 		if (m_bActualTextEmission) { unGid = 0; unGidsCount = 0; }
++
++        double semanticWidth = dDx;
++        const bool semanticType3 = c_nDocxWriter == m_lRendererType &&
++            pFont->getType() == fontType3 && oEntry.bFontSubstitution;
++        const bool sourceAdvance = SemanticText::AxisSourceAdvance(semanticType3,
++            arrMatrix, startX, startY, endX, endY, semanticWidth);
++        const double drawWidth = sourceAdvance ? semanticWidth : dDx;
++
+ 
+ 		if (nRenderMode == 0 || nRenderMode == 4 || nRenderMode == 6 || m_bDrawOnlyText)
+ 		{
+@@ -2681,6 +2722,7 @@
+ 							if (wsFileName.empty())
+ 							{
+ 								m_pFontList->Remove(*pGState->getFont()->getID());
++								if (c_nDocxWriter == m_lRendererType) FailDocxTransparency();
+ 								return;
+ 							}
+ 							m_pRenderer->put_FontPath(wsFileName);
+@@ -2691,7 +2733,8 @@
+ 				}
+ 			}
+ #endif
+-			m_pRenderer->CommandDrawTextEx(wsUnicodeText, &unGid, unGidsCount, PDFCoordsToMM(dShiftX), PDFCoordsToMM(dShiftY), PDFCoordsToMM(dDx), PDFCoordsToMM(dDy));
++			if (semanticType3) m_pRenderer->CommandLong(c_nFontSubstitution, sourceAdvance ? 1 : 0);
++			m_pRenderer->CommandDrawTextEx(wsUnicodeText, &unGid, unGidsCount, PDFCoordsToMM(dShiftX), PDFCoordsToMM(dShiftY), PDFCoordsToMM(drawWidth), PDFCoordsToMM(dDy));
+ 			if (bReplace)
+ 				m_pRenderer->put_FontPath(sFontPath);
+ 		}
+@@ -2714,10 +2757,11 @@
+ 				m_pRenderer->put_FontStyle(lNewStyle);
+ 			}
+ 
++			if (semanticType3) m_pRenderer->CommandLong(c_nFontSubstitution, sourceAdvance ? 1 : 0);
+ 			if (unGid)
+-				m_pRenderer->CommandDrawTextEx(wsUnicodeText, &unGid, unGidsCount, PDFCoordsToMM(dShiftX), PDFCoordsToMM(dShiftY), PDFCoordsToMM(dDx), PDFCoordsToMM(dDy));
++				m_pRenderer->CommandDrawTextEx(wsUnicodeText, &unGid, unGidsCount, PDFCoordsToMM(dShiftX), PDFCoordsToMM(dShiftY), PDFCoordsToMM(drawWidth), PDFCoordsToMM(dDy));
+ 			else
+-				m_pRenderer->CommandDrawText(wsUnicodeText, PDFCoordsToMM(dShiftX), PDFCoordsToMM(dShiftY), PDFCoordsToMM(dDx), PDFCoordsToMM(dDy));
++				m_pRenderer->CommandDrawText(wsUnicodeText, PDFCoordsToMM(dShiftX), PDFCoordsToMM(dShiftY), PDFCoordsToMM(drawWidth), PDFCoordsToMM(dDy));
+ 
+ 			if (lOldStyle != lNewStyle)
+ 				m_pRenderer->put_FontStyle(lOldStyle);
+--- a/core/PdfFile/SrcReader/RendererOutputDev.h
++++ b/core/PdfFile/SrcReader/RendererOutputDev.h
+@@ -200,6 +200,7 @@
+ 		virtual void StartTilingFill(GfxState *pGState);
+ 		virtual void EndTilingFill();
+ 		virtual GBool shadedFill(GfxState* pGState, GfxShading* shading) override;
++		GBool DrawNativeShading(GfxState* pGState, GfxShading* shading);
+ 		bool FunctionShadedFill(GfxState* pGState, GfxFunctionShading* pShading);
+ 		bool AxialShadedFill(GfxState* pGState, GfxAxialShading* pShading);
+ 		bool RadialShadedFill(GfxState* pGState, GfxRadialShading* pShading);
+--- /dev/null
++++ b/core/PdfFile/SrcReader/PdfSemanticAdvance.h
+@@ -0,0 +1,23 @@
++// Preserve the existing native PDF advance only for proven axis-aligned
++// semantic Type3 reconstruction. PDF interpretation remains owned by Xpdf.
++#ifndef C2S_PDF_SEMANTIC_ADVANCE_H
++#define C2S_PDF_SEMANTIC_ADVANCE_H
++#include <cmath>
++namespace PdfReader { namespace SemanticText {
++inline bool AxisSourceAdvance(bool semanticType3, const double* rendererMatrix,
++    double startX, double startY, double endX, double endY, double& rendererWidth)
++{
++    if (!semanticType3 || !rendererMatrix) return false;
++    for (unsigned i = 0; i < 6; ++i) if (!std::isfinite(rendererMatrix[i])) return false;
++    if (!std::isfinite(startX) || !std::isfinite(startY) || !std::isfinite(endX) || !std::isfinite(endY) ||
++        rendererMatrix[0] <= 0 || rendererMatrix[3] == 0 || rendererMatrix[1] != 0 ||
++        rendererMatrix[2] != 0 || endY != startY || endX <= startX) return false;
++    // start/end were transformed through the original PDF CTM. CommandDrawText
++    // applies the normalized renderer matrix again, so invert that X scale once.
++    const double width = (endX - startX) / rendererMatrix[0];
++    if (!std::isfinite(width) || width <= 0) return false;
++    rendererWidth = width;
++    return true;
++}
++}}
++#endif
+--- /dev/null
++++ b/core/PdfFile/SrcReader/PdfType3FontProfile.h
+@@ -0,0 +1,56 @@
++// Select existing Base14 reconstruction faces from explicit parsed PDF traits.
++// Font names and family strings are deliberately not used for inference.
++#ifndef C2S_PDF_TYPE3_FONT_PROFILE_H
++#define C2S_PDF_TYPE3_FONT_PROFILE_H
++#include <cmath>
++#include <string>
++#include "../lib/xpdf/Object.h"
++#include "../lib/xpdf/Dict.h"
++#include "../lib/xpdf/GfxFont.h"
++#include "../lib/xpdf/XRef.h"
++namespace PdfReader { namespace SemanticText {
++inline std::wstring Type3Base14Name(XRef* xref, GfxFont* font)
++{
++    bool fixed = false;
++    bool bold = false;
++    bool italic = false;
++    Object object, descriptor, value;
++    if (xref && font && font->getID())
++    {
++        const Ref* ref = font->getID();
++        xref->fetch(ref->num, ref->gen, &object);
++        if (object.isDict() && object.dictLookup("FontDescriptor", &descriptor)->isDict())
++        {
++            if (descriptor.dictLookup("Flags", &value)->isInt() && value.getInt() >= 0)
++            {
++                const int flags = value.getInt();
++                fixed = (flags & fontFixedWidth) != 0;
++                bold = (flags & fontBold) != 0 || (font && font->isBold());
++                italic = (flags & fontItalic) != 0 || (font && font->isItalic());
++            }
++            value.free();
++            if (descriptor.dictLookup("FontWeight", &value)->isNum())
++            {
++                const double weight = value.getNum();
++                // Reuse the existing native AFM reconstruction weight policy.
++                if (std::isfinite(weight) && weight >= 100 && weight <= 900 && weight >= 550)
++                    bold = true;
++            }
++            value.free();
++            if (descriptor.dictLookup("ItalicAngle", &value)->isNum())
++            {
++                const double angle = value.getNum();
++                if (std::isfinite(angle) && angle != 0) italic = true;
++            }
++            value.free();
++        }
++        descriptor.free(); object.free();
++    }
++    if (fixed)
++        return bold ? (italic ? L"Courier-BoldOblique" : L"Courier-Bold") :
++            (italic ? L"Courier-Oblique" : L"Courier");
++    return bold ? (italic ? L"Helvetica-BoldOblique" : L"Helvetica-Bold") :
++        (italic ? L"Helvetica-Oblique" : L"Helvetica");
++}
++}}
++#endif

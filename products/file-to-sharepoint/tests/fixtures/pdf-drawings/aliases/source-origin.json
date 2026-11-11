@@ -1,0 +1,12 @@
+{
+  "scope": "Authored public source: existing public alpha-gap PDF merged before a new bitmap inside its right cell after its label; no private corpus. No SDK/native metadata edits.",
+  "original": "../native056-v2/alpha-gap.source.pdf",
+  "originalSha256": "272f6df59b129aa642244d44550305f61b78d7e8dd57e510681e5a0fedc58904",
+  "outputSha256": "028eae9f577eee6dccbc05ef35d759cddafca12ce8f4f499f2bd6ae5f1093c43",
+  "bitmapPlacement": [
+    250,
+    100,
+    32,
+    16
+  ]
+}

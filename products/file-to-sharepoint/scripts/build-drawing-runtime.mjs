@@ -9,12 +9,18 @@ import {promisify} from 'node:util';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {availableSourceArchive,sourceDirectories} from './source-archive.mjs';
+import {drawingRecipeInputsComplete} from './drawing-recipe-inputs.mjs';
 const execute=promisify(execFile),vendor=new URL('../vendor/',import.meta.url);
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 async function matches(file,pin){try{const hash=createHash('sha256');let bytes=0;for await(const chunk of createReadStream(file)){bytes+=chunk.length;hash.update(chunk);}return bytes===pin.bytes&&hash.digest('hex')===pin.sha256;}catch(error){if(error.code==='ENOENT')return false;throw error;}}
 export async function buildDrawingRuntime({cacheDirectory=fileURLToPath(new URL('../../../.artifacts/file-import-source-build/',import.meta.url))}={}){
  const record=JSON.parse(await readFile(new URL('drawing-build-provenance.json',vendor),'utf8'));
- for(const input of record.build.inputs)if(sha(await readFile(new URL('../'+input.file,import.meta.url)))!==input.sha256)throw new Error(`Drawing build recipe hash mismatch: ${input.file}`);
+ if(!drawingRecipeInputsComplete(record.build?.inputs))throw new Error('Drawing build recipe inputs missing or duplicated.');
+ for(const input of record.build.inputs){
+  if(typeof input.file!=='string'||!(/^[\w.@/-]+$/.test(input.file))||input.file.split('/').some(part=>['..','.',''].includes(part)))throw new Error('Invalid drawing build input path.');
+  const bytes=await readFile(new URL('../'+input.file,import.meta.url));
+  if(sha(bytes)!==input.sha256||input.bytes!==undefined&&bytes.length!==input.bytes)throw new Error(`Drawing build recipe hash/size mismatch: ${input.file}`);
+ }
  await mkdir(cacheDirectory,{recursive:true});
  const selected=new Map();
  for(const input of record.preferredSourceInputs){

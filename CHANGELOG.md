@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.2 - 2026-11-08 — prepared for review, not submitted
+
+- Open file import from an extension shortcut on SharePoint, with the current verified site selected and existing previews or interrupted sends preserved.
+- Import supported MIME-wrapped Word exports through the packaged source-built MIME parser and existing Word HTML importer. Preserve embedded images, local anchors, list continuation, table widths and merged cells.
+- Use the converter's existing native paragraph fallback for PDFs whose overlapping layout cannot use the normal line/table reconstruction. Keep source text, drawing/resource and page verification; explain native layout and text-order adaptations in the preview. No custom document viewer, editor or layout web part is added.
+- Keep very narrow graphics visible in normal SharePoint rendering by adding transparent image space while preserving their original pixels and paint scale. Preserve static-image checks, browser resource limits and exact upload verification.
+- Map verified markerless task and contents groups to supported native bullets, retaining checkbox symbols and local links through later native edits.
+- Adapt formatting differences to the closest native SharePoint representation with preview notes. Preserve verified custom list markers as editable text, normalize skipped list levels, retain marker-free Word paragraphs, simplify textbox/table decoration and use automatic unsupported row heights.
+- Preserve headers, footers, footnotes and endnotes as labeled editable sections with verified links and images. Retain cached document-field results as static content and preserve note-reference order through the existing SDK capture.
+- Support embedded SVG, BMP, TIFF, EMF and WMF through the established converter/SDK paths, with verified PNG views where required and explicit notes for adaptations.
+- Import Word bullets and numbered lists as editable native lists. Use the existing Word SDK's calculated values for inherited numbering, nesting, starts, restarts and continuation, with literal-text fallbacks for verified incompatible markers. Missing or inconsistent source associations still block.
+- Preserve vertical table merges as native row spans, including combined horizontal spans, row offsets, nested tables, and continuation-cell text and images. Segmented side borders use a representative native stroke; malformed merge topology remains blocked.
+- Preserve full decoded PDF raster dimensions, pixels and transparency using the converter's existing PNG exporter and IJG JPEG reader. Remove the extra JPEG encoding pass and 1200-pixel downscaling. Eight independent source-image controls cover lossless, large, alpha, baseline, subsampled, progressive, grayscale and CMYK inputs.
+- Accept the upstream reader's empty no-form result for ordinary PDFs; malformed or unsupported form records remain blocked.
+- Verify XFA presence and AcroForm field counts with the existing native PDF parser before reconstruction. XFA-only, packet-array and hybrid forms, malformed fields and unreadable field metadata cannot silently become ordinary page content.
+- Revalidate prepared interactive definitions at the selected site before any image or page writes. Treat incomplete response-list reads as uncertain, preserving the submission identity for explicit recovery.
+- Include exact local converter build/replay evidence, native dependency review and complete preferred source/toolchain inputs. Existing upload verification, unpublished drafts and recovery remain in place.
+- Publication remains held until the owner reviews the final verification results and explicitly approves.
+
 ## 0.7.1 - 2026-11-08
 
 - Rename the packaged vendor asset inventory to `engine-assets.json`. Chrome Web Store rejected the earlier ZIP because a second file named `manifest.json` was present. The release gate now requires exactly one app manifest at the ZIP root. Conversion code is unchanged.

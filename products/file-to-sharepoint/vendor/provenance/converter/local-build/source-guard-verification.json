@@ -1,0 +1,10 @@
+{
+  "scope": "Actual maintained cumulative065 applicator against complete23-file foundation; full output bytes equal approved snapshots. Wrong last preexisting input refuses atomically before any writes.",
+  "manifestSha256": "8d31495d960b2e5c623d7f9563fcaa7def15093a8b8ad966c335d55aee8476be",
+  "applicatorSha256": "efb54231b6e542ceadf8f0bfd9ce6d045e485345e2f172bba63b4d6ee47a8eca",
+  "positiveExit": 0,
+  "completeSourceFilesVerified": 23,
+  "wrongLastInputExit": 1,
+  "wrongLastInputAllFilesUnchanged": true,
+  "pass": true
+}

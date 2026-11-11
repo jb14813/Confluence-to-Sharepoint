@@ -1,0 +1,181 @@
+{
+  "scope": "Own authored noncell W/W* PDFs; no tenant or private corpus content. MuPDF independent source and unclipped renders at192dpi.",
+  "cases": [
+    {
+      "name": "hole-crossing-mode0",
+      "shape": "hole",
+      "relation": "crossing",
+      "sourcePdfSha256": "797b18c4c505b828d3cc78a403d2571c74c28eef07b26b5f6cd2678d87927548",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "5c2ac45406c46fe558a1f0126ec7e54c8bb554052e9aee0ff9b711520c44e060",
+      "unclippedRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8"
+    },
+    {
+      "name": "hole-crossing-mode1",
+      "shape": "hole",
+      "relation": "crossing",
+      "sourcePdfSha256": "b2c275fc8e07571526e41bfbbe7a47bffe536793dc10f97abc92e4be80888501",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "5c2ac45406c46fe558a1f0126ec7e54c8bb554052e9aee0ff9b711520c44e060",
+      "unclippedRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8"
+    },
+    {
+      "name": "hole-touching-mode0",
+      "shape": "hole",
+      "relation": "touching",
+      "sourcePdfSha256": "67403cca5c6cb9b99dc2f8265bb375150a0d4a9e136836227ce8cf194d1c7ad9",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8",
+      "unclippedRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8"
+    },
+    {
+      "name": "hole-touching-mode1",
+      "shape": "hole",
+      "relation": "touching",
+      "sourcePdfSha256": "2f711655445ba02eba365fbe1400bca99b2d62565077339452cb49e9a89a1c1e",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8",
+      "unclippedRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8"
+    },
+    {
+      "name": "star-crossing-mode0",
+      "shape": "star",
+      "relation": "crossing",
+      "sourcePdfSha256": "d0f64f0041705035391898d5816ad1b02bf08ad87474c3afd494d3fe2f126ad1",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "4a150cdb909867be844f0b252ae96347573dd2b26734ae84ecfa5fe95df94382",
+      "unclippedRgbaSha256": "749e45ae1db7da0bf541c78c1686560deeaa0a2aaa4e497525b24946b133224f"
+    },
+    {
+      "name": "star-crossing-mode1",
+      "shape": "star",
+      "relation": "crossing",
+      "sourcePdfSha256": "d0d854588b1e48b1bf5b95b199e1cd2a3fbf5b1dd9123c7eeb9d4c349550499f",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "4a150cdb909867be844f0b252ae96347573dd2b26734ae84ecfa5fe95df94382",
+      "unclippedRgbaSha256": "749e45ae1db7da0bf541c78c1686560deeaa0a2aaa4e497525b24946b133224f"
+    },
+    {
+      "name": "star-touching-mode0",
+      "shape": "star",
+      "relation": "touching",
+      "sourcePdfSha256": "38b1a71c87e7c52336e3b6e38978d04aab03c980d32fb769dec13f88c69e3730",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "749e45ae1db7da0bf541c78c1686560deeaa0a2aaa4e497525b24946b133224f",
+      "unclippedRgbaSha256": "749e45ae1db7da0bf541c78c1686560deeaa0a2aaa4e497525b24946b133224f"
+    },
+    {
+      "name": "star-touching-mode1",
+      "shape": "star",
+      "relation": "touching",
+      "sourcePdfSha256": "a12d8df72a2711ea73b732537d9678ce7b38e4567f4f5bc9b985220a63e890ae",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "749e45ae1db7da0bf541c78c1686560deeaa0a2aaa4e497525b24946b133224f",
+      "unclippedRgbaSha256": "749e45ae1db7da0bf541c78c1686560deeaa0a2aaa4e497525b24946b133224f"
+    },
+    {
+      "name": "alpha-crossing-mode0",
+      "shape": "alpha",
+      "relation": "crossing",
+      "sourcePdfSha256": "656367d26b69daea33203740e28c92b1b9b6b2c3bb85eda02847cab84d476cbc",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "5a01894de13e7a68f58ea5853a123d0c6850ff8c873c212f79322dafaea9d785",
+      "unclippedRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754"
+    },
+    {
+      "name": "alpha-crossing-mode1",
+      "shape": "alpha",
+      "relation": "crossing",
+      "sourcePdfSha256": "601464926e516326340eac33692815cb08bb18d3378a8b1f69f998ce4a14d616",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "5a01894de13e7a68f58ea5853a123d0c6850ff8c873c212f79322dafaea9d785",
+      "unclippedRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754"
+    },
+    {
+      "name": "alpha-touching-mode0",
+      "shape": "alpha",
+      "relation": "touching",
+      "sourcePdfSha256": "03a25b5082bf2b402cbe2fb6c4bf3b24672f9d4778506623d40657c1dcc6b670",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754",
+      "unclippedRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754"
+    },
+    {
+      "name": "alpha-touching-mode1",
+      "shape": "alpha",
+      "relation": "touching",
+      "sourcePdfSha256": "2030e4f6ff1eedaf954dcbc8ce13c79f45db6834f015756d9ccefea8096ee2e0",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754",
+      "unclippedRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754"
+    },
+    {
+      "name": "curve-crossing-mode0",
+      "shape": "curve",
+      "relation": "crossing",
+      "sourcePdfSha256": "8b9d4992b0d10f5aa736325d729cf5c2c7e19337fd420b4247e8f27b16b02f93",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "4f941857941b83cb99b22b2c55b25d48c7e7f4a1ea2d643c176a86cfef43e07a",
+      "unclippedRgbaSha256": "edd51536831488e21ac77e094dc9ef0ac9355a9db97ecad1996dd5c88ac96446"
+    },
+    {
+      "name": "curve-crossing-mode1",
+      "shape": "curve",
+      "relation": "crossing",
+      "sourcePdfSha256": "08e79d9a237b1e6ac791e9264ce359d242331c785ef93e52064d296141c8bd49",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": false,
+      "sourceRgbaSha256": "4f941857941b83cb99b22b2c55b25d48c7e7f4a1ea2d643c176a86cfef43e07a",
+      "unclippedRgbaSha256": "edd51536831488e21ac77e094dc9ef0ac9355a9db97ecad1996dd5c88ac96446"
+    },
+    {
+      "name": "curve-touching-mode0",
+      "shape": "curve",
+      "relation": "touching",
+      "sourcePdfSha256": "a4fff9ea1ddd6f7d686b34e5c8b11f5f74e7b812b27e100e08d19ecc8c7537ca",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "edd51536831488e21ac77e094dc9ef0ac9355a9db97ecad1996dd5c88ac96446",
+      "unclippedRgbaSha256": "edd51536831488e21ac77e094dc9ef0ac9355a9db97ecad1996dd5c88ac96446"
+    },
+    {
+      "name": "curve-touching-mode1",
+      "shape": "curve",
+      "relation": "touching",
+      "sourcePdfSha256": "d0ae084713a42701284d8a3ef4b3d8ab5110d4ce8f24d617a840e5abded72fea",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "edd51536831488e21ac77e094dc9ef0ac9355a9db97ecad1996dd5c88ac96446",
+      "unclippedRgbaSha256": "edd51536831488e21ac77e094dc9ef0ac9355a9db97ecad1996dd5c88ac96446"
+    }
+  ]
+}

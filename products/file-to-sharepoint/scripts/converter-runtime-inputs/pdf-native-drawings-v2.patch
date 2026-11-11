@@ -1,0 +1,2620 @@
+--- a/core/DesktopEditor/graphics/commands/PdfPaintContext.h
++++ b/core/DesktopEditor/graphics/commands/PdfPaintContext.h
+@@ -0,0 +1,8 @@
++#pragma once
++
++// Private per-paint PDF proof. Every consuming DrawPath clears the bit.
++// Kept independent of PDF/Docx types so both existing renderer components use
++// the identical command without introducing a component dependency.
++namespace NSPdfPaintContext {
++static const long Command=0x46545350;
++}
+--- a/core/DocxRenderer/DocxRenderer.cpp
++++ b/core/DocxRenderer/DocxRenderer.cpp
+@@ -1,4 +1,4 @@
+-﻿/*
++/*
+  * (c) Copyright Ascensio System SIA 2010-2023
+  *
+  * This program is a free software product. You can redistribute it and/or
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include "DocxRenderer.h"
++#include "../DesktopEditor/graphics/commands/PdfPaintContext.h"
+ #include "../DesktopEditor/common/Directory.h"
+ #include "../OfficeUtils/src/OfficeUtils.h"
+ #include "src/logic/Document.h"
+@@ -101,6 +102,7 @@
+ 
+ 	m_pInternal->m_oDocument.Init();
+ 	m_pInternal->m_oDocument.CreateTemplates();
++    m_pInternal->m_oDocument.m_bWriteVerifiedPdfLayout=(pFile->GetType()==odftPDF);
+ 
+ 	int nPagesCount = pFile->GetPagesCount();
+ 	m_pInternal->m_oDocument.m_lNumberPages = nPagesCount;
+@@ -110,7 +112,7 @@
+ 	for (int i = 0; i < nPagesCount; ++i)
+ 	{
+ 		DrawPage(pFile, i, &stopped);
+-		if (stopped || m_pInternal->m_oDocument.m_oFontSelector.HasFailed()) { m_pInternal->m_oDocument.Clear(); return 1; }
++		if (stopped || m_pInternal->m_oDocument.m_oFontSelector.HasFailed() || m_pInternal->m_oDocument.m_oCurrentPage.m_bReconstructionFailed) { m_pInternal->m_oDocument.Clear(); return 1; }
+ 	}
+ 
+ 	HRESULT hr = S_OK;
+@@ -727,6 +729,11 @@
+ 
+ HRESULT CDocxRenderer::CommandLong(const LONG& lType, const LONG& lCommand)
+ {
++    if(NSPdfPaintContext::Command==lType){
++        auto& page=m_pInternal->m_oDocument.m_oCurrentPage;
++        if(lCommand!=0&&lCommand!=1){page.m_bReconstructionFailed=true;return S_FALSE;}
++        page.m_bNextPdfNormalComposite=(lCommand==1);return S_OK;
++    }
+ 	if (c_nSupportPathTextAsText == lType)
+ 	{
+ 		NSStructures::CBrush* pBrush = &m_pInternal->m_oDocument.m_oCurrentPage.m_oBrush;
+--- a/core/DocxRenderer/src/logic/Document.cpp
++++ b/core/DocxRenderer/src/logic/Document.cpp
+@@ -22,6 +22,9 @@
+ 	void CDocument::Clear()
+ 	{
+ 		m_oPageBuilder.Clear();
++        m_bWriteVerifiedPdfLayout=false;
++        m_oVerifiedPdfTables.Clear();m_oVerifiedPdfDrawings.Clear();m_oVerifiedDrawingCounts=CPdfDrawingCounts();
++        m_nVerifiedTableOrdinal=0;m_nVerifiedCellCount=0;
+ 		NewPage();
+ 
+ 		m_arXmlString.clear();
+@@ -39,6 +42,7 @@
+ 	HRESULT CDocument::NewPage()
+ 	{
+ 		m_oCurrentPage.Clear();
++        m_oCurrentPage.m_bVerifiedPdfTables=m_bWriteVerifiedPdfLayout;
+ 		return S_OK;
+ 	}
+ 	HRESULT CDocument::get_Height(double* dHeight)
+@@ -572,6 +576,14 @@
+ 			m_oPageBuilder.ClearNoAttack();
+ 
+ 			m_oCurrentPage.Analyze();
++            if(m_oCurrentPage.m_bReconstructionFailed)return S_FALSE;
++            const size_t tableBase=m_nVerifiedTableOrdinal;
++            if(m_bWriteVerifiedPdfLayout && !m_oCurrentPage.WriteVerifiedTableLayout(m_oVerifiedPdfTables,m_lPageNum,m_nVerifiedTableOrdinal,m_nVerifiedCellCount)) {
++                m_oCurrentPage.m_bReconstructionFailed=true;return S_FALSE;
++            }
++            if(m_bWriteVerifiedPdfLayout && !m_oCurrentPage.WriteVerifiedDrawingLayout(m_oVerifiedPdfDrawings,m_lPageNum,tableBase,m_oVerifiedDrawingCounts)){
++                m_oCurrentPage.m_bReconstructionFailed=true;return S_FALSE;
++            }
+ 			if (m_bIsRecord)
+ 			{
+ 				m_oCurrentPage.Record(m_oPageBuilder, m_lPageNum >= m_lNumberPages - 1);
+@@ -833,6 +845,24 @@
+ 		BuildDocumentXmlRels();
+ 		BuildFontTableXml();
+ 		BuildStylesXml();
++        if(m_bWriteVerifiedPdfLayout) {
++            NSStringUtils::CStringBuilder layout;
++            layout.WriteString(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?><pdfLayout xmlns=\"urn:fts:pdf-layout:1\" version=\"1\" complete=\"true\" coordinateSpace=\"displayed-crop-top-left-pt\" sourcePageCount=\"");
++            layout.AddUInt(static_cast<unsigned int>(m_lNumberPages));
++            if(m_oCurrentPage.m_eTextAssociationType==TextAssociationType::tatPlainParagraph)
++                layout.WriteString(L"\" textAssociationType=\"4");
++            layout.WriteString(L"\">");
++            layout.WriteString(m_oVerifiedPdfTables.GetData());layout.WriteString(L"</pdfLayout>");
++            NSFile::CFileBinary::SaveToFile(m_strTempDirectory+L"/word/fts-pdf-layout.xml",layout.GetData());
++            NSStringUtils::CStringBuilder drawings;
++            drawings.WriteString(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?><drawings xmlns=\"urn:fts:pdf-drawings:2\" version=\"2\" complete=\"true\" coordinateSpace=\"displayed-crop-top-left-pt\" ordinalSpace=\"native-renderer-paint-calls\"");
++            PdfDrawingIndex(drawings,L"sourcePageCount",m_lNumberPages);
++            PdfDrawingIndex(drawings,L"sourcePaintCount",m_oVerifiedDrawingCounts.paints);
++            PdfDrawingIndex(drawings,L"outputDrawingCount",m_oVerifiedDrawingCounts.outputs);
++            PdfDrawingIndex(drawings,L"formedLineCount",m_oVerifiedDrawingCounts.lines);
++            drawings.WriteString(L">");drawings.WriteString(m_oVerifiedPdfDrawings.GetData());drawings.WriteString(L"</drawings>");
++            NSFile::CFileBinary::SaveToFile(m_strTempDirectory+L"/word/fts-pdf-drawings.xml",drawings.GetData());
++        }
+ 	}
+ 
+ 	void CDocument::BuildDocumentXml()
+--- a/core/DocxRenderer/src/logic/Document.h
++++ b/core/DocxRenderer/src/logic/Document.h
+@@ -44,6 +44,11 @@
+ 
+ 		NSStringUtils::CStringBuilder m_oPageBuilder;
+ 		std::list<std::string> m_arXmlString;
++        bool m_bWriteVerifiedPdfLayout{false};
++        NSStringUtils::CStringBuilder m_oVerifiedPdfTables;
++        NSStringUtils::CStringBuilder m_oVerifiedPdfDrawings;
++        CPdfDrawingCounts m_oVerifiedDrawingCounts;
++        size_t m_nVerifiedTableOrdinal=0, m_nVerifiedCellCount=0;
+ 
+ 	public:
+ 		CDocument(IRenderer* pRenderer, NSFonts::IApplicationFonts* pFonts);
+--- a/core/DocxRenderer/src/logic/elements/ContText.cpp
++++ b/core/DocxRenderer/src/logic/elements/ContText.cpp
+@@ -54,6 +54,7 @@
+ 		m_bIsEngravePresent = rCont.m_bIsEngravePresent;
+ 
+ 		m_oText = rCont.m_oText;
++        m_arSourceOrders = rCont.m_arSourceOrders;
+ 
+ 		m_oSelectedSizes = rCont.m_oSelectedSizes;
+ 		m_dSpaceWidthMM = rCont.m_dSpaceWidthMM;
+@@ -144,11 +145,13 @@
+ 		cont->m_dWidth = cont->m_dRight - cont->m_dLeft;
+ 
+ 		cont->m_arSymWidths.clear();
++        cont->m_arSourceOrders.clear();
+ 		cont->m_arOriginLefts.clear();
+ 		cont->m_arGids.clear();
+ 		for (size_t i = index + 1; i < len; ++i)
+ 		{
+ 			cont->m_arSymWidths.push_back(m_arSymWidths[i]);
++            cont->m_arSourceOrders.push_back(i<m_arSourceOrders.size()?m_arSourceOrders[i]:0);
+ 			cont->m_arOriginLefts.push_back(m_arOriginLefts[i]);
+ 
+ 			if (!m_arGids.empty() && cont->m_bCollectMetaInfo)
+@@ -160,6 +163,7 @@
+ 		m_dWidth = m_dRight - m_dLeft;
+ 
+ 		m_arSymWidths.resize(index + 1);
++        m_arSourceOrders.resize(index + 1);
+ 		m_arOriginLefts.resize(index + 1);
+ 
+ 		if (!m_arGids.empty())
+@@ -725,7 +729,8 @@
+ 	void CContText::AddTextBack(const NSStringUtils::CStringUTF32& oText,
+ 	                             const std::vector<double>& arSymWidths,
+ 	                             const std::vector<unsigned int>& arGids,
+-	                             const std::vector<double>& arOriginLefts)
++	                             const std::vector<double>& arOriginLefts,
++                                 const std::vector<size_t>* arSourceOrders)
+ 	{
+ 		bool is_space_twice = m_oText.at(m_oText.length() - 1) == c_SPACE_SYM &&
+ 		        oText.at(0) == c_SPACE_SYM;
+@@ -741,6 +746,7 @@
+ 			}
+ 			m_arSymWidths.push_back(w);
+ 			m_oText += oText.at(i);
++            m_arSourceOrders.push_back(arSourceOrders&&i<arSourceOrders->size()?(*arSourceOrders)[i]:0);
+ 			m_arOriginLefts.push_back(arOriginLefts[i]);
+ 			m_dRight = arOriginLefts[i] + w;
+ 
+@@ -752,8 +758,13 @@
+ 	void CContText::AddTextFront(const NSStringUtils::CStringUTF32& oText,
+ 	                             const std::vector<double>& arSymWidths,
+ 	                             const std::vector<unsigned int>& arGids,
+-	                             const std::vector<double>& arOriginLefts)
+-	{
++	                             const std::vector<double>& arOriginLefts,
++                                 const std::vector<size_t>* arSourceOrders)
++	{
++        std::vector<size_t> orders(oText.length(),0);
++        if(arSourceOrders)for(size_t i=0;i<orders.size()&&i<arSourceOrders->size();++i)orders[i]=(*arSourceOrders)[i];
++        orders.insert(orders.end(),m_arSourceOrders.begin(),m_arSourceOrders.end());
++        m_arSourceOrders=std::move(orders);
+ 		m_oText = oText + m_oText;
+ 
+ 		auto ar_sym_w = m_arSymWidths;
+@@ -780,8 +791,12 @@
+ 	void CContText::SetText(const NSStringUtils::CStringUTF32& oText,
+ 	                        const std::vector<double>& arSymWidths,
+ 	                        std::vector<unsigned int>&& arGids,
+-	                        std::vector<double>&& arOriginLefts)
+-	{
++	                        std::vector<double>&& arOriginLefts,
++                            const std::vector<size_t>* arSourceOrders)
++	{
++        std::vector<size_t> orders(oText.length(),0);
++        if(arSourceOrders)for(size_t i=0;i<orders.size()&&i<arSourceOrders->size();++i)orders[i]=(*arSourceOrders)[i];
++        m_arSourceOrders=std::move(orders);
+ 		m_oText = oText;
+ 		m_arSymWidths.clear();
+ 		m_dWidth = 0;
+@@ -797,7 +812,7 @@
+ 			m_arGids = std::move(arGids);
+ 	}
+ 
+-	void CContText::AddSymBack(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid)
++	void CContText::AddSymBack(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid, size_t nSourceOrder)
+ 	{
+ 		bool is_space_twice = m_oText.at(m_oText.length() - 1) == c_SPACE_SYM && cSym == c_SPACE_SYM;
+ 
+@@ -809,6 +824,7 @@
+ 		{
+ 			m_arSymWidths.push_back(dWidth);
+ 			m_oText += cSym;
++            m_arSourceOrders.push_back(nSourceOrder);
+ 			m_arOriginLefts.push_back(dLeft);
+ 
+ 			if (m_bCollectMetaInfo)
+@@ -819,12 +835,13 @@
+ 		m_dRight = dLeft + dWidth;
+ 		m_dWidth = m_dRight - m_dLeft;
+ 	}
+-	void CContText::AddSymFront(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid)
++	void CContText::AddSymFront(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid, size_t nSourceOrder)
+ 	{
+ 		NSStringUtils::CStringUTF32 text;
+ 		text += cSym;
+ 		text += m_oText;
+ 		m_oText = text;
++        m_arSourceOrders.insert(m_arSourceOrders.begin(),nSourceOrder);
+ 
+ 		m_dLeft = dLeft;
+ 		m_dWidth = m_dRight - m_dLeft;
+@@ -836,10 +853,11 @@
+ 			m_arGids.insert(m_arGids.begin(), nGid);
+ 		}
+ 	}
+-	void CContText::SetSym(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid)
++	void CContText::SetSym(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid, size_t nSourceOrder)
+ 	{
+ 		m_oText = L"";
+ 		m_oText += cSym;
++        m_arSourceOrders.assign(1,nSourceOrder);
+ 		m_arSymWidths.clear();
+ 		m_arSymWidths.push_back(dWidth);
+ 		m_dWidth = dWidth;
+@@ -860,6 +878,7 @@
+ 	void CContText::RemoveLastSym()
+ 	{
+ 		m_oText = m_oText.substr(0, m_oText.length() - 1);
++        m_arSourceOrders.resize(m_oText.length());
+ 		m_arSymWidths.resize(m_arSymWidths.size() - 1);
+ 		m_arOriginLefts.resize(m_arOriginLefts.size() - 1);
+ 
+@@ -1176,6 +1195,7 @@
+ 	        bool bFontSubstitution)
+ 	{
+ 		double dWidth = dRight - dLeft;
++        const std::vector<size_t> sourceOrders(oText.length(),nOrder);
+ 		double dHeight = dBot - dTop;
+ 
+ 		std::vector<unsigned int> gids;
+@@ -1229,7 +1249,7 @@
+ 				for (size_t i = 0; i < oText.length(); ++i)
+ 					ar_widths.push_back(left_avg_width);
+ 
+-				m_pCurrCont->AddTextBack(oText, ar_widths, gids, origin_lefts);
++				m_pCurrCont->AddTextBack(oText, ar_widths, gids, origin_lefts, &sourceOrders);
+ 				is_added = true;
+ 
+ 			}
+@@ -1241,7 +1261,7 @@
+ 				for (size_t i = 0; i < oText.length(); ++i)
+ 					ar_widths.push_back(right_avg_width);
+ 
+-				m_pCurrCont->AddTextFront(oText, ar_widths, gids, origin_lefts);
++				m_pCurrCont->AddTextFront(oText, ar_widths, gids, origin_lefts, &sourceOrders);
+ 				is_added = true;
+ 			}
+ 
+@@ -1286,7 +1306,7 @@
+ 			ar_widths.push_back(avg_width);
+ 
+ 		pCont->m_bCollectMetaInfo = bCollectMetaInfo;
+-		pCont->SetText(oText, ar_widths, std::move(gids), std::move(origin_lefts));
++		pCont->SetText(oText, ar_widths, std::move(gids), std::move(origin_lefts), &sourceOrders);
+ 		pCont->m_bIsRtl = CContText::IsUnicodeRtl(oText.at(0));
+ 
+ 		pCont->m_dWidth = dWidth;
+--- a/core/DocxRenderer/src/logic/elements/ContText.h
++++ b/core/DocxRenderer/src/logic/elements/ContText.h
+@@ -82,6 +82,9 @@
+ 
+ 		std::vector<unsigned int> m_arGids{};
+ 		std::vector<double> m_arOriginLefts{};
++        // Original input order per Unicode scalar, parallel to native widths
++        // and origins. Zero belongs only to generated/non-source characters.
++        std::vector<size_t> m_arSourceOrders{};
+ 		bool m_bFontSubstitution = false;
+ 
+ 		CContText() = default;
+@@ -102,19 +105,22 @@
+ 		void AddTextBack(const NSStringUtils::CStringUTF32& oText,
+ 		                 const std::vector<double>& arSymWidths,
+ 		                 const std::vector<unsigned int>& arGids,
+-		                 const std::vector<double>& arOriginLefts);
++		                 const std::vector<double>& arOriginLefts,
++                         const std::vector<size_t>* arSourceOrders = nullptr);
+ 		void AddTextFront(const NSStringUtils::CStringUTF32& oText,
+ 		                  const std::vector<double>& arSymWidths,
+ 		                  const std::vector<unsigned int>& arGids,
+-		                  const std::vector<double>& arOriginLefts);
++		                  const std::vector<double>& arOriginLefts,
++                         const std::vector<size_t>* arSourceOrders = nullptr);
+ 		void SetText(const NSStringUtils::CStringUTF32& oText,
+ 		             const std::vector<double>& arSymWidths,
+ 		             std::vector<unsigned int>&& arGids,
+-		             std::vector<double>&& arOriginLefts);
+-
+-		void AddSymBack(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid = 0);
+-		void AddSymFront(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid = 0);
+-		void SetSym(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid = 0);
++		             std::vector<double>&& arOriginLefts,
++                     const std::vector<size_t>* arSourceOrders = nullptr);
++
++		void AddSymBack(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid = 0, size_t nSourceOrder = 0);
++		void AddSymFront(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid = 0, size_t nSourceOrder = 0);
++		void SetSym(uint32_t cSym, double dWidth, double dLeft, unsigned int nGid = 0, size_t nSourceOrder = 0);
+ 
+ 		void RemoveLastSym();
+ 
+--- a/core/DocxRenderer/src/logic/elements/Shape.cpp
++++ b/core/DocxRenderer/src/logic/elements/Shape.cpp
+@@ -38,6 +38,7 @@
+ 
+ 	void CShape::Clear()
+ 	{
++        m_bPdfDerivedVector=false;m_nPdfDerivedWidth=m_nPdfDerivedHeight=0;m_nPdfDerivedBytes=0;m_wsPdfDerivedResource.clear();
+ 		m_arOutputObjects.clear();
+ 		m_oVector.Clear();
+ 	}
+@@ -48,6 +49,18 @@
+ 		iId++;
+ 		return iId;
+ 	}
++
++    UINT CShape::GetDocPrId() const
++    {
++        if (!m_nShapeId) m_nShapeId = GenerateShapeId();
++        return m_nShapeId;
++    }
++    void CShape::AppendSourcePaints(const CShape& source)
++    {
++        for(const auto& paint:source.m_arSourcePaints)
++            if(std::find(m_arSourcePaints.begin(),m_arSourcePaints.end(),paint)==m_arSourcePaints.end())
++                m_arSourcePaints.push_back(paint);
++    }
+ 
+ 	void CShape::ResetRelativeHeight()
+ 	{
+@@ -146,6 +159,7 @@
+ 		         fabs(pShape->m_dTop - this->m_dTop) < dVerNearby))
+ 		{
+ 			RecalcWithNewItem(pShape.get());
++			AppendSourcePaints(*pShape);
+ 			m_oVector.Join(std::move(pShape->m_oVector));
+ 			pShape = nullptr;
+ 
+@@ -204,8 +218,11 @@
+ 
+ 			for(auto& point : path_command.points)
+ 			{
+-				LONG lX = static_cast<LONG>((point.x - left) * c_dMMToEMU);
+-				LONG lY = static_cast<LONG>((point.y - top) * c_dMMToEMU);
++                // Counter-reflect the clipping geometry: xfrm reflects both
++                // texture and path, while the source clip stays in page space.
++                const bool image = m_eType == eShapeType::stVectorTexture;
++                LONG lX = static_cast<LONG>((image && m_bImageFlipH ? right - point.x : point.x - left) * c_dMMToEMU);
++                LONG lY = static_cast<LONG>((image && m_bImageFlipV ? bot - point.y : point.y - top) * c_dMMToEMU);
+ 
+ 				oWriter.WriteString(L"<a:pt x=\"");
+ 				oWriter.AddInt(static_cast<int>(lX));
+@@ -335,6 +352,7 @@
+ 		auto set_line_type = [] (std::shared_ptr<CShape>& master, std::shared_ptr<CShape>& slave, eLineType type) {
+ 			master->m_eLineType = type;
+ 			master->RecalcWithNewItem(slave.get());
++			master->AppendSourcePaints(*slave);
+ 			master->m_oVector.Join(std::move(slave->m_oVector));
+ 			slave = nullptr;
+ 		};
+@@ -438,6 +456,7 @@
+ 			}
+ 
+ 			pFirstShape->RecalcWithNewItem(pSecondShape.get());
++			pFirstShape->AppendSourcePaints(*pSecondShape);
+ 			pFirstShape->m_oVector.Join(std::move(pSecondShape->m_oVector));
+ 			pSecondShape = nullptr;
+ 			return;
+@@ -545,6 +564,7 @@
+ 		if (passed)
+ 		{
+ 			pFirstShape->RecalcWithNewItem(pSecondShape.get());
++			pFirstShape->AppendSourcePaints(*pSecondShape);
+ 			pFirstShape->m_oVector.Join(std::move(pSecondShape->m_oVector));
+ 			pSecondShape = nullptr;
+ 		}
+@@ -562,6 +582,15 @@
+ 
+ 	void CShape::BuildGeneralProperties(NSStringUtils::CStringBuilder &oWriter) const
+ 	{
++        if (m_bIsUseInTable) {
++            oWriter.WriteString(L"<wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"");
++            oWriter.AddUInt(static_cast<unsigned int>(m_dWidth * c_dMMToEMU));
++            oWriter.WriteString(L"\" cy=\""); oWriter.AddUInt(static_cast<unsigned int>(m_dHeight * c_dMMToEMU));
++            oWriter.WriteString(L"\"/><wp:effectExtent l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><wp:docPr id=\"");
++            oWriter.AddUInt(GetDocPrId()); oWriter.WriteString(m_bPdfDerivedVector?L"\" name=\"Verified PDF derived vector\"/><wp:cNvGraphicFramePr/>":m_pImageInfo?L"\" name=\"Verified PDF cell image\"/><wp:cNvGraphicFramePr/>":L"\" name=\"Verified PDF cell figure\"/><wp:cNvGraphicFramePr/>");
++            BuildSpecificProperties(oWriter); oWriter.WriteString(L"</wp:inline>"); return;
++        }
++
+ 		oWriter.WriteString(L"<wp:anchor");
+ 		oWriter.WriteString(L" distT=\"0\""); //Defines the minimum distance that must be maintained between edges
+ 		oWriter.WriteString(L" distB=\"0\""); //this drawing object and any subsequent text in the document when
+@@ -614,7 +643,7 @@
+ 		oWriter.WriteString(L"<wp:wrapNone/>");
+ 
+ 		oWriter.WriteString(L"<wp:docPr id=\"");
+-		oWriter.AddUInt(GenerateShapeId());
++		oWriter.AddUInt(GetDocPrId());
+ 		switch (m_eType)
+ 		{
+ 		case eShapeType::stTextBox:
+@@ -636,7 +665,7 @@
+ 			oWriter.WriteString(L"\" name=\"Shape ");
+ 			break;
+ 		}
+-		oWriter.AddUInt(m_nShapeId);
++		oWriter.AddUInt(GetDocPrId());
+ 		oWriter.WriteString(L"\"/>");
+ 		oWriter.WriteString(L"<wp:cNvGraphicFramePr/>");
+ 		BuildSpecificProperties(oWriter);
+@@ -704,44 +733,29 @@
+ 		}
+ 		else
+ 		{
+-			double left = fabs(m_dRotation) > c_dMIN_ROTATION ? m_oNoRotVector.GetLeft() : m_dLeft;
+-			double right = fabs(m_dRotation) > c_dMIN_ROTATION ? m_oNoRotVector.GetRight() : m_dRight;
+-			double top = fabs(m_dRotation) > c_dMIN_ROTATION ? m_oNoRotVector.GetTop() : m_dTop;
+-			double bot = fabs(m_dRotation) > c_dMIN_ROTATION ? m_oNoRotVector.GetBottom() : m_dBot;
+-
+-			double height = bot - top;
+-			double width = right - left;
+-
+-			// coeff
+-			double offset_left = (right - m_dImageLeft) / width - 1;
+-			double offset_right = (m_dImageRight - left) / width - 1;
+-			double offset_top = (bot - m_dImageTop) / height - 1;
+-			double offset_bot = (m_dImageBot - top) / height - 1;
+-
+-			// percentage
+-			offset_left *= 100;
+-			offset_right *= 100;
+-			offset_top *= 100;
+-			offset_bot *= 100;
+-
+-			// ooxml (percentage * 1000)
+-			oWriter.WriteString(L"<a:srcRect/>");
+-			oWriter.WriteString(L"<a:stretch>");
+-			oWriter.WriteString(L"<a:fillRect ");
+-			oWriter.WriteString(L"l=\"");
+-			oWriter.AddInt(static_cast<int>(-offset_left * 1000));
+-			oWriter.WriteString(L"\" ");
+-			oWriter.WriteString(L"r=\"");
+-			oWriter.AddInt(static_cast<int>(-offset_right * 1000));
+-			oWriter.WriteString(L"\" ");
+-			oWriter.WriteString(L"t=\"");
+-			oWriter.AddInt(static_cast<int>(-offset_top * 1000));
+-			oWriter.WriteString(L"\" ");
+-			oWriter.WriteString(L"b=\"");
+-			oWriter.AddInt(static_cast<int>(-offset_bot * 1000));
+-			oWriter.WriteString(L"\"");
+-			oWriter.WriteString(L"/>");
+-			oWriter.WriteString(L"</a:stretch>");
++            const auto& textureVector=fabs(m_dRotation)>c_dMIN_ROTATION?m_oNoRotVector:m_oVector;
++            double fillLeft=0,fillTop=0,fillWidth=0,fillHeight=0;
++            textureVector.GetControlBounds(fillLeft,fillTop,fillWidth,fillHeight);
++            // The existing Word SDK fills custom geometry in its CONTROL
++            // extent. Normalize the unchanged full source image to that same
++            // native extent, while preserving the visible clip and xfrm.
++            const double imageWidth=m_dImageRight-m_dImageLeft;
++            const double imageHeight=m_dImageBot-m_dImageTop;
++            double cropLeft=(fillLeft-m_dImageLeft)/imageWidth;
++            double cropRight=(m_dImageRight-fillLeft-fillWidth)/imageWidth;
++            double cropTop=(fillTop-m_dImageTop)/imageHeight;
++            double cropBottom=(m_dImageBot-fillTop-fillHeight)/imageHeight;
++            if(m_bImageFlipH)std::swap(cropLeft,cropRight);
++            if(m_bImageFlipV)std::swap(cropTop,cropBottom);
++            oWriter.WriteString(L"<a:srcRect l=\"");
++            oWriter.AddInt(static_cast<int>(cropLeft*100000));
++            oWriter.WriteString(L"\" r=\"");
++            oWriter.AddInt(static_cast<int>(cropRight*100000));
++            oWriter.WriteString(L"\" t=\"");
++            oWriter.AddInt(static_cast<int>(cropTop*100000));
++            oWriter.WriteString(L"\" b=\"");
++            oWriter.AddInt(static_cast<int>(cropBottom*100000));
++            oWriter.WriteString(L"\"/><a:stretch><a:fillRect/></a:stretch>");
+ 		}
+ 	}
+ 
+@@ -915,6 +929,10 @@
+ 
+ 		// is responsible for the dimensions of the rectangular frame of the shape
+ 		oWriter.WriteString(L"<a:xfrm");
++        if (m_eType == eShapeType::stVectorTexture && m_bImageFlipH)
++            oWriter.WriteString(L" flipH=\"1\"");
++        if (m_eType == eShapeType::stVectorTexture && m_bImageFlipV)
++            oWriter.WriteString(L" flipV=\"1\"");
+ 		if (fabs(m_dRotation) > c_dMIN_ROTATION)
+ 		{
+ 			oWriter.WriteString(L" rot=\"");
+--- a/core/DocxRenderer/src/logic/elements/Shape.h
++++ b/core/DocxRenderer/src/logic/elements/Shape.h
+@@ -8,6 +8,7 @@
+ #include "../../resources/LinesTable.h"
+ #include "../../resources/VectorGraphics.h"
+ #include "BaseItem.h"
++#include "../../resources/PdfDrawingLedger.h"
+ 
+ namespace NSDocxRenderer
+ {
+@@ -46,6 +47,8 @@
+ 		std::wstring m_strDstMedia    {};
+ 
+ 		double m_dRotation {0.0};
++        bool m_bImageFlipH{false};
++        bool m_bImageFlipV{false};
+ 
+ 		bool m_bIsNoFill    {true};
+ 		bool m_bIsNoStroke  {true};
+@@ -101,6 +104,13 @@
+ 		void BuildForm(NSStringUtils::CStringBuilder &oWriter, const bool& bIsLT = false) const;
+ 		void BuildBlipFill(NSStringUtils::CStringBuilder &oWriter) const;
+ 
++        bool m_bPdfDerivedVector{false};
++        unsigned m_nPdfDerivedWidth{0},m_nPdfDerivedHeight{0};
++        size_t m_nPdfDerivedBytes{0};
++        std::wstring m_wsPdfDerivedResource;
++        std::vector<std::shared_ptr<CPdfSourcePaint>> m_arSourcePaints;
++        void AppendSourcePaints(const CShape& source);
++        UINT GetDocPrId() const;
+ 		static void ResetRelativeHeight();
+ 
+ 		// check type of line and delete not needed shape
+@@ -112,7 +122,7 @@
+ 
+ 	private:
+ 
+-		UINT m_nShapeId{0};
++		mutable UINT m_nShapeId{0};
+ 		UINT m_nRelativeHeight{0};
+ 
+ 		static UINT m_gRelativeHeight;
+--- a/core/DocxRenderer/src/logic/elements/Table.cpp
++++ b/core/DocxRenderer/src/logic/elements/Table.cpp
+@@ -1,4 +1,5 @@
+ #include "Table.h"
++#include <cmath>
+ 
+ #include "../../resources/SingletonTemplate.h"
+ #include "../../resources/utils.h"
+@@ -12,6 +13,7 @@
+ 	void CTable::CCell::Clear()
+ 	{
+ 		m_arParagraphs.clear();
++        m_arContent.clear();
+ 	}
+ 	void CTable::CCell::ToXml(NSStringUtils::CStringBuilder& oWriter) const
+ 	{
+@@ -25,6 +27,7 @@
+ 		oWriter.AddUInt(m_nGridSpan);
+ 		oWriter.WriteString(L"\"/>");
+ 
++		if (m_eVMerge != eVMerge::vmNone) {
+ 		oWriter.WriteString(L"<w:vMerge w:val=\"");
+ 		switch (m_eVMerge) {
+ 		case eVMerge::vmContinue:
+@@ -38,6 +41,7 @@
+ 		}
+ 		oWriter.WriteString(L"\"/>");
+ 
++        }
+ 		oWriter.WriteString(L"<w:tcBorders>");
+ 		auto write_border = [&oWriter] (const CBorder& border, const std::wstring& prefix) {
+ 			oWriter.WriteString(L"<w:");
+@@ -59,10 +63,32 @@
+ 		write_border(m_oBorderRight, L"right");
+ 
+ 		oWriter.WriteString(L"</w:tcBorders>");
++        if (m_bIsShadingPresent) {
++            oWriter.WriteString(L"<w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"");
++            oWriter.WriteHexInt3(ConvertColorBGRToRGB(m_lShadingColor));
++            oWriter.WriteString(L"\"/>");
++        }
++        oWriter.WriteString(L"<w:tcMar><w:top w:w=\"0\" w:type=\"dxa\"/><w:left w:w=\"0\" w:type=\"dxa\"/><w:bottom w:w=\"0\" w:type=\"dxa\"/><w:right w:w=\"0\" w:type=\"dxa\"/></w:tcMar>");
++
+ 		oWriter.WriteString(L"</w:tcPr>");
+ 
+-		for (const auto& p : m_arParagraphs)
+-			p->ToXml(oWriter);
++        if (!m_arContent.empty()) {
++            for (const auto& item : m_arContent) {
++                if (item.paragraph) item.paragraph->ToXml(oWriter);
++                else if (item.image) {
++                    oWriter.WriteString(L"<w:p><w:pPr><w:spacing w:before=\"");
++                    oWriter.AddUInt(static_cast<unsigned int>(item.before * c_dMMToDx));
++                    oWriter.WriteString(L"\" w:after=\"0\" w:line=\"");
++                    oWriter.AddUInt(static_cast<unsigned int>(item.image->m_dHeight * c_dMMToDx));
++                    oWriter.WriteString(L"\" w:lineRule=\"exact\"/></w:pPr>");
++                    item.image->ToXml(oWriter);
++                    oWriter.WriteString(L"</w:p>");
++                }
++            }
++        } else {
++            for (const auto& p : m_arParagraphs) p->ToXml(oWriter);
++            if (m_arParagraphs.empty()) oWriter.WriteString(L"<w:p/>");
++        }
+ 
+ 		oWriter.WriteString(L"</w:tc>");
+ 	}
+@@ -85,6 +111,9 @@
+ 
+ 		m_nGridSpan = other.m_nGridSpan;
+ 		m_eVMerge = other.m_eVMerge;
++        m_bIsShadingPresent = other.m_bIsShadingPresent;
++        m_lShadingColor = other.m_lShadingColor;
++        m_arContent = other.m_arContent;
+ 
+ 		m_arParagraphs.clear();
+ 		for (const auto& p : other.m_arParagraphs)
+@@ -154,6 +183,7 @@
+ 		oWriter.WriteString(L"<w:tblW w:w=\"");
+ 		oWriter.AddUInt(static_cast<unsigned int>(m_dWidth * c_dMMToDx));
+ 		oWriter.WriteString(L"\" w:type=\"dxa\"/>");
++        oWriter.WriteString(L"<w:tblCellSpacing w:w=\"0\" w:type=\"dxa\"/><w:tblLayout w:type=\"fixed\"/>");
+ 		oWriter.WriteString(L"</w:tblPr>");
+ 
+ 		oWriter.WriteString(L"<w:tblGrid>");
+@@ -170,6 +200,33 @@
+ 
+ 		oWriter.WriteString(L"</w:tbl>");
+ 	}
++
++    void CTable::WriteVerifiedLayout(NSStringUtils::CStringBuilder& writer, size_t pageIndex, size_t ordinal) const
++    {
++        auto number = [&writer](const wchar_t* key, size_t value) {
++            writer.WriteString(L" "); writer.WriteString(key); writer.WriteString(L"=\"");
++            writer.AddUInt(static_cast<unsigned int>(value)); writer.WriteString(L"\"");
++        };
++        // Native page geometry is already crop-relative, top-left millimetres.
++        auto coordinate = [&writer](const wchar_t* key, double value) {
++            writer.WriteString(L" "); writer.WriteString(key); writer.WriteString(L"=\"");
++            const long long scaled=static_cast<long long>(std::llround(value*c_dMMToPt*100000000.0));
++            writer.AddInt64(scaled/100000000);writer.WriteString(L".");
++            const std::wstring fraction=std::to_wstring(scaled%100000000);
++            writer.WriteString(std::wstring(8-fraction.size(),L'0')+fraction);writer.WriteString(L"\"");
++        };
++        writer.WriteString(L"<table"); number(L"ordinal", ordinal); number(L"pageIndex", pageIndex);
++        number(L"rows", m_nVerifiedRows); number(L"columns", m_nVerifiedCols); writer.WriteString(L">");
++        for (const auto& c : m_arVerifiedCells) {
++            writer.WriteString(L"<cell"); number(L"row", c.row); number(L"column", c.col);
++            number(L"rowSpan", c.rowSpan); number(L"columnSpan", c.colSpan);
++            coordinate(L"leftPt", c.left); coordinate(L"topPt", c.top);
++            coordinate(L"rightPt", c.right); coordinate(L"bottomPt", c.bot);
++            writer.WriteString(L"/>");
++        }
++        writer.WriteString(L"</table>");
++    }
++
+ 	void CTable::ToXmlPptx(NSStringUtils::CStringBuilder& oWriter) const
+ 	{
+ 
+--- a/core/DocxRenderer/src/logic/elements/Table.h
++++ b/core/DocxRenderer/src/logic/elements/Table.h
+@@ -39,6 +39,7 @@
+ 
+ 			enum class eVMerge
+ 			{
++				vmNone,
+ 				vmRestart,
+ 				vmContinue
+ 			};
+@@ -61,8 +62,17 @@
+ 			CBorder m_oBorderRight;
+ 
+ 			unsigned int m_nGridSpan = 1;
+-			eVMerge m_eVMerge = CTable::CCell::eVMerge::vmRestart;
++			eVMerge m_eVMerge = CTable::CCell::eVMerge::vmNone;
+ 
++
++            bool m_bIsShadingPresent = false;
++            long m_lShadingColor = 0;
++            struct CContent {
++                paragraph_ptr_t paragraph;
++                std::shared_ptr<CShape> image;
++                double before = 0;
++            };
++            std::vector<CContent> m_arContent;
+ 			std::vector<paragraph_ptr_t> m_arParagraphs;
+ 		};
+ 		class CRow : public CBaseItem, IOoxmlItem
+@@ -92,6 +102,11 @@
+ 
+ 		void AddRow(const row_ptr_t& pRow);
+ 		void CalcGridCols();
++        void SetVerifiedGridCols(const std::vector<double>& widths) { m_arGridCols = widths; }
++        struct CCellLayout { size_t row, col, rowSpan, colSpan; double left, top, right, bot; };
++        size_t m_nVerifiedRows = 0, m_nVerifiedCols = 0;
++        std::vector<CCellLayout> m_arVerifiedCells;
++        void WriteVerifiedLayout(NSStringUtils::CStringBuilder& writer, size_t pageIndex, size_t ordinal) const;
+ 		bool IsEmpty() const;
+ 
+ 	private:
+@@ -102,7 +117,10 @@
+ 	class CGraphicalCell : public CBaseItem
+ 	{
+ 	public:
+-		// realization
++        // Border styles and provenance come from the already parsed native paths.
++        CTable::CCell::CBorder m_arBorders[4]; // top, left, bottom, right
++        std::vector<size_t> m_arBorderShapeIndices[4];
++        bool m_bBordersVerified = false;
+ 	};
+ 
+ 	class CTextCell : public CBaseItem
+--- a/core/DocxRenderer/src/logic/elements/TextLine.cpp
++++ b/core/DocxRenderer/src/logic/elements/TextLine.cpp
+@@ -149,12 +149,12 @@
+ 			{
+ 				if (!bIsSpaceDelta)
+ 				{
+-					pFirst->AddTextBack(pCurrent->GetText(), pCurrent->GetSymWidths(), pCurrent->m_arGids, pCurrent->m_arOriginLefts);
++					pFirst->AddTextBack(pCurrent->GetText(), pCurrent->GetSymWidths(), pCurrent->m_arGids, pCurrent->m_arOriginLefts, &pCurrent->m_arSourceOrders);
+ 				}
+ 				else
+ 				{
+ 					pFirst->AddSymBack(c_SPACE_SYM, pCurrent->m_dLeft - pFirst->m_dRight, pFirst->m_dRight, 0);
+-					pFirst->AddTextBack(pCurrent->GetText(), pCurrent->GetSymWidths(), pCurrent->m_arGids, pCurrent->m_arOriginLefts);
++					pFirst->AddTextBack(pCurrent->GetText(), pCurrent->GetSymWidths(), pCurrent->m_arGids, pCurrent->m_arOriginLefts, &pCurrent->m_arSourceOrders);
+ 				}
+ 
+ 				if (pFirst->m_pCont.expired())
+--- a/core/DocxRenderer/src/logic/Page.cpp
++++ b/core/DocxRenderer/src/logic/Page.cpp
+@@ -1,5 +1,12 @@
+ #include "Page.h"
++#include "../resources/NativeTableGrid.h"
++#include "../resources/NativeContainedRectangles.h"
++#include <cstdio>
+ #include <cmath>
++#include <new>
++#include "../../../DesktopEditor/common/File.h"
++#include "../../../DesktopEditor/raster/ImageFileFormatChecker.h"
++#include "../resources/PdfDerivedVectorPlan.h"
+ 
+ #include <memory>
+ #include <map>
+@@ -53,6 +60,7 @@
+ 
+ 	void CPage::Clear()
+ 	{
++        m_bNextPdfNormalComposite=false;
+ 		m_oPen.SetDefaultParams();
+ 		m_oBrush.SetDefaultParams();
+ 		m_oFont.SetDefaultParams();
+@@ -63,8 +71,12 @@
+ 		m_oHorVerLinesCollector.Clear();
+ 		m_arTextLines.clear();
+ 		m_arShapes.clear();
++        m_arSourcePaints.clear();m_arSourceClips.clear();m_mapSourceClips.clear();m_mapTextPaintOrders.clear();
++        m_nPaintOrdinal=0;m_nSourcePoints=0;m_nOwnerTextUnits=0;m_bDrawingComplete=true;
+ 		m_arParagraphs.clear();
+ 		m_arTables.clear();
++        m_bReconstructionFailed=false;
++        m_bVerifiedPdfTables=false;
+ 		m_arOutputObjects.clear();
+ 		m_oCurrVectorGraphics.Clear();
+ 		m_oClipVectorGraphics.Clear();
+@@ -92,12 +104,32 @@
+ 	// image commands
+ 	void CPage::WriteImage(const std::shared_ptr<CImageInfo> pInfo, double& fX, double& fY, double& fWidth, double& fHeight)
+ 	{
+-		double rotation = m_oTransform.z_Rotation();
++        // Preserve the source image basis. Rotation alone cannot represent a
++        // negative determinant; the encoded pixels remain unchanged.
++        const double a = m_oTransform.sx() * fWidth;
++        const double b = m_oTransform.shy() * fWidth;
++        const double imageC = m_oTransform.shx() * fHeight;
++        const double d = m_oTransform.sy() * fHeight;
++        ImageOrientation orientation;
++        if (b == 0.0 && imageC == 0.0)
++        {
++            orientation.flipH = a < 0.0;
++            orientation.flipV = d < 0.0;
++        }
++        else
++        {
++            Aggplus::CMatrix imageBasis(a, b, imageC, d, 0, 0);
++            orientation.rotation = imageBasis.z_Rotation();
++            orientation.flipV = imageBasis.Determinant() < 0.0;
++        }
++        const double rotation = orientation.rotation;
+ 
+ 		Point p1(fX, fY);
+ 		Point p2(fX + fWidth, fY + fHeight);
+ 
+ 		m_oTransform.TransformPoint(p1.x, p1.y);
++        orientation.basis[0]=a;orientation.basis[1]=b;orientation.basis[2]=imageC;orientation.basis[3]=d;
++        orientation.basis[4]=p1.x;orientation.basis[5]=p1.y;
+ 		m_oTransform.TransformPoint(p2.x, p2.y);
+ 
+ 		Point c((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+@@ -123,7 +155,7 @@
+ 		m_oCurrVectorGraphics.LineTo(p4.x, p4.y);
+ 		m_oCurrVectorGraphics.LineTo(p1.x, p1.y);
+ 		m_oCurrVectorGraphics.Close();
+-		DrawPath(c_nWindingFillMode, pInfo);
++		DrawPath(c_nWindingFillMode, pInfo, &orientation);
+ 	}
+ 
+ 	// path commands
+@@ -165,13 +197,15 @@
+ 	// c_nStroke = 0x0001;
+ 	// c_nWindingFillMode = 0x0100;
+ 	// c_nEvenOddFillMode = 0x0200;
+-	void CPage::DrawPath(LONG lType, const std::shared_ptr<CImageInfo> pInfo)
+-	{
++	void CPage::DrawPath(LONG lType, const std::shared_ptr<CImageInfo> pInfo, const ImageOrientation* imageOrientation)
++	{
++        const bool normalComposite=m_bNextPdfNormalComposite; m_bNextPdfNormalComposite=false;
+ 		// in case if text comes as a path with unicode 32 (space)
+ 		if (m_oCurrVectorGraphics.IsEmpty())
+ 			return;
+ 
+-		double rotation = m_oTransform.z_Rotation();
++        const auto sourcePaint=CreateSourcePaint(lType,pInfo,imageOrientation,normalComposite);
++		double rotation = pInfo && imageOrientation ? imageOrientation->rotation : m_oTransform.z_Rotation();
+ 		double left = m_oCurrVectorGraphics.GetLeft();
+ 		double right = m_oCurrVectorGraphics.GetRight();
+ 		double top = m_oCurrVectorGraphics.GetTop();
+@@ -200,10 +234,34 @@
+ 			auto& last_shape = m_arShapes.back();
+ 			bool is_type_diff = lType == c_nStroke && (m_lLastType == c_nWindingFillMode || m_lLastType == c_nEvenOddFillMode);
+ 			is_type_diff = is_type_diff || (m_lLastType == c_nStroke && (lType == c_nWindingFillMode || m_lLastType == c_nEvenOddFillMode));
+-			if (last_shape->IsEqual(top, bot, left, right) && rotation == last_shape->m_dRotation && is_type_diff && m_lLastType != 0)
++            // Normal-flow fallback never folds clipped source operations. The
++            // old bound-only equality is insufficient to establish path identity.
++            // Compare existing immutable native command data, without tolerance.
++            auto sameOriginalPath=[](const CVectorGraphics& a,const CVectorGraphics& b)->bool {
++                if(a.GetData().size()!=b.GetData().size())return false;
++                auto ai=a.GetData().begin(),bi=b.GetData().begin();
++                for(;ai!=a.GetData().end();++ai,++bi){
++                    if(ai->type!=bi->type||ai->points.size()!=bi->points.size())return false;
++                    for(size_t i=0;i<ai->points.size();++i)
++                        if(ai->points[i].x!=bi->points[i].x||ai->points[i].y!=bi->points[i].y)return false;
++                }
++                return true;
++            };
++            const bool exactNormalFlowPair=m_eTextAssociationType!=TextAssociationType::tatPlainParagraph ||
++                (sourcePaint&&sourcePaint->clipId==0&&m_oClipVectorGraphics.IsEmpty()&&
++                 last_shape->m_arSourcePaints.size()==1&&last_shape->m_arSourcePaints.front()&&
++                 last_shape->m_arSourcePaints.front()->clipId==0&&
++                 sameOriginalPath(sourcePaint->originalPath,last_shape->m_arSourcePaints.front()->originalPath));
++			if (exactNormalFlowPair && last_shape->IsEqual(top, bot, left, right) && rotation == last_shape->m_dRotation && is_type_diff && m_lLastType != 0)
+ 			{
+ 				set_fill_mode(last_shape);
+-				if (pInfo) DrawImage(last_shape, pInfo, image_vector);
++                if(sourcePaint){sourcePaint->role=L"drawing";sourcePaint->output=last_shape;last_shape->m_arSourcePaints.push_back(sourcePaint);}
++                if (pInfo)
++                {
++                    last_shape->m_bImageFlipH = imageOrientation && imageOrientation->flipH;
++                    last_shape->m_bImageFlipV = imageOrientation && imageOrientation->flipV;
++                    DrawImage(last_shape, pInfo, image_vector);
++                }
+ 				m_lLastType = 0; // reset stroke/fill logic
+ 				return;
+ 			}
+@@ -211,6 +269,7 @@
+ 
+ 		m_lLastType = lType;
+ 		auto shape = std::make_shared<CShape>();
++        if(sourcePaint){shape->m_arSourcePaints.push_back(sourcePaint);sourcePaint->output=shape;}
+ 		shape->m_oPen.Size *= transform_det;
+ 		set_fill_mode(shape);
+ 
+@@ -234,12 +293,23 @@
+ 
+ 			if (new_vector_graphics.IsEmpty())
+ 			{
++                if(sourcePaint)sourcePaint->role=L"fully-clipped";
+ 				m_oCurrVectorGraphics.Clear();
+ 				return;
+ 			}
+ 			m_oCurrVectorGraphics = std::move(new_vector_graphics);
+ 		}
+ 		shape->SetVector(std::move(m_oCurrVectorGraphics));
++
++        // Only repair the existing thin-line classifier for a physically
++        // rectangular NONZERO fill. EvenOdd/hole/alpha/stroke/image paths keep
++        // their original classification and all native vector data is retained.
++        if(m_bVerifiedPdfTables&&!pInfo&&!m_bIsGradient&&
++           (lType&c_nWindingFillMode)&&!(lType&c_nEvenOddFillMode)&&
++           shape->m_bIsNoStroke&&!shape->m_bIsNoFill&&shape->m_oBrush.Type==c_BrushTypeSolid&&shape->m_oBrush.Alpha1==255&&
++           shape->m_eGraphicsType==eGraphicsType::gtUnknown&&shape->m_dHeight<0.7&&shape->m_dWidth>2.0&&
++           FtsNativeContainedRectangles(shape->m_oVector))
++            shape->DetermineGraphicsType(shape->m_dWidth,shape->m_dHeight,5,0);
+ 
+ 		bool skip_shape = false;
+ 		auto info = pInfo;
+@@ -260,23 +330,26 @@
+ 		else if (info)
+ 		{
+ 			shape->m_dRotation = rotation;
++            shape->m_bImageFlipH = imageOrientation && imageOrientation->flipH;
++            shape->m_bImageFlipV = imageOrientation && imageOrientation->flipV;
+ 			DrawImage(shape, info, image_vector);
+ 		}
+ 		else
+ 			shape->m_eType = CShape::eShapeType::stVectorGraphics;
+ 
+ 
+-		if (!shape->IsOoxmlValid())
+-			return;
+-
+-		// big white shape with page width & height skip
+-		if (fabs(shape->m_dHeight - m_dHeight) <= c_dSHAPE_X_OFFSET_MM * 2 &&
+-		        fabs(shape->m_dWidth - m_dWidth) <= c_dSHAPE_X_OFFSET_MM * 2 &&
+-		        shape->m_oBrush.Color1 == c_iWhiteColor && !info)
+-			return;
++        if (!shape->IsOoxmlValid())
++        {
++            if(sourcePaint)m_bDrawingComplete=false;
++            return;
++        }
++
++        // Preserve source page/container fills as real output surfaces,
++        // including opaque white fills under editable content.
+ 
+ 		if (!skip_shape)
+ 		{
++            if(sourcePaint)sourcePaint->role=L"drawing";
+ 			shape->m_nOrder = ++m_nCurrentOrder;
+ 			m_arShapes.push_back(shape);
+ 		}
+@@ -298,6 +371,7 @@
+ 	{
+ 		const bool sourceAdvance = m_bSemanticSourceAdvance;
+ 		m_bSemanticSourceAdvance = false;
++        const size_t sourceTextPaintOrdinal=m_bVerifiedPdfTables?++m_nPaintOrdinal:0;
+ 		// 9 - \t
+ 		if (*pUnicodes == 9)
+ 			return;
+@@ -366,6 +440,7 @@
+ 
+ 		m_oManagers.pParagraphStyleManager->UpdateAvgFontSize(m_oFont.Size);
+ 		m_nCurrentOrder++;
++        if(sourceTextPaintOrdinal)m_mapTextPaintOrders[m_nCurrentOrder]=sourceTextPaintOrdinal;
+ 		m_oContBuilder.AddUnicode(
+ 		            top,
+ 		            baseline,
+@@ -402,17 +477,19 @@
+ 		// building final objects
+ 		m_arParagraphs = BuildParagraphs(text_line_groups);
+ 
+-		// if (m_bIsBuildTables)
+-		// m_arTables = BuildTables(text_line_groups);
++        if(m_bVerifiedPdfTables && m_eTextAssociationType!=TextAssociationType::tatPlainParagraph &&
++           (m_eTextAssociationType!=TextAssociationType::tatPlainLine || !BuildVerifiedTables())) {
++            m_bReconstructionFailed=true; return;
++        }
+ 
+ 		// post analyze
+ 		CalcSelected();
+ 		MergeShapes();
+ 		CalcShapesRotation();
+ 
++        if(m_bVerifiedPdfTables&&!PrepareDerivedPdfVectors()){m_bReconstructionFailed=true;return;}
+ 		m_arOutputObjects = BuildOutputObjects();
+-		// for (auto& t : m_arTables)
+-		// 	m_arOutputObjects.push_back(t);
++        for(const auto& table:m_arTables) m_arOutputObjects.push_back(table);
+ 	}
+ 
+ 	void CPage::Record(NSStringUtils::CStringBuilder& oWriter, bool bIsLastPage)
+@@ -420,6 +497,17 @@
+ 		ToXml(oWriter);
+ 		WriteSectionToFile(bIsLastPage, oWriter);
+ 	}
++
++
++    bool CPage::WriteVerifiedTableLayout(NSStringUtils::CStringBuilder& writer, size_t page, size_t& ordinal, size_t& cells) const
++    {
++        for(const auto& table:m_arTables){
++            if(ordinal>=256 || cells+table->m_arVerifiedCells.size()>4096)return false;
++            table->WriteVerifiedLayout(writer,page,ordinal++);cells+=table->m_arVerifiedCells.size();
++            if(writer.GetCurSize()>1048000)return false;
++        }
++        return true;
++    }
+ 
+ 	std::vector<std::wstring> CPage::GetXmlShapes()
+ 	{
+@@ -1037,6 +1125,14 @@
+ 							}
+ 						}
+ 
++
++                        for(const auto& source:shape->m_arSourcePaints){
++                            CPdfDrawingTextOwner owner;owner.nativeOrder=curr_cont->m_nOrder;
++                            owner.left=curr_cont->m_dLeft;owner.top=curr_cont->m_dTop;owner.right=curr_cont->m_dRight;owner.bottom=curr_cont->m_dBot;
++                            owner.text=curr_cont->GetText().ToStdWString();
++                            if(source->textOwners.size()>=CPdfDrawingCounts::MaxItems||owner.text.size()>CPdfDrawingCounts::MaxOwnerTextUnits-m_nOwnerTextUnits)m_bDrawingComplete=false;
++                            else{source->textOwners.push_back(owner);m_nOwnerTextUnits+=owner.text.size();}
++                        }
+ 						if (is_crossing_text)
+ 						{
+ 							curr_cont->m_bIsStrikeoutPresent = true;
+@@ -1082,8 +1178,11 @@
+ 						shape_used = true;
+ 				}
+ 			}
+-			if (shape_used && (shape_coverage == 0 || shape_coverage > 0.8))
+-				shape = nullptr;
++            if (shape_used && (shape_coverage == 0 || shape_coverage > 0.8))
++            {
++                for(const auto& source:shape->m_arSourcePaints)source->role=L"text-effect";
++                shape = nullptr;
++            }
+ 		}
+ 	}
+ 
+@@ -1226,16 +1325,16 @@
+ 						if ((bIf1 && bIf6) || (bIf2 && bIf7) || (bIf4 && bIf8) || (bIf5 && bIf7))
+ 						{
+ 							if (m_bCollectMetaInfo)
+-								cont->AddSymBack(d_sym->GetText().at(0), 0,  d_sym->m_arOriginLefts.at(0), d_sym->m_arGids.at(0));
++								cont->AddSymBack(d_sym->GetText().at(0), 0,  d_sym->m_arOriginLefts.at(0), d_sym->m_arGids.at(0), d_sym->m_arSourceOrders.empty()?0:d_sym->m_arSourceOrders[0]);
+ 							else
+-								cont->AddSymBack(d_sym->GetText().at(0), 0, d_sym->m_arOriginLefts.at(0));
++								cont->AddSymBack(d_sym->GetText().at(0), 0, d_sym->m_arOriginLefts.at(0), 0, d_sym->m_arSourceOrders.empty()?0:d_sym->m_arSourceOrders[0]);
+ 						}
+ 						else if (bIf3 && bIf7)
+ 						{
+ 							if (m_bCollectMetaInfo)
+-								cont->AddSymFront(d_sym->GetText().at(0), 0,  d_sym->m_arOriginLefts.at(0), d_sym->m_arGids.at(0));
++								cont->AddSymFront(d_sym->GetText().at(0), 0,  d_sym->m_arOriginLefts.at(0), d_sym->m_arGids.at(0), d_sym->m_arSourceOrders.empty()?0:d_sym->m_arSourceOrders[0]);
+ 							else
+-								cont->AddSymFront(d_sym->GetText().at(0), 0, d_sym->m_arOriginLefts.at(0));
++								cont->AddSymFront(d_sym->GetText().at(0), 0, d_sym->m_arOriginLefts.at(0), 0, d_sym->m_arSourceOrders.empty()?0:d_sym->m_arSourceOrders[0]);
+ 						}
+ 						isBreak = true;
+ 						break;
+@@ -2235,6 +2334,323 @@
+ 
+ 		return text_cell_groups;
+ 	}
++
++    bool CPage::BuildVerifiedTables()
++    {
++        auto ftsTableRefuse=[](int){return false;};
++        // No text-gap based table inference. Only the existing native closed
++        // border graph supplies cells, and every component must tile exactly.
++        const auto originalShapes = m_arShapes;
++        bool complete = true;
++        const auto graphical = BuildGraphicalCells(&complete);
++        m_arShapes = originalShapes;
++        if (!complete) return ftsTableRefuse(__LINE__);
++        std::vector<CNativeTableCellBounds> bounds;
++        for (const auto& c : graphical) bounds.push_back({c->m_dLeft,c->m_dTop,c->m_dRight,c->m_dBot});
++        std::vector<CNativeTableGrid> grids;
++        if (!BuildClosedNativeTableGrids(bounds,grids) || grids.size()>256) return ftsTableRefuse(__LINE__);
++        if (grids.empty()) return true;
++
++        const double eps=1e-7; // Arithmetic identity of native double endpoints, not a layout tolerance.
++        for(const auto& grid:grids)if(grid.x.front()<0||grid.y.front()<0||grid.x.back()>m_dWidth+eps||grid.y.back()>m_dHeight+eps)return ftsTableRefuse(__LINE__);
++        auto positiveOverlap=[](double a,double b,double c,double d){return std::max(a,c)<std::min(b,d);};
++        auto contained=[eps](const CBaseItem& item,const CGraphicalCell& cell){
++            return item.m_dLeft>=cell.m_dLeft-eps&&item.m_dRight<=cell.m_dRight+eps&&
++                   item.m_dTop>=cell.m_dTop-eps&&item.m_dBot<=cell.m_dBot+eps;
++        };
++        // Source subpath validation uses the existing parsed native vector API.
++        auto rectangle=[](const CVectorGraphics& path){
++            Point first,previous; unsigned moves=0,segments=0; bool closed=false;
++            std::set<std::pair<int,int>> corners;
++            const double l=path.GetLeft(),r=path.GetRight(),t=path.GetTop(),b=path.GetBottom();
++            if(!(l<r&&t<b))return false;
++            for(const auto& command:path.GetData()){
++                if(command.type==CVectorGraphics::ePathCommandType::pctClose){
++                    if(closed)return false;closed=true;
++                    if(!FtsNativeTableCoordinateEqual(previous.x,first.x)||!FtsNativeTableCoordinateEqual(previous.y,first.y)){if(!FtsNativeTableCoordinateEqual(previous.x,first.x)&&!FtsNativeTableCoordinateEqual(previous.y,first.y))return false;++segments;}
++                    continue;
++                }
++                if(closed||command.points.size()!=1||(command.type!=CVectorGraphics::ePathCommandType::pctMove&&command.type!=CVectorGraphics::ePathCommandType::pctLine))return false;
++                const auto& p=command.points.front();
++                const bool left=FtsNativeTableCoordinateEqual(p.x,l),right=FtsNativeTableCoordinateEqual(p.x,r),top=FtsNativeTableCoordinateEqual(p.y,t),bottom=FtsNativeTableCoordinateEqual(p.y,b);
++                if(left==right||top==bottom)return false;corners.insert({left?0:1,top?0:1});
++                if(command.type==CVectorGraphics::ePathCommandType::pctMove){first=p;++moves;}
++                else if(!FtsNativeTableCoordinateEqual(previous.x,p.x)||!FtsNativeTableCoordinateEqual(previous.y,p.y)){if(!FtsNativeTableCoordinateEqual(previous.x,p.x)&&!FtsNativeTableCoordinateEqual(previous.y,p.y))return false;++segments;}
++                previous=p;
++            }
++            return closed&&moves==1&&segments==4&&corners.size()==4;
++        };
++        std::set<size_t> activeCells,borderShapes;
++        for(const auto& grid:grids)for(const auto& placement:grid.cells)activeCells.insert(placement.source);
++        size_t styleChecks=0;
++        auto borderOf=[&](CGraphicalCell& cell,unsigned side)->bool{
++            bool found=false;CTable::CCell::CBorder selected;
++            const bool horizontal=side==0||side==2;
++            const double coordinate=side==0?cell.m_dTop:side==1?cell.m_dLeft:side==2?cell.m_dBot:cell.m_dRight;
++            const double lo=horizontal?cell.m_dLeft:cell.m_dTop,hi=horizontal?cell.m_dRight:cell.m_dBot;
++            std::vector<std::pair<double,double>> intervals;
++            std::set<size_t> proven;
++            std::set<size_t> candidates(cell.m_arBorderShapeIndices[side].begin(),cell.m_arBorderShapeIndices[side].end());
++            
++            // The native graph attaches a logical corner to one source edge.
++            // CSS borders can end at the adjacent row's cap, before that
++            // corner's center. Resolve coverage from actual collinear native
++            // rectangle pieces rather than extending the chosen source part.
++            for(size_t index=0;index<m_arShapes.size();++index){
++                const auto& q=m_arShapes[index];if(!q||q->m_pImageInfo||q->m_bIsNoFill||!q->m_bIsNoStroke)continue;
++                for(const auto& part:q->m_oVector.GetSubPaths()){
++                    if(++styleChecks>8000000)return ftsTableRefuse(__LINE__);
++                    if(!rectangle(part))continue;
++                    const double l=part.GetLeft(),r=part.GetRight(),t=part.GetTop(),b=part.GetBottom();
++                    const double axis=horizontal?(t+b)/2:(l+r)/2,width=horizontal?b-t:r-l;
++                    if(width<c_dMAX_TABLE_LINE_WIDTH_MM&&std::fabs(axis-coordinate)<=eps&&positiveOverlap(horizontal?l:t,horizontal?r:b,lo,hi))candidates.insert(index);
++                }
++            }
++            for(size_t index:candidates){
++                if(index>=m_arShapes.size()||!m_arShapes[index])return ftsTableRefuse(__LINE__);
++                const auto& shape=*m_arShapes[index];CTable::CCell::CBorder style;bool contributes=false;
++                if(!shape.m_bIsNoFill&&shape.m_bIsNoStroke){
++                    if(shape.m_oBrush.Type!=c_BrushTypeSolid||shape.m_oBrush.Alpha1!=255)return ftsTableRefuse(__LINE__);
++                    style.lColor=shape.m_oBrush.Color1;style.lineType=eLineType::ltSingle;
++                    for(const auto& part:shape.m_oVector.GetSubPaths()){
++                        if(!rectangle(part))continue;
++                        const double l=part.GetLeft(),r=part.GetRight(),t=part.GetTop(),b=part.GetBottom();
++                        const double axis=horizontal?(t+b)/2:(l+r)/2,width=horizontal?b-t:r-l;
++                        if(width>=c_dMAX_TABLE_LINE_WIDTH_MM||std::fabs(axis-coordinate)>eps||!positiveOverlap(horizontal?l:t,horizontal?r:b,lo,hi))continue;
++                        style.dWidth=width;
++                        if(found&&(selected.lColor!=style.lColor||selected.lineType!=style.lineType||static_cast<unsigned>(selected.dWidth*c_dMMToPt*8)!=static_cast<unsigned>(width*c_dMMToPt*8)))return ftsTableRefuse(__LINE__);
++                        contributes=true;selected=style;found=true;intervals.push_back({horizontal?l:t,horizontal?r:b});
++                    }
++                }else if(shape.m_bIsNoFill&&!shape.m_bIsNoStroke){
++                    if(shape.m_oPen.Alpha!=255||shape.m_oPen.DashStyle!=0||!std::isfinite(shape.m_oPen.Size)||shape.m_oPen.Size<=0)return ftsTableRefuse(__LINE__);
++                    style.lColor=shape.m_oPen.Color;style.dWidth=shape.m_oPen.Size;style.lineType=eLineType::ltSingle;
++                    if(found&&(selected.lColor!=style.lColor||static_cast<unsigned>(selected.dWidth*c_dMMToPt*8)!=static_cast<unsigned>(style.dWidth*c_dMMToPt*8)))return ftsTableRefuse(__LINE__);
++                    contributes=true;selected=style;found=true;
++                    // The native closed graph already proves this side's
++                    // continuous stroked path. Width/color come from that pen.
++                    intervals.push_back({lo,hi});
++                }else return ftsTableRefuse(__LINE__);
++                if(contributes){borderShapes.insert(index);proven.insert(index);}
++            }
++            if(!found)return ftsTableRefuse(__LINE__);
++            // A filled T-junction can end the horizontal bar at the
++            // perpendicular bar's OUTER edge. Certify the missing corner
++            // interval from that bar's actual same-color painted cross-section.
++            // No endpoint is extended, and a real gap still fails the union.
++            for(unsigned perpendicular:horizontal?std::vector<unsigned>{1,3}:std::vector<unsigned>{0,2})
++                for(size_t index:cell.m_arBorderShapeIndices[perpendicular]){
++                    if(index>=m_arShapes.size()||!m_arShapes[index])return ftsTableRefuse(__LINE__);
++                    const auto& q=*m_arShapes[index];
++                    if(q.m_pImageInfo||q.m_bIsNoFill||!q.m_bIsNoStroke||q.m_oBrush.Type!=c_BrushTypeSolid||q.m_oBrush.Alpha1!=255||q.m_oBrush.Color1!=selected.lColor)continue;
++                    const auto parts=q.m_oVector.GetSubPaths();if(parts.size()!=1||!rectangle(parts[0]))continue;
++                    const auto& p=parts[0];const double l=p.GetLeft(),r=p.GetRight(),t=p.GetTop(),b=p.GetBottom();
++                    const double axis=horizontal?(l+r)/2:(t+b)/2,width=horizontal?r-l:b-t,length=horizontal?b-t:r-l;
++                    if(width>=c_dMAX_TABLE_LINE_WIDTH_MM||length<=c_dMAX_TABLE_LINE_WIDTH_MM||!(FtsNativeTableCoordinateEqual(axis,lo)||FtsNativeTableCoordinateEqual(axis,hi)))continue;
++                    const double start=horizontal?t:l,end=horizontal?b:r;
++                    if((coordinate<start&&!FtsNativeTableCoordinateEqual(coordinate,start))||(coordinate>end&&!FtsNativeTableCoordinateEqual(coordinate,end)))continue;
++                    intervals.push_back({horizontal?l:t,horizontal?r:b});proven.insert(index);borderShapes.insert(index);
++                }
++            std::sort(intervals.begin(),intervals.end());double end=lo;
++            for(const auto& interval:intervals){if(interval.first>end+eps)return ftsTableRefuse(__LINE__);end=std::max(end,interval.second);}
++            if(end<hi-eps)return ftsTableRefuse(__LINE__);
++            cell.m_arBorderShapeIndices[side].assign(proven.begin(),proven.end());
++            cell.m_arBorders[side]=selected;return true;
++        };
++        for(size_t i:activeCells){for(unsigned side=0;side<4;++side)if(!borderOf(*graphical[i],side))return ftsTableRefuse(__LINE__);graphical[i]->m_bBordersVerified=true;}
++
++        // Never discard an unrelated branch sharing a native border object.
++        auto covered=[&](double coordinate,double lo,double hi,bool horizontal,double halfWidth){
++            std::vector<std::pair<double,double>> intervals;
++            for(size_t i:activeCells){const auto& c=*graphical[i];
++                if(horizontal&&(std::fabs(c.m_dTop-coordinate)<=eps||std::fabs(c.m_dBot-coordinate)<=eps))intervals.push_back({c.m_dLeft-c.m_arBorders[1].dWidth/2,c.m_dRight+c.m_arBorders[3].dWidth/2});
++                if(!horizontal&&(std::fabs(c.m_dLeft-coordinate)<=eps||std::fabs(c.m_dRight-coordinate)<=eps))intervals.push_back({c.m_dTop-c.m_arBorders[0].dWidth/2,c.m_dBot+c.m_arBorders[2].dWidth/2});
++            }
++            std::sort(intervals.begin(),intervals.end());double end=lo;
++            for(const auto& interval:intervals){if(interval.second<end)continue;if(interval.first>end+eps)return ftsTableRefuse(__LINE__);end=std::max(end,interval.second);if(end>=hi-eps)return true;}
++            return ftsTableRefuse(__LINE__);
++        };
++        for(size_t index:borderShapes){const auto& shape=*m_arShapes[index];
++            if(!shape.m_bIsNoFill&&shape.m_bIsNoStroke){
++                for(const auto& part:shape.m_oVector.GetSubPaths()){
++                    if(!rectangle(part))return ftsTableRefuse(__LINE__);
++                    const double l=part.GetLeft(),r=part.GetRight(),t=part.GetTop(),b=part.GetBottom();
++                    if(r-l>c_dMAX_TABLE_LINE_WIDTH_MM&&b-t<c_dMAX_TABLE_LINE_WIDTH_MM){if(!covered((t+b)/2,l,r,true,(b-t)/2))return ftsTableRefuse(__LINE__);}
++                    else if(b-t>c_dMAX_TABLE_LINE_WIDTH_MM&&r-l<c_dMAX_TABLE_LINE_WIDTH_MM){if(!covered((l+r)/2,t,b,false,(r-l)/2))return ftsTableRefuse(__LINE__);}
++                    else return ftsTableRefuse(__LINE__);
++                }
++            }else{
++                Point first,previous;bool open=false;
++                for(const auto& command:shape.m_oVector.GetData()){
++                    if(command.type==CVectorGraphics::ePathCommandType::pctMove&&command.points.size()==1){first=previous=command.points.front();open=true;continue;}
++                    Point p;
++                    if(command.type==CVectorGraphics::ePathCommandType::pctClose&&open)p=first;
++                    else if(command.type==CVectorGraphics::ePathCommandType::pctLine&&open&&command.points.size()==1)p=command.points.front();
++                    else return ftsTableRefuse(__LINE__);
++                    if(previous.x!=p.x||previous.y!=p.y){const bool h=previous.y==p.y;if(!h&&previous.x!=p.x)return ftsTableRefuse(__LINE__);
++                        if(!covered(h?p.y:p.x,std::min(h?previous.x:previous.y,h?p.x:p.y),std::max(h?previous.x:previous.y,h?p.x:p.y),h,0))return ftsTableRefuse(__LINE__);}
++                    previous=p;
++                }
++            }
++        }
++
++        std::vector<std::vector<size_t>> paragraphs(graphical.size()),images(graphical.size()),fills(graphical.size()),cellFigures(graphical.size());
++        std::vector<bool> usedParagraph(m_arParagraphs.size(),false),usedShape(m_arShapes.size(),false);
++
++        
++
++
++        auto cellFor=[&](const CBaseItem& item)->int{
++            int found=-1;bool overlaps=false;
++            for(size_t i:activeCells){const auto& c=*graphical[i];
++                if(positiveOverlap(item.m_dLeft,item.m_dRight,c.m_dLeft,c.m_dRight)&&positiveOverlap(item.m_dTop,item.m_dBot,c.m_dTop,c.m_dBot))overlaps=true;
++                if(contained(item,c)){if(found>=0)return -2;found=static_cast<int>(i);}
++            }
++            return found>=0?found:overlaps?-2:-1;
++        };
++        for(size_t p=0;p<m_arParagraphs.size();++p){const auto& paragraph=m_arParagraphs[p];if(!paragraph)continue;
++            const int cell=cellFor(*paragraph);if(cell==-2)return ftsTableRefuse(__LINE__);
++            if(cell>=0){paragraphs[cell].push_back(p);usedParagraph[p]=true;}
++        }
++        for(size_t s=0;s<m_arShapes.size();++s){const auto& shape=m_arShapes[s];if(!shape)continue;
++            if(borderShapes.count(s)){usedShape[s]=true;continue;}
++            // A source fill may consist of several already parsed cell
++            // rectangles. Consume it only when every subpath is a complete
++            // uniform cell surface and source borders paint after that fill.
++            if(!shape->m_pImageInfo&&!shape->m_bIsNoFill&&shape->m_bIsNoStroke&&shape->m_oBrush.Type==c_BrushTypeSolid&&shape->m_oBrush.Alpha1==255){
++                std::set<size_t> fillCells,fillTouchesBorder;bool unmatchedPart=false;
++                for(const auto& part:shape->m_oVector.GetSubPaths()){
++                    if(!rectangle(part)){unmatchedPart=true;continue;}
++                    int target=-1;
++                    for(size_t i:activeCells){const auto& c=*graphical[i];
++                        if(std::fabs(part.GetLeft()-c.m_dLeft)<=c.m_arBorders[1].dWidth/2+eps&&std::fabs(part.GetRight()-c.m_dRight)<=c.m_arBorders[3].dWidth/2+eps&&
++                           std::fabs(part.GetTop()-c.m_dTop)<=c.m_arBorders[0].dWidth/2+eps&&std::fabs(part.GetBottom()-c.m_dBot)<=c.m_arBorders[2].dWidth/2+eps){
++                            if(target>=0)return ftsTableRefuse(__LINE__);target=static_cast<int>(i);
++                        }
++                    }
++                    if(target<0)unmatchedPart=true;else {
++                        fillCells.insert(static_cast<size_t>(target));const auto& c=*graphical[target];
++                        const bool insideInner=part.GetLeft()>=c.m_dLeft+c.m_arBorders[1].dWidth/2-eps&&part.GetRight()<=c.m_dRight-c.m_arBorders[3].dWidth/2+eps&&
++                            part.GetTop()>=c.m_dTop+c.m_arBorders[0].dWidth/2-eps&&part.GetBottom()<=c.m_dBot-c.m_arBorders[2].dWidth/2+eps;
++                        if(!insideInner)fillTouchesBorder.insert(static_cast<size_t>(target));
++                    }
++                }
++                if(!fillCells.empty()){
++                    if(unmatchedPart)return ftsTableRefuse(__LINE__);
++                    for(size_t i:fillCells){
++                        const auto& c=*graphical[i];
++                        if(fillTouchesBorder.count(i))for(unsigned side=0;side<4;++side)for(size_t border:c.m_arBorderShapeIndices[side])if(m_arShapes[border]&&!PdfDrawingBeforeShape(*shape,*m_arShapes[border]))return ftsTableRefuse(__LINE__);
++                        fills[i].push_back(s);
++                    }
++                    usedShape[s]=true;continue;
++                }
++            }
++            const int cell=cellFor(*shape);if(cell==-1)continue;
++            // Page/container backgrounds span cells and must retain their own
++            // source role. They are not consumed as table cell decorations.
++            if(cell==-2){
++                
++                bool earlierSurface=!shape->m_pImageInfo&&!shape->m_bIsNoFill&&shape->m_bIsNoStroke&&shape->m_oBrush.Type==c_BrushTypeSolid&&shape->m_oBrush.Alpha1==255&&rectangle(shape->m_oVector);
++                bool overlapsCell=false;
++                if(earlierSurface)for(size_t i:activeCells){const auto& c=*graphical[i];
++                    if(!positiveOverlap(shape->m_dLeft,shape->m_dRight,c.m_dLeft,c.m_dRight)||!positiveOverlap(shape->m_dTop,shape->m_dBot,c.m_dTop,c.m_dBot))continue;
++                    overlapsCell=true;
++                    for(unsigned side=0;side<4;++side)for(size_t border:c.m_arBorderShapeIndices[side])if(m_arShapes[border]&&!PdfDrawingBeforeShape(*shape,*m_arShapes[border]))earlierSurface=false;
++                    for(size_t p:paragraphs[i])if(!PdfDrawingBeforeParagraph(*shape,*m_arParagraphs[p]))earlierSurface=false;
++                    for(const auto& image:m_arShapes)if(image&&image->m_pImageInfo&&positiveOverlap(image->m_dLeft,image->m_dRight,c.m_dLeft,c.m_dRight)&&positiveOverlap(image->m_dTop,image->m_dBot,c.m_dTop,c.m_dBot)&&!PdfDrawingBeforeShape(*shape,*image))earlierSurface=false;
++                }
++                if(earlierSurface&&overlapsCell)continue;
++                return ftsTableRefuse(__LINE__);
++            }
++            if(shape->m_pImageInfo){if(shape->m_dRotation!=0)return ftsTableRefuse(__LINE__);images[cell].push_back(s);usedShape[s]=true;continue;}
++            const auto& c=*graphical[cell];
++            const bool cellFill=!shape->m_bIsNoFill&&shape->m_bIsNoStroke&&shape->m_oBrush.Type==c_BrushTypeSolid&&shape->m_oBrush.Alpha1==255&&rectangle(shape->m_oVector)&&
++                std::fabs(shape->m_dLeft-c.m_dLeft)<=c.m_arBorders[1].dWidth/2+eps&&std::fabs(shape->m_dRight-c.m_dRight)<=c.m_arBorders[3].dWidth/2+eps&&
++                std::fabs(shape->m_dTop-c.m_dTop)<=c.m_arBorders[0].dWidth/2+eps&&std::fabs(shape->m_dBot-c.m_dBot)<=c.m_arBorders[2].dWidth/2+eps;
++            if(!cellFill){
++                // Reuse the established cell-content/inline-shape writer only
++                // for an original glyph-free vector wholly inside this cell.
++                // The existing disjoint paragraph slots below verify its gap.
++                size_t firstPaint=0,lastPaint=0;
++                bool vectorFigure=m_bVerifiedPdfTables&&shape->m_eType==CShape::eShapeType::stVectorGraphics&&
++                    shape->m_arOutputObjects.empty()&&!shape->m_pImageInfo&&shape->m_bIsNoStroke&&!shape->m_bIsNoFill&&shape->m_dRotation==0&&
++                    shape->m_oBrush.Type==c_BrushTypeSolid&&
++                    std::isfinite(shape->m_dWidth)&&std::isfinite(shape->m_dHeight)&&shape->m_dWidth>0&&shape->m_dHeight>0&&
++                    shape->m_dLeft>=c.m_dLeft+c.m_arBorders[1].dWidth/2-eps&&shape->m_dRight<=c.m_dRight-c.m_arBorders[3].dWidth/2+eps&&
++                    shape->m_dTop>=c.m_dTop+c.m_arBorders[0].dWidth/2-eps&&shape->m_dBot<=c.m_dBot-c.m_arBorders[2].dWidth/2+eps&&
++                    PdfDrawingShapePaintRange(*shape,firstPaint,lastPaint);
++                if(vectorFigure)for(const auto& source:shape->m_arSourcePaints)
++                    if(source->kind!=L"fill"||source->role!=L"drawing"||!source->owners.empty())vectorFigure=false;
++                if(!vectorFigure)return ftsTableRefuse(__LINE__);
++                cellFigures[cell].push_back(s);usedShape[s]=true;continue;
++            }fills[cell].push_back(s);usedShape[s]=true;
++        }
++        std::vector<table_ptr_t> tables;
++        for(const auto& grid:grids){
++            auto table=std::make_shared<CTable>();table->m_nVerifiedRows=grid.y.size()-1;table->m_nVerifiedCols=grid.x.size()-1;
++            std::vector<double> columns;for(size_t c=1;c<grid.x.size();++c)columns.push_back(grid.x[c]-grid.x[c-1]);table->SetVerifiedGridCols(columns);
++            for(size_t row=0;row<table->m_nVerifiedRows;++row){auto targetRow=std::make_shared<CTable::CRow>();
++                std::vector<const CNativeTableCellPlacement*> activePlacements;
++                for(const auto& placement:grid.cells)
++                    if(row>=placement.row&&row<placement.row+placement.rowSpan)activePlacements.push_back(&placement);
++                // Anchor order is row-major; continuations must instead occupy
++                // their original column in each serialized output row.
++                std::sort(activePlacements.begin(),activePlacements.end(),[](const CNativeTableCellPlacement* a,const CNativeTableCellPlacement* b){return a->col<b->col;});
++                for(const auto* active:activePlacements){const auto& placement=*active;
++                    const auto& source=*graphical[placement.source];auto cell=std::make_shared<CTable::CCell>();
++                    cell->m_dLeft=source.m_dLeft;cell->m_dRight=source.m_dRight;cell->m_dTop=grid.y[row];cell->m_dBot=grid.y[row+1];cell->m_dWidth=source.m_dWidth;cell->m_dHeight=cell->m_dBot-cell->m_dTop;
++                    cell->m_oBorderTop=source.m_arBorders[0];cell->m_oBorderLeft=source.m_arBorders[1];cell->m_oBorderBot=source.m_arBorders[2];cell->m_oBorderRight=source.m_arBorders[3];
++                    cell->m_nGridSpan=placement.colSpan;
++                    if(placement.rowSpan>1)cell->m_eVMerge=row==placement.row?CTable::CCell::eVMerge::vmRestart:CTable::CCell::eVMerge::vmContinue;
++                    if(row>placement.row)cell->m_oBorderTop.lineType=eLineType::ltNone;
++                    if(row+1<placement.row+placement.rowSpan)cell->m_oBorderBot.lineType=eLineType::ltNone;
++                    if(!fills[placement.source].empty()){cell->m_bIsShadingPresent=true;cell->m_lShadingColor=m_arShapes[fills[placement.source][0]]->m_oBrush.Color1;
++                        for(size_t f:fills[placement.source])if(m_arShapes[f]->m_oBrush.Color1!=cell->m_lShadingColor)return ftsTableRefuse(__LINE__);}
++                    if(row==placement.row){
++                        struct Item {double top,bot;size_t order;paragraph_ptr_t paragraph;shape_ptr_t image;};std::vector<Item> items;
++                        for(size_t p:paragraphs[placement.source]){auto paragraph=m_arParagraphs[p];items.push_back({paragraph->m_dTop,paragraph->m_dBot,paragraph->m_nOrder,paragraph,nullptr});}
++                        for(size_t s:images[placement.source]){auto image=m_arShapes[s];items.push_back({image->m_dTop,image->m_dBot,image->m_nOrder,nullptr,image});}
++                        for(size_t s:cellFigures[placement.source]){auto figure=m_arShapes[s];items.push_back({figure->m_dTop,figure->m_dBot,figure->m_nOrder,nullptr,figure});}
++                        // Native paragraph order is retained; images may enter
++                        // only disjoint vertical slots inside this proven cell.
++                        std::stable_sort(items.begin(),items.end(),[](const Item&a,const Item&b){return a.top<b.top;});
++                        size_t paragraphIndex=0;
++                        for(const auto& item:items)if(item.paragraph){if(item.paragraph!=m_arParagraphs[paragraphs[placement.source][paragraphIndex++]])return ftsTableRefuse(__LINE__);}
++                        double previous=source.m_dTop;
++                        for(const auto& item:items){if(item.top<previous-eps)return ftsTableRefuse(__LINE__);
++                            for(size_t f:fills[placement.source])if(item.paragraph?!PdfDrawingBeforeParagraph(*m_arShapes[f],*item.paragraph):!PdfDrawingBeforeShape(*m_arShapes[f],*item.image))return ftsTableRefuse(__LINE__);
++                            CTable::CCell::CContent content;content.before=std::max(0.0,item.top-previous);
++                            if(item.paragraph){content.paragraph=item.paragraph;auto& p=*content.paragraph;p.m_dLeftBorder=p.m_dLeft-source.m_dLeft;p.m_dRightBorder=0;p.m_dSpaceBefore=content.before;p.m_dSpaceAfter=0;cell->AddParagraph(content.paragraph);}
++                            else{content.image=item.image;content.image->m_bIsUseInTable=true;}
++                            cell->m_arContent.push_back(content);previous=item.bot;
++                        }
++                        table->m_arVerifiedCells.push_back({placement.row,placement.col,placement.rowSpan,placement.colSpan,source.m_dLeft,source.m_dTop,source.m_dRight,source.m_dBot});
++                    }
++                    targetRow->AddCell(cell);
++                }
++                table->AddRow(targetRow);
++            }
++            tables.push_back(table);
++        }
++        if(m_bVerifiedPdfTables){
++            for(size_t g=0;g<grids.size();++g)for(const auto& placement:grids[g].cells){
++                const size_t i=placement.source;
++                for(unsigned side=0;side<4;++side)for(size_t s:graphical[i]->m_arBorderShapeIndices[side])
++                    for(const auto& source:m_arShapes[s]->m_arSourcePaints)
++                        if(!PdfDrawingCellRole(source,L"cell-border",g,placement.row,placement.col))return false;
++                for(size_t s:fills[i])for(const auto& source:m_arShapes[s]->m_arSourcePaints)
++                    if(!PdfDrawingCellRole(source,L"cell-fill",g,placement.row,placement.col))return false;
++                for(size_t s:images[i])for(const auto& source:m_arShapes[s]->m_arSourcePaints)
++                    if(!PdfDrawingCellRole(source,L"cell-image",g,placement.row,placement.col))return false;
++                for(size_t s:cellFigures[i])for(const auto& source:m_arShapes[s]->m_arSourcePaints)
++                    if(!PdfDrawingCellRole(source,L"cell-figure",g,placement.row,placement.col))return false;
++            }
++        }
++        // Mutate ownership only after complete graph/style/content validation.
++        for(size_t p=0;p<usedParagraph.size();++p)if(usedParagraph[p])m_arParagraphs[p]=nullptr;
++        auto right=MoveNullptr(m_arParagraphs.begin(),m_arParagraphs.end());m_arParagraphs.erase(right,m_arParagraphs.end());
++        for(size_t s=0;s<usedShape.size();++s)if(usedShape[s])m_arShapes[s]=nullptr;
++        m_arTables=std::move(tables);return true;
++    }
+ 
+ 	std::vector<CPage::table_ptr_t> CPage::BuildTables(const std::vector<text_line_group_ptr_t>& arTextLineGroups)
+ 	{
+@@ -2341,8 +2757,9 @@
+ 		return tables;
+ 	}
+ 
+-	std::vector<CPage::graphical_cell_ptr_t> CPage::BuildGraphicalCells()
+-	{
++	std::vector<CPage::graphical_cell_ptr_t> CPage::BuildGraphicalCells(bool* complete)
++	{
++		if (complete) *complete = true;
+ 		struct Crossing;
+ 		struct Line;
+ 
+@@ -2367,6 +2784,7 @@
+ 		{
+ 			Point p {};
+ 			std::vector<Line> lines {};
++			bool pinnedIntersection = false;
+ 
+ 			Crossing() = default;
+ 			Crossing(const Point& _p, const std::vector<Line> _lines)
+@@ -2431,6 +2849,7 @@
+ 		};
+ 
+ 		auto precise_crossing_p = [] (Crossing* cr, const Point& p, const eLineDirection& direction) {
++			if (cr->pinnedIntersection) return;
+ 			if (cr->lines.size() == 1)
+ 			{
+ 				switch (cr->lines[0].direction)
+@@ -2456,9 +2875,9 @@
+ 		};
+ 
+ 		// check and adds points
+-		auto add_crossings = [&precise_crossing_p, &crossings, &find_crossing, this] (const Point& p1, const Point& p2, size_t index) {
++		auto connect_crossings = [&precise_crossing_p, &crossings, &find_crossing, this] (const Point& p1, const Point& p2, size_t index) {
+ 			Crossing* crossing1 = find_crossing(p1);
+-			Crossing* crossing2 = find_crossing(p2);
++			Crossing* crossing2 = nullptr;
+ 
+ 			eLineDirection direction12;
+ 			eLineDirection direction21;
+@@ -2483,6 +2902,8 @@
+ 				crossings.push_back(std::make_shared<Crossing>(cr));
+ 				crossing1 = crossings.back().get();
+ 			}
++			crossing2 = find_crossing(p2);
++			if (crossing1 == crossing2) return;
+ 			if (!crossing2)
+ 			{
+ 				Crossing cr;
+@@ -2511,6 +2932,18 @@
+ 				crossing1->lines.push_back(std::move(line));
+ 			}
+ 
++		};
++
++		struct Segment { Point a, b; size_t shape; std::vector<Point> cuts; bool validatedRectangle; double halfWidth; };
++		std::vector<Segment> segments;
++		std::set<std::pair<double, double>> nativeIntersections;
++		bool limited = false;
++		size_t cutCount = 0;
++		auto add_crossings = [&segments, &limited, &cutCount] (const Point& a, const Point& b, size_t shape, bool validatedRectangle=false,double halfWidth=0) {
++			if (!std::isfinite(a.x) || !std::isfinite(a.y) || !std::isfinite(b.x) || !std::isfinite(b.y) ||
++				(a.x != b.x && a.y != b.y) || (a.x == b.x && a.y == b.y)) return;
++			if (segments.size() >= 4096) { limited = true; return; }
++			segments.push_back({a, b, shape, {}, validatedRectangle,halfWidth});
+ 		};
+ 
+ 		// 2 main cases
+@@ -2544,58 +2977,142 @@
+ 			if (!shape || shape->m_eGraphicsType != eGraphicsType::gtRectangle || shape->m_pImageInfo != nullptr)
+ 				continue;
+ 
+-			bool is_done = false;
+-			if (shape->m_eSimpleLineType == eSimpleLineType::sltUnknown)
+-			{
+-				// possible point of crossing in a adobe table
+-				if (shape->m_dWidth < c_dMAX_TABLE_LINE_WIDTH_MM && shape->m_dHeight < c_dMAX_TABLE_LINE_WIDTH_MM)
+-				{
+-					is_done = true;
+-				}
+-
+-				// vertical line
+-				else if (shape->m_dWidth < c_dMAX_TABLE_LINE_WIDTH_MM && shape->m_dHeight > c_dMAX_TABLE_LINE_WIDTH_MM)
+-				{
+-					Point p1(shape->m_dLeft + shape->m_dWidth / 2, shape->m_dTop);
+-					Point p2(shape->m_dLeft + shape->m_dWidth / 2, shape->m_dBot);
+-					add_crossings(p1, p2, i);
+-					is_done = true;
+-				}
+-
+-				// horizontal line
+-				else if (shape->m_dWidth > c_dMAX_TABLE_LINE_WIDTH_MM && shape->m_dHeight < c_dMAX_TABLE_LINE_WIDTH_MM)
+-				{
+-					Point p1(shape->m_dLeft, shape->m_dTop + shape->m_dHeight / 2);
+-					Point p2(shape->m_dRight, shape->m_dTop + shape->m_dHeight / 2);
+-					add_crossings(p1, p2, i);
+-					is_done = true;
+-				}
+-			}
+-
+-			if (is_done)
+-				continue;
+-
+-			Point prev {};
+-			for (const auto& command : shape->m_oVector.GetData())
+-			{
+-				if (!command.points.empty())
+-				{
+-					if (command.type == CVectorGraphics::ePathCommandType::pctLine)
++			// Filled cell/page backgrounds do not supply table borders. Native
++			// line analysis can join adjacent thin rectangles in one shape;
++			// preserve those native subpath endpoints instead of its union bounds.
++			if (!shape->m_bIsNoFill && shape->m_bIsNoStroke)
++			{
++				for (const auto& part : shape->m_oVector.GetSubPaths())
++				{
++					const double l = part.GetLeft(), r = part.GetRight(), t = part.GetTop(), b = part.GetBottom();
++					if (!std::isfinite(l) || !std::isfinite(r) || !std::isfinite(t) || !std::isfinite(b) || l >= r || t >= b)
++						continue;
++					Point first, previous; unsigned moves = 0, segments = 0;
++					bool rectangle = true, closed = false;
++					std::set<std::pair<int, int>> corners;
++					for (const auto& command : part.GetData())
+ 					{
+-						const auto& curr = command.points.back();
+-
+-						// pure vertical / horizontal lines only
+-						// not small lines
+-						if (fabs(prev.x - curr.x) > c_dMAX_TABLE_LINE_WIDTH_MM && fabs(prev.y - curr.y) > c_dMAX_TABLE_LINE_WIDTH_MM ||
+-						        (fabs(prev.x - curr.x) < c_dMAX_TABLE_LINE_WIDTH_MM && fabs(prev.y - curr.y) < c_dMAX_TABLE_LINE_WIDTH_MM))
++						if (command.type == CVectorGraphics::ePathCommandType::pctClose)
+ 						{
+-							prev = curr;
++							closed = true;
++							if (!FtsNativeTableCoordinateEqual(previous.x,first.x) || !FtsNativeTableCoordinateEqual(previous.y,first.y))
++							{ if (!FtsNativeTableCoordinateEqual(previous.x,first.x) && !FtsNativeTableCoordinateEqual(previous.y,first.y)) rectangle = false; ++segments; }
+ 							continue;
+ 						}
+-						add_crossings(prev, curr, i);
++						if (command.points.size() != 1 || closed ||
++							(command.type != CVectorGraphics::ePathCommandType::pctMove && command.type != CVectorGraphics::ePathCommandType::pctLine))
++						{ rectangle = false; break; }
++						const auto& point = command.points.front();
++						const bool left=FtsNativeTableCoordinateEqual(point.x,l),right=FtsNativeTableCoordinateEqual(point.x,r);
++                        const bool top=FtsNativeTableCoordinateEqual(point.y,t),bottom=FtsNativeTableCoordinateEqual(point.y,b);
++                        if(left==right||top==bottom)rectangle=false;
++                        corners.insert({left?0:1,top?0:1});
++						if (command.type == CVectorGraphics::ePathCommandType::pctMove) { first = point; ++moves; }
++						else if (!FtsNativeTableCoordinateEqual(previous.x,point.x) || !FtsNativeTableCoordinateEqual(previous.y,point.y))
++						{ if (!FtsNativeTableCoordinateEqual(previous.x,point.x) && !FtsNativeTableCoordinateEqual(previous.y,point.y)) rectangle = false; ++segments; }
++						previous = point;
+ 					}
+-					prev = command.points.back();
+-				}
++					if (!rectangle || !closed || moves != 1 || segments != 4 || corners.size() != 4) continue;
++					if (r - l > c_dMAX_TABLE_LINE_WIDTH_MM && b - t < c_dMAX_TABLE_LINE_WIDTH_MM)
++						add_crossings(Point(l, (t + b) / 2), Point(r, (t + b) / 2), i, true,(b-t)/2);
++					else if (b - t > c_dMAX_TABLE_LINE_WIDTH_MM && r - l < c_dMAX_TABLE_LINE_WIDTH_MM)
++						add_crossings(Point((l + r) / 2, t), Point((l + r) / 2, b), i, true,(r-l)/2);
++				}
++				continue;
++			}
++
++
++			Point first {}, previous {}; bool open = false;
++			for (const auto& command : shape->m_oVector.GetData())
++			{
++				if (command.type == CVectorGraphics::ePathCommandType::pctClose)
++				{ if (open) add_crossings(previous, first, i); open = false; previous = first; continue; }
++				if (command.points.empty()) continue;
++				const auto& point = command.points.back();
++				if (command.type == CVectorGraphics::ePathCommandType::pctMove) { first = point; open = true; }
++				else if (command.type == CVectorGraphics::ePathCommandType::pctLine && open) add_crossings(previous, point, i);
++				previous = point;
++			}
++		}
++
++		// The existing graph connected only line endpoints. Insert the native
++		// axis-segment intersections before feeding it the resulting edges.
++		auto add_cut = [&cutCount, &limited] (Segment& segment, const Point& point) {
++			for (const auto& prior : segment.cuts) if (prior.x == point.x && prior.y == point.y) return;
++			if (cutCount >= 16384) { limited = true; return; }
++			segment.cuts.push_back(point); ++cutCount;
++		};
++		auto between = [] (double p, double a, double b) { return p >= std::min(a, b) && p <= std::max(a, b); };
++		for (size_t i = 0; i < segments.size() && !limited; ++i)
++			for (size_t j = i + 1; j < segments.size() && !limited; ++j)
++			{
++				auto& a = segments[i]; auto& b = segments[j];
++				const bool ah = a.a.y == a.b.y, bh = b.a.y == b.b.y;
++				if (ah != bh)
++				{
++					auto& h = ah ? a : b; auto& v = ah ? b : a;
++					const bool xInside=between(v.a.x,h.a.x,h.b.x),yInside=between(h.a.y,v.a.y,v.b.y);
++                    auto touches=[](double a,double b,double c,double d){const double lo=std::max(std::min(a,b),std::min(c,d)),hi=std::min(std::max(a,b),std::max(c,d));return lo<=hi||FtsNativeTableCoordinateEqual(lo,hi);};
++                    // Filled border surfaces can meet at a T while one center
++                    // line ends at the other bar's outer edge. Prove actual
++                    // source surface contact, with at least one perpendicular
++                    // center projected within the other bar's long axis.
++                    const bool cap=h.validatedRectangle&&v.validatedRectangle&&(xInside||yInside)&&
++                        touches(h.a.x,h.b.x,v.a.x-v.halfWidth,v.a.x+v.halfWidth)&&
++                        touches(v.a.y,v.b.y,h.a.y-h.halfWidth,h.a.y+h.halfWidth);
++                    if((xInside&&yInside)||cap)
++                    {const Point p(v.a.x,h.a.y);nativeIntersections.insert({p.x,p.y});add_cut(h,p);add_cut(v,p);}
++				}
++			}
++		// Collinear source pieces need only one shared junction. Prefer an
++		// existing perpendicular intersection so border-cap overlaps do not
++		// introduce nearby duplicate vertices into the native tolerance graph.
++		for (size_t i = 0; i < segments.size() && !limited; ++i)
++			for (size_t j = i + 1; j < segments.size() && !limited; ++j)
++			{
++				auto& a = segments[i]; auto& b = segments[j];
++				const bool h = a.a.y == a.b.y, bh = b.a.y == b.b.y;
++				if(h!=bh)continue;
++                const double aa=h?a.a.y:a.a.x,bb=h?b.a.y:b.a.x;
++                if(aa!=bb&&!(a.validatedRectangle&&b.validatedRectangle&&FtsNativeTableCoordinateEqual(aa,bb)))continue;
++				const double lo = std::max(std::min(h ? a.a.x : a.a.y, h ? a.b.x : a.b.y), std::min(h ? b.a.x : b.a.y, h ? b.b.x : b.b.y));
++				const double hi = std::min(std::max(h ? a.a.x : a.a.y, h ? a.b.x : a.b.y), std::max(h ? b.a.x : b.a.y, h ? b.b.x : b.b.y));
++				if (lo > hi) continue;
++				bool shared = false;
++				for (const auto& point : a.cuts) if (between(h ? point.x : point.y, lo, hi)) { add_cut(b, point); shared = true; break; }
++				if (!shared) for (const auto& point : b.cuts) if (between(h ? point.x : point.y, lo, hi)) { add_cut(a, point); shared = true; break; }
++				if (!shared) { const double v = (lo + hi) / 2; const Point point(h ? v : a.a.x, h ? a.a.y : v); add_cut(a, point); add_cut(b, point); }
++			}
++		if (limited || crossings.size() > 4096) { if (complete) *complete = false; return {}; }
++		// Source perpendicular centerlines define actual junction coordinates.
++		// Border-endcap/collinear joins may attach within native tolerance but
++		// cannot average these authoritative intersections away from the border.
++		for (const auto& point : nativeIntersections)
++		{
++			const Point p(point.first, point.second);
++			Crossing* crossing = find_crossing(p);
++			if (crossing)
++			{
++                if(crossing->pinnedIntersection) {
++                    if(!FtsNativeTableCoordinateEqual(crossing->p.x,p.x)||!FtsNativeTableCoordinateEqual(crossing->p.y,p.y))
++                    {if(complete)*complete=false;return {};}
++                } else {crossing->p=p;crossing->pinnedIntersection=true;}
++			}
++			else
++			{
++				if (crossings.size() >= 4096) { if (complete) *complete = false; return {}; }
++				auto crossing = std::make_shared<Crossing>(); crossing->p = p; crossing->pinnedIntersection = true;
++				crossings.push_back(crossing);
++			}
++		}
++		for (auto& segment : segments)
++		{
++			const bool horizontal = segment.a.y == segment.b.y;
++			std::sort(segment.cuts.begin(), segment.cuts.end(), [horizontal] (const Point& a, const Point& b) { return horizontal ? a.x < b.x : a.y < b.y; });
++			for (size_t i = 1; i < segment.cuts.size(); ++i)
++			{
++				connect_crossings(segment.cuts[i - 1], segment.cuts[i], segment.shape);
++				if (crossings.size() > 4096) { if (complete) *complete = false; return {}; }
+ 			}
+ 		}
+ 
+@@ -2644,11 +3161,13 @@
+ 				if (!cr_f_top || !cr_f_left || !cr_s_bot ||  !cr_s_right)
+ 					continue;
+ 
+-				std::set<size_t> shape_indexes;
+-				bool is_connected = go_direction_until(cr_first.get(), cr_second->p, eLineDirection::ldRight, shape_indexes);
+-				is_connected &= go_direction_until(cr_first.get(), cr_second->p, eLineDirection::ldBot, shape_indexes);
+-				is_connected &= go_direction_until(cr_second.get(), cr_first->p, eLineDirection::ldLeft, shape_indexes);
+-				is_connected &= go_direction_until(cr_second.get(), cr_first->p, eLineDirection::ldTop, shape_indexes);
++				std::set<size_t> shape_indexes, edges[4];
++				bool is_connected = go_direction_until(cr_first.get(), cr_second->p, eLineDirection::ldRight, edges[0]);
++				is_connected &= go_direction_until(cr_first.get(), cr_second->p, eLineDirection::ldBot, edges[1]);
++				is_connected &= go_direction_until(cr_second.get(), cr_first->p, eLineDirection::ldLeft, edges[2]);
++				is_connected &= go_direction_until(cr_second.get(), cr_first->p, eLineDirection::ldTop, edges[3]);
++
++				for(const auto& edge:edges)shape_indexes.insert(edge.begin(),edge.end());
+ 
+ 				if (!is_connected)
+ 					continue;
+@@ -2663,10 +3182,12 @@
+ 				graphical_cell->m_dBot = cr_second->p.y;
+ 				graphical_cell->m_dWidth = graphical_cell->m_dRight - graphical_cell->m_dLeft;
+ 				graphical_cell->m_dHeight = graphical_cell->m_dBot - graphical_cell->m_dTop;
++                for(unsigned side=0;side<4;++side) graphical_cell->m_arBorderShapeIndices[side].assign(edges[side].begin(),edges[side].end());
+ 				graphical_cells.push_back(std::move(graphical_cell));
+ 				break;
+ 			}
+ 		}
++
+ 
+ 		return graphical_cells;
+ 	}
+@@ -2775,6 +3296,10 @@
+ 		pShape->m_dImageTop = imageVector.GetTop();
+ 		pShape->m_dImageLeft = imageVector.GetLeft();
+ 		pShape->m_dImageRight = imageVector.GetRight();
++        if(!std::isfinite(pShape->m_dImageLeft)||!std::isfinite(pShape->m_dImageTop)||
++           !std::isfinite(pShape->m_dImageRight)||!std::isfinite(pShape->m_dImageBot)||
++           pShape->m_dImageRight<=pShape->m_dImageLeft||pShape->m_dImageBot<=pShape->m_dImageTop)
++            m_bReconstructionFailed=true;
+ 	}
+ 
+ 	void CPage::DrawGradient(shape_ptr_t pShape)
+@@ -2888,3 +3413,7 @@
+ 		}
+ 	}
+ }
++
++namespace NSDocxRenderer {
++#include "../resources/PdfDrawingLedgerPage.inl"
++}
+--- a/core/DocxRenderer/src/logic/Page.h
++++ b/core/DocxRenderer/src/logic/Page.h
+@@ -1,4 +1,4 @@
+-﻿#pragma once
++#pragma once
+ 
+ #include "elements/Paragraph.h"
+ #include "elements/Table.h"
+@@ -48,6 +48,8 @@
+ 		bool m_bWriteStyleRaw		   {false};
+ 		bool m_bCollectMetaInfo        {false};
+ 		bool m_bIsBuildTables		   {false};
++        bool m_bVerifiedPdfTables{false};
++        bool m_bReconstructionFailed{false};
+ 		bool m_bIsLuminosityShapesFiled{false};
+ 		bool m_bFontSubstitution       {false};
+ 		bool m_bSemanticSourceAdvance  {false};
+@@ -60,6 +62,29 @@
+ 		void EndCommand(DWORD lType);
+ 
+ 		void Clear();
++
++        struct ImageOrientation
++        {
++            double rotation{0.0};
++            bool flipH{false};
++            bool flipV{false};
++            double basis[6]{0,0,0,0,0,0};
++        };
++
++        std::vector<std::shared_ptr<CPdfSourcePaint>> m_arSourcePaints;
++        std::vector<CPdfSourceClip> m_arSourceClips;
++        std::map<std::wstring,size_t> m_mapSourceClips;
++        std::map<size_t,size_t> m_mapTextPaintOrders;
++        size_t m_nPaintOrdinal = 0, m_nSourcePoints = 0, m_nOwnerTextUnits = 0;
++        bool m_bDrawingComplete = true;
++        bool m_bNextPdfNormalComposite = false;
++        bool PrepareDerivedPdfVectors();
++        std::shared_ptr<CPdfSourcePaint> CreateSourcePaint(LONG type, const std::shared_ptr<CImageInfo>& image, const ImageOrientation* orientation, bool normalComposite);
++        bool PdfDrawingTextPaintRange(const CContText& text,size_t& first,size_t& last) const;
++        bool PdfDrawingShapePaintRange(const CShape& shape,size_t& first,size_t& last) const;
++        bool PdfDrawingBeforeParagraph(const CShape& source,const CParagraph& paragraph) const;
++        bool PdfDrawingBeforeShape(const CShape& source,const CShape& target) const;
++        bool WriteVerifiedDrawingLayout(NSStringUtils::CStringBuilder& writer,size_t page,size_t tableBase,CPdfDrawingCounts& counts) const;
+ 
+ 		void WriteImage(const std::shared_ptr<CImageInfo> pInfo, double& fX, double& fY, double& fWidth, double& fHeight);
+ 
+@@ -69,7 +94,7 @@
+ 		void PathStart();
+ 		void PathEnd();
+ 		void PathClose();
+-		void DrawPath(LONG lType, const std::shared_ptr<CImageInfo> pInfo);
++		void DrawPath(LONG lType, const std::shared_ptr<CImageInfo> pInfo, const ImageOrientation* imageOrientation = nullptr);
+ 		bool IsCurrVectorClockwise() const;
+ 
+ 		void AddText(
+@@ -84,6 +109,7 @@
+ 
+ 		void Analyze();
+ 		void Record(NSStringUtils::CStringBuilder& oWriter, bool bIsLastPage);
++        bool WriteVerifiedTableLayout(NSStringUtils::CStringBuilder& writer, size_t page, size_t& ordinal, size_t& cells) const;
+ 
+ 		std::vector<std::wstring> GetXmlShapes();
+ 		std::vector<std::wstring> GetXmlShapesPptx();
+@@ -124,11 +150,12 @@
+ 		// return groups of text cells
+ 		std::vector<text_cell_group_ptr_t> BuildTextCellGroups(const std::vector<text_line_group_ptr_t>& arTextLineGroups);
+ 
++        bool BuildVerifiedTables();
+ 		// returns std::vector of tables builded from shapes and paragraphes
+ 		std::vector<table_ptr_t> BuildTables(const std::vector<text_line_group_ptr_t>& arTextLineGroups);
+ 
+ 		// return std::vector of graphical cells (from shapes)
+-		std::vector<graphical_cell_ptr_t> BuildGraphicalCells();
++		std::vector<graphical_cell_ptr_t> BuildGraphicalCells(bool* complete = nullptr);
+ 
+ 		// returns std::vector of base items builded from m_arParagraphs
+ 		std::vector<ooxml_item_ptr_t> BuildOutputObjects();
+--- a/core/DocxRenderer/src/resources/NativeContainedRectangles.h
++++ b/core/DocxRenderer/src/resources/NativeContainedRectangles.h
+@@ -0,0 +1,47 @@
++#pragma once
++#include "VectorGraphics.h"
++#include "NativeTablePrecision.h"
++#include <set>
++#include <vector>
++
++namespace NSDocxRenderer {
++// Inspect only the established engine's CVectorGraphics::GetSubPaths output.
++// This is the same closed-axis-rectangle predicate used by the table proof.
++// The original vectors, source paints, bounds and draw order are untouched.
++inline bool FtsNativeContainedRectangles(const CVectorGraphics& vector)
++{
++    const auto parts=vector.GetSubPaths();
++    if(parts.size()<2||parts.size()>64)return false;
++    int orientation=0;bool outer=false;
++    const double left=vector.GetLeft(),top=vector.GetTop(),right=vector.GetRight(),bottom=vector.GetBottom();
++    for(const auto& part:parts){
++        std::vector<Point> points;bool closed=false;
++        for(const auto& command:part.GetData()){
++            using T=CVectorGraphics::ePathCommandType;
++            if(command.type==T::pctClose){if(closed||!command.points.empty())return false;closed=true;continue;}
++            if(closed||command.points.size()!=1)return false;
++            if(command.type==T::pctMove){if(!points.empty())return false;}
++            else if(command.type!=T::pctLine||points.empty())return false;
++            points.push_back(command.points[0]);if(points.size()>5)return false;
++        }
++        if(points.size()==5&&FtsNativeTableCoordinateEqual(points.front().x,points.back().x)&&FtsNativeTableCoordinateEqual(points.front().y,points.back().y)){points.pop_back();closed=true;}
++        if(!closed||points.size()!=4)return false;
++        const double l=part.GetLeft(),t=part.GetTop(),r=part.GetRight(),b=part.GetBottom();
++        if(!std::isfinite(l)||!std::isfinite(t)||!std::isfinite(r)||!std::isfinite(b)||l>=r||t>=b)return false;
++        std::set<unsigned> corners;
++        for(size_t i=0;i<points.size();++i){
++            const auto& p=points[i];const auto& next=points[(i+1)%points.size()];
++            const bool x=FtsNativeTableCoordinateEqual(p.x,next.x),y=FtsNativeTableCoordinateEqual(p.y,next.y);
++            if(x==y)return false;
++            const bool ll=FtsNativeTableCoordinateEqual(p.x,l),rr=FtsNativeTableCoordinateEqual(p.x,r),tt=FtsNativeTableCoordinateEqual(p.y,t),bb=FtsNativeTableCoordinateEqual(p.y,b);
++            if(ll==rr||tt==bb)return false;corners.insert((rr?1:0)+(bb?2:0));
++        }
++        if(corners.size()!=4)return false;
++        const double cross=(points[1].x-points[0].x)*(points[2].y-points[0].y)-(points[1].y-points[0].y)*(points[2].x-points[0].x);
++        if(!std::isfinite(cross)||cross==0)return false;const int sign=cross>0?1:-1;
++        if(orientation&&orientation!=sign)return false;orientation=sign;
++        if(FtsNativeTableCoordinateEqual(l,left)&&FtsNativeTableCoordinateEqual(t,top)&&FtsNativeTableCoordinateEqual(r,right)&&FtsNativeTableCoordinateEqual(b,bottom))outer=true;
++    }
++    return outer;
++}
++}
+--- a/core/DocxRenderer/src/resources/NativeTableGrid.h
++++ b/core/DocxRenderer/src/resources/NativeTableGrid.h
+@@ -0,0 +1,96 @@
++#pragma once
++
++#include <algorithm>
++#include <cmath>
++#include <cstddef>
++#include <numeric>
++#include <vector>
++#include "NativeTablePrecision.h"
++
++namespace NSDocxRenderer
++{
++// This consumes only closed cells already found by CPage::BuildGraphicalCells.
++// It validates their topology; it does not discover borders or infer text columns.
++struct CNativeTableCellBounds { double left, top, right, bot; };
++struct CNativeTableCellPlacement
++{
++    size_t source, row, col, rowSpan, colSpan;
++};
++struct CNativeTableGrid
++{
++    std::vector<double> x, y;
++    std::vector<CNativeTableCellPlacement> cells;
++};
++
++inline bool BuildClosedNativeTableGrids(const std::vector<CNativeTableCellBounds>& cells,
++                                       std::vector<CNativeTableGrid>& out)
++{
++    out.clear();
++    if (cells.size() > 4096) return false;
++    std::vector<size_t> parent(cells.size());
++    std::iota(parent.begin(), parent.end(), 0);
++    auto root = [&parent](size_t i) { while (parent[i] != i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
++    for (const auto& c : cells)
++        if (!std::isfinite(c.left) || !std::isfinite(c.top) || !std::isfinite(c.right) || !std::isfinite(c.bot)
++                || c.left >= c.right || c.top >= c.bot) return false;
++    for (size_t i = 0; i < cells.size(); ++i)
++        for (size_t j = i + 1; j < cells.size(); ++j)
++        {
++            const auto &a = cells[i], &b = cells[j];
++            const bool xOverlap = std::max(a.left, b.left) < std::min(a.right, b.right) && !FtsNativeTableCoordinateEqual(std::max(a.left,b.left),std::min(a.right,b.right));
++            const bool yOverlap = std::max(a.top, b.top) < std::min(a.bot, b.bot) && !FtsNativeTableCoordinateEqual(std::max(a.top,b.top),std::min(a.bot,b.bot));
++            if (xOverlap && yOverlap) return false;
++            if ((xOverlap && (FtsNativeTableCoordinateEqual(a.top,b.bot) || FtsNativeTableCoordinateEqual(b.top,a.bot)))
++                    || (yOverlap && (FtsNativeTableCoordinateEqual(a.left,b.right) || FtsNativeTableCoordinateEqual(b.left,a.right)))) parent[root(j)] = root(i);
++        }
++    std::vector<std::vector<size_t>> components(cells.size());
++    for (size_t i = 0; i < cells.size(); ++i) components[root(i)].push_back(i);
++    for (const auto& component : components)
++    {
++        // A single frame has no source-proven table subdivision.
++        if (component.size() < 2) continue;
++        CNativeTableGrid grid;
++        for (size_t i : component)
++        {
++            grid.x.push_back(cells[i].left); grid.x.push_back(cells[i].right);
++            grid.y.push_back(cells[i].top); grid.y.push_back(cells[i].bot);
++        }
++        auto distinct = [](std::vector<double>& v) { std::sort(v.begin(), v.end()); v.erase(std::unique(v.begin(), v.end(), FtsNativeTableCoordinateEqual), v.end()); };
++        distinct(grid.x); distinct(grid.y);
++        if (grid.x.size() > 257 || grid.y.size() > 257 || (grid.x.size() - 1) * (grid.y.size() - 1) > 4096) return false;
++        const size_t cols = grid.x.size() - 1, rows = grid.y.size() - 1;
++        std::vector<size_t> owner(rows * cols, cells.size());
++        // The logical cuts retain an original native edge value. Equivalent
++        // machine-precision aliases share a cut; physical cell bounds below
++        // are never rewritten or averaged.
++        auto edgeIndex=[](const std::vector<double>& values,double value){
++            auto it=std::lower_bound(values.begin(),values.end(),value);
++            if(it!=values.end()&&FtsNativeTableCoordinateEqual(*it,value))return static_cast<size_t>(it-values.begin());
++            if(it!=values.begin()&&FtsNativeTableCoordinateEqual(*(it-1),value))return static_cast<size_t>(it-values.begin()-1);
++            return values.size();
++        };
++        for (size_t i : component)
++        {
++            const auto& c = cells[i];
++            const size_t col = edgeIndex(grid.x,c.left);
++            const size_t row = edgeIndex(grid.y,c.top);
++            const size_t endCol = edgeIndex(grid.x,c.right);
++            const size_t endRow = edgeIndex(grid.y,c.bot);
++            if(col>=endCol||row>=endRow||endCol>=grid.x.size()||endRow>=grid.y.size())return false;
++            for (size_t r = row; r < endRow; ++r)
++                for (size_t k = col; k < endCol; ++k)
++                {
++                    if (owner[r * cols + k] != cells.size()) return false;
++                    owner[r * cols + k] = i;
++                }
++            grid.cells.push_back({i, row, col, endRow - row, endCol - col});
++        }
++        if (std::find(owner.begin(), owner.end(), cells.size()) != owner.end()) return false;
++        std::sort(grid.cells.begin(), grid.cells.end(), [](const CNativeTableCellPlacement& a, const CNativeTableCellPlacement& b) {
++            return a.row != b.row ? a.row < b.row : a.col < b.col;
++        });
++        out.push_back(std::move(grid));
++    }
++    return true;
++}
++}
+--- a/core/DocxRenderer/src/resources/NativeTablePrecision.h
++++ b/core/DocxRenderer/src/resources/NativeTablePrecision.h
+@@ -0,0 +1,13 @@
++#pragma once
++#include <algorithm>
++#include <cmath>
++#include <limits>
++
++// Equality only for the existing native table rectangle/canonical-junction
++// predicates. Clipping's double arithmetic can leave equivalent corners a few
++// machine epsilons apart. No source point, path, bound, or center is changed.
++inline bool FtsNativeTableCoordinateEqual(double a,double b)
++{
++    return std::isfinite(a)&&std::isfinite(b)&&
++        std::fabs(a-b)<=128*std::numeric_limits<double>::epsilon()*std::max({1.0,std::fabs(a),std::fabs(b)});
++}
+--- a/core/DocxRenderer/src/resources/PdfDerivedVectorPage.inl
++++ b/core/DocxRenderer/src/resources/PdfDerivedVectorPage.inl
+@@ -0,0 +1,86 @@
++// Defined inside NSDocxRenderer after the ordinary CPage implementation.
++// Only native already-parsed paths are replayed into the existing renderer.
++bool CPage::PrepareDerivedPdfVectors()
++{
++    auto reject=[](size_t,int){return false;};
++    // Native captures already arrive as image paints. Every surviving source
++    // vector/style paint needs a fresh Normal/no-mask/no-group proof, including
++    // nonzero paths and consumed semantic table styles.
++    for(const auto& source:m_arSourcePaints)
++        if(!source||(source->kind!=L"image"&&!source->normalComposite))return reject(source?source->id:0,__LINE__);
++    std::set<const CShape*> done;
++    for(const auto& source:m_arSourcePaints){
++        if(!source||source->fillRule!=L"evenodd")continue;
++        // Semantic table/effect ownership is retained and independently gated
++        // by the V2 consumer. Only surviving drawable figures are rendered.
++        if(source->role!=L"drawing"&&source->role!=L"cell-figure")continue;
++        const auto shape=source->output.lock();
++        if(!shape)return reject(source->id,__LINE__);
++        if(!done.insert(shape.get()).second)continue;
++        if(source->kind!=L"fill"||!source->hasSolidFill||!source->normalComposite||
++           shape->m_arSourcePaints.size()!=1||shape->m_arSourcePaints.front()!=source||
++           shape->m_eType!=CShape::eShapeType::stVectorGraphics||shape->m_pImageInfo||
++           !shape->m_arOutputObjects.empty()||!shape->m_bIsNoStroke||shape->m_bIsNoFill||
++           source->solidColor<0||source->solidColor>0xFFFFFF||source->solidAlpha<0||source->solidAlpha>255||
++           !m_oManagers.pImageManager||m_oManagers.pImageManager->m_pExternalStorage)
++            return reject(source->id,__LINE__);
++        double left=0,top=0,width=0,height=0;
++        source->originalPath.GetControlBounds(left,top,width,height);
++        CPdfDerivedVectorPlan plan;
++        if(!PdfPlanDerivedVector(left,top,width,height,plan))return reject(source->id,__LINE__);
++        const size_t bytes=static_cast<size_t>(plan.width)*plan.height*4;
++        std::unique_ptr<CBgraFrame> frame(new(std::nothrow) CBgraFrame());
++        BYTE* data=new(std::nothrow) BYTE[bytes];
++        if(!frame||!data){delete[] data;return reject(source->id,__LINE__);}
++        memset(data,0,bytes);
++        frame->put_Data(data);frame->put_Width(plan.width);frame->put_Height(plan.height);
++        const long stride=-static_cast<long>(plan.width)*4;
++        frame->put_Stride(stride);
++        std::unique_ptr<NSGraphics::IGraphicsRenderer,void(*)(NSGraphics::IGraphicsRenderer*)> renderer(
++            NSGraphics::Create(),[](NSGraphics::IGraphicsRenderer* p){if(p)p->Release();});
++        if(!renderer)return reject(source->id,__LINE__);
++        renderer->CreateFromBgraFrame(frame.get());renderer->SetSwapRGB(false);
++        renderer->put_Width(plan.widthMM);renderer->put_Height(plan.heightMM);
++        NSStructures::CBrush brush;brush.Type=c_BrushTypeSolid;brush.Color1=source->solidColor;brush.Alpha1=source->solidAlpha;
++        renderer->RestoreBrush(brush);
++        Aggplus::CMatrix shift;shift.Translate(-plan.left,-plan.top);
++        if(source->clipId){
++            if(source->clipId>m_arSourceClips.size())return reject(source->id,__LINE__);
++            const auto& originalClip=m_arSourceClips[source->clipId-1];
++            if(originalClip.id!=source->clipId||(originalClip.mode!=0&&originalClip.mode!=1))return reject(source->id,__LINE__);
++            auto clip=originalClip.path;clip.Transform(shift);
++            renderer->put_ClipMode(originalClip.mode);renderer->BeginCommand(c_nClipType);
++            clip.DrawOnRenderer(renderer.get());renderer->EndCommand(c_nClipType);
++            // CombineClip retained raster/history copies; clear only the current
++            // path so the evenOdd figure cannot include the clip contour.
++            if(renderer->PathCommandEnd()!=S_OK)return reject(source->id,__LINE__);
++        }
++        auto vector=source->originalPath;vector.Transform(shift);
++        renderer->BeginCommand(c_nPathType);vector.DrawOnRenderer(renderer.get());
++        renderer->DrawPath(c_nEvenOddFillMode);renderer->EndCommand(c_nPathType);
++        Aggplus::CImage image;image.Create(data,plan.width,plan.height,stride,true);
++        double x=plan.left,y=plan.top,w=plan.widthMM,h=plan.heightMM;
++        const auto info=m_oManagers.pImageManager->WriteImage(&image,x,y,w,h);
++        if(!info||info->m_eType!=CImageInfo::itPNG||!info->m_nId||
++           info->m_strFileName!=L"image"+std::to_wstring(info->m_nId)+L".png")return reject(source->id,__LINE__);
++        const std::wstring fileName=m_oManagers.pImageManager->m_strDstMedia+L"/"+info->m_strFileName;
++        NSFile::CFileBinary file;
++        if(!file.OpenFile(fileName)||file.GetFileSize()<=0||file.GetFileSize()>32*1024*1024)return reject(source->id,__LINE__);
++        const size_t encodedBytes=static_cast<size_t>(file.GetFileSize());file.CloseFile();
++        CImageFileFormatChecker checker;
++        if(!checker.isPngFile(fileName))return reject(source->id,__LINE__);
++        // Only the representation viewport changes; immutable source paths,
++        // bounds, source IDs, clip, paint order and cell owners remain intact.
++        CVectorGraphics viewport;
++        viewport.MoveTo(x,y);viewport.LineTo(x+w,y);viewport.LineTo(x+w,y+h);
++        viewport.LineTo(x,y+h);viewport.Close();
++        shape->SetVector(std::move(viewport));shape->m_dRotation=0;
++        shape->m_bImageFlipH=false;shape->m_bImageFlipV=false;
++        shape->m_bIsNoStroke=true;shape->m_bIsNoFill=true;
++        DrawImage(shape,info,shape->m_oVector);
++        if(m_bReconstructionFailed)return reject(source->id,__LINE__);
++        shape->m_bPdfDerivedVector=true;shape->m_nPdfDerivedWidth=plan.width;shape->m_nPdfDerivedHeight=plan.height;
++        shape->m_nPdfDerivedBytes=encodedBytes;shape->m_wsPdfDerivedResource=L"word/media/"+info->m_strFileName;
++    }
++    return true;
++}
+--- a/core/DocxRenderer/src/resources/PdfDerivedVectorPlan.h
++++ b/core/DocxRenderer/src/resources/PdfDerivedVectorPlan.h
+@@ -0,0 +1,22 @@
++#pragma once
++#include <cmath>
++#include <cstddef>
++
++namespace NSDocxRenderer {
++struct CPdfDerivedVectorPlan {
++    unsigned width=0,height=0;
++    double left=0,top=0,widthMM=0,heightMM=0;
++};
++inline bool PdfPlanDerivedVector(double left,double top,double width,double height,CPdfDerivedVectorPlan& result)
++{
++    if(!std::isfinite(left)||!std::isfinite(top)||!std::isfinite(width)||!std::isfinite(height)||width<=0||height<=0)return false;
++    const double scale=192.0/25.4;
++    const double w=std::ceil(width*scale),h=std::ceil(height*scale);
++    if(!std::isfinite(w)||!std::isfinite(h)||w<1||h<1||w>4096||h>4096||w*h>8.0*1024*1024)return false;
++    const double viewportWidth=w/scale,viewportHeight=h/scale;
++    if(!std::isfinite(left+viewportWidth)||!std::isfinite(top+viewportHeight))return false;
++    result.width=static_cast<unsigned>(w);result.height=static_cast<unsigned>(h);
++    result.left=left;result.top=top;result.widthMM=viewportWidth;result.heightMM=viewportHeight;
++    return true;
++}
++}
+--- a/core/DocxRenderer/src/resources/PdfDrawingLedger.h
++++ b/core/DocxRenderer/src/resources/PdfDrawingLedger.h
+@@ -0,0 +1,149 @@
++#pragma once
++
++#include <algorithm>
++#include <cmath>
++#include <cstdint>
++#include <iomanip>
++#include <functional>
++#include <limits>
++#include <locale>
++#include <memory>
++#include <map>
++#include <set>
++#include <sstream>
++#include <string>
++#include <vector>
++
++#include "VectorGraphics.h"
++#include "Constants.h"
++#include "../../../DesktopEditor/common/StringBuilder.h"
++
++namespace NSDocxRenderer
++{
++    class CShape;
++    struct CPdfDrawingOwner
++    {
++        size_t table = 0, row = 0, column = 0;
++        CPdfDrawingOwner() = default;
++        CPdfDrawingOwner(size_t t,size_t r,size_t c):table(t),row(r),column(c){}
++        bool operator==(const CPdfDrawingOwner& other) const
++        { return table == other.table && row == other.row && column == other.column; }
++    };
++    struct CPdfDrawingTextOwner
++    {
++        size_t nativeOrder = 0;
++        double left = 0, top = 0, right = 0, bottom = 0;
++        std::wstring text;
++    };
++    struct CPdfSourcePaint
++    {
++        size_t id = 0, paintOrdinal = 0, nativeOrder = 0, clipId = 0;
++        std::wstring kind, role = L"unresolved", fillRule = L"none";
++        bool normalComposite=false,hasSolidFill=false;
++        long solidColor=0,solidAlpha=0;
++        CVectorGraphics originalPath;
++        double ctm[6] = {1,0,0,1,0,0};
++        double imageBasis[6] = {0,0,0,0,0,0};
++        bool hasImageBasis = false;
++        unsigned imageId = 0;
++        std::vector<CPdfDrawingOwner> owners;
++        std::vector<CPdfDrawingTextOwner> textOwners;
++        std::weak_ptr<CShape> output;
++    };
++    struct CPdfSourceClip
++    {
++        size_t id = 0;
++        long mode = 0;
++        CVectorGraphics path;
++    };
++    struct CPdfDrawingCounts
++    {
++        size_t paints = 0, outputs = 0, lines = 0, clips = 0, points = 0, ownerTextUnits = 0;
++        size_t derivedBytes=0;std::set<unsigned> derivedImageIds;
++        static const size_t MaxItems = 16384, MaxClips = 4096, MaxPoints = 262144, MaxBytes = 16777216, MaxOwnerTextUnits = 1048576;
++    };
++
++    // Round-trip finite doubles; independent of process/user locale.
++    inline bool PdfDrawingNumber(NSStringUtils::CStringBuilder& writer, double value)
++    {
++        if (!std::isfinite(value)) return false;
++        std::wostringstream stream;
++        stream.imbue(std::locale::classic());
++        stream << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
++        writer.WriteString(stream.str());
++        return true;
++    }
++    inline bool PdfDrawingAttr(NSStringUtils::CStringBuilder& writer, const wchar_t* name, double value)
++    {
++        writer.WriteString(L" "); writer.WriteString(name); writer.WriteString(L"=\"");
++        if (!PdfDrawingNumber(writer,value)) return false;
++        writer.WriteString(L"\""); return true;
++    }
++    inline void PdfDrawingIndex(NSStringUtils::CStringBuilder& writer, const wchar_t* name, size_t value)
++    {
++        writer.WriteString(L" "); writer.WriteString(name); writer.WriteString(L"=\"");
++        writer.WriteString(std::to_wstring(value)); writer.WriteString(L"\"");
++    }
++    inline bool PdfDrawingBounds(NSStringUtils::CStringBuilder& writer, double left,double top,double right,double bottom)
++    {
++        if (right < left || bottom < top) return false;
++        return PdfDrawingAttr(writer,L"leftPt",left*c_dMMToPt) && PdfDrawingAttr(writer,L"topPt",top*c_dMMToPt) &&
++            PdfDrawingAttr(writer,L"rightPt",right*c_dMMToPt) && PdfDrawingAttr(writer,L"bottomPt",bottom*c_dMMToPt);
++    }
++    inline bool PdfDrawingPath(NSStringUtils::CStringBuilder& writer, const CVectorGraphics& path)
++    {
++        writer.WriteString(L"<path>");
++        for (const auto& command : path.GetData())
++        {
++            const auto type=command.type;
++            const auto& points=command.points;
++            if(type==CVectorGraphics::ePathCommandType::pctClose)
++            { if(!points.empty())return false;writer.WriteString(L"<close/>");if(writer.GetCurSize()>CPdfDrawingCounts::MaxBytes/4-2048)return false;continue; }
++            if(type==CVectorGraphics::ePathCommandType::pctMove || type==CVectorGraphics::ePathCommandType::pctLine)
++            {
++                if(points.size()!=1)return false;
++                writer.WriteString(type==CVectorGraphics::ePathCommandType::pctMove?L"<move":L"<line");
++                if(!PdfDrawingAttr(writer,L"x",points[0].x*c_dMMToPt)||!PdfDrawingAttr(writer,L"y",points[0].y*c_dMMToPt))return false;
++            }
++            else if(type==CVectorGraphics::ePathCommandType::pctCurve)
++            {
++                if(points.size()!=3)return false;
++                writer.WriteString(L"<curve");
++                for(size_t i=0;i<3;++i){
++                    const std::wstring x=L"x"+std::to_wstring(i+1),y=L"y"+std::to_wstring(i+1);
++                    if(!PdfDrawingAttr(writer,x.c_str(),points[i].x*c_dMMToPt)||!PdfDrawingAttr(writer,y.c_str(),points[i].y*c_dMMToPt))return false;
++                }
++            }
++            else return false;
++            writer.WriteString(L"/>");
++            if(writer.GetCurSize()>CPdfDrawingCounts::MaxBytes/4-2048)return false;
++        }
++        writer.WriteString(L"</path>");return true;
++    }
++    inline size_t PdfDrawingPointCount(const CVectorGraphics& path)
++    {
++        size_t count=0;
++        for(const auto& command:path.GetData()){
++            // Count command records as well as coordinates; empty close
++            // records must not evade the source metadata allocation bound.
++            if(command.points.size()+1>CPdfDrawingCounts::MaxPoints-count)return CPdfDrawingCounts::MaxPoints+1;
++            count+=command.points.size()+1;
++        }
++        return count;
++    }
++    inline bool PdfDrawingCellRole(const std::shared_ptr<CPdfSourcePaint>& source,const wchar_t* role,size_t table,size_t row,size_t column)
++    {
++        if(source->role!=L"drawing" && source->role!=role)return false;
++        const CPdfDrawingOwner owner{table,row,column};
++        if(std::wstring(role)==L"cell-figure"){
++            if(source->kind!=L"fill"||source->imageId||source->hasImageBasis||
++               source->owners.size()>1||(!source->owners.empty()&&!(source->owners.front()==owner)))return false;
++        }
++        source->role=role;
++        if(std::find(source->owners.begin(),source->owners.end(),owner)==source->owners.end()){
++            if(source->owners.size()>=4096)return false;
++            source->owners.push_back(owner);
++        }
++        return true;
++    }
++}
+--- a/core/DocxRenderer/src/resources/PdfDrawingLedgerPage.inl
++++ b/core/DocxRenderer/src/resources/PdfDrawingLedgerPage.inl
+@@ -0,0 +1,290 @@
++#include "PdfDerivedVectorPage.inl"
++// Source-order helpers inspect the original per-Unicode input order, never
++// the mutable representative order used by native line/paragraph layout.
++bool CPage::PdfDrawingTextPaintRange(const CContText& cont,size_t& first,size_t& last) const
++{
++    first=std::numeric_limits<size_t>::max();last=0;
++    const auto& text=cont.GetText();
++    if(cont.m_arSourceOrders.size()!=text.length())return false;
++    for(size_t i=0;i<text.length();++i){
++        if(CContText::IsUnicodeSpace(text.at(i)))continue;
++        const size_t nativeOrder=cont.m_arSourceOrders[i];
++        const auto found=m_mapTextPaintOrders.find(nativeOrder);
++        if(!nativeOrder||found==m_mapTextPaintOrders.end()||!found->second)return false;
++        first=std::min(first,found->second);last=std::max(last,found->second);
++    }
++    return last!=0;
++}
++bool CPage::PdfDrawingShapePaintRange(const CShape& shape,size_t& first,size_t& last) const
++{
++    first=std::numeric_limits<size_t>::max();last=0;
++    if(shape.m_arSourcePaints.empty())return false;
++    for(const auto& source:shape.m_arSourcePaints){
++        if(!source||!source->paintOrdinal||!source->id||source->id>m_arSourcePaints.size()||m_arSourcePaints[source->id-1]!=source)return false;
++        first=std::min(first,source->paintOrdinal);last=std::max(last,source->paintOrdinal);
++    }
++    return last!=0;
++}
++bool CPage::PdfDrawingBeforeParagraph(const CShape& source,const CParagraph& paragraph) const
++{
++    size_t first=0,last=0;
++    if(!PdfDrawingShapePaintRange(source,first,last))return false;
++    bool foundText=false;
++    for(const auto& line:paragraph.m_arTextLines){
++        if(!line)return false;
++        for(const auto& cont:line->m_arConts){
++            if(!cont)return false;
++            if(cont->IsOnlySpaces())continue;
++            size_t textFirst=0,textLast=0;
++            if(!PdfDrawingTextPaintRange(*cont,textFirst,textLast)||last>=textFirst)return false;
++            foundText=true;
++        }
++    }
++    return foundText;
++}
++bool CPage::PdfDrawingBeforeShape(const CShape& source,const CShape& target) const
++{
++    size_t first=0,last=0,targetFirst=0,targetLast=0;
++    return PdfDrawingShapePaintRange(source,first,last)&&PdfDrawingShapePaintRange(target,targetFirst,targetLast)&&last<targetFirst;
++}
++
++std::shared_ptr<CPdfSourcePaint> CPage::CreateSourcePaint(LONG type,const std::shared_ptr<CImageInfo>& image,const ImageOrientation* orientation, bool normalComposite)
++{
++    if(!m_bVerifiedPdfTables)return nullptr;
++    const size_t ordinal=++m_nPaintOrdinal;
++    if(m_arSourcePaints.size()>=CPdfDrawingCounts::MaxItems){m_bDrawingComplete=false;return nullptr;}
++    const size_t points=PdfDrawingPointCount(m_oCurrVectorGraphics);
++    if(points>CPdfDrawingCounts::MaxPoints-m_nSourcePoints){m_bDrawingComplete=false;return nullptr;}
++    NSStringUtils::CStringBuilder validation;
++    if(!PdfDrawingPath(validation,m_oCurrVectorGraphics)){m_bDrawingComplete=false;return nullptr;}
++    size_t clipId=0;
++    if(!m_oClipVectorGraphics.IsEmpty()){
++        const size_t clipPoints=PdfDrawingPointCount(m_oClipVectorGraphics);
++        if(clipPoints>CPdfDrawingCounts::MaxPoints){m_bDrawingComplete=false;return nullptr;}
++        NSStringUtils::CStringBuilder keyWriter;
++        keyWriter.WriteString(std::to_wstring(m_lClipMode));
++        if(!PdfDrawingPath(keyWriter,m_oClipVectorGraphics)){m_bDrawingComplete=false;return nullptr;}
++        const std::wstring key=keyWriter.GetData();
++        const auto found=m_mapSourceClips.find(key);
++        if(found!=m_mapSourceClips.end())clipId=found->second;
++        else{
++            if(m_arSourceClips.size()>=CPdfDrawingCounts::MaxClips||clipPoints>CPdfDrawingCounts::MaxPoints-m_nSourcePoints-points){m_bDrawingComplete=false;return nullptr;}
++            CPdfSourceClip clip;clip.id=m_arSourceClips.size()+1;clip.mode=m_lClipMode;clip.path=m_oClipVectorGraphics;
++            clipId=clip.id;m_arSourceClips.push_back(std::move(clip));m_mapSourceClips.emplace(key,clipId);m_nSourcePoints+=clipPoints;
++        }
++    }
++    auto source=std::make_shared<CPdfSourcePaint>();
++    source->id=m_arSourcePaints.size()+1;source->paintOrdinal=ordinal;source->nativeOrder=m_nCurrentOrder+1;source->clipId=clipId;
++    source->kind=image?L"image":(type&c_nStroke)?((type&(c_nWindingFillMode|c_nEvenOddFillMode))?L"stroke-fill":L"stroke"):L"fill";
++    source->normalComposite=normalComposite;
++    const bool winding=(type&c_nWindingFillMode)!=0,evenodd=(type&c_nEvenOddFillMode)!=0;
++    if(!image){
++        if(winding&&evenodd){m_bDrawingComplete=false;return nullptr;}
++        if(winding||evenodd){
++            source->fillRule=evenodd?L"evenodd":L"nonzero";
++            if(m_oBrush.Type==c_BrushTypeSolid){
++                if(m_oBrush.Color1<0||m_oBrush.Color1>0xFFFFFF||m_oBrush.Alpha1<0||m_oBrush.Alpha1>255){m_bDrawingComplete=false;return nullptr;}
++                source->hasSolidFill=true;source->solidColor=m_oBrush.Color1;source->solidAlpha=m_oBrush.Alpha1;
++            }
++        }else if(!(type&c_nStroke)){m_bDrawingComplete=false;return nullptr;}
++    }
++    source->originalPath=m_oCurrVectorGraphics;
++    m_oTransform.GetElements(source->ctm);
++    for(double v:source->ctm)if(!std::isfinite(v)){m_bDrawingComplete=false;return nullptr;}
++    if(image){source->imageId=image->m_nId;if(orientation){source->hasImageBasis=true;std::copy(orientation->basis,orientation->basis+6,source->imageBasis);}}
++    m_nSourcePoints+=points;m_arSourcePaints.push_back(source);return source;
++}
++
++bool CPage::WriteVerifiedDrawingLayout(NSStringUtils::CStringBuilder& writer,size_t page,size_t tableBase,CPdfDrawingCounts& totals) const
++{
++    auto ftsDrawingReject=[](int){return false;};
++    if(!m_bDrawingComplete||page>=512||!m_arCompleteObjectsXml.empty())return ftsDrawingReject(__LINE__);
++    // Native overlap/drop-cap handling transfers some formed lines into an
++    // existing editable text wrapper. Walk that actual hierarchy as well as
++    // remaining flow lines; pointer identity prevents counting a shared line
++    // twice. This collection is explicitly not canonical reading order.
++    std::vector<text_line_ptr_t> formedLines;
++    std::set<const CTextLine*> seenLines;
++    auto addLine=[&](const text_line_ptr_t& line)->bool{
++        if(!line||seenLines.count(line.get()))return true;
++        bool text=false;for(const auto& cont:line->m_arConts)if(cont&&!cont->GetText().empty())text=true;
++        if(!text)return true;
++        if(formedLines.size()>=CPdfDrawingCounts::MaxItems-totals.lines)return ftsDrawingReject(__LINE__);
++        seenLines.insert(line.get());formedLines.push_back(line);return true;
++    };
++    std::function<bool(const std::shared_ptr<IOoxmlItem>&,unsigned)> addObject;
++    addObject=[&](const std::shared_ptr<IOoxmlItem>& object,unsigned depth)->bool{
++        if(depth>8)return ftsDrawingReject(__LINE__);
++        if(const auto paragraph=std::dynamic_pointer_cast<CParagraph>(object)){
++            for(const auto& line:paragraph->m_arTextLines)if(!addLine(line))return ftsDrawingReject(__LINE__);
++        }else if(const auto shape=std::dynamic_pointer_cast<CShape>(object)){
++            for(const auto& child:shape->m_arOutputObjects)if(!addObject(child,depth+1))return ftsDrawingReject(__LINE__);
++        }
++        return true;
++    };
++    for(const auto& line:m_arTextLines)if(!addLine(line))return ftsDrawingReject(__LINE__);
++    for(const auto& shape:m_arShapes)if(shape&&!addObject(shape,0))return ftsDrawingReject(__LINE__);
++    for(const auto& object:m_arOutputObjects)if(object&&!addObject(object,0))return ftsDrawingReject(__LINE__);
++    CPdfDrawingCounts next=totals;
++    if(m_arSourcePaints.size()>CPdfDrawingCounts::MaxItems-next.paints || formedLines.size()>CPdfDrawingCounts::MaxItems-next.lines ||
++       m_arSourceClips.size()>CPdfDrawingCounts::MaxClips-next.clips || m_nSourcePoints>CPdfDrawingCounts::MaxPoints-next.points ||
++       m_nOwnerTextUnits>CPdfDrawingCounts::MaxOwnerTextUnits-next.ownerTextUnits)return ftsDrawingReject(__LINE__);
++    next.paints+=m_arSourcePaints.size();next.lines+=formedLines.size();next.clips+=m_arSourceClips.size();next.points+=m_nSourcePoints;next.ownerTextUnits+=m_nOwnerTextUnits;
++    std::map<UINT,std::shared_ptr<CShape>> outputs;
++    auto addOutput=[&](const std::shared_ptr<CShape>& shape)->bool{
++        if(!shape)return ftsDrawingReject(__LINE__);
++        const UINT id=shape->GetDocPrId();if(!id)return ftsDrawingReject(__LINE__);
++        auto found=outputs.find(id);if(found!=outputs.end())return found->second==shape;
++        if(outputs.size()>=CPdfDrawingCounts::MaxItems-next.outputs)return ftsDrawingReject(__LINE__);
++        outputs.emplace(id,shape);
++        for(const auto& source:shape->m_arSourcePaints){
++            if(source->role!=L"drawing"&&source->role!=L"cell-image"&&source->role!=L"cell-figure")return ftsDrawingReject(__LINE__);
++            source->output=shape;
++        }
++        return true;
++    };
++    for(const auto& shape:m_arShapes)if(shape&&!addOutput(shape))return ftsDrawingReject(__LINE__);
++    for(const auto& source:m_arSourcePaints)if(source->role==L"cell-image"||source->role==L"cell-figure")if(!addOutput(source->output.lock()))return ftsDrawingReject(__LINE__);
++    next.outputs+=outputs.size();
++    NSStringUtils::CStringBuilder out;
++    out.WriteString(L"<page");PdfDrawingIndex(out,L"index",page);
++    if(!PdfDrawingAttr(out,L"widthPt",m_dWidth*c_dMMToPt)||!PdfDrawingAttr(out,L"heightPt",m_dHeight*c_dMMToPt))return ftsDrawingReject(__LINE__);
++    out.WriteString(L">");
++    for(const auto& clip:m_arSourceClips){
++        out.WriteString(L"<clip");PdfDrawingIndex(out,L"id",clip.id);if(!PdfDrawingAttr(out,L"nativeMode",static_cast<double>(clip.mode)))return ftsDrawingReject(__LINE__);out.WriteString(L">");
++        if(!PdfDrawingPath(out,clip.path))return ftsDrawingReject(__LINE__);out.WriteString(L"</clip>");
++    }
++    std::map<size_t,UINT> sourceOutputs;
++    for(const auto& pair:outputs)for(const auto& source:pair.second->m_arSourcePaints){
++        if(!source||source->id==0||source->id>m_arSourcePaints.size()||m_arSourcePaints[source->id-1]!=source||!sourceOutputs.emplace(source->id,pair.first).second)return ftsDrawingReject(__LINE__);
++    }
++    for(const auto& source:m_arSourcePaints){
++        const auto& role=source->role;
++        const bool outputRole=role==L"drawing"||role==L"cell-image"||role==L"cell-figure";
++        const bool cellRole=role==L"cell-border"||role==L"cell-fill"||role==L"cell-image"||role==L"cell-figure";
++        if(!outputRole&&role!=L"text-effect"&&!cellRole&&role!=L"fully-clipped")return ftsDrawingReject(__LINE__);
++        if(outputRole != (sourceOutputs.count(source->id)!=0))return ftsDrawingReject(__LINE__);
++        if(cellRole&&source->owners.empty())return ftsDrawingReject(__LINE__);
++        if(role==L"cell-figure"&&(source->owners.size()!=1||source->imageId||source->hasImageBasis||
++           source->kind!=L"fill"))return ftsDrawingReject(__LINE__);
++        if(role==L"text-effect"&&source->textOwners.empty())return ftsDrawingReject(__LINE__);
++        out.WriteString(L"<sourcePaint");PdfDrawingIndex(out,L"id",source->id);PdfDrawingIndex(out,L"paintOrdinal",source->paintOrdinal);
++        PdfDrawingIndex(out,L"nativeOrder",source->nativeOrder);PdfDrawingIndex(out,L"clipId",source->clipId);
++        out.WriteString(L" kind=\"");out.WriteString(source->kind);out.WriteString(L"\" role=\"");out.WriteString(role);out.WriteString(L"\"");
++        if(!PdfDrawingBounds(out,source->originalPath.GetLeft(),source->originalPath.GetTop(),source->originalPath.GetRight(),source->originalPath.GetBottom()))return ftsDrawingReject(__LINE__);
++        if(source->imageId)PdfDrawingIndex(out,L"imageId",source->imageId);
++        out.WriteString(L" fillRule=\"");out.WriteString(source->fillRule);out.WriteString(L"\" normalComposite=\"");
++        out.WriteString(source->normalComposite?L"true":L"false");out.WriteString(L"\"");
++        out.WriteString(L"><ctm");
++        const wchar_t* names[6]={L"a",L"b",L"c",L"d",L"e",L"f"};
++        for(size_t i=0;i<6;++i)if(!PdfDrawingAttr(out,names[i],source->ctm[i]))return ftsDrawingReject(__LINE__);
++        out.WriteString(L"/>");
++        if(source->hasImageBasis){out.WriteString(L"<imageBasis");for(size_t i=0;i<6;++i)if(!PdfDrawingAttr(out,names[i],source->imageBasis[i]*c_dMMToPt))return ftsDrawingReject(__LINE__);out.WriteString(L"/>");}
++        if(source->hasSolidFill){
++            out.WriteString(L"<solidFill");PdfDrawingIndex(out,L"r",source->solidColor&255);PdfDrawingIndex(out,L"g",(source->solidColor>>8)&255);
++            PdfDrawingIndex(out,L"b",(source->solidColor>>16)&255);PdfDrawingIndex(out,L"a",source->solidAlpha);out.WriteString(L"/>");
++        }
++        if(!PdfDrawingPath(out,source->originalPath))return ftsDrawingReject(__LINE__);
++        if(outputRole){out.WriteString(L"<output");PdfDrawingIndex(out,L"docPrId",sourceOutputs[source->id]);out.WriteString(L"/>");}
++        if(cellRole)for(const auto& owner:source->owners){
++            if(owner.table>=m_arTables.size())return ftsDrawingReject(__LINE__);
++            out.WriteString(L"<cellOwner");PdfDrawingIndex(out,L"tableOrdinal",tableBase+owner.table);PdfDrawingIndex(out,L"row",owner.row);PdfDrawingIndex(out,L"column",owner.column);out.WriteString(L"/>");
++        }
++        if(role==L"text-effect")for(const auto& owner:source->textOwners){
++            out.WriteString(L"<textOwner");PdfDrawingIndex(out,L"nativeOrder",owner.nativeOrder);
++            if(!PdfDrawingBounds(out,owner.left,owner.top,owner.right,owner.bottom))return ftsDrawingReject(__LINE__);
++            out.WriteString(L"><text>");out.WriteEncodeXmlString(owner.text);out.WriteString(L"</text></textOwner>");
++        }
++        out.WriteString(L"</sourcePaint>");
++    }
++    // Decisions and serialization share the exact converted endpoint doubles.
++    // Adjacent native mm values can become equal Pt values after conversion.
++    struct DrawingBoundsPt {double left,top,right,bottom;};
++    auto pointBounds=[](double left,double top,double right,double bottom,DrawingBoundsPt& result)->bool{
++        if(right<left||bottom<top)return false;
++        result={left*c_dMMToPt,top*c_dMMToPt,right*c_dMMToPt,bottom*c_dMMToPt};return true;
++    };
++    auto writeBoundsPt=[&](const DrawingBoundsPt& bounds)->bool{
++        return PdfDrawingAttr(out,L"leftPt",bounds.left)&&PdfDrawingAttr(out,L"topPt",bounds.top)&&
++            PdfDrawingAttr(out,L"rightPt",bounds.right)&&PdfDrawingAttr(out,L"bottomPt",bounds.bottom);
++    };
++    std::vector<DrawingBoundsPt> lineBoundsPt;
++    std::vector<size_t> linePaints;
++    for(size_t i=0;i<formedLines.size();++i){
++        const auto& line=formedLines[i];if(!line)return ftsDrawingReject(__LINE__);
++        size_t paint=std::numeric_limits<size_t>::max(),order=std::numeric_limits<size_t>::max();std::wstring text;bool knownPaint=true,meaningful=false;
++        for(const auto& cont:line->m_arConts)if(cont){
++            text+=cont->GetText().ToStdWString();order=std::min(order,static_cast<size_t>(cont->m_nOrder));
++            if(!cont->IsOnlySpaces()){
++                meaningful=true;size_t first=0,last=0;
++                if(!PdfDrawingTextPaintRange(*cont,first,last))knownPaint=false;
++                else paint=std::min(paint,first);
++            }
++        }
++        if(!knownPaint)paint=std::numeric_limits<size_t>::max();
++        if(meaningful&&paint==std::numeric_limits<size_t>::max())return ftsDrawingReject(__LINE__);
++        linePaints.push_back(paint);
++        out.WriteString(L"<line");PdfDrawingIndex(out,L"ordinal",i);PdfDrawingIndex(out,L"nativeOrder",order);
++        PdfDrawingIndex(out,L"firstPaintOrdinal",paint==std::numeric_limits<size_t>::max()?0:paint);
++        DrawingBoundsPt bounds;
++        if(!pointBounds(line->m_dLeft,line->m_dTop,line->m_dRight,line->m_dBot,bounds)||
++           !writeBoundsPt(bounds))return ftsDrawingReject(__LINE__);
++        lineBoundsPt.push_back(bounds);
++        out.WriteString(L"><text>");out.WriteEncodeXmlString(text);out.WriteString(L"</text></line>");
++    }
++    for(const auto& pair:outputs){
++        const auto& shape=*pair.second;
++        const bool text=shape.m_eType==CShape::eShapeType::stTextBox;
++        const bool image=shape.m_eType==CShape::eShapeType::stVectorTexture;
++        const bool derived=shape.m_bPdfDerivedVector;
++        if(derived&&(!image||!shape.m_pImageInfo||shape.m_arSourcePaints.size()!=1||shape.m_arSourcePaints.front()->fillRule!=L"evenodd"||!shape.m_arSourcePaints.front()->normalComposite||!shape.m_nPdfDerivedWidth||!shape.m_nPdfDerivedHeight))return ftsDrawingReject(__LINE__);
++        if(!text&&shape.m_arSourcePaints.empty())return ftsDrawingReject(__LINE__);
++        DrawingBoundsPt bounds;
++        if(!pointBounds(shape.m_dLeft,shape.m_dTop,shape.m_dRight,shape.m_dBot,bounds))return ftsDrawingReject(__LINE__);
++        std::vector<size_t> overlaps;size_t maxPaint=0;bool allUnder=true;
++        bool cellImage=false,cellFigure=false;
++        for(const auto& source:shape.m_arSourcePaints){maxPaint=std::max(maxPaint,source->paintOrdinal);cellImage=cellImage||source->role==L"cell-image";cellFigure=cellFigure||source->role==L"cell-figure";}
++        if(cellFigure){
++            if(text||(image&&!derived)||cellImage)return ftsDrawingReject(__LINE__);
++            for(const auto& source:shape.m_arSourcePaints)if(source->role!=L"cell-figure")return ftsDrawingReject(__LINE__);
++        }
++        for(size_t i=0;i<formedLines.size()&&!text&&!cellImage&&!cellFigure;++i){const auto& line=lineBoundsPt[i];
++            if(std::max(bounds.left,line.left)<std::min(bounds.right,line.right)&&std::max(bounds.top,line.top)<std::min(bounds.bottom,line.bottom)){
++                overlaps.push_back(i);
++                if(linePaints[i]==std::numeric_limits<size_t>::max()||maxPaint>=linePaints[i])allUnder=false;
++            }
++        }
++        if(!allUnder)overlaps.clear();
++        out.WriteString(L"<drawing");PdfDrawingIndex(out,L"docPrId",pair.first);PdfDrawingIndex(out,L"nativeOrder",shape.m_nOrder);
++        out.WriteString(L" kind=\"");out.WriteString(text?L"text":derived?L"derived-vector":image?L"image":L"vector");
++        out.WriteString(L"\" role=\"");out.WriteString(text?L"editable-text-wrapper":cellImage?L"cell-image":cellFigure?L"cell-figure":overlaps.empty()?L"figure":L"under-text");out.WriteString(L"\"");
++        if(!writeBoundsPt(bounds)||!PdfDrawingAttr(out,L"rotation",shape.m_dRotation))return ftsDrawingReject(__LINE__);
++        out.WriteString(shape.m_bImageFlipH?L" flipH=\"true\"":L" flipH=\"false\"");out.WriteString(shape.m_bImageFlipV?L" flipV=\"true\"":L" flipV=\"false\"");
++        if(image&&shape.m_pImageInfo)PdfDrawingIndex(out,L"imageId",shape.m_pImageInfo->m_nId);
++        out.WriteString(L">");
++        if(derived){
++            if(next.derivedImageIds.insert(shape.m_pImageInfo->m_nId).second){
++                if(shape.m_nPdfDerivedBytes>32*1024*1024-next.derivedBytes)return ftsDrawingReject(__LINE__);
++                next.derivedBytes+=shape.m_nPdfDerivedBytes;
++            }
++            if(shape.m_wsPdfDerivedResource!=L"word/media/image"+std::to_wstring(shape.m_pImageInfo->m_nId)+L".png")return ftsDrawingReject(__LINE__);
++            out.WriteString(L"<representation format=\"png\" resourceName=\"");out.WriteString(shape.m_wsPdfDerivedResource);out.WriteString(L"\"");
++            PdfDrawingIndex(out,L"pixelWidth",shape.m_nPdfDerivedWidth);PdfDrawingIndex(out,L"pixelHeight",shape.m_nPdfDerivedHeight);
++            out.WriteString(L" dpi=\"192\"/>");
++        }
++        for(const auto& source:shape.m_arSourcePaints){out.WriteString(L"<source");PdfDrawingIndex(out,L"id",source->id);out.WriteString(L"/>");}
++        for(size_t i:overlaps){out.WriteString(L"<lineOverlap");PdfDrawingIndex(out,L"ordinal",i);out.WriteString(L"/>");}
++        // The existing formed line sequence is not sorted or guessed here.
++        // A gap is only a visual interval; it never invents list membership.
++        if(!text&&!cellImage&&!cellFigure&&overlaps.empty()){
++            size_t matches=0,before=0,after=0;
++            for(size_t i=1;i<lineBoundsPt.size();++i)if(lineBoundsPt[i-1].bottom<lineBoundsPt[i].top&&
++                lineBoundsPt[i-1].bottom<=bounds.top&&bounds.bottom<=lineBoundsPt[i].top){++matches;before=i-1;after=i;}
++            if(matches==1){out.WriteString(L"<gap");PdfDrawingIndex(out,L"beforeLine",before);PdfDrawingIndex(out,L"afterLine",after);out.WriteString(L"/>");}
++        }
++        out.WriteString(L"</drawing>");
++    }
++    out.WriteString(L"</page>");
++    if(writer.GetCurSize()>CPdfDrawingCounts::MaxBytes/4-2048||out.GetCurSize()>CPdfDrawingCounts::MaxBytes/4-2048-writer.GetCurSize())return ftsDrawingReject(__LINE__);
++    writer.WriteString(out.GetData());totals=next;return true;
++}
+--- a/core/DocxRenderer/src/resources/VectorGraphics.cpp
++++ b/core/DocxRenderer/src/resources/VectorGraphics.cpp
+@@ -155,6 +155,13 @@
+ 	{
+ 		return m_dBottom - m_dTop;
+ 	}
++    void CVectorGraphics::GetControlBounds(double& left,double& top,double& width,double& height) const noexcept
++    {
++        // Existing native API returns the Bezier control-point extent used by
++        // the Office SDK texture target; visible geometry bounds stay intact.
++        GetGraphicsPath().GetBounds(left,top,width,height);
++    }
++
+ 	Point CVectorGraphics::GetCenter() const noexcept
+ 	{
+ 		return Point((m_dLeft + m_dRight) / 2, (m_dTop + m_dBottom) / 2);
+@@ -358,6 +365,14 @@
+ 	// c_nStroke = 0x0001;
+ 	// c_nWindingFillMode = 0x0100;
+ 	// c_nEvenOddFillMode = 0x0200;
++	std::vector<CVectorGraphics> CVectorGraphics::GetSubPaths() const
++	{
++		std::vector<CVectorGraphics> parts;
++		for (const auto& path : GetGraphicsPath().GetSubPaths())
++			parts.emplace_back(path);
++		return parts;
++	}
++
+ 	CVectorGraphics CVectorGraphics::CalcBoolean(const CVectorGraphics& vg1, const CVectorGraphics& vg2, long clipType, long fillType, bool isLuminosity)
+ 	{
+ 		auto op = GetOpType(clipType);
+--- a/core/DocxRenderer/src/resources/VectorGraphics.h
++++ b/core/DocxRenderer/src/resources/VectorGraphics.h
+@@ -51,6 +51,7 @@
+ 		bool operator>=(const CVectorGraphics& other) const noexcept;
+ 
+ 		const std::list<CPathCommand>& GetData() const;
++		std::vector<CVectorGraphics> GetSubPaths() const;
+ 
+ 		double GetLeft() const noexcept;
+ 		double GetTop() const noexcept;
+@@ -58,6 +59,7 @@
+ 		double GetBottom() const noexcept;
+ 		double GetWidth() const noexcept;
+ 		double GetHeight() const noexcept;
++        void GetControlBounds(double& left,double& top,double& width,double& height) const noexcept;
+ 		Point GetCenter() const noexcept;
+ 		bool IsEmpty() const noexcept;
+ 
+--- a/core/PdfFile/SrcReader/RendererOutputDev.cpp
++++ b/core/PdfFile/SrcReader/RendererOutputDev.cpp
+@@ -1,4 +1,4 @@
+-﻿/*
++/*
+  * (c) Copyright Ascensio System SIA 2010-2023
+  *
+  * This program is a free software product. You can redistribute it and/or
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include "RendererOutputDev.h"
++#include "../../DesktopEditor/graphics/commands/PdfPaintContext.h"
+ #include "PdfSemanticAdvance.h"
+ #include "PdfType3FontProfile.h"
+ #include "Adaptors.h"
+@@ -1716,6 +1717,9 @@
+ 			return;
+ 
+ 		DoPath(pGState, pGState->getPath(), pGState->getPageHeight(), pGState->getCTM());
++        if(c_nDocxWriter==m_lRendererType)
++            m_pRenderer->CommandLong(NSPdfPaintContext::Command,
++                pGState->getBlendMode()==gfxBlendNormal&&!m_pSoftMask&&m_sCS.empty()&&!m_pDocxTransparencyTarget?1:0);
+ 		m_pRenderer->DrawPath(c_nStroke);
+ 
+ 		m_pRenderer->EndCommand(c_nPathType);
+@@ -1726,6 +1730,9 @@
+ 			return;
+ 
+ 		DoPath(pGState, pGState->getPath(), pGState->getPageHeight(), pGState->getCTM());
++        if(c_nDocxWriter==m_lRendererType)
++            m_pRenderer->CommandLong(NSPdfPaintContext::Command,
++                pGState->getBlendMode()==gfxBlendNormal&&!m_pSoftMask&&m_sCS.empty()&&!m_pDocxTransparencyTarget?1:0);
+ 		m_pRenderer->DrawPath(c_nWindingFillMode);
+ 		m_pRenderer->EndCommand(c_nPathType);
+ 	}
+@@ -1735,6 +1742,9 @@
+ 			return;
+ 
+ 		DoPath(pGState, pGState->getPath(), pGState->getPageHeight(), pGState->getCTM());
++        if(c_nDocxWriter==m_lRendererType)
++            m_pRenderer->CommandLong(NSPdfPaintContext::Command,
++                pGState->getBlendMode()==gfxBlendNormal&&!m_pSoftMask&&m_sCS.empty()&&!m_pDocxTransparencyTarget?1:0);
+ 		m_pRenderer->DrawPath(c_nEvenOddFillMode);
+ 
+ 		m_pRenderer->EndCommand(c_nPathType);
+@@ -1745,6 +1755,9 @@
+ 			return;
+ 
+ 		DoPath(pGState, pGState->getPath(), pGState->getPageHeight(), pGState->getCTM());
++        if(c_nDocxWriter==m_lRendererType)
++            m_pRenderer->CommandLong(NSPdfPaintContext::Command,
++                pGState->getBlendMode()==gfxBlendNormal&&!m_pSoftMask&&m_sCS.empty()&&!m_pDocxTransparencyTarget?1:0);
+ 		m_pRenderer->DrawPath(c_nStroke | c_nWindingFillMode);
+ 
+ 		m_pRenderer->EndCommand(c_nPathType);
+@@ -1755,6 +1768,9 @@
+ 			return;
+ 
+ 		DoPath(pGState, pGState->getPath(), pGState->getPageHeight(), pGState->getCTM());
++        if(c_nDocxWriter==m_lRendererType)
++            m_pRenderer->CommandLong(NSPdfPaintContext::Command,
++                pGState->getBlendMode()==gfxBlendNormal&&!m_pSoftMask&&m_sCS.empty()&&!m_pDocxTransparencyTarget?1:0);
+ 		m_pRenderer->DrawPath(c_nStroke | c_nEvenOddFillMode);
+ 
+ 		m_pRenderer->EndCommand(c_nPathType);

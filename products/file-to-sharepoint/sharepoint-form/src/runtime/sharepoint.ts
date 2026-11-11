@@ -24,8 +24,9 @@ export function createSharePointAdapter(options: AdapterOptions): {
   const get = async (url: string): Promise<ListItem[]> => {
     const response = await request(url, { method: 'GET', headers });
     if (!response.ok) throw new Error(`SharePoint read failed (${response.status}).`);
-    const data = await response.json() as { value?: unknown };
+    const data = await response.json() as { value?: unknown; 'odata.nextLink'?: unknown; '@odata.nextLink'?: unknown; __next?: unknown };
     if (!data || !Array.isArray(data.value)) throw new Error('Invalid SharePoint list response');
+    if (data['odata.nextLink'] || data['@odata.nextLink'] || data.__next) throw new Error('SharePoint list read is incomplete or ambiguous. Check before explicitly retrying.');
     return data.value as ListItem[];
   };
   const find = (list: string, column: string, value: string): Promise<ListItem[]> => get(`${items(list)}?$filter=${encodeURIComponent(`${column} eq '${value}'`)}&$top=2`);

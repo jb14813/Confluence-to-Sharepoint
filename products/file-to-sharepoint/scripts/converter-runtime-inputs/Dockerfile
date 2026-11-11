@@ -1,0 +1,785 @@
+FROM ubuntu:22.04@sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11 AS base
+SHELL ["/bin/bash", "-c"]
+ 
+# Workaround for slow archive.ubuntu.com
+RUN sed -i 's|archive.ubuntu.com|ftp.halifax.rwth-aachen.de|g' /etc/apt/sources.list
+
+RUN --network=host --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    apt update \
+    && apt install -y \
+       autoconf \
+       automake \
+       brotli \
+       build-essential \
+       cmake \
+       git \
+       lbzip2 \
+       libtool \
+       make \
+       pkg-config \
+       python-is-python3 \
+       qt6-base-dev \
+       qtchooser \
+       wget \
+       xz-utils \
+       zip
+    
+COPY _sources /sources
+COPY pinned-git.py /usr/local/bin/git
+RUN chmod +x /usr/local/bin/git
+WORKDIR /
+RUN git clone https://github.com/emscripten-core/emsdk.git
+WORKDIR /emsdk
+ARG emversion=4.0.11
+RUN git fetch -a \
+ && git checkout $emversion
+COPY _compilers /emsdk/downloads/
+ENV EMSDK_KEEP_DOWNLOADS=1
+RUN ./emsdk install $emversion
+RUN ./emsdk activate $emversion
+
+RUN . /emsdk/emsdk_env.sh && qtchooser -install qt6 $(which qmake6)
+ENV QT_SELECT=qt6
+WORKDIR /
+COPY embuild.sh /bin/embuild.sh
+COPY seed-pinned-ports.py /usr/local/bin/seed-pinned-ports.py
+
+
+
+FROM base AS build-tools
+RUN git clone --depth=1 --branch v9.3.0.140 https://github.com/ONLYOFFICE/build_tools.git
+WORKDIR /build_tools
+RUN python configure.py
+
+
+FROM base AS apple3rdparty
+COPY core/Common/3dParty/apple /core/Common/3dParty/apple
+COPY --from=build-tools /build_tools/scripts/base.py /build_tools/scripts/
+COPY --from=build-tools /build_tools/scripts/config.py /build_tools/scripts/
+WORKDIR /core/Common/3dParty/apple
+RUN python fetch.py
+# Outputs: /core/Common/3dParty/apple
+
+
+
+FROM base AS md
+COPY core/Common/3dParty/md /core/Common/3dParty/md
+COPY --from=build-tools /build_tools/scripts/base.py /build_tools/scripts/
+COPY --from=build-tools /build_tools/scripts/config.py /build_tools/scripts/
+WORKDIR /core/Common/3dParty/md
+RUN python fetch.py
+# Outputs: /core/Common/3dParty/md
+
+
+
+FROM base AS html
+COPY core/Common/3dParty/html /core/Common/3dParty/html
+COPY --from=build-tools /build_tools/scripts/base.py /build_tools/scripts/
+COPY --from=build-tools /build_tools/scripts/config.py /build_tools/scripts/
+WORKDIR /core/Common/3dParty/html
+RUN python fetch.py
+RUN sed -i -e 's/b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;/b->yy_is_interactive = 0;/' \
+    katana-parser/src/katana.lex.c
+# Outputs: /core/Common/3dParty/html
+
+
+
+FROM base AS heif
+COPY core/Common/3dParty/heif /core/Common/3dParty/heif
+COPY --from=build-tools /build_tools /build_tools
+WORKDIR /build_tools/scripts/core_common/modules
+RUN python -c "import heif; import config; config.parse(); heif.make()"
+# Outputs: /core/Common/3dParty/heif
+
+
+FROM base AS harfbuzz
+COPY core/Common/3dParty/harfbuzz /core/Common/3dParty/harfbuzz
+COPY --from=build-tools /build_tools/scripts/base.py /core/Common/3dParty/harfbuzz/base.py
+COPY --from=build-tools /build_tools/scripts/config.py /core/Common/3dParty/harfbuzz/config.py
+WORKDIR /core/Common/3dParty/harfbuzz
+RUN python make.py
+
+
+
+FROM base AS hyphen
+COPY core/Common/3dParty/hyphen /core/Common/3dParty/hyphen
+COPY --from=build-tools /build_tools /build_tools
+WORKDIR /build_tools/scripts/core_common/modules
+RUN python -c "import hyphen; hyphen.make()"
+# outputs
+# - /usr/local/lib/libhyphen.a
+# - /usr/local/include/hyphen.h
+# - /core/Common/3dParty/hyphen/hyphen/hnjalloc.h
+
+
+
+FROM base AS brotli
+COPY core/Common/3dParty/brotli /core/Common/3dParty/brotli
+COPY --from=build-tools /build_tools /build_tools
+WORKDIR /core/Common/3dParty/brotli
+RUN python make.py
+# outputs
+# - /core/Common/3dParty/brotli
+
+
+FROM base AS openssl
+COPY core/Common/3dParty/openssl /core/Common/3dParty/openssl
+WORKDIR /core/Common/3dParty/openssl/
+RUN git clone --depth=1 --branch OpenSSL_1_1_1f https://github.com/openssl/openssl.git  # see build_tools/scripts/core_common/modules/openssl.py
+WORKDIR /core/Common/3dParty/openssl/openssl
+RUN ./config enable-md2 no-shared no-asm --prefix=/core/Common/3dParty/openssl/build/linux_64/ --openssldir=/core/Common/3dParty/openssl/build/linux_64/
+RUN . /emsdk/emsdk_env.sh \
+ && emmake make -j4
+RUN . /emsdk/emsdk_env.sh \
+ && emmake make install -j4
+# outputs
+# - /core/Common/3dParty/openssl/openssl/include/openssl/
+
+
+
+FROM base AS ooxmlsignature
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/OfficeUtils /core/OfficeUtils
+COPY --from=openssl /core/Common/3dParty/openssl/ /core/Common/3dParty/openssl/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh DesktopEditor/xmlsec/src/ooxmlsignature.pro
+# Outputs: 
+# - /core/build/lib/linux_64/libooxmlsignature.a
+ 
+FROM base AS boost
+# emscriptens boost does not work because of missing symbols
+WORKDIR /
+RUN git clone https://github.com/boostorg/boost.git
+WORKDIR /boost
+RUN git fetch && git checkout boost-1.84.0
+RUN git submodule update --init --recursive
+RUN . /emsdk/emsdk_env.sh \
+ && CXXFLAGS=-fms-extensions emcmake cmake '-DBOOST_EXCLUDE_LIBRARIES=context;cobalt;coroutine;fiber;log;thread;wave;type_erasure;serialization;locale;contract;graph'
+RUN . /emsdk/emsdk_env.sh \
+ && emmake make -j4
+RUN . /emsdk/emsdk_env.sh \
+ && emmake make install -j4
+RUN  cp -r /emsdk/upstream/emscripten/cache/sysroot/include/boost /usr/local/include/
+RUN  cp /emsdk/upstream/emscripten/cache/sysroot/lib/libboost* /usr/local/lib/
+# Outputs
+# - /usr/local/include/boost
+# - /usr/local/lib/libboost_*.a
+
+
+
+FROM base AS unicodeconverter
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/DesktopEditor/common /core/DesktopEditor/common
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh UnicodeConverter
+RUN mkdir -p /core/build/lib/linux_64
+RUN mv /core/UnicodeConverter.o /core/build/lib/linux_64/libUnicodeConverter.a
+
+
+
+FROM base AS common
+COPY core/Common /core/Common
+COPY core/DesktopEditor/common /core/DesktopEditor/common
+COPY core/DesktopEditor/graphics /core/DesktopEditor/graphics
+COPY core/DesktopEditor/xml /core/DesktopEditor/xml
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OdfFile /core/OdfFile
+COPY --from=unicodeconverter /core/build/lib/linux_64/ /core/build/lib/linux_64/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh Common
+# outputs ./build/lib/linux_64/libkernel.a
+
+
+
+FROM base AS graphics
+COPY core/Common /core/Common
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeUtils/ /core/OfficeUtils/
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/Common/3dParty/harfbuzz /core/Common/3dParty/harfbuzz
+COPY core/OdfFile/ /core/OdfFile/
+COPY --from=harfbuzz /core/Common/3dParty/harfbuzz/ /core/Common/3dParty/harfbuzz/
+COPY --from=common /core/build/lib/linux_64/ /core/build/lib/linux_64/
+COPY --from=hyphen /core/Common/3dParty/hyphen/hyphen /core/Common/3dParty/hyphen/hyphen
+COPY --from=heif /core/Common/3dParty/heif /core/Common/3dParty/heif
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+COPY --from=brotli /core/Common/3dParty/brotli /core/Common/3dParty/brotli
+COPY --from=html /core/Common/3dParty/html /core/Common/3dParty/html
+WORKDIR /core
+# SVG and HtmlFile2 share the full NSCSS profile selected in metafile.pri.
+# Compile that complete source closure so their private class layouts agree.
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh -c "-Wno-register" DesktopEditor/graphics/pro
+# Outputs /core/build/lib/linux_64/libgraphics.a
+
+
+FROM base AS txtfile
+COPY core/Common /core/Common
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/TxtFile /core/TxtFile
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OOXML /core/OOXML
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/OdfFile /core/OdfFile
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh TxtFile/Projects/Linux
+# Outputs /core/build/lib/linux_64/libTxtXmlFormatLib.a
+
+
+
+FROM base AS bindocument
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/Common /core/Common
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/HtmlFile /core/HtmlFile
+COPY core/HtmlFile2 /core/HtmlFile2
+COPY core/RtfFile /core/RtfFile
+COPY core/OdfFile /core/OdfFile
+COPY core/TxtFile /core/TxtFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh OOXML/Projects/Linux/BinDocument
+# Outputs /core/build/lib/linux_64/libBinDocument.a
+
+
+FROM base AS docxformatlib
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/Common /core/Common
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OdfFile/ /core/OdfFile/
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh  OOXML/Projects/Linux/DocxFormatLib
+RUN mkdir -p /core/build/lib/linux_64/
+# Outputs /core/build/lib/linux_64/libDocxFormatLib.a
+
+
+FROM base AS pptxformatlib
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/Common /core/Common
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OdfFile /core/OdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh OOXML/Projects/Linux/PPTXFormatLib
+# Outputs /core/build/lib/linux_64/libPPTXFormatLib.a
+
+
+FROM base AS xlsbformatlib
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/Common /core/Common
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OdfFile /core/OdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh OOXML/Projects/Linux/XlsbFormatLib
+# Outputs build/lib/linux_64/libXlsbFormatLib.a
+
+
+
+FROM base AS vbaformatlib
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/Common /core/Common
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OdfFile /core/OdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh MsBinaryFile/Projects/VbaFormatLib/Linux
+# Outputs build/lib/linux_64/libVbaFormatLib.a
+
+
+
+FROM base AS docformatlib
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/Common /core/Common
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OdfFile /core/OdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh MsBinaryFile/Projects/DocFormatLib/Linux
+# Outputs build/lib/linux_64/libDocFormatLib.a
+
+
+
+FROM base AS pptformatlib
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/Common /core/Common
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OdfFile /core/OdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh MsBinaryFile/Projects/PPTFormatLib/Linux
+# Outputs build/lib/linux_64/libPptFormatLib.a
+
+
+
+FROM base AS xlsformatlib
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/Common /core/Common
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OdfFile /core/OdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh MsBinaryFile/Projects/XlsFormatLib/Linux
+# Outputs build/lib/linux_64/libXlsFormatLib.a
+
+
+
+FROM base AS odffile
+COPY core/OdfFile /core/OdfFile
+COPY core/Common /core/Common
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/PdfFile /core/PdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+# ENV DEV_MODE=1
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh OdfFile/Projects/Linux
+    # embuild.sh -q "CONFIG+=debug" OdfFile/Projects/Linux
+# RUN mv build/lib/linux_64/debug/* build/lib/linux_64/
+# Outputs build/lib/linux_64/libOdfFormatLib.a
+
+
+
+FROM base AS rtffile
+COPY core/RtfFile /core/RtfFile
+COPY core/Common /core/Common
+COPY core/OdfFile /core/OdfFile
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeCryptReader /core/OfficeCryptReader
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh RtfFile/Projects/Linux
+# Outputs build/lib/linux_64/libRtfFormatLib.a
+
+
+
+FROM base AS cfcpp
+COPY core/Common /core/Common
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh Common/cfcpp
+# Outputs build/lib/linux_64/libCompoundFileLib.a
+
+
+
+FROM base AS cryptopp
+COPY core/Common /core/Common
+COPY core/OOXML /core/OOXML
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeCryptReader/ /core/OfficeCryptReader/
+COPY core/MsBinaryFile /core/MsBinaryFile
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OdfFile /core/OdfFile
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh Common/3dParty/cryptopp/project
+# Outputs build/lib/linux_64/libCryptoPPLib.a
+
+
+FROM base AS network
+COPY core/Common /core/Common
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/libkernel.a
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh Common/Network
+# Outputs /core/build/lib/linux_64/libkernel_network.a
+
+
+
+FROM base AS pdffile
+COPY core/Common /core/Common
+COPY core/PdfFile /core/PdfFile
+COPY core/DesktopEditor/ /core/DesktopEditor/
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OOXML /core/OOXML
+COPY core/OdfFile /core/OdfFile
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=network /core/build/lib/linux_64/libkernel_network.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+WORKDIR /core
+RUN sed -i -e 's,$$FREETYPE_PATH/[^ ]*\.c,,' \
+    DesktopEditor/graphics/pro/freetype.pri
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh PdfFile
+# Outputs /core/build/lib/linux_64/libPdfFile.a
+
+
+FROM base AS doctrenderer
+COPY core/DesktopEditor/ /core/DesktopEditor/
+RUN cp /core/DesktopEditor/doctrenderer/doctrenderer_empty.cpp /core/DesktopEditor/doctrenderer/doctrenderer.cpp
+RUN cp /core/DesktopEditor/doctrenderer/docbuilder_empty.cpp /core/DesktopEditor/doctrenderer/docbuilder.cpp
+RUN cp /core/DesktopEditor/doctrenderer/docbuilder_p_empty.cpp /core/DesktopEditor/doctrenderer/docbuilder_p.cpp
+COPY core/Common /core/Common
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OOXML /core/OOXML
+COPY core/OdfFile /core/OdfFile
+COPY --from=openssl /core/Common/3dParty/openssl/ /core/Common/3dParty/openssl/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh -c "-ICommon/3dParty/openssl/openssl/include" DesktopEditor/doctrenderer
+# Outputs /core/build/lib/linux_64/libdoctrenderer.a
+
+
+FROM base AS fb2file
+COPY core/Fb2File/ /core/Fb2File/
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/HtmlFile2 /core/HtmlFile2
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=gumbo /gumbo-parser /gumbo-parser
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh Fb2File
+# Outputs /core/build/lib/linux_64/libFb2File.a
+
+
+
+FROM base AS htmlfile2
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/HtmlFile2 /core/HtmlFile2
+COPY core/UnicodeConverter /core/UnicodeConverter
+COPY core/OdfFile /core/OdfFile
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=network /core/build/lib/linux_64/libkernel_network.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+COPY --from=md /core/Common/3dParty/md /core/Common/3dParty/md
+COPY --from=html /core/Common/3dParty/html /core/Common/3dParty/html
+WORKDIR /core
+RUN sed -i -e 's,$$FREETYPE_PATH/[^ ]*\.c,,' \
+    DesktopEditor/graphics/pro/freetype.pri
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh HtmlFile2
+# Outputs /core/build/lib/linux_64/libHtmlFile2.a
+
+
+
+FROM base AS epubfile
+COPY core/EpubFile /core/EpubFile
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/HtmlFile2 /core/HtmlFile2
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=htmlfile2 /core/build/lib/linux_64/libHtmlFile2.a /core/build/lib/linux_64/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh EpubFile
+# Outputs /core/build/lib/linux_64/libEpubFile.a
+
+
+
+FROM base AS xpsfile
+COPY core/XpsFile /core/XpsFile
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/PdfFile /core/PdfFile
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=pdffile /core/build/lib/linux_64/libPdfFile.a /core/build/lib/linux_64/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh XpsFile
+# Outputs /core/build/lib/linux_64/libXpsFile.a
+
+
+
+FROM base AS djvufile
+COPY core/DjVuFile /core/DjVuFile
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/PdfFile /core/PdfFile
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=pdffile /core/build/lib/linux_64/libPdfFile.a /core/build/lib/linux_64/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh DjVuFile
+# Outputs /core/build/lib/linux_64/libDjVuFile.a
+
+
+
+FROM base AS apple
+COPY core/Apple /core/Apple
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/OfficeUtils /core/OfficeUtils
+COPY --from=apple3rdparty /core/Common/3dParty/apple /core/Common/3dParty/apple
+COPY --from=boost /boost/libs/serialization/include/boost/archive/iterators/ /boost/libs/functional/include/boost/archive/iterators/
+COPY --from=boost /boost/libs/serialization/include/boost/serialization/throw_exception.hpp /boost/libs/functional/include/boost/serialization/throw_exception.hpp
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh Apple
+# Outputs /core/build/lib/linux_64/libIWorkFile.a
+
+
+
+FROM base AS hwpfile
+COPY core/HwpFile /core/HwpFile
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OdfFile /core/OdfFile
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=cryptopp /core/build/lib/linux_64/libCryptoPPLib.a /core/build/lib/linux_64/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh HwpFile
+# Outputs /core/build/lib/linux_64/libHWPFile.a
+
+
+
+FROM base AS docxrenderer
+COPY core/DocxRenderer /core/DocxRenderer
+COPY core/Common /core/Common
+COPY core/DesktopEditor /core/DesktopEditor
+COPY core/OfficeUtils /core/OfficeUtils
+COPY core/OdfFile /core/OdfFile
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+WORKDIR /core
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh DocxRenderer
+# Outputs /core/build/lib/linux_64/libDocxRenderer.a
+
+
+
+FROM base AS log-symbols
+RUN mkdir -p /core/build/lib/linux_64/
+RUN mkdir -p /out
+WORKDIR /core/build/lib/linux_64/
+COPY --from=gumbo /usr/local/lib/libgumbo.a /core/build/lib/linux_64/
+COPY --from=katana /usr/local/lib/libkatana.a /core/build/lib/linux_64/
+COPY --from=vbaformatlib /core/build/lib/linux_64/libVbaFormatLib.a /core/build/lib/linux_64/
+COPY --from=odffile /core/build/lib/linux_64/libOdfFormatLib.a /core/build/lib/linux_64/
+COPY --from=docformatlib /core/build/lib/linux_64/libDocFormatLib.a /core/build/lib/linux_64/
+COPY --from=pptformatlib /core/build/lib/linux_64/libPptFormatLib.a /core/build/lib/linux_64/
+COPY --from=rtffile /core/build/lib/linux_64/libRtfFormatLib.a /core/build/lib/linux_64/
+COPY --from=txtfile /core/build/lib/linux_64/libTxtXmlFormatLib.a /core/build/lib/linux_64/
+COPY --from=bindocument /core/build/lib/linux_64/libBinDocument.a /core/build/lib/linux_64/
+COPY --from=pptxformatlib /core/build/lib/linux_64/libPPTXFormatLib.a /core/build/lib/linux_64/
+COPY --from=docxformatlib /core/build/lib/linux_64/libDocxFormatLib.a /core/build/lib/linux_64/
+COPY --from=boost /usr/local/include/boost /usr/local/include/boost
+COPY --from=xlsbformatlib /core/build/lib/linux_64/libXlsbFormatLib.a /core/build/lib/linux_64/
+COPY --from=xlsformatlib /core/build/lib/linux_64/libXlsFormatLib.a /core/build/lib/linux_64/
+COPY --from=cryptopp /core/build/lib/linux_64/libCryptoPPLib.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=network /core/build/lib/linux_64/libkernel_network.a /core/build/lib/linux_64/
+COPY --from=pdffile /core/build/lib/linux_64/libPdfFile.a /core/build/lib/linux_64/
+COPY --from=boost /usr/local/lib/* /core/build/lib/linux_64/
+COPY --from=cfcpp /core/build/lib/linux_64/libCompoundFileLib.a /core/build/lib/linux_64/
+COPY --from=fb2file /core/build/lib/linux_64/libFb2File.a /core/build/lib/linux_64/
+COPY --from=htmlfile2 /core/build/lib/linux_64/libHtmlFile2.a /core/build/lib/linux_64/
+COPY --from=epubfile /core/build/lib/linux_64/libEpubFile.a /core/build/lib/linux_64/
+COPY --from=xpsfile /core/build/lib/linux_64/libXpsFile.a /core/build/lib/linux_64/
+COPY --from=djvufile /core/build/lib/linux_64/libDjVuFile.a /core/build/lib/linux_64/
+COPY --from=apple /core/build/lib/linux_64/libIWorkFile.a /core/build/lib/linux_64/
+COPY --from=hwpfile /core/build/lib/linux_64/libHWPFile.a /core/build/lib/linux_64/
+COPY --from=docxrenderer /core/build/lib/linux_64/libDocxRenderer.a /core/build/lib/linux_64/
+COPY --from=doctrenderer /core/build/lib/linux_64/libdoctrenderer.a /core/build/lib/linux_64/
+RUN . /emsdk/emsdk_env.sh \
+ && for i in $(ls *.a); do /emsdk/upstream/bin/llvm-nm $i > /out/$i.sym ; done
+
+FROM scratch AS log-symbols-output
+COPY --from=log-symbols /out /
+
+
+
+FROM onlyoffice/documentserver:8.3.3 AS documentserver
+# Outputs: /var/www/onlyoffice/documentserver/server/FileConverter/bin/x2t
+
+
+
+FROM base AS testfiles
+# Collect test files from /core and download test files from the internet that
+# do not live in this repo because of license problems.
+RUN mkdir /tests
+WORKDIR /tests
+RUN wget https://sample-files.com/downloads/documents/docx/sample-files.com-basic-text.docx
+RUN wget https://sample-files.com/downloads/documents/docx/sample-files.com-formatted-report.docx
+COPY core/ /core/
+RUN find /core -type f \( -name '*.docx' -or -name '*.xlsx' -or -name '*.pptx' \) | xargs -I {} -- cp {} /tests
+# Remove tests, that we know are broken
+RUN rm /tests/Example.docx \
+    /tests/NumberFormat.xlsx \
+    /tests/entrance.pptx
+# Outputs: /tests
+
+ 
+
+FROM base AS build
+COPY core /core
+WORKDIR /core
+
+COPY pre-js.js /pre-js.js
+COPY wrap-main.cpp /wrap-main.cpp
+
+COPY --from=vbaformatlib /core/build/lib/linux_64/libVbaFormatLib.a /core/build/lib/linux_64/
+COPY --from=odffile /core/build/lib/linux_64/libOdfFormatLib.a /core/build/lib/linux_64/
+COPY --from=docformatlib /core/build/lib/linux_64/libDocFormatLib.a /core/build/lib/linux_64/
+COPY --from=pptformatlib /core/build/lib/linux_64/libPptFormatLib.a /core/build/lib/linux_64/
+COPY --from=rtffile /core/build/lib/linux_64/libRtfFormatLib.a /core/build/lib/linux_64/
+COPY --from=txtfile /core/build/lib/linux_64/libTxtXmlFormatLib.a /core/build/lib/linux_64/
+COPY --from=bindocument /core/build/lib/linux_64/libBinDocument.a /core/build/lib/linux_64/
+COPY --from=pptxformatlib /core/build/lib/linux_64/libPPTXFormatLib.a /core/build/lib/linux_64/
+COPY --from=docxformatlib /core/build/lib/linux_64/libDocxFormatLib.a /core/build/lib/linux_64/
+COPY --from=boost /usr/local/lib/ /usr/local/lib/
+COPY --from=xlsbformatlib /core/build/lib/linux_64/libXlsbFormatLib.a /core/build/lib/linux_64/
+COPY --from=xlsformatlib /core/build/lib/linux_64/libXlsFormatLib.a /core/build/lib/linux_64/
+COPY --from=cryptopp /core/build/lib/linux_64/libCryptoPPLib.a /core/build/lib/linux_64/
+COPY --from=graphics /core/build/lib/linux_64/libgraphics.a /core/build/lib/linux_64/
+COPY --from=common /core/build/lib/linux_64/libkernel.a /core/build/lib/linux_64/
+COPY --from=unicodeconverter /core/build/lib/linux_64/libUnicodeConverter.a /core/build/lib/linux_64/
+COPY --from=network /core/build/lib/linux_64/libkernel_network.a /core/build/lib/linux_64/
+COPY --from=pdffile /core/build/lib/linux_64/libPdfFile.a /core/build/lib/linux_64/
+COPY --from=boost /usr/local/include/boost /boost/libs/functional/include/boost
+COPY --from=cfcpp /core/build/lib/linux_64/libCompoundFileLib.a /core/build/lib/linux_64/
+COPY --from=htmlfile2 /core/build/lib/linux_64/libHtmlFile2.a /core/build/lib/linux_64/
+COPY --from=epubfile /core/build/lib/linux_64/libEpubFile.a /core/build/lib/linux_64/
+COPY --from=xpsfile /core/build/lib/linux_64/libXpsFile.a /core/build/lib/linux_64/
+COPY --from=djvufile /core/build/lib/linux_64/libDjVuFile.a /core/build/lib/linux_64/
+COPY --from=apple /core/build/lib/linux_64/libIWorkFile.a /core/build/lib/linux_64/
+COPY --from=hwpfile /core/build/lib/linux_64/libHWPFile.a /core/build/lib/linux_64/
+COPY --from=docxrenderer /core/build/lib/linux_64/libDocxRenderer.a /core/build/lib/linux_64/
+COPY --from=doctrenderer /core/build/lib/linux_64/libdoctrenderer.a /core/build/lib/linux_64/
+COPY --from=ooxmlsignature /core/build/lib/linux_64/libooxmlsignature.a /core/build/lib/linux_64/
+
+RUN cat /wrap-main.cpp >> /core/X2tConverter/src/main.cpp
+# ENV DEV_MODE=1
+RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/ \
+    embuild.sh \
+    -l "-looxmlsignature" \
+    -l "-L/usr/local/lib" \
+    -l "--pre-js /pre-js.js" \
+    -l "-sEXPORTED_RUNTIME_METHODS=ccall,FS" \
+    -l "-sEXPORTED_FUNCTIONS=_main1" \
+    -l "-sALLOW_MEMORY_GROWTH" \
+    X2tConverter/build/Qt/X2tConverter.pro
+
+WORKDIR /core/build/bin/linux_64/
+RUN cp x2t x2t.js
+RUN brotli x2t.wasm x2t.js
+RUN zip x2t.zip x2t.wasm* x2t.js*
+RUN sha512sum x2t.zip > x2t.zip.sha512
+
+
+
+FROM build AS test
+WORKDIR /test
+COPY tests /test/tests
+COPY non-public-tests /test/tests
+COPY --from=testfiles /tests /test/tests
+COPY --from=documentserver /var/www/onlyoffice/documentserver/server/FileConverter/bin/x2t /bin/
+RUN mkdir results
+# RUN ls -l tests ; exit 1
+# RUN . /emsdk/emsdk_env.sh \
+#  && node test.js
+RUN . /emsdk/emsdk_env.sh \
+ && node test.js 2>&1 | tee results/test.js.log
+
+
+FROM scratch AS test-output
+COPY --from=test /test/results /
+
+
+FROM build AS build-evidence
+COPY --from=graphics /core/Makefile /build-evidence/graphics.Makefile
+COPY --from=pdffile /core/Makefile /build-evidence/pdffile.Makefile
+COPY --from=ooxmlsignature /core/Makefile /build-evidence/ooxmlsignature.Makefile
+COPY --from=docxrenderer /core/Makefile /build-evidence/docxrenderer.Makefile
+RUN cp /core/Makefile /build-evidence/x2t.Makefile \
+ && dpkg-query -W > /build-evidence/host-packages.txt \
+ && /emsdk/upstream/bin/clang --version > /build-evidence/compiler-version.txt \
+ && sha256sum /emsdk/upstream/bin/clang /emsdk/upstream/bin/wasm-ld /emsdk/upstream/emscripten/emcc.py > /build-evidence/compiler-hashes.txt
+
+FROM scratch AS output
+COPY --from=build /core/build/bin/linux_64/x2t.js x2t.js
+COPY --from=build /core/build/bin/linux_64/x2t.wasm x2t.wasm
+COPY --from=build /core/build/bin/linux_64/x2t.js.br x2t.js.br
+COPY --from=build /core/build/bin/linux_64/x2t.wasm.br x2t.wasm.br
+COPY --from=build /core/build/bin/linux_64/x2t.zip x2t.zip
+COPY --from=build /core/build/bin/linux_64/x2t.zip.sha512 x2t.zip.sha512
+
+COPY --from=build-evidence /build-evidence /build-evidence

@@ -15,15 +15,22 @@ test('pinned engine assets match hashes and the offline acquisition verifier',as
  assert.equal(drawing.validation.opensslImplementationInputs,false);
  assert.equal(drawing.build.existingHashBranch,'PdfFile/lib/xpdf/Decrypt.cc: SHA384=sha384; SHA512=sha512');
  for(const file of drawing.outputs){assert.equal(createHash('sha256').update(await readFile(new URL(file.file,base))).digest('hex'),file.sha256);}
- assert.equal(manifest.converterSource.status,'verified-upstream-release');
+ assert.equal(manifest.converterSource.status,'verified-local-source-build');
+ assert.equal(manifest.converterSource.buildProvenanceFile,'converter-build-provenance.json');
  assert.equal(manifest.converterSource.commit,'7debf5e6d6d4f19874d764cd34446f7e63c6bc32');
  const provenance=JSON.parse(await readFile(new URL('converter-provenance.json',base),'utf8'));
  assert.equal(provenance.workflow.headSha,manifest.converterSource.commit);
  assert.equal(provenance.workflow.conclusion,'success');
  assert.equal(provenance.workflow.runId,36864484234);
  assert.equal(provenance.release.archive.sha256,'9fee31b60964d8145396bf1fb992f38ea3bf099a1c64e949fa4976c5c4fdd290');
- for(const file of provenance.outputs){assert.equal(createHash('sha256').update(await readFile(new URL(file.file,base))).digest('hex'),file.sha256);}
+ // The official release remains the upstream baseline. Current runtime bytes
+ // are bound to the local source-build record, rather than relabeled official.
  assert.equal(provenance.reproducibility.localBuildPerformed,false);
+ const converter=JSON.parse(await readFile(new URL('converter-build-provenance.json',base),'utf8'));
+ assert.equal(converter.status,'verified-local-source-build');assert.equal(converter.upstream.commit,provenance.commit);
+ assert.equal(converter.validation.compile,'passed');assert.equal(converter.validation.pixelRegression.passed,true);
+ for(const file of converter.outputs){assert.equal(createHash('sha256').update(await readFile(new URL(file.file,base))).digest('hex'),file.sha256);}
+ for(const file of converter.build.inputs){assert.equal(createHash('sha256').update(await readFile(new URL('../'+file.file,base))).digest('hex'),file.sha256);}
  const sdk=JSON.parse(await readFile(new URL('sdk-build-provenance.json',base),'utf8'));
  assert.equal(sdk.status,'verified-local-source-build');
  assert.match(sdk.build.command,/--level=SIMPLE/);

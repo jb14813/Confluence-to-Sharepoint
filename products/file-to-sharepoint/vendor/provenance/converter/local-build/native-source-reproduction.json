@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "status": "outputs-reproduced",
+  "method": "Two independently prepared pinned188-archive preferred-source contexts; all24294 files and symlinks exact. Both clean builds force the same30 native stages to execute on a four-CPU8GiB single-step worker with core RUN network=none. Toolchain, dependency and Emscripten system/port caches may be reused; no converter/core/graphics/PDF/DocxRenderer objects or archives are source inputs. Raw executables are compared without normalization.",
+  "sourceArchiveCount": 188,
+  "sourceContextFilesAndSymlinks": 24294,
+  "coreCompilerObjectArchiveBitcodeWasmInputs": 0,
+  "modifiedNativeSourceFiles": 49,
+  "cumulativeGuardedDeltaFiles": 23,
+  "allMaintainedSourceAndLinkBytesInSecondTarVerified": true,
+  "forcedUncachedStages": [
+    "ooxmlsignature",
+    "unicodeconverter",
+    "common",
+    "graphics",
+    "txtfile",
+    "bindocument",
+    "docxformatlib",
+    "pptxformatlib",
+    "xlsbformatlib",
+    "vbaformatlib",
+    "docformatlib",
+    "pptformatlib",
+    "xlsformatlib",
+    "odffile",
+    "rtffile",
+    "cfcpp",
+    "cryptopp",
+    "network",
+    "pdffile",
+    "doctrenderer",
+    "fb2file",
+    "htmlfile2",
+    "epubfile",
+    "xpsfile",
+    "djvufile",
+    "apple",
+    "hwpfile",
+    "docxrenderer",
+    "build",
+    "build-evidence"
+  ],
+  "secondBuildUncachedCoreRunSteps": [
+    {
+      "stage": "unicodeconverter",
+      "step": 4,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh UnicodeConverter",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "cfcpp",
+      "step": 5,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh Common/cfcpp",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "unicodeconverter",
+      "step": 5,
+      "command": "RUN mkdir -p /core/build/lib/linux_64",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "ooxmlsignature",
+      "step": 6,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh DesktopEditor/xmlsec/src/ooxmlsignature.pro",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "unicodeconverter",
+      "step": 6,
+      "command": "RUN mv /core/UnicodeConverter.o /core/build/lib/linux_64/libUnicodeConverter.a",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "vbaformatlib",
+      "step": 10,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh MsBinaryFile/Projects/VbaFormatLib/Linux",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "cryptopp",
+      "step": 10,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh Common/3dParty/cryptopp/project",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "common",
+      "step": 10,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh Common",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "xlsbformatlib",
+      "step": 10,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh OOXML/Projects/Linux/XlsbFormatLib",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "docformatlib",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh MsBinaryFile/Projects/DocFormatLib/Linux",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "xlsformatlib",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh MsBinaryFile/Projects/XlsFormatLib/Linux",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "pptformatlib",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh MsBinaryFile/Projects/PPTFormatLib/Linux",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "txtfile",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh TxtFile/Projects/Linux",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "pptxformatlib",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh OOXML/Projects/Linux/PPTXFormatLib",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "docxformatlib",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh  OOXML/Projects/Linux/DocxFormatLib",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "doctrenderer",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh -c \"-ICommon/3dParty/openssl/openssl/include\" DesktopEditor/doctrenderer",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "rtffile",
+      "step": 12,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh RtfFile/Projects/Linux",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "odffile",
+      "step": 12,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh OdfFile/Projects/Linux",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "docxformatlib",
+      "step": 12,
+      "command": "RUN mkdir -p /core/build/lib/linux_64/",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "network",
+      "step": 5,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh Common/Network",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "apple",
+      "step": 12,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh Apple",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "bindocument",
+      "step": 15,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh OOXML/Projects/Linux/BinDocument",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "graphics",
+      "step": 15,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh -c \"-Wno-register\" DesktopEditor/graphics/pro",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "docxrenderer",
+      "step": 10,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh DocxRenderer",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "hwpfile",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh HwpFile",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "pdffile",
+      "step": 13,
+      "command": "RUN sed -i -e 's,$$FREETYPE_PATH/[^ ]*\\.c,,'     DesktopEditor/graphics/pro/freetype.pri",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "pdffile",
+      "step": 14,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh PdfFile",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "htmlfile2",
+      "step": 14,
+      "command": "RUN sed -i -e 's,$$FREETYPE_PATH/[^ ]*\\.c,,'     DesktopEditor/graphics/pro/freetype.pri",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "xpsfile",
+      "step": 11,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh XpsFile",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "htmlfile2",
+      "step": 15,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh HtmlFile2",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "djvufile",
+      "step": 10,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh DjVuFile",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "epubfile",
+      "step": 10,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh EpubFile",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "build",
+      "step": 34,
+      "command": "RUN cat /wrap-main.cpp >> /core/X2tConverter/src/main.cpp",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "build",
+      "step": 35,
+      "command": "RUN --mount=type=cache,sharing=locked,target=/emsdk/upstream/emscripten/cache/     embuild.sh     -l \"-looxmlsignature\"     -l \"-L/usr/local/lib\"     -l \"--pre-js /pre-js.js\"     -l \"-sEXPORTED_RUNTIME_METHODS=ccall,FS\"     -l \"-sEXPORTED_FUNCTIONS=_main1\"     -l \"-sALLOW_MEMORY_GROWTH\"     X2tConverter/build/Qt/X2tConverter.pro",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "build",
+      "step": 37,
+      "command": "RUN cp x2t x2t.js",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "build",
+      "step": 38,
+      "command": "RUN brotli x2t.wasm x2t.js",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "build",
+      "step": 39,
+      "command": "RUN zip x2t.zip x2t.wasm* x2t.js*",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "build",
+      "step": 40,
+      "command": "RUN sha512sum x2t.zip > x2t.zip.sha512",
+      "cached": false,
+      "completed": true
+    },
+    {
+      "stage": "build-evidence",
+      "step": 5,
+      "command": "RUN cp /core/Makefile /build-evidence/x2t.Makefile  && dpkg-query -W > /build-evidence/host-packages.txt  && /emsdk/upstream/bin/clang --version > /build-evidence/compiler-version.txt  && sha256sum /emsdk/upstream/bin/clang /emsdk/upstream/bin/wasm-ld /emsdk/upstream/emscripten/emcc.py > /build-evidence/compiler-hashes.txt",
+      "cached": false,
+      "completed": true
+    }
+  ],
+  "resources": {
+    "cpus": 4,
+    "memoryGiB": 8,
+    "maxParallelSteps": 1,
+    "coreRunNetwork": "none",
+    "aptOnlyExistingHostNetworkException": true
+  },
+  "firstBuild": {
+    "startedUtc": "2026-11-10T19:34:39.483Z",
+    "finishedUtc": "2026-11-10T19:54:57.641Z",
+    "contextTarSha256": "d34741ac46bf98965265bf36fbd7558451e25f9a3de422e411938e6b308ff9da"
+  },
+  "secondBuild": {
+    "startedUtc": "2026-11-10T21:30:39.524Z",
+    "finishedUtc": "2026-11-10T21:46:06.515Z",
+    "contextTarSha256": "a34682796a62c7839a86b721bdd1012b1457c29a1d58cfc6111364177266d4a1"
+  },
+  "outputs": [
+    {
+      "file": "x2t.js",
+      "bytes": 137170,
+      "sha256": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46"
+    },
+    {
+      "file": "x2t.wasm",
+      "bytes": 38867906,
+      "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+    }
+  ],
+  "allSixReleaseArtifactsByteIdentical": true,
+  "additionalExactOutputs": [
+    {
+      "file": "x2t.js.br",
+      "bytes": 33056,
+      "sha256": "627c272a5cf283d9dad387e2310891d7c0e4aa45fabbc291c1a0e9a1e59e5149"
+    },
+    {
+      "file": "x2t.wasm.br",
+      "bytes": 6988346,
+      "sha256": "1c42a6f2a25642e30c06ee6d513149149da17be534ff7fabdde549be4b40e517"
+    },
+    {
+      "file": "x2t.zip",
+      "bytes": 17034764,
+      "sha256": "9f0c59f9f397555241ee3b8e4728b4fd64acad049495e954eba3a73b2b32eb4b"
+    },
+    {
+      "file": "x2t.zip.sha512",
+      "bytes": 138,
+      "sha256": "7b8d45f2f0d98f24310f393020a48c71ad0fd1e2670be9fd4358679381455411"
+    }
+  ],
+  "compilerHostAndMakefileEvidenceByteIdentical": [
+    {
+      "file": "compiler-hashes.txt",
+      "bytes": 287,
+      "sha256": "d9e307caa16a197293baef1427b16e6c4ec7d200e719158740b3a5c69fe3234b"
+    },
+    {
+      "file": "compiler-version.txt",
+      "bytes": 190,
+      "sha256": "b26a04b8d2c8b03d07681da7b17071c8a0950573e0cac02d1edcf2c672834737"
+    },
+    {
+      "file": "docxrenderer.Makefile",
+      "bytes": 47050,
+      "sha256": "cda3c7d1104e34ffdc410edfb3fcb8f03ed8251f4be612b0ff73a7b4306709eb"
+    },
+    {
+      "file": "graphics.Makefile",
+      "bytes": 1968184,
+      "sha256": "423ea891c2c0484a7cda9c3be4e1ceac0559ebcd9fff70f7ee2a3d620ba7a3fb"
+    },
+    {
+      "file": "host-packages.txt",
+      "bytes": 14089,
+      "sha256": "5630465d8c7b12af69e48fc4c5aa589af74dafd9ad12a532034d0f7b6b72c49e"
+    },
+    {
+      "file": "ooxmlsignature.Makefile",
+      "bytes": 31518,
+      "sha256": "bcc8c02c3fa8534f071cac0132c3bd3088b824dfa4b707c806224cba683d4123"
+    },
+    {
+      "file": "pdffile.Makefile",
+      "bytes": 263492,
+      "sha256": "6b683499f84f5f3d34d68135887042532e1ea16fbe7e3e669af4b57cb46b5345"
+    },
+    {
+      "file": "x2t.Makefile",
+      "bytes": 188904,
+      "sha256": "9930a6d4720abd9f8d03beb2276197c3fb8da0634564c689be2f138b0c2d1bdd"
+    }
+  ],
+  "limits": "Same pinned Linux/compiler environment; no cross-toolchain/host or historical official-build byte reproducibility claim. Runtime and SharePoint acceptance are separate gates.",
+  "firstBuildUncachedCoreRunStepCount": 39,
+  "sameCoreRunCommandSetExecutedUncachedInBothBuilds": true
+}

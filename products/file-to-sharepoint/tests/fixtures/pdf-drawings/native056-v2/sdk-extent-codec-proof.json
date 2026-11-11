@@ -1,0 +1,320 @@
+{
+  "scope": "Actual native056\u2192BIN\u2192pinned SDK CImage.recalculate and getXfrmExtX/Y. Exact authored source converter cast boundary, not a general image-layout tolerance or fullPDF/SP placement proof.",
+  "sourceRule": "CShape BuildGeneralProperties/BuildForm serialize static_cast<unsigned>(m_dWidth*c_dMMToEMU). Derived viewport pixels have idealEMUs=pixels*914400/192. Positive cast truncates: floor(ideal), with floor(ideal)-1 possible only for integerideal due bounded Double world-coordinate subtraction/multiply error; no upward wholeEMU variant. Raw graphic.extX/extY before layout remain0; use spPr.xfrm as production does.",
+  "runtime": {
+    "x2t.js": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46",
+    "x2t.wasm": "2151b5ebe35ae978d898b709d79a140678ccba5c577738b1ca70b5e1f7d0854f",
+    "sdkAllJs": "d31721c91813f9f776fa6da10fe1e146d8c48fdeb5793e4213a47e2db9070282"
+  },
+  "cases": [
+    {
+      "name": "alpha-gap",
+      "nativeDocxSha256": "b90872651c8f091525f8c14f0c9d6a319c49aa86c4728a90412f7942a40f89cc",
+      "nativePartSha256": "63b04fff724749f5b723caf35ecefdf13b2f3817a0b3d5e8dfdb8bb3701198fd",
+      "sdkCaptureSha256": "590aa5b12c7ce322394a8cf22f41ce0d1025c7e0f3244fce5ebf6acb117eaf00",
+      "docPrId": 1,
+      "graphicType": "image",
+      "isNativeImage": true,
+      "nativeRasterImageId": "image1.png",
+      "actualPngDimensions": [
+        134,
+        67
+      ],
+      "declaredDpi": 192,
+      "idealExtentEmu": [
+        638175.0,
+        319087.5
+      ],
+      "actualSerializedExtentEmu": [
+        638175,
+        319087
+      ],
+      "allowedNativeTruncationEmu": [
+        [
+          638174,
+          638175
+        ],
+        [
+          319087
+        ]
+      ],
+      "nativeRecalculatedExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "nativeApiExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "recalculatedMatchesModel": true,
+      "codecPass": true,
+      "bothDirectionsTwoEmuMutationRejected": true,
+      "originalSerializedDocumentUnchangedByProbeRecalculation": true
+    },
+    {
+      "name": "filled-curve-gap",
+      "nativeDocxSha256": "046160bbf6019865c6f3579c817ec975af87ecb55f56cbcc2d5c38c2e7d338da",
+      "nativePartSha256": "c5d8b1e069c15570f4194f97551239ddefabef7b419ab608d735d3431e61686c",
+      "sdkCaptureSha256": "590aa5b12c7ce322394a8cf22f41ce0d1025c7e0f3244fce5ebf6acb117eaf00",
+      "docPrId": 1,
+      "graphicType": "image",
+      "isNativeImage": true,
+      "nativeRasterImageId": "image1.png",
+      "actualPngDimensions": [
+        134,
+        67
+      ],
+      "declaredDpi": 192,
+      "idealExtentEmu": [
+        638175.0,
+        319087.5
+      ],
+      "actualSerializedExtentEmu": [
+        638175,
+        319087
+      ],
+      "allowedNativeTruncationEmu": [
+        [
+          638174,
+          638175
+        ],
+        [
+          319087
+        ]
+      ],
+      "nativeRecalculatedExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "nativeApiExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "recalculatedMatchesModel": true,
+      "codecPass": true,
+      "bothDirectionsTwoEmuMutationRejected": true,
+      "originalSerializedDocumentUnchangedByProbeRecalculation": true
+    },
+    {
+      "name": "nested-opposite-evenodd",
+      "nativeDocxSha256": "bdff3ca79b93a8435bbbc5a57adb52c3597442e033a1a99c044b70128a6dbedb",
+      "nativePartSha256": "17ccd922f2a3c4541820ca1dd15de8f3785bb1a08db1e2446c812e508c27f0e2",
+      "sdkCaptureSha256": "590aa5b12c7ce322394a8cf22f41ce0d1025c7e0f3244fce5ebf6acb117eaf00",
+      "docPrId": 1,
+      "graphicType": "image",
+      "isNativeImage": true,
+      "nativeRasterImageId": "image1.png",
+      "actualPngDimensions": [
+        134,
+        67
+      ],
+      "declaredDpi": 192,
+      "idealExtentEmu": [
+        638175.0,
+        319087.5
+      ],
+      "actualSerializedExtentEmu": [
+        638175,
+        319087
+      ],
+      "allowedNativeTruncationEmu": [
+        [
+          638174,
+          638175
+        ],
+        [
+          319087
+        ]
+      ],
+      "nativeRecalculatedExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "nativeApiExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "recalculatedMatchesModel": true,
+      "codecPass": true,
+      "bothDirectionsTwoEmuMutationRejected": true,
+      "originalSerializedDocumentUnchangedByProbeRecalculation": true
+    },
+    {
+      "name": "nested-same-evenodd",
+      "nativeDocxSha256": "73694450d8f2869f11a04386c84f14934a654b6f086f92a40a0919de3553a7cb",
+      "nativePartSha256": "39c0a3c2db5e46d97fadd9747ac420195ce4d634f88c17ac4cddd00a5baa6df6",
+      "sdkCaptureSha256": "590aa5b12c7ce322394a8cf22f41ce0d1025c7e0f3244fce5ebf6acb117eaf00",
+      "docPrId": 1,
+      "graphicType": "image",
+      "isNativeImage": true,
+      "nativeRasterImageId": "image1.png",
+      "actualPngDimensions": [
+        134,
+        67
+      ],
+      "declaredDpi": 192,
+      "idealExtentEmu": [
+        638175.0,
+        319087.5
+      ],
+      "actualSerializedExtentEmu": [
+        638175,
+        319087
+      ],
+      "allowedNativeTruncationEmu": [
+        [
+          638174,
+          638175
+        ],
+        [
+          319087
+        ]
+      ],
+      "nativeRecalculatedExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "nativeApiExtentMm": [
+        17.727083333333333,
+        8.863527777777778
+      ],
+      "recalculatedMatchesModel": true,
+      "codecPass": true,
+      "bothDirectionsTwoEmuMutationRejected": true,
+      "originalSerializedDocumentUnchangedByProbeRecalculation": true
+    },
+    {
+      "name": "star-evenodd",
+      "nativeDocxSha256": "f5de776baa3a0c3d876ef872b91024a06c1116c3a93b4674a931528d9f404752",
+      "nativePartSha256": "debb92f5bfd74962b70f77e12c425cb46740abc27f6475dcf6483968cecc0c83",
+      "sdkCaptureSha256": "fbeebdaa88ca12b2cfd2566be8f02ff6a19098bd76b24974c83386ad2ce27378",
+      "docPrId": 1,
+      "graphicType": "image",
+      "isNativeImage": true,
+      "nativeRasterImageId": "image1.png",
+      "actualPngDimensions": [
+        122,
+        58
+      ],
+      "declaredDpi": 192,
+      "idealExtentEmu": [
+        581025.0,
+        276225.0
+      ],
+      "actualSerializedExtentEmu": [
+        581024,
+        276224
+      ],
+      "allowedNativeTruncationEmu": [
+        [
+          581024,
+          581025
+        ],
+        [
+          276224,
+          276225
+        ]
+      ],
+      "nativeRecalculatedExtentMm": [
+        16.139555555555557,
+        7.672888888888889
+      ],
+      "nativeApiExtentMm": [
+        16.139555555555557,
+        7.672888888888889
+      ],
+      "recalculatedMatchesModel": true,
+      "codecPass": true,
+      "bothDirectionsTwoEmuMutationRejected": true,
+      "originalSerializedDocumentUnchangedByProbeRecalculation": true
+    },
+    {
+      "name": "wide-1334-evenodd",
+      "nativeDocxSha256": "00463b37423287b2ef06453cb3e72f1c4a4e6d57fc13365ddcf446b0cd0b4524",
+      "nativePartSha256": "0aaf68b9cf6ffb67f19c24c4b37337c3495bb4d835408df1b21795d132a28c41",
+      "sdkCaptureSha256": "a3104b57b843f2105935f354f4c7d86124b5317f31ecf7f3e9e1b9c693a9daad",
+      "docPrId": 1,
+      "graphicType": "image",
+      "isNativeImage": true,
+      "nativeRasterImageId": "image1.png",
+      "actualPngDimensions": [
+        1334,
+        67
+      ],
+      "declaredDpi": 192,
+      "idealExtentEmu": [
+        6353175.0,
+        319087.5
+      ],
+      "actualSerializedExtentEmu": [
+        6353175,
+        319087
+      ],
+      "allowedNativeTruncationEmu": [
+        [
+          6353174,
+          6353175
+        ],
+        [
+          319087
+        ]
+      ],
+      "nativeRecalculatedExtentMm": [
+        176.47708333333335,
+        8.863527777777778
+      ],
+      "nativeApiExtentMm": [
+        176.47708333333333,
+        8.863527777777778
+      ],
+      "recalculatedMatchesModel": true,
+      "codecPass": true,
+      "bothDirectionsTwoEmuMutationRejected": true,
+      "originalSerializedDocumentUnchangedByProbeRecalculation": true
+    },
+    {
+      "name": "wide-2134-evenodd-alpha",
+      "nativeDocxSha256": "17ef0347e233b12c1319246182ca0a38d730cfafc480311c6a5e66c97a40092b",
+      "nativePartSha256": "3bf34df7d7c5a281ef4c77f9510646125bf91531622cd7ecf651a5e24f31d80c",
+      "sdkCaptureSha256": "b804960232a11b733dea174f617a031e86706f4d87491ef4f42cb7fe5913b483",
+      "docPrId": 1,
+      "graphicType": "image",
+      "isNativeImage": true,
+      "nativeRasterImageId": "image1.png",
+      "actualPngDimensions": [
+        2134,
+        67
+      ],
+      "declaredDpi": 192,
+      "idealExtentEmu": [
+        10163175.0,
+        319087.5
+      ],
+      "actualSerializedExtentEmu": [
+        10163174,
+        319087
+      ],
+      "allowedNativeTruncationEmu": [
+        [
+          10163174,
+          10163175
+        ],
+        [
+          319087
+        ]
+      ],
+      "nativeRecalculatedExtentMm": [
+        282.3103888888889,
+        8.863527777777778
+      ],
+      "nativeApiExtentMm": [
+        282.3103888888889,
+        8.863527777777778
+      ],
+      "recalculatedMatchesModel": true,
+      "codecPass": true,
+      "bothDirectionsTwoEmuMutationRejected": true,
+      "originalSerializedDocumentUnchangedByProbeRecalculation": true
+    }
+  ]
+}

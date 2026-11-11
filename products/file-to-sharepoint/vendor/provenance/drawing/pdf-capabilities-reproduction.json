@@ -1,0 +1,77 @@
+{
+  "method": "Two independent invocations of the maintained rebuild.sh recipe, each extracting fresh source/compiler trees from the same verified retained archives and compiling objects without reuse. Stage output was independently approved by the strict offline MV3 integration gate before adoption; the replay output is byte-identical to each adopted file.",
+  "stageBuildDirectory": "/tmp/c2s-drawing-build-ShLmOfNA",
+  "replayBuildDirectory": "/tmp/c2s-drawing-build-JDCb586G",
+  "acquisitionCacheReuse": "Verified source/dependency/compiler archives only; no native build objects or compiler cache were carried between trees.",
+  "preferredCoreArchive": {
+    "file": "core-d54f0326.source-only.tar.gz",
+    "bytes": 86650429,
+    "sha256": "f2a4296f2e60da63c6c6a9ddf7a8c562e1878142fc6b5b547887a65153b5c07d"
+  },
+  "outputs": [
+    {
+      "file": "drawingfile.js",
+      "bytes": 131210,
+      "sha256": "a27213b090e6bc18ff9af409ac7159da3c4ec123c8f5c8bb0b7347cfaa339a7d"
+    },
+    {
+      "file": "drawingfile.wasm",
+      "bytes": 10054028,
+      "sha256": "21c7218c8b85dfa50385ab04e13ac4c3440d2e00a30a2fe9febf879d1c9c4215"
+    }
+  ],
+  "buildEnvironment": {
+    "host": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "compilerFiles": [
+      {
+        "file": "upstream/bin/clang",
+        "sha256": "7dd1e3ce6fcc7854d81028bdbbe53b8fde61dbc6a512e8fb1f178b753e1e313d"
+      },
+      {
+        "file": "upstream/bin/wasm-ld",
+        "sha256": "c3d420a01bb67e950bfd37959e844870a9194d0c31dce20d081a77f011bda4d3"
+      },
+      {
+        "file": "upstream/emscripten/emcc.py",
+        "sha256": "9aee722e959a235121c010a04eece0932525636bb72335997f6dbf7bdb9d7fa5"
+      }
+    ]
+  },
+  "opensslImplementationSourceDirectoryPresent": false,
+  "opensslHashDefinePresent": false,
+  "opensslIncludePathsPresent": false,
+  "validation": {
+    "strictOfflineMv3": {
+      "tests": 45,
+      "passed": 45,
+      "failed": 0,
+      "skipped": 0,
+      "command": "node --test products/file-to-sharepoint/tests/engine-vendor.test.mjs products/file-to-sharepoint/tests/engine.test.mjs products/file-to-sharepoint/tests/engine-content.test.mjs",
+      "sourcePins": [
+        {
+          "file": "src/engine/worker.js",
+          "bytes": 9816,
+          "sha256": "54cc7c11cf2cd09ce26686456f416f4646cbfe3f301cb20caec68487b81ba4d7"
+        },
+        {
+          "file": "tests/engine-content.test.mjs",
+          "bytes": 14228,
+          "sha256": "d81e95cf3d2a5e02c0ca266d4873c6e0786a2e473439f25aedf539af9b5cbea5"
+        },
+        {
+          "file": "tests/fixtures/pdf-capabilities.json",
+          "bytes": 15736,
+          "sha256": "b098d566ec3a13da555299787683ba506d625de7f903ac8e660d133c2c4e40b4"
+        },
+        {
+          "file": "tests/fixtures/generate-pdf-capabilities.py",
+          "bytes": 2475,
+          "sha256": "9d5fba05bc71bb1f2dacbb3ba2c9b0726986f9cae3a4686c4f1673b4c1ea0b12"
+        }
+      ],
+      "appValidationRefresh": "2026-11-09: rerun after native Word list/merge adaptation; adopted native outputs and two-tree reproduction evidence unchanged."
+    },
+    "nativeMetadataCases": 12
+  }
+}

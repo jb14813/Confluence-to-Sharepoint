@@ -1,0 +1,53 @@
+{
+  "scope": "Own authored PDFs. Genuine native/Reader/SDK exports are separately pinned. No table, no private corpus content.",
+  "cases": [
+    {
+      "name": "hole-mode0",
+      "sourcePdfSha256": "25ae3e0f0a4d77c615aea78ab66742294598453cf756d261b9640327dd112365",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8"
+    },
+    {
+      "name": "hole-mode1",
+      "sourcePdfSha256": "a873b6b16a0d82820ae7487cb5d09b8f0cc5ef459ddffbe1d679f41967ad8923",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "fa4ccbe970b7839a0c7d7aadf06a88b350e75e5f0e30a88f3acd194c337996b8"
+    },
+    {
+      "name": "star-mode0",
+      "sourcePdfSha256": "8b7ffdfdf5dec73e1710a25bee2d9b2baca890210e3b324d8c4f2694e9f05b74",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "56e4d004b57c91d7742c696b6cf973802742c93ba8bcdcb900b265d574c127fa"
+    },
+    {
+      "name": "star-mode1",
+      "sourcePdfSha256": "de88779602f601feeefd4ab3a00411be125ed768331bead519c582da2dc77a9c",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "56e4d004b57c91d7742c696b6cf973802742c93ba8bcdcb900b265d574c127fa"
+    },
+    {
+      "name": "alpha-mode0",
+      "sourcePdfSha256": "abd9dc2c5f2e7b9142471aa077d3312ef19ff56b56beed8eee3796d9ee357271",
+      "reportlabClipFillMode": 0,
+      "clipNativeMode": 1,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754"
+    },
+    {
+      "name": "alpha-mode1",
+      "sourcePdfSha256": "9e5a713d6692483c810a8a611ae6b50c5b64ece137b2bd746397defa0b824b4b",
+      "reportlabClipFillMode": 1,
+      "clipNativeMode": 0,
+      "sourceClipPixelsUnchanged": true,
+      "sourceRgbaSha256": "4fe9048dfc87c42acdf5d2d0cdd1d0023b838a008168b2b755eb52bd98f83754"
+    }
+  ]
+}

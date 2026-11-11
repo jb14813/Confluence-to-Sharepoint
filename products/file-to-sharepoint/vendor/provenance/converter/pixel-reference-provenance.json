@@ -1,0 +1,816 @@
+{
+  "schemaVersion": 1,
+  "method": "test-only public IImageStorage observer before unchanged upstream ImageManager export; independent IJG8c djpeg CLI and original PNG calibrations",
+  "captureRuntime": {
+    "jsSha256": "e2f79cf6b71d10a7b5db695dcb4043afb1c5e0412520201bf71d6f12f97648d7",
+    "wasmSha256": "5d7e32b0e2cef60da41d0904f97f44f969928b4553d8c1bbd7301a8b7df916c5"
+  },
+  "djpegExecutableSha256": "dff0e1cd1d5f1d0e8ca09e9d21611878be5e743fcdf1a53a1eff908282d7bed0",
+  "cases": [
+    {
+      "name": "image-opaque.pdf",
+      "pdfSha256": "8e0f62f3044c6f40960f37ca2c22af42a9cc1beca0d2dddd6961f4acf2aaa80d",
+      "sourceImage": {
+        "streamSha256": "bd872c5b85e867e0b86bf23944d23cc6f3d66d6c6353ad515a5128188001a66d",
+        "colorSpace": "/DeviceRGB",
+        "decode": []
+      },
+      "capture": {
+        "metadata": {
+          "width": 100,
+          "height": 50,
+          "stride": -400
+        },
+        "metadataSha256": "35dc8964b82d038bfeeeadb303c148e1f8a43743a0bf518bad54b44ca85a2c37",
+        "rawBgraSha256": "acad8605227e24976f3c9167a55384a2d4ac481836354d3ebeb9d78d678e80ad",
+        "rgbaSha256": "b6fe954f0ec6addb45b55db12f4cf8c9a6d1a8d6462a5db3379301063b3c1ec3"
+      },
+      "independentSourceCalibration": {
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      },
+      "referencePngSha256": "42f416c46b6b4a02af8080dcd565721be8ac7ea63c5742d3954fc6bec8078617",
+      "unchangedExporterBaseline": {
+        "docxSha256": "3fa5419740d29d5333d1e8b3fef7c7566a7db701b828a0e06dcf5c8d5aa1a059",
+        "mediaSha256": "0d5d66b615e09f798f3bf890c6a40d5c951c3cc4283c1d63f67277d17d22ab26",
+        "width": 100,
+        "height": 50,
+        "dimensionsMatch": true,
+        "changedPixels": 4995,
+        "maxChannelDifference": 123
+      }
+    },
+    {
+      "name": "image-large.pdf",
+      "pdfSha256": "9bb2d683d21eebae5759954311f5166373b3a8c0cbec23642019ae8248d5ddbf",
+      "sourceImage": {
+        "streamSha256": "280ba78a286800b0c72f8376592f1ea6661529c66b895e6643b2ad20c90da4c3",
+        "colorSpace": "/DeviceRGB",
+        "decode": []
+      },
+      "capture": {
+        "metadata": {
+          "width": 1601,
+          "height": 1237,
+          "stride": -6404
+        },
+        "metadataSha256": "9a083ad00c3ffe9f9c711aeebedb4849735994ef3286dd38752d630bec690135",
+        "rawBgraSha256": "975f7a8d915f3994750cd6b17abdae1dd09d6924467e0d1d35d3bb1f91fd29fd",
+        "rgbaSha256": "49fcfa08f839f9587226ae2cd60a36d8cd2d355485b5b40b32488dc901a47511"
+      },
+      "independentSourceCalibration": {
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      },
+      "referencePngSha256": "5430b04489d1c0736532824796212815792fd3f907167fd957f8e63a1a905f4e",
+      "unchangedExporterBaseline": {
+        "docxSha256": "0fdbe6be05f098f46b86bd41c7101244bd1d9caf2b3d50b497f6321cbd117d36",
+        "mediaSha256": "401b785bf2030b8670737c96749258d760d361fc53da0cb9758379425f04693a",
+        "width": 1200,
+        "height": 927,
+        "dimensionsMatch": false
+      }
+    },
+    {
+      "name": "image-alpha.pdf",
+      "pdfSha256": "be9d0db7e1eaf06e1e3317e622a06b3fe39ea38cfd7f7f11c5e60749c58d2326",
+      "sourceImage": {
+        "streamSha256": "20753949eb51f4fb240377ea90f2fcd1517cce5309794b7803baa491c672a48d",
+        "colorSpace": "/DeviceRGB",
+        "decode": []
+      },
+      "capture": {
+        "metadata": {
+          "width": 128,
+          "height": 64,
+          "stride": -512
+        },
+        "metadataSha256": "8ba3cf87ab79e2942b85a7066af65f30218de4b3d175c3b03e3797600c2f0cc1",
+        "rawBgraSha256": "ccee66718198e13d02f5f9a6d48bbcbaf3e476508d7e970788e9a6f34fc86b35",
+        "rgbaSha256": "50150688d463413b21bd6fa9a7aff805cb2f3063d753e9579e107c919871bcab"
+      },
+      "independentSourceCalibration": {
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      },
+      "referencePngSha256": "fd322a7ef27fa2f9ade838d97dcfd9a7e9852862f1329c8ecec81ca0c4bd0bd0",
+      "unchangedExporterBaseline": {
+        "docxSha256": "6c7440e3ace345ca98561a24cdd052756310492cf1a3fc37b9f376e9097ebbc0",
+        "mediaSha256": "a244e98d4b4b0bdab2738a7480d346fa7994665527a1c25de19301021cc4bac4",
+        "width": 128,
+        "height": 64,
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      }
+    },
+    {
+      "name": "image-jpeg.pdf",
+      "pdfSha256": "1fedb8afb85112a9878be586a47cc98708e990fff8c30d563ebac8df280397f6",
+      "sourceImage": {
+        "streamSha256": "d65ab25df9353d251586714fe0b73ab45918ad3ee7d59de4dc819e4df8f53a23",
+        "colorSpace": "/DeviceRGB",
+        "decode": []
+      },
+      "capture": {
+        "metadata": {
+          "width": 160,
+          "height": 96,
+          "stride": -640
+        },
+        "metadataSha256": "c362434f02e9096424f55e047308581d816eb6be67219f95172ee6783524c04d",
+        "rawBgraSha256": "5be670b18490c683c538802a42c4b09ffaf634a3d770a7cdf5ea56dada2cb053",
+        "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be"
+      },
+      "independentIjgCli": {
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      },
+      "ppmSha256": "32e8c30965ecc47df4c2ccc2c6fb4e6f047a69592315d86a26b51041fe6e39d9",
+      "djpegCommand": [
+        "djpeg",
+        "-outfile",
+        "<fixture>.ijg.ppm",
+        "<original-pdf-dct-stream>.jpg"
+      ],
+      "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5",
+      "unchangedExporterBaseline": {
+        "docxSha256": "21c5b0d4f622c2167c2a450aa82d67d5e781673ee4da26cf8a92cf3db2fb0054",
+        "mediaSha256": "8ed7268abb5f7752280f989f0fd548dc6506753c7b88c75bc4f555f764046332",
+        "width": 160,
+        "height": 96,
+        "dimensionsMatch": true,
+        "changedPixels": 15343,
+        "maxChannelDifference": 136
+      }
+    },
+    {
+      "name": "image-jpeg-subsampled.pdf",
+      "pdfSha256": "2cf65a1361904a79239cd27282d5be944a95af27a347eb8ea9b03970e766e811",
+      "sourceImage": {
+        "streamSha256": "2fdb6dae71447552988f3ec930854fe4252d20bbdf05cf986d478895042baffd",
+        "colorSpace": "/DeviceRGB",
+        "decode": []
+      },
+      "capture": {
+        "metadata": {
+          "width": 160,
+          "height": 96,
+          "stride": -640
+        },
+        "metadataSha256": "c362434f02e9096424f55e047308581d816eb6be67219f95172ee6783524c04d",
+        "rawBgraSha256": "dbdb1463aa94ef1900afba28724f1b265aca2347c195bc2ca3cbbb5aca99ef0a",
+        "rgbaSha256": "47e18aab9ddb03eda67d313fcdef9a67804c5e20e25e577c21e60f7d61b4ec94"
+      },
+      "independentIjgCli": {
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      },
+      "ppmSha256": "828df0154c2a5cad12eed6c1268dbe2906a68a7f24de67c31be132cf1c75946c",
+      "djpegCommand": [
+        "djpeg",
+        "-outfile",
+        "<fixture>.ijg.ppm",
+        "<original-pdf-dct-stream>.jpg"
+      ],
+      "referencePngSha256": "8fe10fd41d8c8425c16a7df89550dae9f49f3a8919c4bbb6413b02cf11c36f07",
+      "unchangedExporterBaseline": {
+        "docxSha256": "33b9d559e7675fc43e04ecaee9041b5142233b2776b118d579d58c8e94ed849a",
+        "mediaSha256": "513bf3a47bb0a812e28b2b06b9b487ac89eea7ccf2cfdd73ebd8d5cba0a70ba4",
+        "width": 160,
+        "height": 96,
+        "dimensionsMatch": true,
+        "changedPixels": 15312,
+        "maxChannelDifference": 78
+      }
+    },
+    {
+      "name": "image-jpeg-progressive.pdf",
+      "pdfSha256": "5e5e352a251cd298d02dcfe6083ae1d53603ac5f614f299b3da909c96ce48169",
+      "sourceImage": {
+        "streamSha256": "ef46d4d5f7e1a91284f4e5471745bc47be12a25c002dba07c7877b421247efae",
+        "colorSpace": "/DeviceRGB",
+        "decode": []
+      },
+      "capture": {
+        "metadata": {
+          "width": 160,
+          "height": 96,
+          "stride": -640
+        },
+        "metadataSha256": "c362434f02e9096424f55e047308581d816eb6be67219f95172ee6783524c04d",
+        "rawBgraSha256": "5be670b18490c683c538802a42c4b09ffaf634a3d770a7cdf5ea56dada2cb053",
+        "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be"
+      },
+      "independentIjgCli": {
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      },
+      "ppmSha256": "32e8c30965ecc47df4c2ccc2c6fb4e6f047a69592315d86a26b51041fe6e39d9",
+      "djpegCommand": [
+        "djpeg",
+        "-outfile",
+        "<fixture>.ijg.ppm",
+        "<original-pdf-dct-stream>.jpg"
+      ],
+      "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5",
+      "unchangedExporterBaseline": {
+        "docxSha256": "a80045af68a0349a9c7af6f4513d7894592c2a4cb79fed13817319239aea1f21",
+        "mediaSha256": "8ed7268abb5f7752280f989f0fd548dc6506753c7b88c75bc4f555f764046332",
+        "width": 160,
+        "height": 96,
+        "dimensionsMatch": true,
+        "changedPixels": 15343,
+        "maxChannelDifference": 136
+      }
+    },
+    {
+      "name": "image-jpeg-gray.pdf",
+      "pdfSha256": "b0e3be4d6a00bbb0042203bcc13b41e73a702df6641fd45db5d16954352254f6",
+      "sourceImage": {
+        "streamSha256": "5144b163525d6c276257bea91da774141e8686d8d27e814e9c07960fd8457993",
+        "colorSpace": "/DeviceGray",
+        "decode": []
+      },
+      "capture": {
+        "metadata": {
+          "width": 160,
+          "height": 96,
+          "stride": -640
+        },
+        "metadataSha256": "c362434f02e9096424f55e047308581d816eb6be67219f95172ee6783524c04d",
+        "rawBgraSha256": "5f05eea0e9eb60302cda9f7828c99658b845fa39ae61effc9e55723f37b45d8e",
+        "rgbaSha256": "adbb34843eb9464ee1b03ed608719c7e5f42fcd6f1d8530bb8b2d7b987d6df85"
+      },
+      "independentIjgCli": {
+        "dimensionsMatch": true,
+        "changedPixels": 0,
+        "maxChannelDifference": 0
+      },
+      "ppmSha256": "2d4cd5644960aec49c3b8494f5ec77f7fe903bdfa7767e7d3138937eaa13212f",
+      "djpegCommand": [
+        "djpeg",
+        "-outfile",
+        "<fixture>.ijg.ppm",
+        "<original-pdf-dct-stream>.jpg"
+      ],
+      "referencePngSha256": "c0f3639055817715a961210a59da2cf2c9a195316a76d714e4682b597880a593",
+      "unchangedExporterBaseline": {
+        "docxSha256": "5c2fab2a150d30483e191dcb56c6ae1967e04b3854f9426b6171241593438361",
+        "mediaSha256": "2786758fb3a3c1ac28dda11a1f692527244f30d7416ed2d56a06351581ef5f73",
+        "width": 160,
+        "height": 96,
+        "dimensionsMatch": true,
+        "changedPixels": 9340,
+        "maxChannelDifference": 10
+      }
+    },
+    {
+      "name": "image-jpeg-cmyk.pdf",
+      "pdfSha256": "32f22ad159fd8b83ab4ac0967a8e6dfa3dbd29887f019509904f4571aa95d9bb",
+      "sourceImage": {
+        "streamSha256": "492a05425c0c1658da7d3878fb59a77e542e95212c437c6c66245eecdb22b335",
+        "colorSpace": "/DeviceCMYK",
+        "decode": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ]
+      },
+      "capture": {
+        "metadata": {
+          "width": 160,
+          "height": 96,
+          "stride": -640
+        },
+        "metadataSha256": "c362434f02e9096424f55e047308581d816eb6be67219f95172ee6783524c04d",
+        "rawBgraSha256": "a5f2f60983c9dd137eb75ea01c3aa485ef4f16e4c4ec2c4ded4c9c2e6f9d4bdd",
+        "rgbaSha256": "31d906f364b21bfb1168d73493164a1254aa318fcf45d312e0a4dd821cda2bfb"
+      },
+      "referencePngSha256": "b7aa051fd5c5d0fc6978eb704de51c22e108c640948324fbcd8bf7e25474bf03",
+      "unchangedExporterBaseline": {
+        "docxSha256": "e6de3e11b0088d8e167c0cb935f04ad161d89838f9bb59c7f7c595a43371943d",
+        "mediaSha256": "e52b4e5a8c0ec133f26e5df5137f446b44cfd2217bf7785bcc7b1d07cd192bac",
+        "width": 160,
+        "height": 96,
+        "dimensionsMatch": true,
+        "changedPixels": 15352,
+        "maxChannelDifference": 113
+      }
+    }
+  ],
+  "producerInputs": [
+    {
+      "file": "scripts/converter-runtime-inputs/capture-pixels.py",
+      "bytes": 2798,
+      "sha256": "dc61fcd11d2cdd987716a5f03e74186a5bc7317ede3964a942c6acffc0a4d8a3"
+    },
+    {
+      "file": "scripts/converter-runtime-inputs/capture-reference.mjs",
+      "bytes": 2630,
+      "sha256": "65d1f43f774f5a4ac5f26f335fed2f76cced6f073bc503919a700ab2fcb356e7"
+    },
+    {
+      "file": "scripts/converter-runtime-inputs/build-djpeg.py",
+      "bytes": 967,
+      "sha256": "d4a243e595cb2566e395727af4fd8cd31c4f6dd4e1300992409d55941536bbca"
+    },
+    {
+      "file": "scripts/converter-runtime-inputs/freeze-references.py",
+      "bytes": 6521,
+      "sha256": "fe0edfa1f9203cf63d4533155ef0271a4ead088c93e8d7abb05e6979d0597ac9"
+    },
+    {
+      "file": "scripts/converter-runtime-inputs/patch-jpeg-decoder.py",
+      "bytes": 1352,
+      "sha256": "9890d9e16df3a67d88e5bded8e89a2bf8eb5248ebc04491aa3fdaca4a3c38793"
+    },
+    {
+      "file": "vendor/provenance/converter/reference-inputs/original-image-capture/Dockerfile",
+      "bytes": 32579,
+      "sha256": "8f6609edbde2dc260a9dcb6fcc111c356e8fcb7a9bb0e8eafd9c8c4cc3f6bee7",
+      "originalRecipePath": "scripts/converter-runtime-inputs/Dockerfile"
+    },
+    {
+      "file": "vendor/provenance/converter/reference-inputs/original-image-capture/embuild.sh",
+      "bytes": 1569,
+      "sha256": "f856acc07ce3333fefc173f387baa271ec3f9dd70106ec8ed92a9a9cd8dab162",
+      "originalRecipePath": "scripts/converter-runtime-inputs/embuild.sh"
+    },
+    {
+      "file": "scripts/converter-runtime-inputs/pinned-git.py",
+      "bytes": 3230,
+      "sha256": "b8208a9457223638991d7014a01c5cf4edd757ff1dfa4fa609232502163585e5"
+    },
+    {
+      "file": "vendor/provenance/converter/reference-inputs/original-image-capture/prepare-context.py",
+      "bytes": 3333,
+      "sha256": "e98e345c1f91c5028fc211b96f50f1acd1bee1f02fe68213d16f81839eb865dc",
+      "originalRecipePath": "scripts/converter-runtime-inputs/prepare-context.py"
+    },
+    {
+      "file": "vendor/provenance/converter/reference-inputs/original-image-capture/rebuild.sh",
+      "bytes": 833,
+      "sha256": "2c4153d44499bc7535f9dbfdba372b3ef009258bc778efd03eb1fe9e845f154f",
+      "originalRecipePath": "scripts/converter-runtime-inputs/rebuild.sh"
+    }
+  ],
+  "sourceAssociation": {
+    "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
+    "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
+    "archiveFile": "x2t-source-7debf5e.tar.gz",
+    "delivery": "provenance/source-delivery.json"
+  },
+  "captureConfiguration": {
+    "storageInterface": "NSDocxRenderer::IImageStorage::GenerateImageID(Aggplus::CImage*)",
+    "exporter": "original ImageManager.cpp SHA256 46a7c8ee69ece0aef93aea3af55b7b057e22d6ef36365035abddb3fdcd7dc914",
+    "reader": "existing HAVE_JPEGLIB branch; scoped JPEG_INT32 alias; do_fancy_upsampling=true; do_block_smoothing=true; default JDCT_ISLOW",
+    "rawNormalization": "BGRA to RGBA; negative stride is bottom-up; calibrated against independent opaque/large/alpha source PNGs"
+  },
+  "decoderSources": [
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/ansi2knr.c",
+      "bytes": 21008,
+      "sha256": "76eaa625414be089c35f3b9138e995ce0bac3c09ad0f0dce8cb221f39fb05557"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/cderror.h",
+      "bytes": 5468,
+      "sha256": "db23ce14e02c6dacac01b8c3f38b6c9385352fcc83d994725538287018d284a9"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/cdjpeg.c",
+      "bytes": 4863,
+      "sha256": "61376c9575c949d0afc3534538f9814644d19509f2e273766ae4c1eda48d553e"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/cdjpeg.h",
+      "bytes": 6446,
+      "sha256": "e3e67a17b0f073ad36bb4a6175b87edaace07cf66c00b135eb83d64177c18a42"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/cjpeg.c",
+      "bytes": 21516,
+      "sha256": "7c3eae97e077311b546ea36b722194703b4844061fcd4c9b023e6338576e7401"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/ckconfig.c",
+      "bytes": 12585,
+      "sha256": "505d846a505da92bbccb8fa0eadf7230e2b7b83c903c67ec13dde45113f9acf4"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/djpeg.c",
+      "bytes": 20010,
+      "sha256": "553b7b7d4a899cb94ae28db3ce9e81e9a113a7a6b621c220e2f02f058e40a2a3"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/example.c",
+      "bytes": 17524,
+      "sha256": "389fd0c7f41f5bb45aebd87de4c83044f3c59bfc44202d3fa2461a9089d89e4b"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jaricom.c",
+      "bytes": 5219,
+      "sha256": "dbdd4f1f773bd3a2ce0126c63a59be991c9a5b85ccde8f86530f936fc86da82e"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcapimin.c",
+      "bytes": 9672,
+      "sha256": "1b8ed4206aebe20c6a92ae5971a4b6c47ac8ebf51ec08119e0eab414d80d1d4e"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcapistd.c",
+      "bytes": 6042,
+      "sha256": "b8243f0ef7b82ec37021230ff9ad084552201860da4ec836187125eaa2c000b8"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcarith.c",
+      "bytes": 29108,
+      "sha256": "301c399849e95e7eff2d1b1504a91ae4560f34db062c8cb89749b69e515650f4"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jccoefct.c",
+      "bytes": 17060,
+      "sha256": "3c68121b6ec039fe7f2bbe3a9e7b48a253e28bad474991eff95f9fd05f5c33c2"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jccolor.c",
+      "bytes": 15307,
+      "sha256": "4556c9bab587c9464b271811bf064e0bd668c3df4ff08ad8ed7c39261cf7f26f"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcdctmgr.c",
+      "bytes": 16255,
+      "sha256": "513fbe0a935dffc7546182ca0a66ff5cefdfb40e2c602d04a088ae24a73f0037"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jchuff.c",
+      "bytes": 49777,
+      "sha256": "17ac4ff4907f8ed425d75c1f84c086b1c1ee7612be1e1ddcd1e2079692df4087"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcinit.c",
+      "bytes": 2235,
+      "sha256": "1094a97a63b85b4e94e8ecdf8cfe12f52affe25d15be0b26ab2b40fcb6e9a5d9"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcmainct.c",
+      "bytes": 9626,
+      "sha256": "51449d0bb4cf1036e94ba941ae6445c3af73a50192c89a9f5bb69734937f08b2"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcmarker.c",
+      "bytes": 18408,
+      "sha256": "a334829c334e29c72d4b67d0797debfbcec502799e70130050eed155e04e47f7"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcmaster.c",
+      "bytes": 32234,
+      "sha256": "0c1ad09dc5a43b2484f3289a3ee68ac5e470cb152319a9dbedd72001c8dc60c3"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcomapi.c",
+      "bytes": 3216,
+      "sha256": "2653b0552a4ff16533eb4d981751e26600fa33ead5e6851e4a4b288aba9109c0"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jconfig.h",
+      "bytes": 5830,
+      "sha256": "91426233fbf73c088d2c316aaa3674c852009b9b2934843bd6f5e8d842015f02"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcparam.c",
+      "bytes": 22641,
+      "sha256": "eabf19af1f8087f7d1b47fbefa8a6588363c73a47849a862d2a17fd287e3a541"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcprepct.c",
+      "bytes": 12574,
+      "sha256": "a3509284c55a28417566e46a05c909603b722d4760c015b3e09478e0446c8e35"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jcsample.c",
+      "bytes": 20468,
+      "sha256": "427e5377141468ef8f1fbaa37be681fbf6ad312e98716b0048191d012a8af630"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jctrans.c",
+      "bytes": 14274,
+      "sha256": "c51cea8ebe161211e05b7fa147290ed03be7dd378bca4946a6f333a9c99e5815"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdapimin.c",
+      "bytes": 13103,
+      "sha256": "83a021073f7f32b2f13150340f6f7bce5d216ddfd48c6e6f0aaf7ca491a4d13f"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdapistd.c",
+      "bytes": 9625,
+      "sha256": "4818433256a5fb71f2432147f27752c521e5351295de2abdc189a84b4da29dcd"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdarith.c",
+      "bytes": 24662,
+      "sha256": "ac2159916e8c28ea831b248909dc82d79e54c61a8ca671243b1a5495f25abf0d"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdatadst.c",
+      "bytes": 8770,
+      "sha256": "75fbb03bcfca1545bdbd38ec43dbb7d66488557bce73795f10f4e718a5187f59"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdatasrc.c",
+      "bytes": 9643,
+      "sha256": "4ff8b6536f893a8ba7a92e846cec83a590b101a734b7499382523605a909aa62"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdcoefct.c",
+      "bytes": 25905,
+      "sha256": "0754c895eb38b0eced08fa30fa2ada898c17f31979220574b1e88a50a271e925"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdcolor.c",
+      "bytes": 13358,
+      "sha256": "d80905bb0da091613c7b7c6b42df0132e10babf353366ddf967987d6fc8034ec"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdct.h",
+      "bytes": 17541,
+      "sha256": "ec7fca561f896ebb26a5962a89f8ebb62b37cda96d9d4c895f1abddc20dc0037"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jddctmgr.c",
+      "bytes": 12786,
+      "sha256": "c42eade8962cd9aca16a70e92422de73fb86111acfe2b0e7adf4aa70571c680f"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdhuff.c",
+      "bytes": 49915,
+      "sha256": "5f6dc1ecc17ae1af7939cbc4925443d08d7dd8587665bf0a89fa0d4edfa4f792"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdinput.c",
+      "bytes": 25699,
+      "sha256": "094fab8ecfd22912142d0434c7de361355fe523b7a17b045eda0da7eadb4583b"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdmainct.c",
+      "bytes": 20920,
+      "sha256": "ad829543665b44c2693b8a5df0b626f91e49bc36a4564513b412fdca5c520b07"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdmarker.c",
+      "bytes": 43998,
+      "sha256": "736ab02b80acfbb6371e0b1aab5046732d1dcaab1ccd555ebcad75b630cd6c41"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdmaster.c",
+      "bytes": 19632,
+      "sha256": "fdc0a542273430a335325e93baedd142d150913e1660aa5776b6d05c6fdab6f7"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdmerge.c",
+      "bytes": 14316,
+      "sha256": "a33a24061d74d352c485c2b83c1f1fbcde4f902d6d08ba5c2f5b504f38dc993e"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdpostct.c",
+      "bytes": 10013,
+      "sha256": "06834f92807a257b2d4fdad562b58c338d960e2510c9ef6822e08c3e2edb6fb1"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdsample.c",
+      "bytes": 12329,
+      "sha256": "1446263613bd5b6d1246f0621a58c023e94bb6322cbe80ec4caac4eb5fc9c3bc"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jdtrans.c",
+      "bytes": 5193,
+      "sha256": "547048241b8d9ece32ce3ec3016f93cd3453ef7119ccf5d142bb9c7a9e746e4b"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jerror.c",
+      "bytes": 8053,
+      "sha256": "bf0e15e8ee98963201e25c8c1828f6200659ffa5b8bcde66c8cfacb2074a9916"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jerror.h",
+      "bytes": 14888,
+      "sha256": "573dd55b115528a2fd55fdc2b4cc241a2c14522e3c661377b6b9efcde16dd038"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jfdctflt.c",
+      "bytes": 6182,
+      "sha256": "a51797880d2291741715a3c0febeed86f86b15577f5c3ac75b35cdcaab1716e9"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jfdctfst.c",
+      "bytes": 8210,
+      "sha256": "7d25ebf2785ccefe30b75d132d9d3d1322a3a45964ec412c112f5d05bfee6c24"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jfdctint.c",
+      "bytes": 163026,
+      "sha256": "1de7cdf02f000fcc1f961459436bddef65b86056285527f1c9d153b9e36f9b82"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jidctflt.c",
+      "bytes": 8554,
+      "sha256": "1c0557d00c6f3ceeb789fcae3318b0e627db8c7d896838732d822e0c78c8aa61"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jidctfst.c",
+      "bytes": 13538,
+      "sha256": "ca3f34e24164c7c4c26589ebde3574ccf80b1320b4c5e9bc9dd29ef00f627968"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jidctint.c",
+      "bytes": 187037,
+      "sha256": "a7df34ea30090797af2dc179206a822be4b8c1f7a6eace54fa26726ee97c9f61"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jinclude.h",
+      "bytes": 3344,
+      "sha256": "3423786276f3e77d8da7bdd20a8429b1382ff607419cc6e5a192c5239f5c23f4"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmemansi.c",
+      "bytes": 4777,
+      "sha256": "0d8ee2c61c8c3ef18e214ecaa8e4da0780783d28fd72260e335a9916704a8c64"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmemdos.c",
+      "bytes": 19615,
+      "sha256": "cc92024ea6d1f315ae839958b577267477f5e9911725883bc779ba8c7733bebe"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmemmac.c",
+      "bytes": 9796,
+      "sha256": "c982e05b6736d7e126d236637561febf7780fd56e833e08882b8b980d02eb92b"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmemmgr.c",
+      "bytes": 42106,
+      "sha256": "4bba8e8e1df3a871739ecf60009d6e77653bb027fc7dfd4ed1a48b8fc7f165da"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmemname.c",
+      "bytes": 8632,
+      "sha256": "73e8b4c3a4adda74fa7269a211f5f9cd524c829de3966777e758cf3be33c3013"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmemnobs.c",
+      "bytes": 2881,
+      "sha256": "2b7d9eca01c2befd986d33a81c844b569eefe4fcee91192a4970a3e8c00d84e5"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmemsys.h",
+      "bytes": 8431,
+      "sha256": "d1d8f71c488e07a0fa668d21e1eeb2e3eae03612948d00468f6432547dc4c70f"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jmorecfg.h",
+      "bytes": 13088,
+      "sha256": "13c5c450806c68bab168996dd3148a7c31c6be18966a1218004413ec5dbd7040"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jpegint.h",
+      "bytes": 16880,
+      "sha256": "eed23415a8a568e8d4bb46422100bc53f22996de8df921ea83b450cad451dada"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jpeglib.h",
+      "bytes": 49727,
+      "sha256": "0ed5b23c566d14942a82c945c6410b7a0336f022660bf1ef0c500cd6b16949ea"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jpegtran.c",
+      "bytes": 18904,
+      "sha256": "97b133dc89ee039306125d1c92f10801672f02fcdc6fac1a7017c7a0d202b154"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jquant1.c",
+      "bytes": 32150,
+      "sha256": "d5e8f183078ddb6219d212f980eb26733e3d163897b22d9259a56d547d7592bf"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jquant2.c",
+      "bytes": 49757,
+      "sha256": "d996ae45f7c092a113933b1d39adf8f76309b3a28f62cf4c76261321d7a430ea"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jutils.c",
+      "bytes": 7004,
+      "sha256": "09d2211b4de8bb64aaa76ede412d3f3268a03e2a29d9df3b802a2735be5ba1aa"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/jversion.h",
+      "bytes": 413,
+      "sha256": "9c0499fbf5ec5da1e751fe6e92461c08ab5deae985b833bb2ea560607b08810c"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdbmp.c",
+      "bytes": 15489,
+      "sha256": "6399baba83a813869a9f46eed79bd721f625f60175c6655e1e7467d3a213fcaf"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdcolmap.c",
+      "bytes": 7102,
+      "sha256": "e8a73aa02331239ee97f05ef15ac8717a5e2e8c5c824403927fb53d3d941663f"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdgif.c",
+      "bytes": 1310,
+      "sha256": "d2126569228b4ef208b8d5968852f6520e5a633f4a05d6c5f03b79aaf931a319"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdjpgcom.c",
+      "bytes": 14998,
+      "sha256": "15dd6257e251587410ddd3f055ddc904602a218e3820170b997d258335c07152"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdppm.c",
+      "bytes": 14537,
+      "sha256": "bc6bc65e904634ee677ecf77a1e4a33bf837e8c500396116d4ae0a088e619c9f"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdrle.c",
+      "bytes": 12060,
+      "sha256": "a3e375f5d016b17f2619c9f189c126d063145adc1209a2599829a05307a9ed98"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdswitch.c",
+      "bytes": 11078,
+      "sha256": "bac96e3b59ef1a3d3493477e2d7bde928227342b8e6fab398cd311e2aed03c20"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/rdtarga.c",
+      "bytes": 15467,
+      "sha256": "7abceab6abb3724580ebf319e5ad35ef388124d66859990166a58411171acc89"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/transupp.c",
+      "bytes": 58413,
+      "sha256": "5803e46c3a9fa92cd3f60f1733c3723d6c1fa40fcab8a3ce38d78a09f29777cd"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/transupp.h",
+      "bytes": 9286,
+      "sha256": "6c74ef4684a9714312801a5aa850c76efe4e808478c32671b431b87b75070623"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/wrbmp.c",
+      "bytes": 14355,
+      "sha256": "ac3ccd004ceb2cc1ba3076a6b1e0f439fe5f10a21ec7d872e5a402ca4ec69560"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/wrgif.c",
+      "bytes": 13287,
+      "sha256": "33f6c0225c88738ede77160e82abbcbd58141e1a8376a8bf12a64bd9bfc8b259"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/wrjpgcom.c",
+      "bytes": 17163,
+      "sha256": "ccbb053e37a95decb46ec9d4a9580117ef33c3d0e654b253066fba5b35fcb142"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/wrppm.c",
+      "bytes": 8638,
+      "sha256": "7b335737b60d30940d3d0424c3893c96c0968fde9e677501e75a1cc64d4de605"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/wrrle.c",
+      "bytes": 9547,
+      "sha256": "83ee04e92bc2e6269a96fe30e8c4f93abd19995d3c787b3f99075d1445a391e2"
+    },
+    {
+      "file": "core/DesktopEditor/cximage/jpeg/wrtarga.c",
+      "bytes": 7777,
+      "sha256": "691216d8e5cf3b88bf7b2cc3c1c801718ff56db16f5e17d3765b0e70ac2e1d27"
+    }
+  ],
+  "djpeg": {
+    "version": "Independent JPEG Group 8c, 16-Jan-2011",
+    "command": [
+      "cc",
+      "-O2",
+      "-I<upstream-jpeg>",
+      "-o",
+      "djpeg",
+      "<pinned upstream IJG library and existing djpeg CLI sources>",
+      "-lm"
+    ],
+    "sourceModification": "Only enable upstream djpeg.c CLI main (#if 0 to #if 1); no decoder source modification."
+  }
+}

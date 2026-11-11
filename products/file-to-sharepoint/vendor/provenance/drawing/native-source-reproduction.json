@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "status": "outputs-reproduced",
+  "method": "Both outputs reproduced exactly from one new preferred-source/compiler extraction using the maintained13-file native recipe, matching the accepted reader011 QA bytes. The earlier form-only runtime reproduction remains historical evidence; this current profile has one clean release invocation.",
+  "freshReleaseBuildInvocations": 1,
+  "sourceArchiveCount": 8,
+  "preferredCoreSourceOnlyArchiveUsed": true,
+  "coreCompilerPayloadsInFreshSourceExtraction": 0,
+  "nativeSourceAndRecipeFilesMatchingAcceptedReader011": 17,
+  "compiledObjectReuse": false,
+  "sourcePreparation": "Fresh archive extraction in rebuild.sh; guarded patch-drawing.py invokes the maintained source-text, graphics/alpha and Type3-font helpers. A separate fresh patched source extraction verifies the complete17-file native/recipe closure.",
+  "startedUtc": "2026-11-10T21:46:18.446Z",
+  "finishedUtc": "2026-11-10T21:52:14.706Z",
+  "resources": {
+    "cpus": 4,
+    "memoryGiB": 8,
+    "swapBytes": 0
+  },
+  "outputs": [
+    {
+      "file": "drawingfile.js",
+      "bytes": 131891,
+      "sha256": "c8d8b7547fc89040e129e8cc0b3603d9b92e679aa08bf023821ad532e55c3560"
+    },
+    {
+      "file": "drawingfile.wasm",
+      "bytes": 10115720,
+      "sha256": "9b1de1b12078daa6c3dc3019bc2c0a4430950dd37b82bc75c4718dcd70717c37"
+    }
+  ],
+  "sourceSelection": [
+    {
+      "inputFile": "build-tools-10118f4c.tar.gz",
+      "inputSha256": "ea1010f9ff798c2f15497ba5091c0ade5701e73e054b939d2cd6c8574a5e6e4f",
+      "publishedFile": "build-tools-10118f4c.tar.gz",
+      "bytes": 6729574,
+      "sha256": "ea1010f9ff798c2f15497ba5091c0ade5701e73e054b939d2cd6c8574a5e6e4f"
+    },
+    {
+      "inputFile": "harfbuzz-894a1f72.tar.gz",
+      "inputSha256": "17eda8a9861d347a6e95cd2b3112301ce90dcc649b0e96623cc89c6ca4180e66",
+      "publishedFile": "harfbuzz-894a1f72.tar.gz",
+      "bytes": 36010701,
+      "sha256": "17eda8a9861d347a6e95cd2b3112301ce90dcc649b0e96623cc89c6ca4180e66"
+    },
+    {
+      "inputFile": "brotli-a47d7475.tar.gz",
+      "inputSha256": "49b657a4321cb00e388863dec8d0558b94ec47100d619b837d570a58bba71379",
+      "publishedFile": "brotli-a47d7475.tar.gz",
+      "bytes": 638452,
+      "sha256": "49b657a4321cb00e388863dec8d0558b94ec47100d619b837d570a58bba71379"
+    },
+    {
+      "inputFile": "icu-2d029329.tar.gz",
+      "inputSha256": "b9cf5c172b9e412ff8fd7dae82723ef619367bc30e40979354320d416bab06d2",
+      "publishedFile": "icu-2d029329.tar.gz",
+      "bytes": 65925217,
+      "sha256": "b9cf5c172b9e412ff8fd7dae82723ef619367bc30e40979354320d416bab06d2"
+    },
+    {
+      "inputFile": "emsdk-f677ef91.tar.gz",
+      "inputSha256": "bb07091c4a1b35038cf38b65bc98f8684cf239722ea8c6d428bd08adaa147886",
+      "publishedFile": "emsdk-f677ef91.tar.gz",
+      "bytes": 100863,
+      "sha256": "bb07091c4a1b35038cf38b65bc98f8684cf239722ea8c6d428bd08adaa147886"
+    },
+    {
+      "inputFile": "core-d54f0326.tar.gz",
+      "inputSha256": "ad8b5adaf49b5ce12705a9cc1eb165f89e791a496ce395f8f0974d8c7d48cd77",
+      "publishedFile": "core-d54f0326.source-only.tar.gz",
+      "bytes": 86650429,
+      "sha256": "f2a4296f2e60da63c6c6a9ddf7a8c562e1878142fc6b5b547887a65153b5c07d"
+    },
+    {
+      "inputFile": "emscripten-3.1.48-wasm-binaries.tar.xz",
+      "inputSha256": "689fffcb60f93a60a7bb52cc205ead43ab31f252753cfef39ae2074f6a442634",
+      "publishedFile": "emscripten-3.1.48-wasm-binaries.tar.xz",
+      "bytes": 265441656,
+      "sha256": "689fffcb60f93a60a7bb52cc205ead43ab31f252753cfef39ae2074f6a442634"
+    },
+    {
+      "inputFile": "node-v16.20.0-linux-x64.tar.xz",
+      "inputSha256": "dff21020b555cc165a1ac36da7d4f6c810b35409c94e00afc51d5d370aae47ae",
+      "publishedFile": "node-v16.20.0-linux-x64.tar.xz",
+      "bytes": 22559772,
+      "sha256": "dff21020b555cc165a1ac36da7d4f6c810b35409c94e00afc51d5d370aae47ae"
+    }
+  ],
+  "compiledRecipeInputs": [
+    {
+      "file": "scripts/drawing-runtime-inputs/.gitattributes",
+      "bytes": 84,
+      "sha256": "561dfdfe982595f5554c6a9bd15557d677661e6f9de9c3f435ca599751f7d0c7"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/patch-drawing.py",
+      "bytes": 3391,
+      "sha256": "d94e81cb69bf5f5da35e3d234f0e0bf22ad330e4d90229b57f8274b9e944f569"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/patch-graphics-blend.py",
+      "bytes": 1915,
+      "sha256": "2b06ff2533fb13da941d52baacb2a3c0ed3fa6eba674f2f37a336630a9caa1ad"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/patch-pdf-font-metrics.py",
+      "bytes": 1043,
+      "sha256": "90599edf6a405a13fb8d069d0de4355582e52d812b8aa222e32afe2a5d44ba74"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/patch-pdf-text.py",
+      "bytes": 6578,
+      "sha256": "932297aa05c0ee0c9b372ce0754705f799aa78011fb993dbc4f7f7045d40a310"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/pdf-actual-text-run.h",
+      "bytes": 4072,
+      "sha256": "acdf0dc8b5f2964f558de6d389eb1d449c3437f0e1c6407b559895be056cd6d3"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/pdf-capture-raster-density.h",
+      "bytes": 5268,
+      "sha256": "5005eed71ea17ababee57429b5e0c39a3a742f3e79368ad7719b56d676ecc495"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/pdf-font-metrics.json",
+      "bytes": 2709,
+      "sha256": "62ad9c96828ac14e9fd82fce6caa795d3bdafc190a4f8dd5c774fd95b45aa4f5"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/pdf-font-metrics.patch",
+      "bytes": 2346,
+      "sha256": "31281c0bbedf873c0b95a3083ce90c7d06adc3edd43d9b9ea0d1bc8e45bc698a"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/pdf-text-capabilities.h",
+      "bytes": 28139,
+      "sha256": "46867f4e6a7f269de645e35e96818226e0f4778c40246cad47d057d786554985"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/pdf-text-order.h",
+      "bytes": 9892,
+      "sha256": "5a8deb8d8f3ba6cc5b0508dcd2a10d02765d34c331e446021e119285ddde195f"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/rebuild.sh",
+      "bytes": 2190,
+      "sha256": "98a7388b4bca0acd1294935057ca18ff8c00aaef62485777feab5acec171e276"
+    },
+    {
+      "file": "scripts/drawing-runtime-inputs/straight-blend-adaptor.h",
+      "bytes": 1378,
+      "sha256": "0b67cbe3c87292733edf33b4174f28d01d73c93b1bd03aca3112ee6d731c8f78"
+    }
+  ],
+  "driverInventoryNote": "The complete shared16-file source inventory was enforced before adoption; its wrapper/inventory validation changes do not change any of the13 native compilation recipe files.",
+  "opensslImplementationInputs": false,
+  "opensslImplementationSourceDirectoryPresent": false,
+  "opensslHashDefinePresent": false,
+  "opensslIncludePathsPresent": false,
+  "limits": "Same pinned compiler/source environment; no cross-toolchain/host reproducibility claim. The recipe temporary compilation tree is ephemeral; source archives, independent patched-source check, build log and output bytes are retained.",
+  "compilerDistributionMembersVerified": [
+    {
+      "file": "upstream/bin/wasm-ld",
+      "archiveMember": "install/bin/lld",
+      "bytes": 68822312,
+      "sha256": "c3d420a01bb67e950bfd37959e844870a9194d0c31dce20d081a77f011bda4d3"
+    },
+    {
+      "file": "upstream/bin/clang",
+      "archiveMember": "install/bin/clang-18",
+      "bytes": 126827928,
+      "sha256": "7dd1e3ce6fcc7854d81028bdbbe53b8fde61dbc6a512e8fb1f178b753e1e313d"
+    },
+    {
+      "file": "upstream/emscripten/emcc.py",
+      "archiveMember": "install/emscripten/emcc.py",
+      "bytes": 187862,
+      "sha256": "9aee722e959a235121c010a04eece0932525636bb72335997f6dbf7bdb9d7fa5"
+    }
+  ]
+}

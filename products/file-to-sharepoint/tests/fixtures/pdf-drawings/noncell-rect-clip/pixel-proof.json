@@ -1,0 +1,1397 @@
+{
+  "scope": "Independent MuPDF192dpi source vs actual native060 noncell PNG. Source-only uniform5x5 selection, full PNG/RGBA pinned; edge antialiasing excluded. Crossing requires both visible and clip-masked samples. Touching can be a no-effect clip.",
+  "rows": [
+    {
+      "name": "hole-crossing-mode0",
+      "nativePngSha256": "2c25527e560d9977f20aee89a8ac985f1a07c498fcd9ffcbc824b95b3abba388",
+      "nativeRgbaSha256": "fb3932ecf0bfcafbc354767e8cfdab1e8c7ade3e9591cc0b400b2c06f1d7124d",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10286,
+      "transparentSamples": 5367,
+      "paintedSamples": 4919,
+      "clipMaskedSamples": 3687,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2310,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "masked": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            55,
+            2
+          ],
+          "sourceXY": [
+            268,
+            229
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "hole-crossing-mode1",
+      "nativePngSha256": "2c25527e560d9977f20aee89a8ac985f1a07c498fcd9ffcbc824b95b3abba388",
+      "nativeRgbaSha256": "fb3932ecf0bfcafbc354767e8cfdab1e8c7ade3e9591cc0b400b2c06f1d7124d",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10286,
+      "transparentSamples": 5367,
+      "paintedSamples": 4919,
+      "clipMaskedSamples": 3687,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2310,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "masked": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            55,
+            2
+          ],
+          "sourceXY": [
+            268,
+            229
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "hole-touching-mode0",
+      "nativePngSha256": "1c890f17f5ff00948f7a50ca1d3dd23177e9d9f87f7270d129dcc5a23836c644",
+      "nativeRgbaSha256": "ff210cfee6a3e7eea9e3261588768a76a1442a3bbdf601a3ee179844d5e71a13",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10462,
+      "transparentSamples": 1680,
+      "paintedSamples": 8782,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2134,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "painted": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "hole-touching-mode1",
+      "nativePngSha256": "1c890f17f5ff00948f7a50ca1d3dd23177e9d9f87f7270d129dcc5a23836c644",
+      "nativeRgbaSha256": "ff210cfee6a3e7eea9e3261588768a76a1442a3bbdf601a3ee179844d5e71a13",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10462,
+      "transparentSamples": 1680,
+      "paintedSamples": 8782,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2134,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "painted": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "star-crossing-mode0",
+      "nativePngSha256": "b8dd1f69848223c244dbe005cb22ad2b5d6e466e5b19938c36fa15d941e3123b",
+      "nativeRgbaSha256": "8c01aab83334ee6708880560afc3db79eb54fbe00c661f5e70be3b7474db4f3c",
+      "width": 134,
+      "height": 121,
+      "uniformSamples": 12630,
+      "transparentSamples": 11462,
+      "paintedSamples": 1168,
+      "clipMaskedSamples": 788,
+      "unclippedTransparentSamples": 10674,
+      "sourceEdgeSamplesExcluded": 3584,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            213,
+            200
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            66,
+            11
+          ],
+          "sourceXY": [
+            279,
+            211
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "masked": {
+          "nativeXY": [
+            9,
+            42
+          ],
+          "sourceXY": [
+            222,
+            242
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "star-crossing-mode1",
+      "nativePngSha256": "b8dd1f69848223c244dbe005cb22ad2b5d6e466e5b19938c36fa15d941e3123b",
+      "nativeRgbaSha256": "8c01aab83334ee6708880560afc3db79eb54fbe00c661f5e70be3b7474db4f3c",
+      "width": 134,
+      "height": 121,
+      "uniformSamples": 12630,
+      "transparentSamples": 11462,
+      "paintedSamples": 1168,
+      "clipMaskedSamples": 788,
+      "unclippedTransparentSamples": 10674,
+      "sourceEdgeSamplesExcluded": 3584,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            213,
+            200
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            66,
+            11
+          ],
+          "sourceXY": [
+            279,
+            211
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "masked": {
+          "nativeXY": [
+            9,
+            42
+          ],
+          "sourceXY": [
+            222,
+            242
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "star-touching-mode0",
+      "nativePngSha256": "49ff8e673c491ade4f74ac117201b98bee7892011ff22c23c8c1e3a483bd8474",
+      "nativeRgbaSha256": "85e62057c380157e99de63da56cb9e3a23d2a89ab34b244e13e5c6b0d2d12778",
+      "width": 134,
+      "height": 121,
+      "uniformSamples": 12680,
+      "transparentSamples": 10674,
+      "paintedSamples": 2006,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 10674,
+      "sourceEdgeSamplesExcluded": 3534,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            213,
+            200
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            66,
+            11
+          ],
+          "sourceXY": [
+            279,
+            211
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        }
+      }
+    },
+    {
+      "name": "star-touching-mode1",
+      "nativePngSha256": "49ff8e673c491ade4f74ac117201b98bee7892011ff22c23c8c1e3a483bd8474",
+      "nativeRgbaSha256": "85e62057c380157e99de63da56cb9e3a23d2a89ab34b244e13e5c6b0d2d12778",
+      "width": 134,
+      "height": 121,
+      "uniformSamples": 12680,
+      "transparentSamples": 10674,
+      "paintedSamples": 2006,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 10674,
+      "sourceEdgeSamplesExcluded": 3534,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            213,
+            200
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            66,
+            11
+          ],
+          "sourceXY": [
+            279,
+            211
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        }
+      }
+    },
+    {
+      "name": "alpha-crossing-mode0",
+      "nativePngSha256": "8cfa09f903e35caeea929303ad9b2eb65ecf88b3e92672f8d21c1aff5baacb16",
+      "nativeRgbaSha256": "0655f47ddc6b5ff983e24c70da052756d36b4be580c18ee5f25aa59c36cd15d7",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10286,
+      "transparentSamples": 5367,
+      "paintedSamples": 4919,
+      "clipMaskedSamples": 3687,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2310,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 1,
+      "examples": {
+        "masked": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            55,
+            2
+          ],
+          "sourceXY": [
+            268,
+            229
+          ],
+          "sourceRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "unclippedRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            127
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "alpha-crossing-mode1",
+      "nativePngSha256": "8cfa09f903e35caeea929303ad9b2eb65ecf88b3e92672f8d21c1aff5baacb16",
+      "nativeRgbaSha256": "0655f47ddc6b5ff983e24c70da052756d36b4be580c18ee5f25aa59c36cd15d7",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10286,
+      "transparentSamples": 5367,
+      "paintedSamples": 4919,
+      "clipMaskedSamples": 3687,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2310,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 1,
+      "examples": {
+        "masked": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            55,
+            2
+          ],
+          "sourceXY": [
+            268,
+            229
+          ],
+          "sourceRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "unclippedRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            127
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "alpha-touching-mode0",
+      "nativePngSha256": "3eda9045a04adfeebc7ba23834a08214563eb1cef66aeb8b16417b75bb133b38",
+      "nativeRgbaSha256": "8f2145f6b059b592b720c8453dd91fca869a1ea1231e6a73577eb6a585a0e5ed",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10462,
+      "transparentSamples": 1680,
+      "paintedSamples": 8782,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2134,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 1,
+      "examples": {
+        "painted": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "unclippedRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            127
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "alpha-touching-mode1",
+      "nativePngSha256": "3eda9045a04adfeebc7ba23834a08214563eb1cef66aeb8b16417b75bb133b38",
+      "nativeRgbaSha256": "8f2145f6b059b592b720c8453dd91fca869a1ea1231e6a73577eb6a585a0e5ed",
+      "width": 134,
+      "height": 94,
+      "uniformSamples": 10462,
+      "transparentSamples": 1680,
+      "paintedSamples": 8782,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 1680,
+      "sourceEdgeSamplesExcluded": 2134,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 1,
+      "examples": {
+        "painted": {
+          "nativeXY": [
+            3,
+            2
+          ],
+          "sourceXY": [
+            216,
+            229
+          ],
+          "sourceRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "unclippedRGBA": [
+            24,
+            101,
+            229,
+            126
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            127
+          ]
+        },
+        "transparent": {
+          "nativeXY": [
+            43,
+            29
+          ],
+          "sourceXY": [
+            256,
+            256
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "curve-crossing-mode0",
+      "nativePngSha256": "0213ac416d52cd33e11bd46a3631e7593bbe33565877b0440a8b62916c860cc5",
+      "nativeRgbaSha256": "1a2bbe59199d92e5883fc8ae338ed9ea121960ddc553702156701ee7cc95d298",
+      "width": 187,
+      "height": 134,
+      "uniformSamples": 22768,
+      "transparentSamples": 16194,
+      "paintedSamples": 6574,
+      "clipMaskedSamples": 3807,
+      "unclippedTransparentSamples": 12387,
+      "sourceEdgeSamplesExcluded": 2290,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            160,
+            187
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            128,
+            41
+          ],
+          "sourceXY": [
+            288,
+            228
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "masked": {
+          "nativeXY": [
+            102,
+            48
+          ],
+          "sourceXY": [
+            262,
+            235
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "curve-crossing-mode1",
+      "nativePngSha256": "0213ac416d52cd33e11bd46a3631e7593bbe33565877b0440a8b62916c860cc5",
+      "nativeRgbaSha256": "1a2bbe59199d92e5883fc8ae338ed9ea121960ddc553702156701ee7cc95d298",
+      "width": 187,
+      "height": 134,
+      "uniformSamples": 22768,
+      "transparentSamples": 16194,
+      "paintedSamples": 6574,
+      "clipMaskedSamples": 3807,
+      "unclippedTransparentSamples": 12387,
+      "sourceEdgeSamplesExcluded": 2290,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            160,
+            187
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            128,
+            41
+          ],
+          "sourceXY": [
+            288,
+            228
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        },
+        "masked": {
+          "nativeXY": [
+            102,
+            48
+          ],
+          "sourceXY": [
+            262,
+            235
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "curve-touching-mode0",
+      "nativePngSha256": "6c67a420cde81731b20682ef7c741d459bd08a0fd07a7cadb15a5905ecae4401",
+      "nativeRgbaSha256": "da5d165ee7ae25685c833526aee61f61bcde7c19b5541629cba6b4a4f229307f",
+      "width": 187,
+      "height": 134,
+      "uniformSamples": 23104,
+      "transparentSamples": 12387,
+      "paintedSamples": 10717,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 12387,
+      "sourceEdgeSamplesExcluded": 1954,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            160,
+            187
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            128,
+            41
+          ],
+          "sourceXY": [
+            288,
+            228
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        }
+      }
+    },
+    {
+      "name": "curve-touching-mode1",
+      "nativePngSha256": "6c67a420cde81731b20682ef7c741d459bd08a0fd07a7cadb15a5905ecae4401",
+      "nativeRgbaSha256": "da5d165ee7ae25685c833526aee61f61bcde7c19b5541629cba6b4a4f229307f",
+      "width": 187,
+      "height": 134,
+      "uniformSamples": 23104,
+      "transparentSamples": 12387,
+      "paintedSamples": 10717,
+      "clipMaskedSamples": 0,
+      "unclippedTransparentSamples": 12387,
+      "sourceEdgeSamplesExcluded": 1954,
+      "mismatchedUniformSamples": 0,
+      "maxChannelDelta": 0,
+      "examples": {
+        "transparent": {
+          "nativeXY": [
+            0,
+            0
+          ],
+          "sourceXY": [
+            160,
+            187
+          ],
+          "sourceRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "unclippedRGBA": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "nativeRGBA": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "painted": {
+          "nativeXY": [
+            128,
+            41
+          ],
+          "sourceXY": [
+            288,
+            228
+          ],
+          "sourceRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "unclippedRGBA": [
+            25,
+            102,
+            229,
+            255
+          ],
+          "nativeRGBA": [
+            25,
+            102,
+            229,
+            255
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@
   "solution": {
     "name": "file-to-sharepoint-form-client-side-solution",
     "id": "08f7c843-f68f-43e2-9862-99478df779d6",
-    "version": "1.0.0.0",
+    "version": "1.0.0.1",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": false,
     "developer": {

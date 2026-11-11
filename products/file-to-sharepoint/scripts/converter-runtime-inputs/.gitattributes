@@ -1,0 +1,2 @@
+# Preserve exact hashed build recipes and patches on Windows and Linux.
+* -text -whitespace

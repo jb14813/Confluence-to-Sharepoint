@@ -17,7 +17,7 @@
   },
   "converterSource": {
     "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
-    "status": "verified-upstream-release",
+    "status": "verified-local-source-build",
     "release": "v9.3.2+3",
     "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32",
     "provenanceFile": "converter-provenance.json",
@@ -30,7 +30,9 @@
       "role": "source",
       "repository": "https://github.com/cryptpad/onlyoffice-x2t-wasm",
       "commit": "7debf5e6d6d4f19874d764cd34446f7e63c6bc32"
-    }
+    },
+    "upstreamRelease": "v9.3.2+3",
+    "buildProvenanceFile": "converter-build-provenance.json"
   },
   "jszip": {
     "version": "3.10.1",
@@ -40,33 +42,27 @@
   "files": [
     {
       "file": "x2t.js",
-      "bytes": 140773,
-      "sha256": "e2f79cf6b71d10a7b5db695dcb4043afb1c5e0412520201bf71d6f12f97648d7",
-      "sourceUrl": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/releases/assets/603320358?download=1",
-      "sourceArchiveMember": "x2t.js",
-      "sourceArchiveSha256": "9fee31b60964d8145396bf1fb992f38ea3bf099a1c64e949fa4976c5c4fdd290",
-      "sourceArchiveSha512": "ed0579097a0269877d6622b28b1e2718e1f9f4e8ac99301f5f13f5f052b3db24db789deab8c654044db588be103c139be74f83a0ca066dee1789522241c1af6e"
+      "bytes": 137170,
+      "sha256": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46",
+      "generator": "converter-runtime"
     },
     {
       "file": "x2t.wasm",
-      "bytes": 38768424,
-      "sha256": "d5e67dec96ad28f0057818cc6f4faf599f1bc982e150efb44e1605dd23a655c2",
-      "sourceUrl": "https://api.github.com/repos/cryptpad/onlyoffice-x2t-wasm/releases/assets/603320358?download=1",
-      "sourceArchiveMember": "x2t.wasm",
-      "sourceArchiveSha256": "9fee31b60964d8145396bf1fb992f38ea3bf099a1c64e949fa4976c5c4fdd290",
-      "sourceArchiveSha512": "ed0579097a0269877d6622b28b1e2718e1f9f4e8ac99301f5f13f5f052b3db24db789deab8c654044db588be103c139be74f83a0ca066dee1789522241c1af6e"
+      "bytes": 38867906,
+      "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6",
+      "generator": "converter-runtime"
     },
     {
       "file": "drawingfile.js",
-      "bytes": 131210,
-      "sha256": "c1421f8310eb9267818c6fd81f410b7898808fac305b604ac1c41254eb753aac",
+      "bytes": 131891,
+      "sha256": "c8d8b7547fc89040e129e8cc0b3603d9b92e679aa08bf023821ad532e55c3560",
       "sourceUrl": "https://github.com/ONLYOFFICE/core/tree/d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
       "generator": "drawing-runtime"
     },
     {
       "file": "drawingfile.wasm",
-      "bytes": 10053147,
-      "sha256": "01fbb6f0467401fa6a2945161d48de669f19b6d208e049e8412bf188d8fb5f85",
+      "bytes": 10115720,
+      "sha256": "9b1de1b12078daa6c3dc3019bc2c0a4430950dd37b82bc75c4718dcd70717c37",
       "sourceUrl": "https://github.com/ONLYOFFICE/core/tree/d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
       "generator": "drawing-runtime"
     },
@@ -798,6 +794,31 @@
       "bytes": 20138,
       "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5",
       "sourceUrl": "https://creativecommons.org/licenses/by-sa/4.0/legalcode.txt"
+    },
+    {
+      "file": "mime-parser.js",
+      "bytes": 40125,
+      "sha256": "02a1d51010b41d66d695471ff21909ecc833da705309ef0e0df0f21447bebb07",
+      "generator": "mime-parser",
+      "license": "GPL-3.0 and MIT source notices; see provenance/PROTON-*"
+    },
+    {
+      "file": "provenance/PROTON-GPL-3.0.txt",
+      "bytes": 32473,
+      "sha256": "1b3782ccad7b8614100cda30d3faf42fc39f2e97932908c543005053b654ca68",
+      "sourceUrl": "https://raw.githubusercontent.com/ProtonMail/WebPackages/main/LICENSE"
+    },
+    {
+      "file": "provenance/PROTON-MPL-2.0.txt",
+      "bytes": 16726,
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+      "sourceUrl": "https://www.mozilla.org/media/MPL/2.0/index.txt"
+    },
+    {
+      "file": "provenance/PROTON-MIME-MIT.txt",
+      "bytes": 1058,
+      "sha256": "d7cc10b09e57053b82df0c5533b7c3e28e011746af67e4915353b8f6a2d7cb96",
+      "sourceUrl": "https://raw.githubusercontent.com/ProtonMail/WebPackages/main/packages/crypto/src/jsmimeparser/LICENSE"
     }
   ],
   "xmldom": {
@@ -836,7 +857,9 @@
     "converter-provenance.json",
     "sdk-build-provenance.json",
     "sdk-runtime-provenance.json",
-    "drawing-build-provenance.json"
+    "drawing-build-provenance.json",
+    "converter-build-provenance.json",
+    "mime-parser-build-provenance.json"
   ],
   "pdfRuntimeSource": {
     "status": "verified-local-source-build",
@@ -844,5 +867,13 @@
     "coreCommit": "d54f0326cd67ef0d59b87af1c3ff51d678f77a39",
     "provenanceFile": "sdk-runtime-provenance.json",
     "drawingBuildProvenanceFile": "drawing-build-provenance.json"
+  },
+  "mimeParserSource": {
+    "package": "@protontech/crypto",
+    "version": "2.2.0",
+    "repository": "https://github.com/ProtonMail/WebPackages",
+    "status": "verified-local-source-build",
+    "buildProvenanceFile": "mime-parser-build-provenance.json",
+    "runtimeScope": "Raw MIME parser source closure only; no unrelated crypto modules."
   }
 }

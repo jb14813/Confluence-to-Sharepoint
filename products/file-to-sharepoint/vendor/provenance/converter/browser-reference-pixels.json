@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "method": "independent reference PNG only; createImageBitmap colorSpaceConversion:none; Canvas2D drawImage/getImageData RGBA; alpha may normalize through premultiplication",
+  "browserVersion": "147.0.7727.15",
+  "cases": [
+    {
+      "name": "image-opaque.pdf",
+      "referencePngSha256": "42f416c46b6b4a02af8080dcd565721be8ac7ea63c5742d3954fc6bec8078617",
+      "rawRgbaSha256": "b6fe954f0ec6addb45b55db12f4cf8c9a6d1a8d6462a5db3379301063b3c1ec3",
+      "width": 100,
+      "height": 50,
+      "rgbaSha256": "b6fe954f0ec6addb45b55db12f4cf8c9a6d1a8d6462a5db3379301063b3c1ec3"
+    },
+    {
+      "name": "image-large.pdf",
+      "referencePngSha256": "5430b04489d1c0736532824796212815792fd3f907167fd957f8e63a1a905f4e",
+      "rawRgbaSha256": "49fcfa08f839f9587226ae2cd60a36d8cd2d355485b5b40b32488dc901a47511",
+      "width": 1601,
+      "height": 1237,
+      "rgbaSha256": "49fcfa08f839f9587226ae2cd60a36d8cd2d355485b5b40b32488dc901a47511"
+    },
+    {
+      "name": "image-alpha.pdf",
+      "referencePngSha256": "fd322a7ef27fa2f9ade838d97dcfd9a7e9852862f1329c8ecec81ca0c4bd0bd0",
+      "rawRgbaSha256": "50150688d463413b21bd6fa9a7aff805cb2f3063d753e9579e107c919871bcab",
+      "width": 128,
+      "height": 64,
+      "rgbaSha256": "d6ab3bd220f146d56a12f6b0505e3429d9192650ce78ccfdd9dc1c85edfe7470"
+    },
+    {
+      "name": "image-jpeg.pdf",
+      "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5",
+      "rawRgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+      "width": 160,
+      "height": 96,
+      "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be"
+    },
+    {
+      "name": "image-jpeg-subsampled.pdf",
+      "referencePngSha256": "8fe10fd41d8c8425c16a7df89550dae9f49f3a8919c4bbb6413b02cf11c36f07",
+      "rawRgbaSha256": "47e18aab9ddb03eda67d313fcdef9a67804c5e20e25e577c21e60f7d61b4ec94",
+      "width": 160,
+      "height": 96,
+      "rgbaSha256": "47e18aab9ddb03eda67d313fcdef9a67804c5e20e25e577c21e60f7d61b4ec94"
+    },
+    {
+      "name": "image-jpeg-progressive.pdf",
+      "referencePngSha256": "9d284f5f83ef71b0b4353534c66043742619e95532b97a0f501b59773d6984a5",
+      "rawRgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be",
+      "width": 160,
+      "height": 96,
+      "rgbaSha256": "2a0f9244a1d2610f469a8ee325b8302b9f7ecc68e5f8562d6f13c993193df8be"
+    },
+    {
+      "name": "image-jpeg-gray.pdf",
+      "referencePngSha256": "c0f3639055817715a961210a59da2cf2c9a195316a76d714e4682b597880a593",
+      "rawRgbaSha256": "adbb34843eb9464ee1b03ed608719c7e5f42fcd6f1d8530bb8b2d7b987d6df85",
+      "width": 160,
+      "height": 96,
+      "rgbaSha256": "adbb34843eb9464ee1b03ed608719c7e5f42fcd6f1d8530bb8b2d7b987d6df85"
+    },
+    {
+      "name": "image-jpeg-cmyk.pdf",
+      "referencePngSha256": "b7aa051fd5c5d0fc6978eb704de51c22e108c640948324fbcd8bf7e25474bf03",
+      "rawRgbaSha256": "31d906f364b21bfb1168d73493164a1254aa318fcf45d312e0a4dd821cda2bfb",
+      "width": 160,
+      "height": 96,
+      "rgbaSha256": "31d906f364b21bfb1168d73493164a1254aa318fcf45d312e0a4dd821cda2bfb"
+    }
+  ]
+}

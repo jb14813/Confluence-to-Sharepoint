@@ -8,7 +8,7 @@ async function executable(){
  throw Error('Set EXTENSION_CHROME_PATH to an extension-capable Chromium.');
 }
 test('packaged workspace imports, reviews and restores real Word/PDF documents entirely offline',{timeout:180000},async()=>{
- const artifacts=path.join(root,'.artifacts/file-workspace');await mkdir(artifacts,{recursive:true});const dir=await mkdtemp(path.join(artifacts,'run-')),extension=path.join(dir,'extension');
+ const artifacts=path.resolve(process.env.FTS_TEST_ARTIFACTS_DIR||path.join(root,'.artifacts'),'file-workspace');await mkdir(artifacts,{recursive:true});const dir=await mkdtemp(path.join(artifacts,'run-')),extension=path.join(dir,'extension');
  await promisify(execFile)(process.execPath,['products/file-to-sharepoint/scripts/build.mjs'],{cwd:root,env:{...process.env,FTS_BUILD_DIR:extension}});
  const context=await chromium.launchPersistentContext(path.join(dir,'profile'),{headless:true,executablePath:await executable(),ignoreDefaultArgs:['--disable-extensions'],args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`,'--disable-background-networking','--disable-component-update','--no-first-run'],viewport:{width:1440,height:1000}});
  const errors=[],requests=[];context.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});await context.route(/^https?:/,r=>r.abort('blockedbyclient'));
@@ -25,7 +25,7 @@ test('packaged workspace imports, reviews and restores real Word/PDF documents e
   await page.locator('#new-file').click();await page.waitForFunction(()=>!document.querySelector('#picker').hidden);
   await page.locator('#file').setInputFiles({name:'sample.pdf',mimeType:'application/pdf',buffer:Buffer.from(fixtures['sample.pdf'],'base64')});
   await page.waitForFunction(()=>!document.querySelector('#form-section').hidden&&!document.querySelector('#new-file').disabled,{},{timeout:90000});
-  const text=await page.locator('#paper').innerText();for(const value of ['Name','Alice','Approved','Department','Engineering'])assert.ok(text.includes(value),value);
+  const text=await page.locator('#paper').innerText();for(const value of ['ONLYOFFICE Import Evidence','Editable paragraph alpha beta 123.','Left cell','Right cell','Name','Approved','Department'])assert.ok(text.includes(value),value);for(const value of ['Alice','Engineering'])assert.ok(!text.includes(value),'Interactive widget values must stay in the form preview');assert.ok(await page.locator('#form-preview input').evaluateAll(inputs=>inputs.some(input=>input.value==='Alice')));assert.match(await page.locator('#form-preview').innerText(),/Engineering/);
   assert.equal(await page.locator('#form-preview .file-import-form-submit').isVisible(),false);assert.ok(await page.locator('#form-preview input').count()>1);assert.equal(await page.locator('#form-notice').isVisible(),true);
   await page.screenshot({path:path.join(artifacts,'pdf-form-preview.png'),fullPage:true});
   // Restore a confirmed destination result containing the retained engine's
