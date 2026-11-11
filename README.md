@@ -2,17 +2,23 @@
 
 <img src="assets/Confluence_Sharepoint.svg" alt="Confluence to SharePoint logo" width="96" height="96">
 
-Copy a Confluence page into SharePoint without retyping it. Open the page in Chrome, capture it, and send it to one of your SharePoint sites: as a new page, or into a page you already have, to update it or to combine several Confluence pages into one. You get an **unpublished** SharePoint page with the text, tables, links and pictures, ready for you to review and publish. When the Confluence page changes, one click updates the SharePoint page you sent it to.
+Import Confluence Cloud pages and local documents into editable, **unpublished** SharePoint Online pages, with text, tables, links and pictures. You review and publish in SharePoint.
+
+Capture a Confluence page in Chrome and send it as a new draft, into an existing page, or update a page you sent before. Several Confluence pages can be combined into one SharePoint page. Updates replace the imported part, including any edits made inside that part in SharePoint; the earlier version remains in SharePoint history.
 
 You can also select **Import a file** in the popup or dashboard to turn local documents into editable SharePoint drafts.
 
-- Uses the Confluence and SharePoint accounts you are already signed in to. There is no extra sign-in, app registration, server or API key.
+- Uses your signed-in SharePoint account. Confluence capture also uses your signed-in Confluence account; local file import does not require Confluence. There is no extra account, app registration, conversion server or API key.
 - Never publishes anything. A page you send into keeps showing its readers the published version until you publish the changes.
 - Sends your content only to the SharePoint site you choose.
 
 ## Install
 
 Install **Confluence to SharePoint** from its [Chrome Web Store page](https://chromewebstore.google.com/detail/ahgjchhmbdpohnbeoccnpnfaeillcedm). You can also find it by searching the Store for its name.
+
+The [published GitHub release is v0.7.2](https://github.com/jb14813/Confluence-to-Sharepoint/releases/tag/v0.7.2). At the 2026-11-11 public-listing check, the Store still offered **0.6.2**; 0.7.2 was submitted separately for review. Do not assume the Store build includes GitHub's newer file-import features until its version changes.
+
+To try the published GitHub build, download the release's **confluence-to-sharepoint-0.7.2.zip**, extract it, open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the extracted folder containing `manifest.json`. The source ZIP and `.sppkg` are not Chrome installation packages. Store installations receive Store updates; unpacked installations require manual replacement and **Reload**. An unpacked copy has separate identity/storage from the Store installation. See the [0.7.2 release guide](docs/releases/0.7.2.md) for download links, compatibility, update instructions and verification scope.
 
 To keep it handy, pin it: select the puzzle-piece icon in Chrome's toolbar, then the pin next to **Confluence to SharePoint**.
 
@@ -33,7 +39,9 @@ Supported PDF form fields become text, multiline text, checkboxes, dropdowns and
 
 The local file preview is separate from the Confluence capture and does not enter the Confluence sent-page/update history. An interrupted file send keeps its attempt identity and destination so a lost message cannot silently create a second page. Its review/reset controls are in the file workspace; the Sites view's **Forget all** still applies to remembered sites and Confluence links.
 
-Word bullets, supported numbered lists and merged table cells remain native editable structures. The importer uses the Word engine's calculated numbering and merge grid. Verified markerless task and contents groups use supported native bullets while retaining checkbox symbols and links, with a preview note. Other custom numbering or layouts that cannot be represented faithfully block sending with an explanation.
+Word bullets, supported numbered lists and merged table cells remain native editable structures. The importer uses the Word engine's calculated numbering and merge grid. Verified custom/compound markers become editable literal markers where native numbering cannot represent them; skipped levels use the actual source items without invented parent content. Vertical merges become native row spans. Formatting differences use the closest supported native representation with conversion notes, rather than blocking only because appearance differs.
+
+Headers and footers become labeled editable sections; footnotes and endnotes become linked sections. Known content controls become ordinary editable content, and document fields retain their cached visible results as static text. These do not retain automatic field updates or repeating page headers. Missing/unreadable content, malformed structures, failed verification, unsafe resources and unsupported interactive form behavior remain protected. Direct spreadsheet/presentation import and OCR are not included.
 
 ## Copy a page
 
@@ -144,13 +152,15 @@ Some things change, and the popup lists each one under **Layout notes** so you k
 - **SharePoint asks you to sign in.** The popup says so. Select **Show the site’s tab**, sign in as usual, then select **Create draft** again. The extension never asks for your password.
 - **A send that stops part-way is not retried automatically**, because a draft or pictures may already exist: the popup says **A draft may already exist**, or **The page may have changed** for a page you sent into. Select **Review Site Pages**, **Review the draft** or **Review the page** to check, then select **Clear** and capture again. A send that stops before anything was written can simply be sent again.
 - **After an update** the extension refreshes its button on the Confluence pages you have open. If a button says **Reload this page**, reload it.
-- **What you need:** Chrome 127 or later, a Confluence Cloud page (on `atlassian.net`) you can view, and a SharePoint Online site (on `sharepoint.com`) where you can create pages and upload files. Confluence Data Center or Server, and custom domains, are not supported yet.
+- **What you need:** desktop Chrome 127 or later and a SharePoint Online site (on `sharepoint.com`) with a Site Pages library that keeps versioned minor drafts, permission to view/add/edit pages, and permission to upload image assets. Confluence capture also needs a Confluence Cloud page (on `atlassian.net`) you can view; local files do not. Confluence Data Center/Server, SharePoint Server/on-premises, custom domains and major-version-only page libraries are outside the supported contract. Site and organization policies remain authoritative.
 
 ## Privacy
 
 Everything happens in your browser. A captured page is kept only for the current Chrome session (**Clear** removes it, and Chrome discards it at its next start), and the content you send goes only to the SharePoint site you choose. The addresses and names of the SharePoint sites and pages you visit are remembered in this browser so you can send pages there, and so is which Confluence page you sent to which SharePoint page, so you can update it later. They are sent nowhere, except that **Keep in my Confluence account** keeps the sent list in your own Confluence account when you turn it on, and that the setting and your pinned sites are kept in Chrome's synced storage, which Chrome syncs through your Google account when Chrome sync is on. There is no server, analytics or tracking. When a page shows a picture from another website, the extension asks that website for the picture so it can copy it. See [PRIVACY.md](PRIVACY.md) for the full privacy policy and [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
 This is an independent tool and is not affiliated with Atlassian or Microsoft.
+
+Project: [JZB Apps](https://jzbapps.com/apps/confluence-to-sharepoint/). [Published privacy policy](https://jzbapps.com/apps/confluence-to-sharepoint/privacy/) and [third-party notices](https://jzbapps.com/apps/confluence-to-sharepoint/notices.txt). For support, contact [support@jzbapps.com](mailto:support@jzbapps.com) or use the [GitHub issue tracker](https://github.com/jb14813/Confluence-to-Sharepoint/issues); omit private document content.
 
 ## Build from source
 

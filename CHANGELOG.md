@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.7.2 - 2026-11-08 — prepared for review, not submitted
+## 0.7.2 - 2026-11-11 — published on GitHub
+
+The [0.7.2 release guide](docs/releases/0.7.2.md) identifies the released downloads, compatibility and limits. The Chrome Web Store submission is separate; its public listing still showed 0.6.2 at the 2026-11-11 check.
 
 - Open file import from an extension shortcut on SharePoint, with the current verified site selected and existing previews or interrupted sends preserved.
 - Import supported MIME-wrapped Word exports through the packaged source-built MIME parser and existing Word HTML importer. Preserve embedded images, local anchors, list continuation, table widths and merged cells.
@@ -17,7 +19,7 @@
 - Verify XFA presence and AcroForm field counts with the existing native PDF parser before reconstruction. XFA-only, packet-array and hybrid forms, malformed fields and unreadable field metadata cannot silently become ordinary page content.
 - Revalidate prepared interactive definitions at the selected site before any image or page writes. Treat incomplete response-list reads as uncertain, preserving the submission identity for explicit recovery.
 - Include exact local converter build/replay evidence, native dependency review and complete preferred source/toolchain inputs. Existing upload verification, unpublished drafts and recovery remain in place.
-- Publication remains held until the owner reviews the final verification results and explicitly approves.
+- Published on GitHub after owner approval on 2026-11-11; submitted to the Chrome Web Store separately. The frozen release tag and downloadable build/source packages remain unchanged by later documentation corrections.
 
 ## 0.7.1 - 2026-11-08
 
