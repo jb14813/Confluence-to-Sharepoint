@@ -190,31 +190,6 @@
       "repository": "git+https://github.com/nodeca/pako.git"
     },
     {
-      "name": "Preact 10.27.2 preferred source/build files",
-      "file": "preact-0dbe6367.tar.gz",
-      "url": "https://codeload.github.com/preactjs/preact/tar.gz/0dbe6367842c055637ba67814b37f488a9ad7211",
-      "bytes": 438690,
-      "sha256": "91bedbddf1321e673c3e2dd2281d73aa408a7e34d67274e0d0a7adbe6fbfd18a",
-      "role": "source",
-      "repository": "https://github.com/preactjs/preact",
-      "commit": "0dbe6367842c055637ba67814b37f488a9ad7211",
-      "license": "MIT"
-    },
-    {
-      "file": "preact-10.27.2.tgz",
-      "url": "https://registry.npmjs.org/preact/-/preact-10.27.2.tgz",
-      "bytes": 402564,
-      "sha256": "f1d9cb453deb8d922c2f21702d719d23d24aaa3cab1a89a3dd326d0d8f6b3c70",
-      "version": "10.27.2",
-      "integrity": "sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg==",
-      "name": "preact 10.27.2 published source/data",
-      "role": "source",
-      "package": "preact",
-      "license": "MIT",
-      "repository": "https://github.com/preactjs/preact",
-      "commit": "0dbe6367842c055637ba67814b37f488a9ad7211"
-    },
-    {
       "file": "setimmediate-1.0.5.tgz",
       "url": "https://registry.npmjs.org/setimmediate/-/setimmediate-1.0.5.tgz",
       "bytes": 3255,
@@ -227,98 +202,6 @@
       "license": "MIT",
       "commit": "f1ccbfdf09cb93aadf77c4aa749ea554503b9234",
       "repository": "git+https://github.com/yuzujs/setImmediate.git"
-    },
-    {
-      "name": "Signature Pad 4.2.0 preferred TypeScript source/build files",
-      "file": "signature-pad-9ec285e5.tar.gz",
-      "url": "https://codeload.github.com/szimek/signature_pad/tar.gz/9ec285e51c8fcc2b1caa82ea867d7aaaaf16c0b7",
-      "bytes": 991136,
-      "sha256": "cb6644fffc6d5df162461509955fa001e9d96a032c8b53631c34026877c5aaa5",
-      "role": "source",
-      "repository": "https://github.com/szimek/signature_pad",
-      "commit": "9ec285e51c8fcc2b1caa82ea867d7aaaaf16c0b7",
-      "license": "MIT"
-    },
-    {
-      "file": "signature_pad-4.2.0.tgz",
-      "url": "https://registry.npmjs.org/signature_pad/-/signature_pad-4.2.0.tgz",
-      "bytes": 62546,
-      "sha256": "71156b0bea9cbf68d9fdb75028741cd5397c725243c8abc3f8cd091067baf2aa",
-      "version": "4.2.0",
-      "integrity": "sha512-YLWysmaUBaC5wosAKkgbX7XI+LBv2w5L0QUcI6Jc4moHYzv9BUBJtAyNLpWzHjtjKTeWOH6bfP4a4pzf0UinfQ==",
-      "name": "signature_pad 4.2.0 published source/data",
-      "role": "source",
-      "package": "signature_pad",
-      "license": "MIT",
-      "commit": "9ec285e51c8fcc2b1caa82ea867d7aaaaf16c0b7",
-      "repository": "git+https://github.com/szimek/signature_pad.git"
-    },
-    {
-      "file": "survey-core-3.2.4.tgz",
-      "url": "https://registry.npmjs.org/survey-core/-/survey-core-3.2.4.tgz",
-      "bytes": 8208879,
-      "sha256": "8aec04e5b1308ea85a25434317d88d63458cdbcab6313d70e120a9c27be9ea7f",
-      "version": "3.2.4",
-      "integrity": "sha512-xm3VfT7bzgQFzXrabcjyvscH6Y+Tsh3z9Axa8G4emVwPzs9UfhXxKuTAer/5R7CoT/RM5mg9/GtNRYmMeZe0Dg==",
-      "name": "survey-core 3.2.4 published source/data",
-      "role": "source",
-      "package": "survey-core",
-      "license": "MIT",
-      "repository": "https://github.com/surveyjs/survey-library",
-      "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9"
-    },
-    {
-      "file": "survey-js-ui-3.2.4.tgz",
-      "url": "https://registry.npmjs.org/survey-js-ui/-/survey-js-ui-3.2.4.tgz",
-      "bytes": 547205,
-      "sha256": "452612a8c4bcd14696e500bc2dd37483da6f794ccd8145872ab2aca8e31eaa62",
-      "version": "3.2.4",
-      "integrity": "sha512-dIrYf5M67vF6f4SSyXTf7j74BSF3hr3m4Q+WIsjiICBf509uA7KzG+AJxdHlxjIQEhuM2XchGwgUO9X+0Ewzgw==",
-      "name": "survey-js-ui 3.2.4 published source/data",
-      "role": "source",
-      "package": "survey-js-ui",
-      "license": "MIT",
-      "repository": "https://github.com/surveyjs/survey-library",
-      "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9"
-    },
-    {
-      "name": "SurveyJS Form Library 3.2.4 preferred TypeScript/source/build files",
-      "file": "survey-library-2536d8aa.tar.gz",
-      "url": "https://codeload.github.com/surveyjs/survey-library/tar.gz/2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9",
-      "bytes": 56799847,
-      "sha256": "ff55a52f42b1241b4a40ad0bddf6886dbbabdbed77f5f575d11ef00489fe1e10",
-      "role": "source",
-      "repository": "https://github.com/surveyjs/survey-library",
-      "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9",
-      "license": "MIT"
-    },
-    {
-      "file": "tslib-2.3.1.tgz",
-      "url": "https://registry.npmjs.org/tslib/-/tslib-2.3.1.tgz",
-      "bytes": 8041,
-      "sha256": "1774fefbfd64c476f33b92ae8efad1347c171ea1300720d0be036e102b8198fc",
-      "version": "2.3.1",
-      "integrity": "sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==",
-      "name": "tslib 2.3.1 published source/data",
-      "role": "source",
-      "package": "tslib",
-      "license": "0BSD",
-      "commit": "251802eeddb5556f507595c624ee7792154ce9fc",
-      "repository": "git+https://github.com/Microsoft/tslib.git"
-    },
-    {
-      "file": "tslib-2.8.1.tgz",
-      "url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
-      "bytes": 18477,
-      "sha256": "66f635d5eeabae44807534976913a102cf615b9a045368359c9f79ae6ee2119e",
-      "version": "2.8.1",
-      "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
-      "name": "tslib 2.8.1 published source/data",
-      "role": "source",
-      "package": "tslib",
-      "license": "0BSD",
-      "commit": "d72d6f70b36286bc3f94a3dda1e64dcb568b1370",
-      "repository": "git+https://github.com/Microsoft/tslib.git"
     },
     {
       "file": "underscore-1.13.6.tgz",
@@ -375,8 +258,8 @@
     }
   ],
   "collection": {
-    "additionalArchives": 28,
-    "additionalBytes": 189855182,
+    "additionalArchives": 19,
+    "additionalBytes": 122377797,
     "allDownloadedAndSha256Verified": true,
     "allNpmArchivesRegistrySha512Verified": true,
     "engineCollectionArchivesAtAudit": 193,
@@ -396,23 +279,6 @@
     "allRequestedPreferredSourcesAlreadyCovered": false
   },
   "verifiedEmbeddedVersions": {
-    "Preact": {
-      "version": "10.27.2",
-      "evidence": "SurveyJS v3.2.4 survey-js-ui package.json pins 10.27.2; all 4 source-map module bodies match published Preact 10.27.2 package exactly",
-      "matchedSourceMapModules": 4,
-      "license": "MIT"
-    },
-    "SignaturePad": {
-      "version": "4.2.0",
-      "evidence": "Complete source-map signature_pad.js equals published 4.2.0 package file",
-      "license": "MIT"
-    },
-    "Tslib": {
-      "version": "2.8.1",
-      "evidence": "Complete survey-core source-map tslib.es6.js equals published 2.8.1 package file",
-      "license": "0BSD",
-      "additionalCompanionInput": "tslib 2.3.1 is also collected from the separately locked SPFx build dependency"
-    },
     "Pako": {
       "version": "1.0.5",
       "evidence": "All 15 lib source modules byte-exact inside published JSZip 3.10.1 dist/jszip.js; vendor min bundle is byte-exact to same published JSZip package. Candidates 1.0.2 through 1.0.11 compared; later semver-satisfying versions are not substituted.",
@@ -426,16 +292,6 @@
       "evidence": "Lie/Immediate browser source variants and SetImmediate source byte-exact inside published JSZip 3.10.1 bundle",
       "license": "MIT"
     }
-  },
-  "surveyPreferredSource": {
-    "repository": "https://github.com/surveyjs/survey-library",
-    "commit": "2536d8aabb7d9e11c42c0682f8496a7ecc11c5a9",
-    "tag": "v3.2.4",
-    "surveyCoreSourceMapFilesExact": 205,
-    "surveyUiSourceMapFilesExact": 107,
-    "generatedIconModule": "packages/survey-core/build/icons/iconsV2.js is generated; preferred src/images-v2 SVG assets and rollup.icons.config.mjs are included in repository source",
-    "creatorDesignerIncluded": false,
-    "cssExternalFontFaces": 0
   },
   "emojiDataScope": {
     "version": "emojibase-data 17.0.0",
@@ -492,40 +348,10 @@
       "package": "@xmldom/xmldom",
       "version": "0.9.12",
       "integrityMatches": true
-    },
-    {
-      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
-      "package": "survey-core",
-      "version": "3.2.4",
-      "integrityMatches": true
-    },
-    {
-      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
-      "package": "survey-js-ui",
-      "version": "3.2.4",
-      "integrityMatches": true
-    },
-    {
-      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
-      "package": "lie",
-      "version": "3.3.0",
-      "integrityMatches": true
-    },
-    {
-      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
-      "package": "immediate",
-      "version": "3.0.6",
-      "integrityMatches": true
-    },
-    {
-      "lockfile": "products/file-to-sharepoint/sharepoint-form/package-lock.json",
-      "package": "tslib",
-      "version": "2.3.1",
-      "integrityMatches": true
     }
   ],
   "attributionNoticeFile": "provenance/THIRD-PARTY-RUNTIME-NOTICES.txt",
-  "buildAvailability": "Full SurveyJS/Preact/SignaturePad/JSZip/XRegExp/Emojibase/CLDR repository archives include their source/build files; npm archives with lib/src or preferred editable data are additionally retained with registry integrity hashes. No private repository or credentials are needed.",
-  "attributionNoticeSha256": "09a1aa3e7adeafbbe02f5a8904052efae0c059685e7457ae3e694ca8e00e5a2e",
-  "attributionNoticeBytes": 22064
+  "buildAvailability": "Full JSZip/XRegExp/Emojibase/CLDR repository archives include their source/build files; npm archives with lib/src or preferred editable data are additionally retained with registry integrity hashes. No private repository or credentials are needed.",
+  "attributionNoticeSha256": "4909b697faca420ac8b1f18387c53aba3c019b45bb8c283d6f258cdea4d0c4cc",
+  "attributionNoticeBytes": 16821
 }

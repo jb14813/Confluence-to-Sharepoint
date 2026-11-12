@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
   "product": "Confluence to SharePoint",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "status": "verified-corresponding-source",
   "sourceArchive": {
-    "filename": "confluence-to-sharepoint-0.7.3-source.zip",
-    "downloadUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.3/confluence-to-sharepoint-0.7.3-source.zip",
-    "checksumUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.3/confluence-to-sharepoint-0.7.3-source.zip.sha256"
+    "filename": "confluence-to-sharepoint-0.7.4-source.zip",
+    "downloadUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.4/confluence-to-sharepoint-0.7.4-source.zip",
+    "checksumUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.4/confluence-to-sharepoint-0.7.4-source.zip.sha256"
   },
   "sourceInputs": {
     "file": "SOURCE-INPUTS.json",
-    "count": 229,
-    "bytes": 1809660821,
-    "sha256": "bc83d62e377707b7d4ea464e1167c5a7120c3a5b81d203fe9db4fe27b67cc06e"
+    "count": 220,
+    "bytes": 1742183436,
+    "sha256": "cd5ec159b626a493a3c71801e7d212424a399ebebc29ccf2b0114eaf0892b422"
   },
   "verification": {
     "converter": "Current maintained188-archive source-only preparation built the changed native source. A second fresh source preparation replayed cached Docker compiler layers and exported all six raw outputs byte-identically. This is cached recipe/output reproduction, not a second uncached full compilation. Historical065 full uncached reproduction is retained separately in private validation evidence. All188 source/tool inputs and complete maintained recipes are retained.",

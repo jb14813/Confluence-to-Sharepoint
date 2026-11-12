@@ -1,4 +1,4 @@
-import {siteKey} from '../../../../src/background/sites.js';
+import {siteKey,pageKey} from '../../../../src/background/sites.js';
 import {confirmedPageUrl} from '../../../../src/background/checks.js';
 import {bytesToBase64,PICTURE_PIECE_BYTES} from '../../../../src/transfer/limits.js';
 export const FLIGHT_KEY='file-send-in-flight-v1';
@@ -29,8 +29,8 @@ export function createFileTransfer({chromeApi=globalThis.chrome,store,destinatio
         return state.result;
       }
       if(state.stage==='failed') {
-        if(state.error?.draftMayExist!==true)await release(attempt);
-        throw Object.assign(failure(state.error?.code??'send-stopped',state.error?.message??'The send stopped. Review SharePoint.'),{draftMayExist:state.error?.draftMayExist===true});
+        if(attempt.page?state.error?.pageUnchanged===true:state.error?.draftMayExist!==true)await release(attempt);
+        throw Object.assign(failure(state.error?.code??'send-stopped',state.error?.message??'The send stopped. Review SharePoint.'),{draftMayExist:state.error?.draftMayExist===true,pageMayHaveChanged:state.error?.pageMayHaveChanged===true});
       }
       if(once)return null;
       await wait(1000);
@@ -39,9 +39,10 @@ export function createFileTransfer({chromeApi=globalThis.chrome,store,destinatio
   }
   return {
     follow,
-    async send({model,siteUrl,formDefinition=null}) {
+    async send({model,siteUrl,page=null}) {
       const destination=siteKey(siteUrl);
       if(!destination||destination!==siteUrl)throw failure('invalid-site','Enter the SharePoint site address, such as https://company.sharepoint.com/sites/Team (the site address).');
+      if(page&&(!['add','overwrite'].includes(page.mode)||!pageKey(siteUrl,page.path)||Object.keys(page).some(key=>!['path','mode'].includes(key))))throw failure('invalid-page','Choose a page on this site and Add to bottom or Overwrite.');
       if(model.warnings?.some(w=>w.blocking))throw failure('content-needs-adaptation','This document contains content that needs adaptation before it can be sent.');
       const existing=await store.load();
       if(existing?.attempt||(local&&(await local.get(FLIGHT_KEY))[FLIGHT_KEY]))throw failure('already-attempted','An earlier send needs review before starting another import.');
@@ -57,13 +58,6 @@ export function createFileTransfer({chromeApi=globalThis.chrome,store,destinatio
       if(!inspected?.ok||inspected.result?.kind!=='sharepoint'||!inspected.result.supported||inspected.result.siteUrl!==destination)
         throw failure('site-not-ready',inspected?.result?.reason??'Open the SharePoint tab and sign in to a site that can create draft pages.');
       const sent=structuredClone(model);delete sent.fileReview;
-      if(formDefinition) {
-        onProgress({stage:'forms'});
-        const prepared=await chromeApi.tabs.sendMessage(tab.id,{channel:'file-form',action:'prepare',siteUrl:destination,definition:formDefinition});
-        if(!prepared?.ok)throw failure(prepared?.error?.code??'form-not-ready',prepared?.error?.message??'Install the File to SharePoint form package before importing interactive forms.');
-        const {formId,definitionListId,responseListId}=prepared.result;
-        sent.blocks.push({id:'file-interactive-form',type:'form',formId,definitionListId,responseListId,fieldCount:formDefinition.fields.length});
-      }
       for(const asset of sent.assets) {
         const file=await store.picture(asset.id);
         if(!(file instanceof Blob)||file.size!==asset.size)throw failure('missing-image','A local image is no longer available. Choose the source file again.');
@@ -78,11 +72,11 @@ export function createFileTransfer({chromeApi=globalThis.chrome,store,destinatio
           if(!response?.ok)throw failure('staging-failed','An image did not reach the destination intact. Nothing was sent.');
         }
       }
-      const attempt={sourceHash:sent.sourceHash,attemptId:crypto.randomUUID(),siteUrl:destination,tabId:tab.id,startedAt:Date.now()};
+      const attempt={sourceHash:sent.sourceHash,attemptId:crypto.randomUUID(),siteUrl:destination,tabId:tab.id,startedAt:Date.now(),...(page?{page:{...page}}:{})};
       if(local)await local.set({[FLIGHT_KEY]:attempt});
       try{await store.claimAttempt(attempt);}catch(error){if(local)await local.remove(FLIGHT_KEY);throw error;}
       let response;
-      try{response=await message(tab.id,'import',{model:sent,siteUrl:destination,attemptId:attempt.attemptId,detach:true});}
+      try{response=await message(tab.id,'import',{model:sent,siteUrl:destination,attemptId:attempt.attemptId,detach:true,...(page?{page:{...page}}:{})});}
       catch{/* The tab may already be writing. Status of this exact attempt is the only recovery. */}
       if(response?.ok===false){await release(attempt);throw failure(response.error?.code??'send-refused',response.error?.message??'The destination refused before starting.');}
       return follow(attempt);

@@ -37,7 +37,6 @@ notices.push(`Unicode CLDR emoji names and keywords, through emojibase-data\n${a
 notices.push(await readFile('products/file-to-sharepoint/vendor/NOTICE.md','utf8'));
 notices.push(await readFile('products/file-to-sharepoint/vendor/provenance/THIRD-PARTY-RUNTIME-NOTICES.txt','utf8'));
 notices.push(await readFile('products/file-to-sharepoint/vendor/provenance/NATIVE-RUNTIME-NOTICES.txt','utf8'));
-notices.push(await readFile('products/file-to-sharepoint/sharepoint-form/dist/portable-form.js.LEGAL.txt','utf8'));
 notices.push(await readFile('assets/licenses/MIT-CORE-LICENSE.txt','utf8'));
 notices.push(await readFile('assets/licenses/ONLYOFFICE-LOGO-NOTICE.txt','utf8'));
 notices.push(await readFile('assets/licenses/ONLYOFFICE-ADDITIONAL-NOTICES.txt','utf8'));

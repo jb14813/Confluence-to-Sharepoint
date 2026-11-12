@@ -94,7 +94,7 @@ async function extractPdfForms(bytes) {
     if (error) fail(error === 4 ? 'Password-protected PDFs are not supported.' : 'The PDF could not be opened.', error === 4 ? 'ENCRYPTED_DOCUMENT' : 'INVALID_DOCUMENT');
     const info = pdf.getDocumentInfo();
     if (info?.HasXFA === true)
-      fail('XFA forms cannot be recreated as interactive SharePoint controls. Use a standard AcroForm PDF.', 'UNSUPPORTED_PDF_FORM');
+      fail('XFA field content cannot be verified for native SharePoint conversion. Use a standard AcroForm PDF.', 'UNSUPPORTED_PDF_FORM');
     if (info?.HasXFA !== false || !Number.isSafeInteger(info.AcroFormFieldCount) || info.AcroFormFieldCount < 0)
       fail('The PDF form capabilities could not be verified. No content was imported.', 'PDF_FORM_METADATA_UNVERIFIED');
     const raw = pdf.getInteractiveFormsInfo();
@@ -157,8 +157,8 @@ self.onmessage = async ({data}) => {
       await validateDocx(docxBytes);
     }
     const warnings = extension === 'pdf' ? [
-      {code:'PDF_RECONSTRUCTION_REVIEW',message:'Review the reconstructed PDF layout and colors. PDF viewers can display colors differently. Tables may become positioned shapes. Original form definitions are retained separately.'},
-      {code:'PDF_FORM_CAPABILITIES',message:'AcroForm definitions are retained. XFA, digital signatures and PDF scripts are not recreated. Scanned pages require a separate capability review.'},
+      {code:'PDF_RECONSTRUCTION_REVIEW',message:'Review the reconstructed PDF layout and colors. PDF viewers can display colors differently. Tables may become positioned shapes.'},
+      {code:'PDF_FORM_CAPABILITIES',message:'Supported PDF fields become editable text and boxes. PDF-only behavior is not retained. Scanned pages require a separate capability review.'},
     ] : [];
     const zip = await validateDocx(docxBytes), media = {};
     const layoutFile=zip.file('word/fts-pdf-layout.xml'),drawingsFile=zip.file('word/fts-pdf-drawings.xml');let nativeTables,nativeDrawings;

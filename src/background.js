@@ -4,7 +4,7 @@
 // (src/background/account.js); the pinned sites and that setting follow Chrome sync (src/background/pins.js); and
 // answers the popup, the button on Confluence pages and the SharePoint site memory.
 import {createJobs} from './background/jobs.js';
-import {createSites,siteKey} from './background/sites.js';
+import {createSites,siteKey,pageKey} from './background/sites.js';
 import {createLinks} from './background/links.js';
 import {createAccount} from './background/account.js';
 import {createPins} from './background/pins.js';
@@ -13,18 +13,22 @@ import {createBulkUpdates,transferBlocker} from './background/bulk-updates.js';
 import {fail} from './background/checks.js';
 import {withinSite} from './sharepoint/session.js';
 import {createAssetRouteListener} from './sharepoint/route-cache.js';
+import {createFilePages,createFilePageRecorder} from './background/file-pages.js';
 
 const SHORTCUT='guide-shortcut',FILE_SHORTCUT='file-import-shortcut',MEMORY='site-memory',POPUP='c2s-popup';
 const tabId=Number.isInteger,text=value=>typeof value==='string',textOrNull=value=>value===null||typeof value==='string';
 const windowId=value=>value==null||Number.isInteger(value),batchId=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const ids=value=>Array.isArray(value)&&value.length>0&&value.length<=2000&&value.every(id=>typeof id==='string'&&id.length>0&&id.length<=4096);
+const optionalText=value=>value===undefined||typeof value==='string';
+const record=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
 // Each popup command and the fields it carries, with their checks.
 const COMMANDS={state:{recheck:value=>value===undefined||typeof value==='boolean'},inspect:{tabId},capture:{tabId},send:{siteUrl:text,windowId:value=>value==null||Number.isInteger(value)},
   'send-page':{siteUrl:text,pagePath:text,mode:value=>['add','overwrite','update'].includes(value),windowId:value=>value==null||Number.isInteger(value)},
   'update-page':{tabId,siteUrl:text,pagePath:text,windowId:value=>value==null||Number.isInteger(value)},clear:{},'show-tab':{tabId},
   pin:{url:text,pinned:value=>typeof value==='boolean'},remove:{url:text},'remove-page':{url:text,path:text},forget:{},'inject-open-pages':{},
   'account-sync':{enabled:value=>typeof value==='boolean',origin:textOrNull,pageId:textOrNull},'account-refresh':{origin:text,pageId:text},
-  'dashboard-state':{},'dashboard-refresh':{windowId},'dashboard-stop-refresh':{},'open-dashboard':{},'open-file-import':{},
+  'dashboard-state':{},'dashboard-refresh':{windowId},'dashboard-stop-refresh':{},'open-dashboard':{},'open-file-import':{siteUrl:optionalText,pagePath:optionalText},
+  'file-import-state':{},'file-page-recorded':{attempt:record,result:record},'open-file-settings':{},
   'batch-start':{ids,windowId,replaceBatchId:value=>value===undefined||batchId(value)},'batch-stop':{batchId},'batch-continue':{batchId,windowId},'batch-discard':{batchId},'batch-retry':{batchId,ids,windowId}};
 // The manifest's content scripts, for pages already open when the extension is installed or updated.
 const PAGE_SCRIPTS=[{url:'https://*.atlassian.net/wiki/*',file:'content.js'},{url:'https://*.sharepoint.com/*',file:'memory.js',skip:/^https:\/\/[^/]*-(?:my|admin)\.sharepoint\.com\//i}];
@@ -48,7 +52,7 @@ export async function openPopup(chromeApi,tab){
   }
 }
 
-export function configureBackground({chromeApi=globalThis.chrome,sites,links,account,pins,jobs,bulk,dashboard}={}){
+export function configureBackground({chromeApi=globalThis.chrome,sites,links,account,pins,jobs,bulk,dashboard,filePages}={}){
   if(!chromeApi?.runtime?.onMessage)return null;
   // The remembered sites, and the synced setting and pins, are for this extension's own pages and worker, not its
   // content scripts, which use neither.
@@ -66,6 +70,8 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
   // Site access granted later (from the popup or Chrome's extensions page) reaches pages already open the same way.
   chromeApi.permissions?.onAdded?.addListener(()=>injectOpenPages());
   sites??=createSites({storage:chromeApi.storage.local});
+  filePages??=createFilePages({storage:chromeApi.storage?.local});
+  const recordFilePage=createFilePageRecorder({filePages,sites,session:chromeApi.storage?.session});
   links??=createLinks({storage:chromeApi.storage.local});
   account??=createAccount({storage:chromeApi.storage?.local,sync:chromeApi.storage?.sync,permissions:chromeApi.permissions,links});
   pins??=createPins({sync:chromeApi.storage?.sync,sites});
@@ -96,21 +102,25 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     else await recoverStep('the batch result',()=>bulk.recover());
     await recoverStep('Refresh',()=>dashboard.recover(),false);
   });
-  const workspaceOpener=filename=>{
+  const workspaceOpener=(filename,compact=false)=>{
     let opening=null,openingSite=null;
-    return function openWorkspace(siteUrl=null){
-    if(opening)return !siteUrl||siteUrl===openingSite?opening:opening.catch(()=>{}).then(()=>openWorkspace(siteUrl));
-    openingSite=siteUrl;
-    opening=(async()=>{const base=chromeApi.runtime.getURL(filename),url=siteUrl?`${base}#site=${encodeURIComponent(siteUrl)}`:base;
+    return function openWorkspace(siteUrl=null,pagePath=null){
+    const hint=JSON.stringify([siteUrl,pagePath]);
+    if(opening)return !siteUrl||hint===openingSite?opening:opening.catch(()=>{}).then(()=>openWorkspace(siteUrl,pagePath));
+    openingSite=hint;
+    opening=(async()=>{if(siteUrl&&siteKey(siteUrl)!==siteUrl||pagePath&&!pageKey(siteUrl,pagePath))throw fail('invalid-destination','Choose a page within the selected SharePoint site.');
+      const base=chromeApi.runtime.getURL(filename),url=siteUrl?`${base}#site=${encodeURIComponent(siteUrl)}${pagePath?`&page=${encodeURIComponent(pagePath)}`:''}`:base;
       // tabs.query cannot reveal extension-page URLs without the broad tabs
       // permission. Runtime contexts identify only this extension's own tabs.
       const open=(await chromeApi.runtime.getContexts({contextTypes:['TAB']})).find(view=>view.frameId===0&&view.tabId>=0&&typeof view.documentUrl==='string'&&view.documentUrl.split('#')[0]===base);
-      if(open){await chromeApi.tabs.update(open.tabId,{active:true,...(siteUrl&&open.documentUrl!==url?{url}:{})});await chromeApi.windows.update(open.windowId,{focused:true});return {tabId:open.tabId};}
-      return {tabId:(await chromeApi.tabs.create({url,active:true})).id};
+      if(open){await chromeApi.tabs.update(open.tabId,{active:true,...(siteUrl&&open.documentUrl!==url?{url}:{})});
+        if(compact&&(await chromeApi.windows.get(open.windowId)).type!=='popup')await chromeApi.windows.create({tabId:open.tabId,type:'popup',width:400,height:640});
+        else await chromeApi.windows.update(open.windowId,{focused:true});return {tabId:open.tabId};}
+      return {tabId:compact?(await chromeApi.windows.create({url,type:'popup',width:400,height:640})).tabs?.[0]?.id:(await chromeApi.tabs.create({url,active:true})).id};
     })().finally(()=>{opening=null;});return opening;
     };
   };
-  const openDashboard=workspaceOpener('dashboard.html'),openFileImport=workspaceOpener('file-workspace.html');
+  const openDashboard=workspaceOpener('dashboard.html'),openFileImport=workspaceOpener('file-workspace.html',true);
   const withoutRefresh=()=>{if(dashboard.ownsWork())throw fail('refresh-busy','Wait for Refresh to finish or stop it first.');};
   const runtimeId=chromeApi.runtime.id;
   const commands={
@@ -120,11 +130,14 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     // What holds a paused batch back is said first: Continue waits for the popup's capture or send too.
     'dashboard-state':async()=>{const batch=await bulk.state(),jobState=await jobs.state(),transfer=transferBlocker(jobState),
       blocker=dashboard.ownsWork()?'Wait for Refresh to finish.':bulk.ownsWork()?'An update batch is running.':batch?.items.some(item=>item.status==='pending')?transfer?`${transfer} Then continue or discard the pending updates.`:'Continue or discard pending updates first.':transfer;
-      return {...await dashboard.state(),batch,job:jobState.job,capture:jobState.capture,canStart:!blocker,canContinue:!batch?.limitReached&&!dashboard.ownsWork()&&!bulk.ownsWork()&&!transfer,blocker};},
+      return {...await dashboard.state(),filePages:await filePages.list(),batch,job:jobState.job,capture:jobState.capture,canStart:!blocker,canContinue:!batch?.limitReached&&!dashboard.ownsWork()&&!bulk.ownsWork()&&!transfer,blocker};},
     'dashboard-refresh':async options=>{if((await jobs.state()).running)throw fail('job-busy','Wait for the current capture or send.');if(bulk.ownsWork())throw fail('batch-busy','Wait for the batch to finish or stop after its current item.');return dashboard.refresh(options);},
     'dashboard-stop-refresh':()=>dashboard.stopRefresh(),
     'open-dashboard':()=>openDashboard(),
-    'open-file-import':()=>openFileImport(),
+    'open-file-import':({siteUrl,pagePath})=>openFileImport(siteUrl??null,pagePath??null),
+    'file-import-state':async()=>({sites:await sites.list(),filePages:await filePages.list()}),
+    'file-page-recorded':recordFilePage,
+    'open-file-settings':()=>chromeApi.windows.create({url:chromeApi.runtime.getURL('popup.html?view=sites'),type:'popup',width:380,height:640}).then(()=>({opened:true})),
     'batch-start':options=>{withoutRefresh();return bulk.start(options);},
     'batch-stop':options=>bulk.stop(options),
     'batch-continue':options=>{withoutRefresh();return bulk.continue(options);},
@@ -150,19 +163,19 @@ export function configureBackground({chromeApi=globalThis.chrome,sites,links,acc
     // first, while the list still names what this browser put in the account, so the removal is made only there.
     remove:async({url})=>{
       const key=siteKey(url),site=(await sites.list()).find(entry=>entry.url===key);
-      await sites.remove(url);await links.removeSite(url);
+      await sites.remove(url);await links.removeSite(url);await filePages.removeSite(key);
       if(key)await account.queue([{op:'forget',kind:'site',siteUrl:key}]);
       if(key&&site?.pinned)await pins.record(key,site.title??'',false);
     },
     'remove-page':async({url,path})=>{
       const key=siteKey(url),ids=key?(await links.list()).filter(link=>link.siteUrl===key&&link.path.toLowerCase()===path.toLowerCase()&&link.uniqueId).map(link=>link.uniqueId):[];
-      await sites.removePage(url,path);await links.removePage(url,path);
+      await sites.removePage(url,path);await links.removePage(url,path);await filePages.removePage(key,path);
       if(key)await account.queue([{op:'forget',kind:'page',siteUrl:key,path,...(ids.length?{uniqueIds:[...new Set(ids)]}:{})}]);
     },
     // The dashboard's results and fetched titles go too, so it is refused while a batch or Refresh runs.
     forget:async()=>{
       if(bulk.ownsWork())throw fail('batch-busy','An update batch is running in the dashboard. Stop it there, then forget all.');withoutRefresh();
-      await account.disable();await sites.forget();await links.forget();await pins.forget();await bulk.forget();await dashboard.forget();
+      await account.disable();await sites.forget();await links.forget();await filePages.forget();await pins.forget();await bulk.forget();await dashboard.forget();
     },
     // Keep in my Confluence account: on, with the Confluence page in the tab if there is one, or off.
     'account-sync':async({enabled,origin,pageId})=>{if(enabled)await account.enable({origin,pageId});else await account.disable();return account.state();},

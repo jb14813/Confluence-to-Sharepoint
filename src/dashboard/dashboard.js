@@ -19,14 +19,15 @@ export function createDashboardUi({document=globalThis.document,chromeApi=global
   async function load(){const sequence=++requested,state=await call('dashboard-state');if(destroyed||sequence!==requested)return;data=state;const present=new Set(data.rows.map(row=>row.id));for(const id of selected)if(!present.has(id))selected.delete(id);render();}
   async function act(work){el('error').hidden=true;try{await work();if(work!==load)await load();}catch(error){write(el('error'),error.message);el('error').hidden=false;}}
   const visible=()=>pageRows(filterRows(data.rows,{query:el('search').value,siteUrl:el('site').value}),page);
+  const fileEntries=()=>(data.filePages??[]).filter(row=>siteKey(row?.siteUrl)===row?.siteUrl&&pageKey(row.siteUrl,row.path)&&Number.isSafeInteger(row.lastSentAt)&&row.lastSentAt>0);
   function selection(){write(el('selection-count'),`${selected.size} selected`);el('update').disabled=!selected.size||!data.canStart;el('clear-selection').disabled=!selected.size;el('select-shown').disabled=!visible().rows.length;}
   function renderCatalog(){
-    const sites=[...new Map(data.rows.map(row=>[row.destination.siteUrl,row.siteTitle])).entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+    const sites=[...new Map([...fileEntries().map(row=>[row.siteUrl,new URL(row.siteUrl).hostname+new URL(row.siteUrl).pathname]),...data.rows.map(row=>[row.destination.siteUrl,row.siteTitle])]).entries()].sort((a,b)=>a[1].localeCompare(b[1]));
     const signature=JSON.stringify(sites);
     if(signature!==siteSignature){const chosen=el('site').value;el('site').replaceChildren(make('option','All sites'));el('site').firstChild.value='';for(const [url,title] of sites){const option=make('option',title);option.value=url;el('site').append(option);}if(sites.some(([url])=>url===chosen))el('site').value=chosen;siteSignature=signature;}
     const shown=visible();page=shown.page;
     write(el('page-count'),`Page ${page} of ${shown.pageCount} · ${shown.total} links`);el('previous').disabled=page===1;el('next').disabled=page===shown.pageCount;
-    el('empty').hidden=data.rows.length>0;
+    el('empty').hidden=data.rows.length>0||fileEntries().length>0;
     const rowsSignature=JSON.stringify(shown.rows);
     if(rowsSignature===lastRows){selection();return;}lastRows=rowsSignature;
     const focusedRow=document.activeElement?.dataset?.row;
@@ -42,7 +43,7 @@ export function createDashboardUi({document=globalThis.document,chromeApi=global
         for(const row of group.rows){
           const tr=make('tr'),sourceCell=make('td'),source=make('div',undefined,'source-cell'),checkbox=make('input');checkbox.type='checkbox';checkbox.dataset.row=row.id;checkbox.checked=selected.has(row.id);checkbox.setAttribute('aria-label',`Select ${row.sourceLabel} in ${row.destination.title||row.destination.path}`);
           checkbox.addEventListener('change',()=>{if(checkbox.checked)selected.add(row.id);else selected.delete(row.id);selection();});
-          const copy=make('div',undefined,'source-copy');copy.append(link(row.sourceLabel,sourceUrl(row.source)),make('small',`${new URL(row.source.origin).hostname} · Page ${row.source.pageId}`));source.append(checkbox,copy);sourceCell.append(source);
+          const copy=make('div',undefined,'source-copy');copy.append(link(row.sourceLabel,sourceUrl(row.source)),make('small',`${new URL(row.source.origin).hostname} · Page ${row.source.pageId}`),make('small',`Last sent: ${date(row.sentAt)}`));source.append(checkbox,copy);sourceCell.append(source);
           const updated=make('td',date(row.sourceUpdatedAt)),change=row.sourceChange??{status:'unchecked'};
           if(change.status==='unavailable'&&row.sourceUpdatedAt)updated.append(make('small','Previously read','check-detail'));tr.append(sourceCell,updated);
           const check=make('td'),sourceStatus=make('span',CHANGES[change.status]??'Update status unknown','source-change');sourceStatus.dataset.change=change.status;
@@ -56,6 +57,15 @@ export function createDashboardUi({document=globalThis.document,chromeApi=global
       fragment.append(section);
     }
     el('catalog').replaceChildren(fragment);if(focusedRow)[...el('catalog').querySelectorAll('input[data-row]')].find(input=>input.dataset.row===focusedRow)?.focus();selection();
+  }
+  function renderFiles(){
+    const entries=fileEntries(),query=el('search').value.trim().toLocaleLowerCase(),siteUrl=el('site').value;
+    const shown=entries.filter(row=>(!siteUrl||row.siteUrl===siteUrl)&&(!query||[row.title,row.path,row.siteUrl].join(' ').toLocaleLowerCase().includes(query)));
+    write(el('tracked-count'),`${data.rows.length} tracked Confluence ${data.rows.length===1?'link':'links'}`);write(el('file-count'),`${entries.length} file ${entries.length===1?'destination':'destinations'}`);
+    const latest=Math.max(0,...data.rows.map(row=>row.sentAt??0),...entries.map(row=>row.lastSentAt));write(el('latest-sent'),latest?`Last successful import: ${date(latest)}`:'No successful imports recorded');
+    if(!shown.length){el('file-catalog').replaceChildren(make('p',entries.length?'No file destinations match these filters.':'No file-imported pages recorded yet.','muted'));return;}
+    const table=make('table'),head=make('thead'),headers=make('tr');for(const label of ['SharePoint page','Last imported','Actions'])headers.append(make('th',label));head.append(headers);table.append(head);const body=make('tbody');
+    for(const row of shown){const tr=make('tr'),destination=make('td');destination.append(link(row.title||row.path,destinationUrl(row)),make('small',row.siteUrl,'check-detail'));const when=make('td',date(row.lastSentAt)),actions=make('td'),again=make('button','Import another file');again.type='button';again.addEventListener('click',()=>act(()=>call('open-file-import',{siteUrl:row.siteUrl,pagePath:row.path})));actions.append(again);tr.append(destination,when,actions);body.append(tr);}table.append(body);el('file-catalog').replaceChildren(table);
   }
   // What a finished batch did, counted by outcome; drafts are offered for review only when some were updated.
   function summary(items){
@@ -101,10 +111,10 @@ export function createDashboardUi({document=globalThis.document,chromeApi=global
     write(el('refresh-status'),refresh.status==='idle'?'':`${refresh.message||refresh.status}${running&&refresh.total?` (${refresh.completed} of ${refresh.total})`:''}${refresh.status==='complete'&&changes?` · ${changes} ${changes===1?'link has':'links have'} source changes.`:''}`);
     const reports=[...(refresh.reports??[]).filter(report=>report.status!=='synced'),...(data.account.problem?[{message:data.account.problem}]:[])];el('refresh-reports').hidden=!reports.length;
     el('refresh-reports').replaceChildren(...reports.map(report=>make('li',`${report.origin?new URL(report.origin).hostname+': ':''}${report.message||report.status}`)));
-    write(el('blocker'),data.blocker||'');el('blocker').hidden=!data.blocker;renderCatalog();renderBatch();
+    write(el('blocker'),data.blocker||'');el('blocker').hidden=!data.blocker;renderCatalog();renderFiles();renderBatch();
   }
   const on=(id,fn)=>el(id).addEventListener('click',fn);
-  el('search').addEventListener('input',()=>{page=1;renderCatalog();});el('site').addEventListener('change',()=>{page=1;renderCatalog();});
+  el('search').addEventListener('input',()=>{page=1;renderCatalog();renderFiles();});el('site').addEventListener('change',()=>{page=1;renderCatalog();renderFiles();});
   on('previous',()=>{page--;renderCatalog();});on('next',()=>{page++;renderCatalog();});
   on('select-shown',()=>{for(const row of visible().rows)selected.add(row.id);for(const input of el('catalog').querySelectorAll('input[data-row]'))input.checked=selected.has(input.dataset.row);selection();});
   on('clear-selection',()=>{selected.clear();for(const input of el('catalog').querySelectorAll('input[data-row]'))input.checked=false;selection();});

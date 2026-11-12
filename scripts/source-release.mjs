@@ -302,7 +302,7 @@ async function validateLegal(root,inputs){
  requireThat(typeof extra.attributionNoticeFile==='string','additional runtime attribution notice missing');
  const noticePath=file=>VENDOR+(file.startsWith('provenance/')?relative(file):'provenance/'+relative(file));
  const attribution=(await read(root,noticePath(extra.attributionNoticeFile))).toString();
- requireThat(['MIT License','SurveyJS','JSZip','Unicode'].every(text=>attribution.includes(text)),'additional runtime license notices incomplete');
+ requireThat(['MIT License','JSZip','Unicode'].every(text=>attribution.includes(text)),'additional runtime license notices incomplete');
  if(extra.attributionNotice)await pinned(root,noticePath(extra.attributionNotice.file),extra.attributionNotice,'additional runtime notices');
  if(extra.attributionNoticeSha256)await pinned(root,noticePath(extra.attributionNoticeFile),{sha256:extra.attributionNoticeSha256,...(extra.attributionNoticeBytes?{bytes:extra.attributionNoticeBytes}:{})},'additional runtime notices');
  for(const material of extra.localPreferredSourceMaterials??[])await pinned(root,VENDOR+relative(material.path??material.file),material);

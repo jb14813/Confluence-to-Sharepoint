@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sent pages · Confluence to SharePoint</title>
+  <title>Dashboard · Confluence to SharePoint</title>
   <link rel="stylesheet" href="dashboard.css">
   <script type="module" src="dashboard.js"></script>
 </head>
 <body>
-  <header class="app-header"><img src="icons/logo.svg" width="36" height="36" alt=""><span>Confluence to SharePoint</span><nav aria-label="Extension views"><span aria-current="page">Sent pages</span><button id="file-import-link" type="button">Import a file</button></nav></header>
+  <header class="app-header"><img src="icons/logo.svg" width="36" height="36" alt=""><span>Confluence to SharePoint</span><nav aria-label="Extension views"><span aria-current="page">Dashboard</span><button id="file-import-link" type="button">Import a file</button></nav></header>
   <main>
-    <div class="page-heading"><div><h1>Sent pages</h1><p>Find your linked pages and update selected sources as SharePoint drafts.</p></div><button id="refresh" type="button">Refresh</button></div>
+    <div class="page-heading"><div><h1>Dashboard</h1><p>Find imported pages, see when content was last sent and update selected Confluence sources as SharePoint drafts.</p></div><button id="refresh" type="button">Refresh Confluence</button></div>
+    <section class="import-summary" aria-label="Import summary"><p id="tracked-count"></p><p id="file-count"></p><p id="latest-sent"></p></section>
     <p id="account-note" class="muted"></p>
     <div id="refresh-status" role="status" aria-live="polite"></div>
     <button id="stop-refresh" type="button" hidden>Stop refresh</button>
@@ -26,10 +27,11 @@
     <div class="filters"><label>Search pages<input id="search" type="search" placeholder="Title, source or page address" autocomplete="off"></label><label>SharePoint site<select id="site"><option value="">All sites</option></select></label></div>
     <div class="selection-bar"><div class="selection-tools"><button id="select-shown" type="button">Select shown</button><button id="clear-selection" type="button">Clear selection</button><span id="selection-count" role="status">0 selected</span></div><button id="update" type="button" class="primary" disabled>Update selected</button></div>
     <p id="blocker" class="notice" hidden></p>
-    <p id="empty" class="empty" hidden>No sent pages yet. Send a Confluence page using the extension popup. To recover saved history, open a previously used Confluence site, turn on “Keep in my Confluence account” in Sites, and select Refresh.</p>
+    <p id="empty" class="empty" hidden>No imported pages yet. Use the extension popout to send a Confluence page or a local file to SharePoint.</p>
     <div id="catalog"></div>
     <nav class="pagination" aria-label="Page list navigation"><button id="previous" type="button">Previous</button><span id="page-count"></span><button id="next" type="button">Next</button></nav>
-    <footer class="app-footer"><a href="licenses.html" target="_blank" rel="noopener noreferrer">Licenses and source</a></footer>
+    <section id="file-history" aria-labelledby="file-history-heading"><h2 id="file-history-heading">File-imported pages</h2><p class="muted">Choose any local file when importing again. These entries remember the destination and last import date.</p><div id="file-catalog"></div></section>
+    <footer class="app-footer"><a href="https://jzbapps.com" target="_blank" rel="noreferrer"><img src="icons/jzbapps-logo.webp" width="120" height="40" alt="JZB Apps"></a><a href="licenses.html" target="_blank" rel="noopener noreferrer">Licenses and source</a></footer>
   </main>
   <dialog id="confirmation" aria-labelledby="confirm-title"><form method="dialog"><h2 id="confirm-title">Update selected pages?</h2><p id="confirm-count"></p><p>This replaces the content previously imported from each source, including edits made inside it in SharePoint. Updates remain unpublished drafts for you to review.</p><div class="dialog-actions"><button value="cancel">Cancel</button><button id="confirm" type="button" class="primary">Create draft updates</button></div></form></dialog>
 </body>

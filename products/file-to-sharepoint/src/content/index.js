@@ -104,7 +104,7 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
     if(warned.has(code))return;
     warned.add(code);warnings.push({code,message,material,...(blocking?{blocking:true}:{})});
   }
-  const model={title,sourceName,sourceHash,sourceFileHash:originalHash,sourceKind:'file',blocks:[],assets:[],headings:[],warnings,stats:{images:0,headings1:0,headings2:0,bullets:0,numbered:0,tables:0,editableTextCharacters:0}};
+  const model={title,sourceName,sourceHash,sourceFileHash:originalHash,sourceKind:'file',blocks:[],assets:[],headings:[],warnings,stats:{images:0,headings1:0,headings2:0,bullets:0,numbered:0,tables:0,formFields:0,editableTextCharacters:0}};
   const pictures=new Map(),media=result.media??{},assetPromises=new Map(),viewportPromises=new Map(),paddingPromises=new Map(),styles=new Map(Object.entries(doc.styles??{}));
   const sourceMediaBytes=Object.values(media).reduce((sum,value)=>sum+(bytesOf(value)?.length??0),0);
   let viewportBytes=0;const fallbackFonts=new Set();
@@ -139,7 +139,7 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
     else if(nativeReflow?.ok){
       preview.readingOrder='native-sharepoint-reflow';
       preview.layoutAdaptation={mode:'native-sharepoint',sourceOrderVerified:false,reason:pdfOrder.code??'unverified-source-order'};
-      warn('pdf-native-layout-adapted','This PDF was adapted to standard SharePoint content. Graphics appear as separate images; overlapping layouts and text order may differ. Review the preview before sending.');
+      warn('pdf-native-layout-adapted','This PDF was adapted to standard SharePoint content. Graphics appear as separate images; overlapping layouts and text order may differ. Review the draft in SharePoint.');
       if(nativeReflow.textReflow?.length){
         preview.textReflow={source:'native-reader-paragraphs',pages:nativeReflow.textReflow};
         warn('pdf-reader-text-adapted','The PDF reader\'s paragraphs were used to preserve reading order. Formatting was simplified where reconstructed paragraphs could not be matched.');
@@ -194,7 +194,7 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
   }
   function formatText(html,pr){
     if(!html)return '';
-    if(pr.vanish)warn('hidden-content','Hidden source text is included in the editable preview; review its visibility.');
+    if(pr.vanish)warn('hidden-content','Hidden source text is included in the editable draft; review its visibility in SharePoint.');
     if(pr.i)html=`<em>${html}</em>`;
     if(pr.u&&pr.u!=='none')html=`<u>${html}</u>`;
     if(pr.strike||pr.dstrike)html=`<s>${html}</s>`;
@@ -262,7 +262,7 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
     const g=node.graphic,geometry=drawingGeometry(node),entry={sourceId:String(g?.id??node.docPr?.id??preview.drawings.length),kind:g?.type==='image'?'image':g?.content?'textbox':'vector',geometry,blockId:context.id,shape:structuredClone(g?.spPr??{})};
     if(context.pageIndex!==undefined)entry.pageIndex=context.pageIndex;
     preview.drawings.push(entry);
-    if(node.drawingType==='anchor')warn('positioned-content-reflow','Positioned source content remains editable and grouped, but SharePoint reflows it in document order. Original drawing positions are retained in preview metadata.');
+    if(node.drawingType==='anchor')warn('positioned-content-reflow','Positioned source content remains editable and grouped, but SharePoint reflows it in document order. Review the layout in SharePoint.');
     const xfrm=g?.spPr?.xfrm;
     if(nativeReflow&&xfrm&&(xfrm.rot!=null&&!Number.isFinite(xfrm.rot)||[xfrm.flipH,xfrm.flipV].some(value=>value!=null&&typeof value!=='boolean')))
       fail('drawing-transform-unverified','A source drawing has invalid transform metadata.');
@@ -527,10 +527,9 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
   for(const part of documentParts.notes)await appendPart(part);
   for(const part of documentParts.footers)await appendPart(part);
   if(fieldReceipt.count)preview.staticFields=fieldReceipt;
-  const formDefinition=await adaptForms(result.pdfForms,{sourceHash,title});
-  const formOnly=/\.pdf$/i.test(name)&&!!formDefinition&&verifiedEmptyPdfBody(result.pdfText);
-  if(!model.blocks.length&&formOnly)model.blocks.push({id:'file-block-1',type:'text',html:'<p><br></p>'});
-  if(!model.blocks.length)fail('empty-document','The reconstructed document has no supported editable content.');
+  const staticForms=await adaptForms(result.pdfForms);
+  const formOnly=/\.pdf$/i.test(name)&&!!staticForms?.fieldCount&&verifiedEmptyPdfBody(result.pdfText);
+  if(!model.blocks.length&&!formOnly)fail('empty-document','The reconstructed document has no supported editable content.');
   if(model.blocks.length>MAX_BLOCKS||JSON.stringify(model.blocks).length>8000000)fail('document-limit','The document exceeds the supported SharePoint page size.');
   if(/\.pdf$/i.test(name)){
     if(result.pdfText){
@@ -538,10 +537,24 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
       const coverage=assessPdfRenderedText(result.pdfText,template.content.textContent??'');preview.textCoverage=coverage;
       if(coverage.missingCharacters||coverage.extraCharacters)warn('pdf-text-loss','The converted page does not retain all verified PDF source text. Sending is blocked.',{blocking:true});
     }
-    if(!model.stats.editableTextCharacters&&!formOnly)warn('pdf-ocr-unavailable','This PDF contains no reconstructed editable text. Its images remain available for review, but OCR is not included, so sending is blocked.',{blocking:true});
-    else if(preview.drawings.some(drawing=>drawing.kind==='image'))warn('pdf-image-text-review','This PDF contains images alongside editable text. Some pages or words may remain inside images; OCR is not included. Review every page for missing editable text before sending.');
+    if(!model.stats.editableTextCharacters&&!formOnly)warn('pdf-ocr-unavailable','This PDF contains no reconstructed editable text. OCR is not included, so sending is blocked.',{blocking:true});
+    else if(preview.drawings.some(drawing=>drawing.kind==='image'))warn('pdf-image-text-review','This PDF contains images alongside editable text. Some pages or words may remain inside images; OCR is not included. Review the SharePoint draft for missing editable text.');
   }
   if(nativeReflow)verifyPdfNativeReflowDrawings(nativeReflow,preview.drawings);
+  // Keep body coverage and image/OCR gates independent of form labels/answers.
+  // Widget appearances are deliberately excluded by the original PDF engine.
+  if(staticForms){
+    for(const fieldBlock of staticForms.blocks){
+      const block={id:'file-block-'+(model.blocks.length+1),type:'text',html:fieldBlock.html};
+      if(block.html.length>MAX_TEXT_HTML)fail('document-limit','The PDF form content exceeds the supported SharePoint text limit.');
+      checkCanvasBlock(block);model.blocks.push(block);model.stats.tables++;
+      if(preview.blocks)preview.blocks.push({blockId:block.id,pageIndex:fieldBlock.pageIndex});
+    }
+    model.stats.formFields=staticForms.fieldCount;
+    if(staticForms.fieldCount)warn('pdf-form-static-adapted','PDF fields were converted to editable text and boxes in source page order. Review the adapted layout; PDF-only behavior is not retained.');
+    if(staticForms.omittedHidden)warn('pdf-hidden-fields-omitted','Hidden PDF fields were omitted from the editable page.');
+    if(model.blocks.length>MAX_BLOCKS||JSON.stringify(model.blocks).length>8000000)fail('document-limit','The document and its PDF fields exceed the supported SharePoint page size.');
+  }
   if(/\.pdf$/i.test(name)&&result.pdfLinks){
     if(result.pdfLinks.sourcePageCount!==pdfPages.length)fail('PDF_LINKS_UNVERIFIED','The PDF link pages do not match the source.');
     const template=document.createElement('template');template.innerHTML=model.blocks.map(block=>block.html).join('');
@@ -559,5 +572,5 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
   }
   const usedAssets=new Set(model.blocks.flatMap(block=>block.type==='image'?[block.assetId]:(block.pictures??[]).map(picture=>picture.assetId)));
   model.assets=model.assets.filter(asset=>usedAssets.has(asset.id));for(const id of pictures.keys())if(!usedAssets.has(id))pictures.delete(id);
-  return {model,pictures,formDefinition,preview};
+  return {model,pictures,formDefinition:null,preview};
 }

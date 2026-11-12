@@ -26,7 +26,7 @@ async function browserPath(){
   throw new Error('Set EXTENSION_CHROME_PATH to an extension-capable Chromium executable.');
 }
 
-test('strict offline MV3 converts real Word/PDF bytes into editable SharePoint content and validated interactive fields',{timeout:180000},async t=>{
+test('strict offline MV3 converts real Word/PDF bytes into editable SharePoint content and static native form values',{timeout:180000},async t=>{
   await mkdir(artifacts,{recursive:true});
   const dir=await mkdtemp(path.join(artifacts,'engine-content-')),extension=path.join(dir,'extension');
   await mkdir(extension);
@@ -34,11 +34,11 @@ test('strict offline MV3 converts real Word/PDF bytes into editable SharePoint c
   await build({entryPoints:[path.join(product,'src/engine/html-resources.js')],outfile:path.join(extension,'src/engine/html-resources.js'),bundle:true,format:'esm',platform:'browser',target:'chrome127'});
   await build({entryPoints:[path.join(product,'src/engine/sandbox-svg.js')],outfile:path.join(extension,'src/engine/sandbox-svg.js'),bundle:true,format:'iife',globalName:'FtsSvg',platform:'browser',target:'chrome127'});
   await cp(vendorPath,path.join(extension,'vendor'),{recursive:true});
-  await build({stdin:{contents:"export {adaptDocument} from './src/content/index.js'; export {validateDefinition} from './sharepoint-form/src/runtime/definition.ts';",resolveDir:product,sourcefile:'engine-content-test.js'},outfile:path.join(extension,'content-runtime.js'),bundle:true,format:'esm',platform:'browser',target:'chrome120'});
+  await build({stdin:{contents:"export {adaptDocument} from './src/content/index.js';",resolveDir:product,sourcefile:'engine-content-test.js'},outfile:path.join(extension,'content-runtime.js'),bundle:true,format:'esm',platform:'browser',target:'chrome120'});
   await writeFile(path.join(extension,'manifest.json'),JSON.stringify({manifest_version:3,name:'Real file-content integration',version:'1.0.0',background:{service_worker:'background.js'},sandbox:{pages:['src/engine/sandbox.html']},content_security_policy:{extension_pages:"script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",sandbox:"sandbox allow-scripts; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; object-src 'none'; connect-src 'self'"}}));
   await writeFile(path.join(extension,'background.js'),'void 0;');
   await writeFile(path.join(extension,'index.html'),'<!doctype html><html><body><main id="preview"></main><script type="module" src="test.js"></script></body></html>');
-  await writeFile(path.join(extension,'test.js'),"import {convertDocument} from './src/engine/index.js'; import {adaptDocument,validateDefinition} from './content-runtime.js'; window.integration={convertDocument,adaptDocument,validateDefinition};");
+  await writeFile(path.join(extension,'test.js'),"import {convertDocument} from './src/engine/index.js'; import {adaptDocument} from './content-runtime.js'; window.integration={convertDocument,adaptDocument};");
   const context=await chromium.launchPersistentContext(path.join(dir,'profile'),{headless:true,executablePath:await browserPath(),ignoreDefaultArgs:['--disable-extensions'],args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`,'--disable-background-networking','--disable-component-update','--no-first-run']});
   const requests=[],errors=[],evidence=[];
   context.on('request',request=>requests.push(request.url()));
@@ -55,7 +55,10 @@ test('strict offline MV3 converts real Word/PDF bytes into editable SharePoint c
     const sourcePicture=await Object.values(sourceWord.files).find(file=>!file.dir&&/^word\/media\/.+\.png$/.test(file.name)).async('nodebuffer');
     const exportHtml='<html><body><h1>Editable Word export 😀</h1><ol start="3"><li><p>First exported item</p><p><img src="file:///C:/pictures/source.png"></p><p>Image continuation</p></li><li>Second exported item</li></ol><ol start="6"><li>Restarted exported item</li></ol><table><tr><td rowspan="2">Merged source cell</td><td>Neighbor one</td></tr><tr><td>Neighbor two</td></tr></table></body></html>';
     const archive='MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="word-export"\r\n\r\n--word-export\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\nContent-Location: file:///C:/exported.html\r\n\r\n'+exportHtml+'\r\n--word-export\r\nContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\nContent-Location: file:///C:/pictures/source.png\r\n\r\n'+sourcePicture.toString('base64')+'\r\n--word-export--\r\n';
-    const cases=[...['sample-rich.docx','sample.pdf'].map(name=>({name,pdf:fixtures[name]})),{name:'sample-export.doc',pdf:Buffer.from(archive).toString('base64')},...imageFixtures];
+    const blankManifest=JSON.parse(await readFile(new URL('./fixtures/native-static-forms/manifest.json',import.meta.url),'utf8'));
+    const staticFixtures=await Promise.all([['blank-defaults.pdf','./fixtures/native-static-forms/blank-defaults.pdf']].map(async([name,file])=>({name,pdf:(await readFile(new URL(file,import.meta.url))).toString('base64')})));
+    assert.equal(hash(Buffer.from(staticFixtures[0].pdf,'base64')),blankManifest['blank-defaults.pdf'].sha256);
+    const cases=[...staticFixtures,...['sample-rich.docx','sample.pdf'].map(name=>({name,pdf:fixtures[name]})),{name:'sample-export.doc',pdf:Buffer.from(archive).toString('base64')},...imageFixtures];
     for(const {name,pdf} of cases)await t.test(name,async()=>{
       const output=await page.evaluate(async({name,base64,reference})=>{
         const bytes=Uint8Array.from(atob(base64),character=>character.charCodeAt(0));
@@ -76,13 +79,13 @@ test('strict offline MV3 converts real Word/PDF bytes into editable SharePoint c
           const image=await createImageBitmap(source),canvas=new OffscreenCanvas(viewport.width,viewport.height);try{canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);viewports.push({...viewport,reference:await pixels(await canvas.convertToBlob({type:'image/png'}))});}finally{image.close();}
         }
         const sourceReference=reference?await pixels(new Blob([Uint8Array.from(atob(reference),c=>c.charCodeAt(0))])):null;
-        const form=adapted.formDefinition?integration.validateDefinition(adapted.formDefinition):null;
-        return {pdfForms:result.pdfForms,pdfText:result.pdfText,viewports,sourceReference,docxBytes:Array.from(result.docxBytes),sourceHash:adapted.model.sourceFileHash,media,assets,form,warnings:adapted.model.warnings,drawings:adapted.preview.drawings,editableText:root.textContent,cells:Array.from(root.querySelectorAll('td'),cell=>cell.textContent),lists:Array.from(root.querySelectorAll('ol'),list=>({start:list.start,items:Array.from(list.children,item=>({text:item.textContent,images:item.querySelectorAll('.c2sPicture').length}))})),rowSpans:Array.from(root.querySelectorAll('td[rowspan]'),cell=>cell.rowSpan),bold:Array.from(root.querySelectorAll('strong'),element=>element.textContent),tableCount:root.querySelectorAll('table').length,pictureSlots:root.querySelectorAll('.c2sPicture').length,border:root.querySelector('td')?getComputedStyle(root.querySelector('td')).borderTopStyle:null};
+        const form=adapted.formDefinition;
+        return {pdfForms:result.pdfForms,pdfText:result.pdfText,viewports,sourceReference,docxBytes:Array.from(result.docxBytes),sourceHash:adapted.model.sourceFileHash,media,assets,form,formFields:adapted.model.stats.formFields,warnings:adapted.model.warnings,drawings:adapted.preview.drawings,editableText:root.textContent,cells:Array.from(root.querySelectorAll('td'),cell=>cell.textContent),lists:Array.from(root.querySelectorAll('ol'),list=>({start:list.start,items:Array.from(list.children,item=>({text:item.textContent,images:item.querySelectorAll('.c2sPicture').length}))})),rowSpans:Array.from(root.querySelectorAll('td[rowspan]'),cell=>cell.rowSpan),bold:Array.from(root.querySelectorAll('strong'),element=>element.textContent),tableCount:root.querySelectorAll('table').length,pictureSlots:root.querySelectorAll('.c2sPicture').length,border:root.querySelector('td')?getComputedStyle(root.querySelector('td')).borderTopStyle:null};
       },{name,base64:pdf,reference:imageFixtures.find(fixture=>fixture.name===name)?.original});
       evidence.push({name,...output,docxBytes:undefined});
       assert.equal(output.sourceHash,hash(Buffer.from(pdf,'base64')));
       assert.deepEqual(output.warnings.filter(warning=>warning.blocking),[],'A complete SDK result must have no blocking adaptation loss');
-      assert.ok(output.assets.length>0);assert.ok(output.pictureSlots>0);
+      if(name!=='blank-defaults.pdf'){assert.ok(output.assets.length>0);assert.ok(output.pictureSlots>0);}
       for(const asset of output.assets){assert.equal(asset.id,asset.retainedHash);assert.equal(asset.width,asset.decodedWidth);assert.equal(asset.height,asset.decodedHeight)}
       // Native source bytes stay exact in the returned DOCX. Nonuniform image
       // placements require a separately verified viewport for SharePoint.
@@ -113,19 +116,25 @@ test('strict offline MV3 converts real Word/PDF bytes into editable SharePoint c
         assert.deepEqual(output.lists,[{start:3,items:[{text:'First exported itemImage continuation',images:1},{text:'Second exported item',images:0}]},{start:6,items:[{text:'Restarted exported item',images:0}]}]);
         assert.deepEqual(output.rowSpans,[2]);assert.deepEqual(output.cells,['Merged source cell','Neighbor one','Neighbor two']);
         assert.equal(output.form,null);assert.equal(output.assets.length,1);
+      }else if(name==='blank-defaults.pdf'){
+        assert.equal(output.form,null);assert.equal(output.formFields,4);
+        assert.match(output.editableText,/Blank native form verification/);
+        assert.doesNotMatch(output.editableText,/DEFAULT MUST STAY BLANK|Engineering|◉|☑/);
+        assert.deepEqual(output.cells,['','☐','','○ day','○ night']);
+        const fields=output.pdfForms.Fields;assert.equal(fields.find(field=>field.name==='blank_name').value,undefined);
+        assert.equal(fields.find(field=>field.name==='blank_name').defaultValue,'DEFAULT MUST STAY BLANK');
+        assert.equal(fields.find(field=>field.name==='blank_department').value,undefined,'The reader omits an explicitly empty current choice value');
+        assert.equal(fields.find(field=>field.name==='blank_department').defaultValue,'eng');
+        assert.equal(output.pdfForms.Parents.find(field=>field.name==='blank_shift').value,'Off');
       }else if(name==='sample.pdf'){
         for(const text of ['ONLYOFFICE Import Evidence','Editable paragraph alpha beta 123.','Left cell','Right cell','Name:','Approved:','Department:'])assert.ok(output.editableText.includes(text),`Missing editable PDF body text: ${text}`);
-        for(const text of ['Alice','Engineering']){assert.ok(!output.pdfText.pages.some(page=>page.text.includes(text)));assert.ok(!output.editableText.includes(text),'Interactive field values must not be duplicated in the page body');}
+        for(const text of ['Alice','Engineering']){assert.ok(!output.pdfText.pages.some(page=>page.text.includes(text)));assert.ok(output.editableText.includes(text),'Verified form values must be native editable page content');}
         assert.equal(output.drawings.filter(drawing=>drawing.kind==='textbox').length,3);
         const vectors=output.drawings.filter(drawing=>drawing.kind==='vector');assert.equal(vectors.length,0);
         assert.ok(vectors.every(drawing=>drawing.decoration&&output.assets.some(asset=>asset.id===drawing.assetId)));
         assert.ok(!output.warnings.some(warning=>warning.code==='vector-adaptation-required'));
-        assert.equal(output.tableCount,1);assert.deepEqual(output.cells,['Left cell','Right cell','','']);assert.equal(output.border,'solid');
-        assert.equal(output.form.fields.length,4);
-        const fields=Object.fromEntries(output.form.fields.map(field=>[field.sourceName,field]));
-        assert.equal(fields.person_name.value,'Alice');assert.equal(fields.approved.value,true);assert.equal(fields.approved.exportValue,'Yes');
-        assert.deepEqual(fields.department.choices,[{value:'eng',label:'Engineering'},{value:'ops',label:'Operations'}]);
-        assert.equal(fields.department.value,'eng');assert.equal(fields.shift.value,'day');assert.deepEqual(fields.shift.choices.map(choice=>choice.value),['day','night']);
+        assert.equal(output.tableCount,2);assert.deepEqual(output.cells,['Left cell','Right cell','','','Alice','☑','Engineering','◉ day','○ night']);assert.equal(output.border,'solid');
+        assert.equal(output.form,null);assert.equal(output.formFields,4);
       }else{
         assert.equal(output.form,null,'A PDF without fields must adapt without requesting the form companion');
         assert.deepEqual(output.pdfForms.Fields,[]);assert.deepEqual(output.pdfForms.Parents,[]);
@@ -182,5 +191,6 @@ test('strict offline MV3 converts real Word/PDF bytes into editable SharePoint c
   }finally{
     await writeFile(path.join(dir,'evidence.json'),JSON.stringify({evidence,requests,errors},null,2));
     await context.close();
+    t.diagnostic('Real content evidence: '+path.join(dir,'evidence.json'));
   }
 });

@@ -34,7 +34,7 @@ export function rowsFromLinks(links,{sites=[],sources={},checks={}}={}){
     id:linkKey(link),source:link.source,sourceLabel:sources[sourceId(link.source)]?.title||`Confluence page ${link.source.pageId}`,
     siteTitle:sites.find(site=>site.url===link.siteUrl)?.title||new URL(link.siteUrl).hostname+new URL(link.siteUrl).pathname,
     destination:{siteUrl:link.siteUrl,path:link.path,title:link.title,...(link.uniqueId?{uniqueId:link.uniqueId}:{})},
-    sourceUpdatedAt:normalSourceRevision(sources[sourceId(link.source)])?.updatedAt??null,
+    sentAt:link.sentAt??null,sourceUpdatedAt:normalSourceRevision(sources[sourceId(link.source)])?.updatedAt??null,
     sourceChange:sourceChange(link,sources[sourceId(link.source)]),check:checks[linkKey(link)]??{status:'unchecked'}
   })).sort(byPlace);
 }

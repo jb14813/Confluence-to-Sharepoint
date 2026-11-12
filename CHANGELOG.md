@@ -1,20 +1,24 @@
 # Changelog
 
+## 0.7.4 - 2026-11-12
+
+- Convert PDF field labels, current text and choice values, checkboxes and radio states into native editable text and tables. Empty fields stay blank, source defaults do not invent answers, and password values remain masked.
+
+- Open file import in one compact, reusable window using the Confluence popup styling, remembered/pinned sites and existing SharePoint sender. Review and edit the resulting draft in SharePoint; remove the local full-page preview and review acknowledgement.
+- Support choosing an existing destination and using Add to bottom or Overwrite. Preserve native permission/approval checks, complete upload verification and protection against repeating uncertain writes. No automatic new-page fallback on permission or transient errors is added.
+- Make the dashboard the single full-page history view. Keep Confluence source checks and selected updates, show their actual last sent dates, and add destination-only file import receipts with Import another file. Do not retain file copies or watch local file revisions.
+- Route the licenses page through the same reusable import window and dashboard, preserving current work.
+
 ## 0.7.3 - 2026-11-12
 
 - Show the JZB Apps wordmark in file import and on the licenses/source page. Retain the original ONLYOFFICE logo as a compact attribution with its license link.
-- Build the optional SharePoint form companion from current source during the release gate. Verify the solution identity/version and every compiled asset so an older generated package cannot be delivered accidentally.
-- Retain the original incomplete-list-read rejection in the current form source and include it in the corrected companion package.
 - Replay one identical local image piece if Chrome returns no staging acknowledgement. Explicit refusals still stop. Full image verification and single-attempt SharePoint write/recovery behavior are unchanged.
 - Apply the existing bounded upload-throttling policy to the document-library root too. Explicit 429/503 responses allow up to two retries of the same immutable filename, with byte verification before each retry. Lost answers, timeouts, redirects and failed verification reads remain uncertain without repeating the upload through another route.
 - Use the existing PDF reader's complete paragraph text when eligible reconstructed pages scramble character order. Retain verified native formatting, all source-bound graphics and complete text coverage, with explicit layout-adaptation notes.
 - Retain supported PDF link annotations as a native links section, including internal source-page destinations. Exact PDF coordinates become page-section links; unsupported actions are reported and never executed. Link metadata cannot bypass body-text, OCR or image verification.
 - Convert combined evenOdd fill/stroke PDF boxes through the existing native paint operations, retaining both verified paints. Check the independently rounded anchor and picture dimensions against the exact native truncation rule.
-- Check current-account access to form scripts served from the SharePoint catalog before setup or Send. Denied, redirected or temporarily unavailable scripts produce a recovery message before form writes; permissions and public CDN loading remain managed by SharePoint.
 
 ## 0.7.2 - 2026-11-11 — published on GitHub
-
-The [0.7.2 release guide](docs/releases/0.7.2.md) identifies the released downloads, compatibility and limits. The Chrome Web Store submission is separate; its public listing still showed 0.6.2 at the 2026-11-11 check.
 
 - Open file import from an extension shortcut on SharePoint, with the current verified site selected and existing previews or interrupted sends preserved.
 - Import supported MIME-wrapped Word exports through the packaged source-built MIME parser and existing Word HTML importer. Preserve embedded images, local anchors, list continuation, table widths and merged cells.
@@ -29,7 +33,6 @@ The [0.7.2 release guide](docs/releases/0.7.2.md) identifies the released downlo
 - Preserve full decoded PDF raster dimensions, pixels and transparency using the converter's existing PNG exporter and IJG JPEG reader. Remove the extra JPEG encoding pass and 1200-pixel downscaling. Eight independent source-image controls cover lossless, large, alpha, baseline, subsampled, progressive, grayscale and CMYK inputs.
 - Accept the upstream reader's empty no-form result for ordinary PDFs; malformed or unsupported form records remain blocked.
 - Verify XFA presence and AcroForm field counts with the existing native PDF parser before reconstruction. XFA-only, packet-array and hybrid forms, malformed fields and unreadable field metadata cannot silently become ordinary page content.
-- Revalidate prepared interactive definitions at the selected site before any image or page writes. Treat incomplete response-list reads as uncertain, preserving the submission identity for explicit recovery.
 - Include exact local converter build/replay evidence, native dependency review and complete preferred source/toolchain inputs. Existing upload verification, unpublished drafts and recovery remain in place.
 - Published on GitHub after owner approval on 2026-11-11; submitted to the Chrome Web Store separately. The frozen release tag and downloadable build/source packages remain unchanged by later documentation corrections.
 
@@ -42,7 +45,6 @@ The [0.7.2 release guide](docs/releases/0.7.2.md) identifies the released downlo
 - Rebuilt the PDF drawing engine with its upstream Xpdf hashing code to exclude an incompatible older OpenSSL implementation; retained native library and embedded-font notices. File artwork now uses an original document icon.
 
 - **Import local files from the standard extension.** Import a file in the popup and dashboard opens a local review workspace for DOC/DOCX/ODT/RTF/TXT and text-based PDF files, using the same verified SharePoint draft writer.
-- **Supported PDF form fields become interactive SharePoint controls.** Text, multiline, checkbox, dropdown and radio fields use the separately installed form companion and existing SharePoint permissions. No automatic publishing or permission grants.
 - **Preview fidelity and recovery are explicit.** Editable PDF text, original raster bytes, nontext shapes, reflow notes, unsupported-content/OCR blocking and durable send identities are retained. File captures stay separate from Confluence captures and update history.
 - **Licenses and corresponding source are available from the extension.** The release includes local converter assets, upstream attribution and a source-download inventory. No runtime conversion service or remotely hosted executable code.
 - **Live compatibility fixes.** Custom SharePoint web-part GUID braces are recognized, and long titles cannot produce a filename stem ending in a separator.

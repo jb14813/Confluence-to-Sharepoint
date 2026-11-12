@@ -1,3 +1,4 @@
+import {siteOfTab,destinationChoices} from './destinations.js';
 // The toolbar popup: what the current tab shows, where its Confluence page was
 // sent before, the capture, where to send it (the pinned sites and the sites open
 // in a tab, with their open pages), and the running job. The background does the
@@ -21,25 +22,13 @@ const segment=text=>{try{return decodeURIComponent(text);}catch{return text;}};
 // A page's place as tabs and remembered pages are compared: origin and decoded path, in lower case.
 const place=(origin,path)=>`${origin}${path.split('/').map(segment).join('/')}`.toLowerCase();
 const placePath=path=>place('',path);
-// The remembered site a tab's address belongs to, the longest decoded path first; the tenant root only outside /sites/ and /teams/.
-// Compared decoded: a site's remembered address escapes ( ) ' ! (detect.js siteUrlFor) that Chrome shows a tab's address with.
-function siteOfTab(sites,tabUrl){
-  let url;try{url=new URL(tabUrl);}catch{return null;}
-  const path=placePath(url.pathname);
-  return sites.map(site=>{
-    let at;try{at=new URL(site.url);}catch{return null;}
-    const base=placePath(at.pathname.replace(/\/$/,''));
-    return at.origin===url.origin&&(base?path===base||path.startsWith(`${base}/`):!/^\/(?:sites|teams)\//.test(path))?{site,base}:null;
-  }).filter(Boolean).sort((a,b)=>b.base.length-a.base.length)[0]?.site??null;
-}
-
 export function createPopup({document=globalThis.document,chromeApi=globalThis.chrome,location=globalThis.location}={}){
   const el=id=>document.getElementById(id);
   // `updateInstead`: the page Send to updates rather than make another draft; `addMode`: what the first page button does.
   // `problem` is what went wrong last, of kind 'command' (a refused command, replaced by the next job news), 'tab' (the
   // named tab is gone) or 'access' (site access refused); `closedTabs` are tabs a job named that turned out closed.
   // `accountPending`: the setting's state the user chose, shown until the background has it.
-  const state={tab:null,context:null,data:null,open:[],sharePoint:true,chosen:null,page:null,tabSite:null,view:'main',access:false,allAccess:true,problem:null,problemKind:null,closedTabs:new Set(),updateInstead:null,addMode:'add',accountPending:null};
+  const state={tab:null,context:null,data:null,open:[],sharePoint:true,chosen:null,page:null,tabSite:null,view:new URLSearchParams(location.search).get('view')==='sites'?'sites':'main',access:false,allAccess:true,problem:null,problemKind:null,closedTabs:new Set(),updateInstead:null,addMode:'add',accountPending:null};
   let destroyed=false;
   async function call(action,payload={}){
     const response=await chromeApi.runtime.sendMessage({channel:CHANNEL,action,payload});
@@ -267,12 +256,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   }
   // Where Send to offers to send: the pinned sites and the sites open in a tab, each with its pages open in a tab. The
   // site and page chosen stay while the popup is open, so the list does not change under a choice or a send.
-  function destinations(sites){
-    const openSites=new Set(state.open.map(url=>siteOfTab(sites,url)?.url).filter(Boolean));
-    const openPages=new Set(state.open.map(url=>{try{const tab=new URL(url);return place(tab.origin,tab.pathname);}catch{return null;}}).filter(Boolean));
-    return sites.filter(site=>site.pinned||openSites.has(site.url)||site.url===state.chosen).map(site=>({...site,
-      pages:(site.pages??[]).filter(page=>openPages.has(place(originOf(site.url),page.path))||site.url===state.chosen&&page.path===state.page)}));
-  }
+  const destinations=sites=>destinationChoices(sites,{open:state.open,chosen:state.chosen,page:state.page});
   function render(){
     if(destroyed)return;
     // A radio or button the keyboard is on is rebuilt with its list, so focus goes back to it afterwards; one that is gone
@@ -333,7 +317,7 @@ export function createPopup({document=globalThis.document,chromeApi=globalThis.c
   }
   const on=(id,handler)=>el(id).addEventListener('click',handler);
   on('dashboard-link',()=>act(()=>call('open-dashboard')));
-  on('file-import-link',()=>act(()=>call('open-file-import')));
+  on('file-import-link',()=>act(()=>call('open-file-import',state.tabSite?{siteUrl:state.tabSite}:{})));
   on('capture',()=>act(()=>call('capture',{tabId:state.tab.id})));
   on('send-button',()=>act(()=>state.updateInstead?call('send-page',{siteUrl:state.chosen,pagePath:state.updateInstead,mode:'update',windowId:state.tab?.windowId??null})
     :call('send',{siteUrl:state.chosen,windowId:state.tab?.windowId??null})));

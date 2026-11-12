@@ -1,4 +1,11 @@
 const status=document.getElementById('source-status'),download=document.getElementById('source-download');
+let navigationError;
+for(const [href,action]of [['dashboard.html','open-dashboard'],['file-workspace.html','open-file-import']]){
+ document.querySelector(`a[href="${href}"]`)?.addEventListener('click',async event=>{
+  event.preventDefault();try{const reply=await chrome.runtime.sendMessage({channel:'c2s-popup',action,payload:{}});if(!reply?.ok)throw Error('Reopen the extension and try again.');navigationError?.remove();}
+  catch{navigationError??=document.createElement('p');navigationError.setAttribute('role','alert');navigationError.textContent='The view could not be opened. Reopen the extension and try again.';document.querySelector('footer').append(navigationError);}
+ });
+}
 (async()=>{
  const response=await fetch('SOURCE-MANIFEST.json',{cache:'no-store'});if(!response.ok)throw Error('Source information could not be loaded.');
  const manifest=await response.json();
