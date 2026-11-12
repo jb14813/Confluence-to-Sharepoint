@@ -1,4 +1,17 @@
 {
+  "method": "Current staged native runtime, strict offline MV3 browser; independent original source PNG comparisons retain dimensions and exact decoded pixels.",
+  "outputs": [
+    {
+      "file": "x2t.js",
+      "bytes": 137170,
+      "sha256": "a77c3a81ac1107c4d1ba8b6185e0400c26bf665aa56384b6ff599439dde31a46"
+    },
+    {
+      "file": "x2t.wasm",
+      "bytes": 38868040,
+      "sha256": "d0e9bb7cb0ffb7eae1bb7963b666c097b0aafedaab1c5de32960853dc50e9b72"
+    }
+  ],
   "cases": [
     {
       "name": "image-opaque.pdf",

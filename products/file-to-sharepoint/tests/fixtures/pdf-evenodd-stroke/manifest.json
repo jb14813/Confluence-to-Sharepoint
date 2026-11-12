@@ -1,0 +1,7 @@
+{
+  "scope": "Synthetic public test data; original valid ReportLab boxed form and minimized combined fill/stroke reproducer. Frozen bytes; not user documents.",
+  "files": {
+    "fill-stroke.pdf": "aec7d861b2c448dbdc0a38bcb2bdcdc61fe9ad39ac36dc8428823a7d51548245",
+    "readonly-multiline.pdf": "bca764eff3cbf59fe43cfd05600ca4c2d6a158bd5a57c4c7d16a708e5597c158"
+  }
+}

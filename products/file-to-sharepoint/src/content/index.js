@@ -11,6 +11,7 @@ import {createStaticFieldState} from './static-fields.js';
 import {planPdfPageAssociation,planPdfReadingOrder} from './pdf-layout.js';
 import {composePdfDrawingFlow,planPdfNativeReflow,verifyPdfNativeReflowDrawings} from './pdf-drawing-flow.js';
 import {assessPdfRenderedText,verifiedEmptyPdfBody} from '../engine/pdf-text.js';
+import {createPdfLinkSection} from './pdf-links.js';
 import {renderImageViewport,renderImagePadding,MIN_NATIVE_IMAGE_WIDTH} from './image-viewport.js';
 import {hasImageViewTransform} from '../engine/image-views.js';
 import {imageResourceMime,renderStaticSvg} from '../engine/html-resources.js';
@@ -139,6 +140,11 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
       preview.readingOrder='native-sharepoint-reflow';
       preview.layoutAdaptation={mode:'native-sharepoint',sourceOrderVerified:false,reason:pdfOrder.code??'unverified-source-order'};
       warn('pdf-native-layout-adapted','This PDF was adapted to standard SharePoint content. Graphics appear as separate images; overlapping layouts and text order may differ. Review the preview before sending.');
+      if(nativeReflow.textReflow?.length){
+        preview.textReflow={source:'native-reader-paragraphs',pages:nativeReflow.textReflow};
+        warn('pdf-reader-text-adapted','The PDF reader\'s paragraphs were used to preserve reading order. Formatting was simplified where reconstructed paragraphs could not be matched.');
+        if(nativeReflow.textReflow.some(page=>page.orientationAdapted))warn('pdf-text-orientation-adapted','Rotated or mirrored text was converted to normal editable paragraphs because SharePoint does not support that text orientation.');
+      }
     }else if(pdfTextOrder.ok){
       const surface=pdfOrder.code==='PDF_DRAWING_SURFACE_REQUIRED';
       warn(surface?'pdf-drawing-surface-required':'pdf-drawing-flow-unverified',surface?'This PDF\'s overlapping graphics and text could not be preserved. Sending is blocked.':'The PDF drawing positions could not be verified against its editable text. Sending is blocked.',{blocking:true});
@@ -536,6 +542,21 @@ export async function adaptDocument({name,bytes,result},{measureImage=browserMea
     else if(preview.drawings.some(drawing=>drawing.kind==='image'))warn('pdf-image-text-review','This PDF contains images alongside editable text. Some pages or words may remain inside images; OCR is not included. Review every page for missing editable text before sending.');
   }
   if(nativeReflow)verifyPdfNativeReflowDrawings(nativeReflow,preview.drawings);
+  if(/\.pdf$/i.test(name)&&result.pdfLinks){
+    if(result.pdfLinks.sourcePageCount!==pdfPages.length)fail('PDF_LINKS_UNVERIFIED','The PDF link pages do not match the source.');
+    const template=document.createElement('template');template.innerHTML=model.blocks.map(block=>block.html).join('');
+    const links=createPdfLinkSection(result.pdfLinks,[...template.content.querySelectorAll('a[href]')].map(link=>link.getAttribute('href'))),anchors=[];
+    for(const pageIndex of links.targetPages){
+      const sourceId='file-pdf-page-'+(pageIndex+1),first=preview.blocks.find(block=>block.pageIndex===pageIndex);
+      let block=first&&model.blocks.find(block=>block.id===first.blockId);
+      if(!block){block={id:'file-block-'+(model.blocks.length+1),type:'text',html:''};model.blocks.push(block);preview.blocks.push({blockId:block.id,pageIndex});}
+      block.html=`<p id="${sourceId}"><br></p>`+block.html;checkCanvasBlock(block);anchors.push({pageIndex,sourceId,blockId:block.id});
+    }
+    if(links.html){model.blocks.push({id:'file-block-'+(model.blocks.length+1),type:'text',html:links.html});warn('pdf-links-adapted','PDF link actions were added in a native links section. Internal destinations use source-page sections; exact PDF positions are not retained.');}
+    if(links.unsupported)warn('pdf-links-unsupported','Some PDF link actions or addresses are unsupported and were not recreated. Review those actions in the source PDF.');
+    preview.pdfLinks={source:'native-annotations',sourceLinks:result.pdfLinks.linkCount,addedLinks:links.links,unsupported:links.unsupported,anchors};
+    if(model.blocks.length>MAX_BLOCKS||JSON.stringify(model.blocks).length>8000000)fail('document-limit','The document and its PDF links exceed the supported SharePoint page size.');
+  }
   const usedAssets=new Set(model.blocks.flatMap(block=>block.type==='image'?[block.assetId]:(block.pictures??[]).map(picture=>picture.assetId)));
   model.assets=model.assets.filter(asset=>usedAssets.has(asset.id));for(const id of pictures.keys())if(!usedAssets.has(id))pictures.delete(id);
   return {model,pictures,formDefinition,preview};

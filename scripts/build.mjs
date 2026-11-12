@@ -27,6 +27,7 @@ await copyFile('src/popup/popup.css', path.join(out, 'popup.css'));
 await mkdir(path.join(out, 'icons'), { recursive: true });
 for (const size of [16,32,48,128]) await copyFile(`extension/icons/icon${size}.png`, path.join(out, 'icons', `icon${size}.png`));
 await copyFile('extension/icons/logo.svg', path.join(out, 'icons', 'logo.svg'));
+await copyFile('extension/icons/jzbapps-logo.webp', path.join(out, 'icons', 'jzbapps-logo.webp'));
 // Preserve notices for both source workflows. The emoji names capture matches custom emoji against
 // (src/confluence/emoji-names.js) come from emojibase-data, whose names and keywords come from the Unicode CLDR.
 const notices = ['Third-party notices.'];

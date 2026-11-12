@@ -105,10 +105,12 @@ async function extractPdfForms(bytes) {
     if (!pages.length) fail('The PDF contains no readable pages.', 'INVALID_DOCUMENT');
     const {readPdfTextCapabilities}=await import('./pdf-text.js');
     const text=readPdfTextCapabilities(info,pages.length);
+    const {readPdfLinkAnnotations}=await import('./pdf-annotations.js');
+    const pdfLinks=readPdfLinkAnnotations(index=>pdf.getAnnotationsInfo(index),pages);
     // The upstream reader omits Fields/Parents when their counts are zero.
     // Normalize only its native-confirmed empty no-form result; partial
     // records still fail instead of losing interactive fields.
-    return {forms:{...(raw && Object.keys(raw).length === 0 ? {Fields:[],Parents:[]} : raw),pages},text};
+    return {forms:{...(raw && Object.keys(raw).length === 0 ? {Fields:[],Parents:[]} : raw),pages},text,pdfLinks};
   } finally {pdf.close();}
 }
 
@@ -129,8 +131,8 @@ self.onmessage = async ({data}) => {
       }
     }
     await validateInput(inputExtension,inputBytes);
-    let pdfForms = null,pdfText=null,pdfAssociationType=2;
-    if (extension === 'pdf') {const source=await extractPdfForms(bytes);pdfForms=source.forms;pdfText=source.text;}
+    let pdfForms = null,pdfText=null,pdfLinks=null,pdfAssociationType=2;
+    if (extension === 'pdf') {const source=await extractPdfForms(bytes);pdfForms=source.forms;pdfText=source.text;pdfLinks=source.pdfLinks;}
     let docxBytes = bytes;
     if (extension !== 'docx') {
       // drawingfile keeps a private Module; remove its compatibility DOM shims
@@ -186,7 +188,7 @@ self.onmessage = async ({data}) => {
     const {collectNativeMedia}=await import('./native-media.js');
     const nativeMedia=await collectNativeMedia(module.FS,media,docxBytes);
     const transfers = [docxBytes.buffer,officeBin.buffer,...Object.values(media).map(bytes => bytes.buffer),...(nativeMedia?.files.map(file=>file.bytes.buffer)??[])];
-    self.postMessage({result:{docxBytes,officeBin,media,pdfForms,warnings,...(nativeMedia?{nativeMedia}:{}),...(pdfText?{pdfText,pdfLayout:{version:1,textAssociationType:pdfAssociationType,flowGeometry:pdfAssociationType===2?'native-plain-line-v1':'native-plain-paragraph-v1',nativeTables,nativeDrawings}}:{}),...(htmlImport?{htmlImport}:{})}},transfers);
+    self.postMessage({result:{docxBytes,officeBin,media,pdfForms,warnings,...(nativeMedia?{nativeMedia}:{}),...(pdfText?{pdfText,pdfLinks,pdfLayout:{version:1,textAssociationType:pdfAssociationType,flowGeometry:pdfAssociationType===2?'native-plain-line-v1':'native-plain-paragraph-v1',nativeTables,nativeDrawings}}:{}),...(htmlImport?{htmlImport}:{})}},transfers);
   } catch (error) {
     self.postMessage({error:{message:error?.message || 'The local document could not be read.',code:error?.code || 'INVALID_DOCUMENT'}});
   }

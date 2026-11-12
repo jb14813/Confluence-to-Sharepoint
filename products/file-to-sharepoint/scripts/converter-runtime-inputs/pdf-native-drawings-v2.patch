@@ -856,11 +856,15 @@
  		double left = m_oCurrVectorGraphics.GetLeft();
  		double right = m_oCurrVectorGraphics.GetRight();
  		double top = m_oCurrVectorGraphics.GetTop();
-@@ -200,10 +234,34 @@
+@@ -200,10 +234,38 @@
  			auto& last_shape = m_arShapes.back();
  			bool is_type_diff = lType == c_nStroke && (m_lLastType == c_nWindingFillMode || m_lLastType == c_nEvenOddFillMode);
  			is_type_diff = is_type_diff || (m_lLastType == c_nStroke && (lType == c_nWindingFillMode || m_lLastType == c_nEvenOddFillMode));
 -			if (last_shape->IsEqual(top, bot, left, right) && rotation == last_shape->m_dRotation && is_type_diff && m_lLastType != 0)
++            // Keep evenOdd fill and its stroke as separate verified paints.
++            // The existing renderer rasterizes the fill and retains the stroke.
++            if(m_bVerifiedPdfTables && ((lType | m_lLastType) & c_nEvenOddFillMode))
++                is_type_diff = false;
 +            // Normal-flow fallback never folds clipped source operations. The
 +            // old bound-only equality is insufficient to establish path identity.
 +            // Compare existing immutable native command data, without tolerance.
@@ -893,7 +897,7 @@
  				m_lLastType = 0; // reset stroke/fill logic
  				return;
  			}
-@@ -211,6 +269,7 @@
+@@ -211,6 +273,7 @@
  
  		m_lLastType = lType;
  		auto shape = std::make_shared<CShape>();
@@ -901,7 +905,7 @@
  		shape->m_oPen.Size *= transform_det;
  		set_fill_mode(shape);
  
-@@ -234,12 +293,23 @@
+@@ -234,12 +297,23 @@
  
  			if (new_vector_graphics.IsEmpty())
  			{
@@ -925,7 +929,7 @@
  
  		bool skip_shape = false;
  		auto info = pInfo;
-@@ -260,23 +330,26 @@
+@@ -260,23 +334,26 @@
  		else if (info)
  		{
  			shape->m_dRotation = rotation;
@@ -960,7 +964,7 @@
  			shape->m_nOrder = ++m_nCurrentOrder;
  			m_arShapes.push_back(shape);
  		}
-@@ -298,6 +371,7 @@
+@@ -298,6 +375,7 @@
  	{
  		const bool sourceAdvance = m_bSemanticSourceAdvance;
  		m_bSemanticSourceAdvance = false;
@@ -968,7 +972,7 @@
  		// 9 - \t
  		if (*pUnicodes == 9)
  			return;
-@@ -366,6 +440,7 @@
+@@ -366,6 +444,7 @@
  
  		m_oManagers.pParagraphStyleManager->UpdateAvgFontSize(m_oFont.Size);
  		m_nCurrentOrder++;
@@ -976,7 +980,7 @@
  		m_oContBuilder.AddUnicode(
  		            top,
  		            baseline,
-@@ -402,17 +477,19 @@
+@@ -402,17 +481,19 @@
  		// building final objects
  		m_arParagraphs = BuildParagraphs(text_line_groups);
  
@@ -1000,7 +1004,7 @@
  	}
  
  	void CPage::Record(NSStringUtils::CStringBuilder& oWriter, bool bIsLastPage)
-@@ -420,6 +497,17 @@
+@@ -420,6 +501,17 @@
  		ToXml(oWriter);
  		WriteSectionToFile(bIsLastPage, oWriter);
  	}
@@ -1018,7 +1022,7 @@
  
  	std::vector<std::wstring> CPage::GetXmlShapes()
  	{
-@@ -1037,6 +1125,14 @@
+@@ -1037,6 +1129,14 @@
  							}
  						}
  
@@ -1033,7 +1037,7 @@
  						if (is_crossing_text)
  						{
  							curr_cont->m_bIsStrikeoutPresent = true;
-@@ -1082,8 +1178,11 @@
+@@ -1082,8 +1182,11 @@
  						shape_used = true;
  				}
  			}
@@ -1047,7 +1051,7 @@
  		}
  	}
  
-@@ -1226,16 +1325,16 @@
+@@ -1226,16 +1329,16 @@
  						if ((bIf1 && bIf6) || (bIf2 && bIf7) || (bIf4 && bIf8) || (bIf5 && bIf7))
  						{
  							if (m_bCollectMetaInfo)
@@ -1068,7 +1072,7 @@
  						}
  						isBreak = true;
  						break;
-@@ -2235,6 +2334,323 @@
+@@ -2235,6 +2338,323 @@
  
  		return text_cell_groups;
  	}
@@ -1392,7 +1396,7 @@
  
  	std::vector<CPage::table_ptr_t> CPage::BuildTables(const std::vector<text_line_group_ptr_t>& arTextLineGroups)
  	{
-@@ -2341,8 +2757,9 @@
+@@ -2341,8 +2761,9 @@
  		return tables;
  	}
  
@@ -1404,7 +1408,7 @@
  		struct Crossing;
  		struct Line;
  
-@@ -2367,6 +2784,7 @@
+@@ -2367,6 +2788,7 @@
  		{
  			Point p {};
  			std::vector<Line> lines {};
@@ -1412,7 +1416,7 @@
  
  			Crossing() = default;
  			Crossing(const Point& _p, const std::vector<Line> _lines)
-@@ -2431,6 +2849,7 @@
+@@ -2431,6 +2853,7 @@
  		};
  
  		auto precise_crossing_p = [] (Crossing* cr, const Point& p, const eLineDirection& direction) {
@@ -1420,7 +1424,7 @@
  			if (cr->lines.size() == 1)
  			{
  				switch (cr->lines[0].direction)
-@@ -2456,9 +2875,9 @@
+@@ -2456,9 +2879,9 @@
  		};
  
  		// check and adds points
@@ -1432,7 +1436,7 @@
  
  			eLineDirection direction12;
  			eLineDirection direction21;
-@@ -2483,6 +2902,8 @@
+@@ -2483,6 +2906,8 @@
  				crossings.push_back(std::make_shared<Crossing>(cr));
  				crossing1 = crossings.back().get();
  			}
@@ -1441,7 +1445,7 @@
  			if (!crossing2)
  			{
  				Crossing cr;
-@@ -2511,6 +2932,18 @@
+@@ -2511,6 +2936,18 @@
  				crossing1->lines.push_back(std::move(line));
  			}
  
@@ -1460,7 +1464,7 @@
  		};
  
  		// 2 main cases
-@@ -2544,58 +2977,142 @@
+@@ -2544,58 +2981,142 @@
  			if (!shape || shape->m_eGraphicsType != eGraphicsType::gtRectangle || shape->m_pImageInfo != nullptr)
  				continue;
  
@@ -1650,7 +1654,7 @@
  			}
  		}
  
-@@ -2644,11 +3161,13 @@
+@@ -2644,11 +3165,13 @@
  				if (!cr_f_top || !cr_f_left || !cr_s_bot ||  !cr_s_right)
  					continue;
  
@@ -1669,7 +1673,7 @@
  
  				if (!is_connected)
  					continue;
-@@ -2663,10 +3182,12 @@
+@@ -2663,10 +3186,12 @@
  				graphical_cell->m_dBot = cr_second->p.y;
  				graphical_cell->m_dWidth = graphical_cell->m_dRight - graphical_cell->m_dLeft;
  				graphical_cell->m_dHeight = graphical_cell->m_dBot - graphical_cell->m_dTop;
@@ -1682,7 +1686,7 @@
  
  		return graphical_cells;
  	}
-@@ -2775,6 +3296,10 @@
+@@ -2775,6 +3300,10 @@
  		pShape->m_dImageTop = imageVector.GetTop();
  		pShape->m_dImageLeft = imageVector.GetLeft();
  		pShape->m_dImageRight = imageVector.GetRight();
@@ -1693,7 +1697,7 @@
  	}
  
  	void CPage::DrawGradient(shape_ptr_t pShape)
-@@ -2888,3 +3413,7 @@
+@@ -2888,3 +3417,7 @@
  		}
  	}
  }
@@ -2608,9 +2612,18 @@
  		m_pRenderer->DrawPath(c_nStroke | c_nWindingFillMode);
  
  		m_pRenderer->EndCommand(c_nPathType);
-@@ -1755,6 +1768,9 @@
+@@ -1754,7 +1767,18 @@
+ 		if (m_bDrawOnlyText)
  			return;
  
++        // Use the existing parsed-path operations for DOCX. A combined
++        // evenOdd paint cannot be represented by its fill-only raster proof.
++        if(c_nDocxWriter == m_lRendererType) {
++            eoFill(pGState);
++            stroke(pGState);
++            return;
++        }
++
  		DoPath(pGState, pGState->getPath(), pGState->getPageHeight(), pGState->getCTM());
 +        if(c_nDocxWriter==m_lRendererType)
 +            m_pRenderer->CommandLong(NSPdfPaintContext::Command,

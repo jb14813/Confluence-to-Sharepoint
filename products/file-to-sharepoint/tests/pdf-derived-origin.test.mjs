@@ -18,6 +18,23 @@ function curved(){
 }
 const refused=f=>assert.throws(()=>validatePdfDrawings(f.value,f.options),{code:'PDF_DRAWINGS_UNVERIFIED'});
 
+test('anchor and picture extents independently retain the native directional truncation boundary',async()=>{
+ const root=new URL('fixtures/pdf-drawings/native056-v2/',import.meta.url),data=JSON.parse(await readFile(new URL('alpha-gap.json',root),'utf8'));
+ const parser=vm.createContext({TextDecoder,TextEncoder});vm.runInContext(await readFile(new URL('../vendor/xmldom.js',import.meta.url),'utf8'),parser);
+ const value=readPdfDrawings(new Uint8Array(await readFile(new URL('alpha-gap.drawings.xml',root))),data.options,parser.EngineXml.DOMParser);
+ const original=structuredClone(data.document),id=value.pages[0].drawings[0].docPrId;
+ for(const [anchor,picture]of [[638175,638174],[638174,638175]]){
+  const model=structuredClone(original),node=bindPdfDrawings(value,model,data.options).byDocPrId.get(id).node;
+  node.extent.cx=anchor;node.graphic.spPr.xfrm.ext.cx=picture;
+  assert.equal(bindPdfDrawings(value,model,data.options).byDocPrId.get(id).node,node);
+ }
+ for(const target of ['anchor','picture'])for(const [key,values]of [['cx',[638173,638176]],['cy',[319086,319088]]])for(const amount of values){
+  const model=structuredClone(original),node=bindPdfDrawings(value,model,data.options).byDocPrId.get(id).node;
+  (target==='anchor'?node.extent:node.graphic.spPr.xfrm.ext)[key]=amount;
+  assert.throws(()=>bindPdfDrawings(value,model,data.options),{code:'PDF_DRAWINGS_UNVERIFIED'});
+ }
+});
+
 test('derived frame origin is the exact original control minimum, independently of sampled source bounds and CTM',()=>{
  const f=curved();assert.notEqual(f.source.bounds.leftPt,f.drawing.bounds.leftPt);assert.notEqual(f.source.bounds.topPt,f.drawing.bounds.topPt);
  assert.equal(validatePdfDrawings(f.value,f.options),f.value);

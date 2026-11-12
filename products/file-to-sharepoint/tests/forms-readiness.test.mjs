@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 const api = await import('../src/destination/forms.js').catch(error => { if (error.code === 'ERR_MODULE_NOT_FOUND') return {}; throw error; });
 const SITE = 'https://contoso.sharepoint.com/sites/Docs';
 const COMPONENT = 'f104fa11-c9e8-43d6-8c5a-3f7b70f31ab1';
+const ASSET = 'https://contoso.sharepoint.com/sites/appcatalog/ClientSideAssets/form/form.js';
+const manifest = () => ({ id: COMPONENT, componentType: 'WebPart', manifestVersion: 2, loaderConfig: { internalModuleBaseUrls: [ASSET.slice(0,ASSET.lastIndexOf('/'))], entryModuleId: 'form', scriptResources: { form: { type: 'path', path: 'form.js' } } } });
 const DEFINITION_LIST = '45bc5c89-20db-4890-93f0-bc91c36aed73';
 const RESPONSE_LIST = 'a4b9d3d7-3fd5-437b-b071-bab06d358bc1';
 const TITLE = { definitions: 'File to SharePoint Form Definitions', responses: 'File to SharePoint Form Responses' };
@@ -25,11 +27,12 @@ function service({ installed = true, definitions = false, responses = false, los
     lists.set(Id, { Id, Title: TITLE[kind], Description: DESCRIPTION[kind], BaseTemplate: 100, Hidden: false, fields: fields(kind), items: [] });
   }
   async function request(address, options = {}) {
+    if(address===ASSET){calls.push({resource:'runtime-asset',method:options.method??'GET'});return new Response('/* form runtime */',{headers:{'Content-Type':'application/javascript'}});}
     const url = new URL(address), resource = decodeURIComponent(url.pathname.slice(`${new URL(SITE).pathname}/_api/`.length));
     assert.equal(url.origin, 'https://contoso.sharepoint.com');
     assert.equal(options.credentials, 'same-origin'); assert.equal(options.redirect, 'error');
     calls.push({ resource, method: options.method ?? 'GET', body: options.body });
-    if (resource === 'web/GetClientSideWebParts') return json({ value: installed ? [{ Id: COMPONENT, Manifest: JSON.stringify({ id: COMPONENT, componentType: 'WebPart', manifestVersion: 2 }) }] : [] });
+    if (resource === 'web/GetClientSideWebParts') return json({ value: installed ? [{ Id: COMPONENT, Manifest: JSON.stringify(manifest()) }] : [] });
     if (resource === 'contextinfo') return json({ FormDigestValue: 'digest-1', FormDigestTimeoutSeconds: 1800 });
     const body = options.body ? JSON.parse(options.body) : undefined;
     if (options.method === 'POST') assert.equal(options.headers['X-RequestDigest'], 'digest-1');
@@ -81,16 +84,33 @@ const options = (transport, overrides = {}) => ({ siteUrl: SITE, definition: def
 test('readiness recognizes SharePoint custom component GUIDs enclosed in braces without relaxing component identity', async () => {
   for (const Id of [COMPONENT, COMPONENT.toUpperCase(), `{${COMPONENT.toUpperCase()}}`]) {
     const transport = service({ definitions: true, responses: true });
-    const request = (url, init) => url.endsWith('/web/GetClientSideWebParts') ? Promise.resolve(json({ value: [{ Id, Manifest: JSON.stringify({ id: COMPONENT, componentType: 'WebPart', manifestVersion: 2 }) }] })) : transport.request(url, init);
+    const request = (url, init) => url.endsWith('/web/GetClientSideWebParts') ? Promise.resolve(json({ value: [{ Id, Manifest: JSON.stringify(manifest()) }] })) : transport.request(url, init);
     const ready = await api.checkFormReadiness(options(transport, { request }));
     assert.equal(ready.needsSetup, false); assert.equal(ready.componentId, COMPONENT); assert.equal(transport.writes().length, 0);
   }
   for (const Id of [`{${COMPONENT}`, `${COMPONENT}}`, `{{${COMPONENT}}}`, '{00000000-0000-4000-8000-000000000001}']) {
     const transport = service({ definitions: true, responses: true });
-    const request = (url, init) => url.endsWith('/web/GetClientSideWebParts') ? Promise.resolve(json({ value: [{ Id, Manifest: JSON.stringify({ id: COMPONENT, componentType: 'WebPart', manifestVersion: 2 }) }] })) : transport.request(url, init);
+    const request = (url, init) => url.endsWith('/web/GetClientSideWebParts') ? Promise.resolve(json({ value: [{ Id, Manifest: JSON.stringify(manifest()) }] })) : transport.request(url, init);
     await assert.rejects(api.checkFormReadiness(options(transport, { request })), { code: 'form-runtime-missing' });
     assert.equal(transport.writes().length, 0);
   }
+});
+
+test('catalog asset denial, HTML sign-in and transient failure refuse before setup and are rechecked on Send',async()=>{
+ for(const response of [()=>new Response('',{status:403}),()=>new Response('<html>Access denied</html>',{headers:{'Content-Type':'text/html'}}),()=>new Response('',{status:503}),()=>{throw new TypeError('Redirect or network failure');}]){
+  const transport=service({definitions:true,responses:true});let denied=false,probes=0;
+  const request=(url,init)=>{if(url===ASSET){probes++;assert.equal(init.credentials,'same-origin');assert.equal(init.redirect,'error');assert.equal(init.cache,'no-store');if(denied)return Promise.resolve().then(response);}return transport.request(url,init);};
+  assert.equal((await api.checkFormReadiness(options(transport,{request}))).needsSetup,false);
+  denied=true;await assert.rejects(api.prepareForm(options(transport,{request})),{code:'form-runtime-inaccessible'});
+  assert.equal(transport.writes().length,0);assert.equal(transport.calls.some(c=>c.resource==='contextinfo'),false);
+  denied=false;assert.equal((await api.checkFormReadiness(options(transport,{request}))).needsSetup,false);assert.equal(probes,3);
+ }
+});
+
+test('public CDN loaders retain browser script loading without an authenticated cross-origin probe',async()=>{
+ const transport=service({definitions:true,responses:true}),m=manifest();m.loaderConfig.internalModuleBaseUrls=['https://publiccdn.sharepointonline.com/contoso.sharepoint.com/form'];
+ const request=(url,init)=>url.endsWith('/web/GetClientSideWebParts')?Promise.resolve(json({value:[{Id:COMPONENT,Manifest:JSON.stringify(m)}]})):transport.request(url,init);
+ assert.equal((await api.checkFormReadiness(options(transport,{request}))).needsSetup,false);assert.equal(transport.calls.some(c=>c.resource==='runtime-asset'),false);
 });
 
 test('missing installed form component refuses before any SharePoint mutation or request token', async () => {

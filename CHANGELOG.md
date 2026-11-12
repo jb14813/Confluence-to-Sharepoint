@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.3 - 2026-11-12
+
+- Show the JZB Apps wordmark in file import and on the licenses/source page. Retain the original ONLYOFFICE logo as a compact attribution with its license link.
+- Build the optional SharePoint form companion from current source during the release gate. Verify the solution identity/version and every compiled asset so an older generated package cannot be delivered accidentally.
+- Retain the original incomplete-list-read rejection in the current form source and include it in the corrected companion package.
+- Replay one identical local image piece if Chrome returns no staging acknowledgement. Explicit refusals still stop. Full image verification and single-attempt SharePoint write/recovery behavior are unchanged.
+- Apply the existing bounded upload-throttling policy to the document-library root too. Explicit 429/503 responses allow up to two retries of the same immutable filename, with byte verification before each retry. Lost answers, timeouts, redirects and failed verification reads remain uncertain without repeating the upload through another route.
+- Use the existing PDF reader's complete paragraph text when eligible reconstructed pages scramble character order. Retain verified native formatting, all source-bound graphics and complete text coverage, with explicit layout-adaptation notes.
+- Retain supported PDF link annotations as a native links section, including internal source-page destinations. Exact PDF coordinates become page-section links; unsupported actions are reported and never executed. Link metadata cannot bypass body-text, OCR or image verification.
+- Convert combined evenOdd fill/stroke PDF boxes through the existing native paint operations, retaining both verified paints. Check the independently rounded anchor and picture dimensions against the exact native truncation rule.
+- Check current-account access to form scripts served from the SharePoint catalog before setup or Send. Denied, redirected or temporarily unavailable scripts produce a recovery message before form writes; permissions and public CDN loading remain managed by SharePoint.
+
 ## 0.7.2 - 2026-11-11 — published on GitHub
 
 The [0.7.2 release guide](docs/releases/0.7.2.md) identifies the released downloads, compatibility and limits. The Chrome Web Store submission is separate; its public listing still showed 0.6.2 at the 2026-11-11 check.

@@ -69,7 +69,12 @@ export function createFileTransfer({chromeApi=globalThis.chrome,store,destinatio
         if(!(file instanceof Blob)||file.size!==asset.size)throw failure('missing-image','A local image is no longer available. Choose the source file again.');
         const bytes=new Uint8Array(await file.arrayBuffer());
         for(let offset=0;offset<bytes.length;offset+=PICTURE_PIECE_BYTES) {
-          const response=await message(tab.id,'stage',{id:asset.id,size:bytes.length,offset,data:bytesToBase64(bytes.subarray(offset,offset+PICTURE_PIECE_BYTES))});
+          const piece={id:asset.id,size:bytes.length,offset,data:bytesToBase64(bytes.subarray(offset,offset+PICTURE_PIECE_BYTES))};
+          let response=await message(tab.id,'stage',piece);
+          // Staging only replaces these bytes at this offset in the tab's memory.
+          // Replay once if Chrome loses its acknowledgement. The destination
+          // still verifies every complete image hash before any upload or draft.
+          if(response==null){await wait(100);response=await message(tab.id,'stage',piece);}
           if(!response?.ok)throw failure('staging-failed','An image did not reach the destination intact. Nothing was sent.');
         }
       }

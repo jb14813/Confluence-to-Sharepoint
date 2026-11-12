@@ -10,7 +10,7 @@ const reply = (data, status = 200) => new Response(JSON.stringify(data), { statu
 const common = { Required: true, Hidden: false, ReadOnlyField: false, Indexed: false, EnforceUniqueValues: false };
 const text = (InternalName, MaxLength, extra = {}) => ({ ...common, InternalName, TypeAsString: 'Text', FieldTypeKind: 2, MaxLength, ...extra });
 const note = InternalName => ({ ...common, InternalName, TypeAsString: 'Note', FieldTypeKind: 3, RichText: false, AppendOnly: false });
-const installed = () => ({ Id: FORM_COMPONENT_ID, Manifest: JSON.stringify({ id: FORM_COMPONENT_ID, componentType: 'WebPart', manifestVersion: 2 }) });
+const installed = () => ({ Id: FORM_COMPONENT_ID, Manifest: JSON.stringify({ id: FORM_COMPONENT_ID, componentType: 'WebPart', manifestVersion: 2, loaderConfig: { internalModuleBaseUrls: ['https://tenant.sharepoint.com/sites/appcatalog/ClientSideAssets/form'], entryModuleId: 'form', scriptResources: { form: { type: 'path', path: 'form.js' } } } }) });
 
 // Owned lists are already provisioned; each explicit Send may store one immutable definition.
 function fixture(siteUrl = SITE) {
@@ -23,6 +23,7 @@ function fixture(siteUrl = SITE) {
       fields: [text('Title', 255), text('SubmissionId', 36, { Indexed: true, EnforceUniqueValues: true }), text('FormId', 64, { Indexed: true }), { ...common, InternalName: 'DefinitionVersion', TypeAsString: 'Number', FieldTypeKind: 9, DisplayFormat: 0 }, note('ResponseJson')] }]
   ]);
   const options = { siteUrl, definition, definitionListId, responseListId, request: async (address, init = {}) => {
+    if(address==='https://tenant.sharepoint.com/sites/appcatalog/ClientSideAssets/form/form.js')return new Response('/* runtime */',{headers:{'Content-Type':'text/javascript'}});
     const url = new URL(address); assert.ok(address.startsWith(`${siteUrl}/_api/`));
     assert.equal(init.credentials, 'same-origin'); assert.equal(init.redirect, 'error');
     const resource = decodeURIComponent(url.pathname.slice(new URL(`${siteUrl}/_api/`).pathname.length));

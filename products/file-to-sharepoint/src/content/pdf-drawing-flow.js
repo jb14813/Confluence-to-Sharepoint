@@ -1,5 +1,6 @@
 import {bindPdfDrawings,bindPdfDrawingLines} from './pdf-drawing-bindings.js';
 import {planPdfPageAssociation} from '../engine/pdf-pages.js';
+import {planReaderTextPage} from './pdf-reader-text.js';
 
 // Native SharePoint cannot retain arbitrary PDF overlays. Reuse the converter's
 // document order and ordinary page parts, while retaining complete source binds.
@@ -13,16 +14,30 @@ export function planPdfNativeReflow(document,options){
     if(!Number.isInteger(pageIndex)||!pages[pageIndex])throw Object.assign(new Error('The PDF source pages could not be verified.'),{code:'PDF_DRAWINGS_UNVERIFIED'});
     pages[pageIndex].nodes.push(node);nodeMetadata.set(node,{pageIndex});
   }
-  return {ok:true,pages,nodeMetadata,drawings:bound.byGraphicId};
+  const textReflow=[];
+  for(const page of pages){
+    const repaired=planReaderTextPage({nodes:page.nodes,sourceText:options.pdfText?.pages?.[page.pageIndex]?.text,drawings:bound.pages[page.pageIndex].drawings});
+    if(!repaired)continue;
+    page.nodes=repaired.nodes;for(const node of page.nodes)nodeMetadata.set(node,{pageIndex:page.pageIndex});
+    textReflow.push({pageIndex:page.pageIndex,replacedTextWrappers:repaired.replacedTextWrappers,sourceTextWrappers:repaired.sourceTextWrappers,orientationAdapted:repaired.orientationAdapted,paragraphs:repaired.paragraphs,retainedStyledParagraphs:repaired.retainedStyledParagraphs,sourceCharacters:repaired.sourceCharacters});
+  }
+  return {ok:true,pages,nodeMetadata,drawings:bound.byGraphicId,textReflow};
 }
 
 export function verifyPdfNativeReflowDrawings(plan,rendered){
   const fail=()=>{throw Object.assign(new Error('Some PDF graphics were not retained in the editable page.'),{code:'PDF_DRAWINGS_UNVERIFIED'});};
-  if(!(plan?.drawings instanceof Map)||!Array.isArray(rendered)||rendered.length!==plan.drawings.size)fail();
+  if(!(plan?.drawings instanceof Map)||!Array.isArray(rendered))fail();
+  const replaced=new Set();
+  for(const page of plan.textReflow??[])for(const id of page.replacedTextWrappers){
+    const expected=plan.drawings.get(id);
+    if(replaced.has(id)||expected?.drawing.role!=='editable-text-wrapper'||expected.pageIndex!==page.pageIndex)fail();
+    replaced.add(id);
+  }
+  if(rendered.length!==plan.drawings.size-replaced.size)fail();
   const seen=new Set();
   for(const drawing of rendered){
     const expected=plan.drawings.get(drawing?.sourceId);
-    if(!expected||seen.has(drawing.sourceId)||drawing.pageIndex!==expected.pageIndex||
+    if(!expected||replaced.has(drawing.sourceId)||seen.has(drawing.sourceId)||drawing.pageIndex!==expected.pageIndex||
       expected.drawing.role!=='editable-text-wrapper'&&!/^[a-f0-9]{64}$/.test(drawing.assetId??''))fail();
     seen.add(drawing.sourceId);
   }

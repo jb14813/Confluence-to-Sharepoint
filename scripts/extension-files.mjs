@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {FILE_IMPORT_FILES} from './file-import-assets.mjs';
 
-export const ICON_FILES=['icons/icon16.png','icons/icon32.png','icons/icon48.png','icons/icon128.png','icons/logo.svg'];
+export const ICON_FILES=['icons/icon16.png','icons/icon32.png','icons/icon48.png','icons/icon128.png','icons/logo.svg','icons/jzbapps-logo.webp'];
 // operator.html, a developer page, is built where it exists.
 export const LEGAL_FILES=['licenses.html','licenses.js','LICENSE','SOURCE-MANIFEST.json','SOURCE-INPUTS.json','legal/MIT-CORE-LICENSE.txt','legal/ONLYOFFICE-logo.svg','legal/ONLYOFFICE-LOGO-NOTICE.txt','legal/ONLYOFFICE-ADDITIONAL-NOTICES.txt'];
 export const RELEASE_FILES=['THIRD-PARTY-NOTICES.txt','background.js','content.js','dashboard.css','dashboard.html','dashboard.js',...ICON_FILES,'manifest.json','memory.js','popup.css','popup.html','popup.js',...FILE_IMPORT_FILES,...LEGAL_FILES];

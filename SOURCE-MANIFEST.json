@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "product": "Confluence to SharePoint",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "status": "verified-corresponding-source",
   "sourceArchive": {
-    "filename": "confluence-to-sharepoint-0.7.2-source.zip",
-    "downloadUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.2/confluence-to-sharepoint-0.7.2-source.zip",
-    "checksumUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.2/confluence-to-sharepoint-0.7.2-source.zip.sha256"
+    "filename": "confluence-to-sharepoint-0.7.3-source.zip",
+    "downloadUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.3/confluence-to-sharepoint-0.7.3-source.zip",
+    "checksumUrl": "https://github.com/jb14813/Confluence-to-Sharepoint/releases/download/v0.7.3/confluence-to-sharepoint-0.7.3-source.zip.sha256"
   },
   "sourceInputs": {
     "file": "SOURCE-INPUTS.json",
@@ -15,7 +15,7 @@
     "sha256": "bc83d62e377707b7d4ea464e1167c5a7120c3a5b81d203fe9db4fe27b67cc06e"
   },
   "verification": {
-    "converter": "Two independent fresh source-only contexts reproduced JS/WASM and all six build outputs exactly. The 188 pinned source/tool inputs and complete maintained recipes are retained. Recorded toolchain/dependency caches were reused; core compilation was uncached.",
+    "converter": "Current maintained188-archive source-only preparation built the changed native source. A second fresh source preparation replayed cached Docker compiler layers and exported all six raw outputs byte-identically. This is cached recipe/output reproduction, not a second uncached full compilation. Historical065 full uncached reproduction is retained separately in private validation evidence. All188 source/tool inputs and complete maintained recipes are retained.",
     "wordSdk": "Pinned official Word SDK source and retained independent source-build pairs match the shipped JavaScript bundles.",
     "pdfFontRuntime": "A fresh source/compiler PDF-reader build exactly matches the accepted JS/WASM. The existing Xpdf SHA384/SHA512 branch avoids incompatible OpenSSL implementation inputs. Font WASM remains exact publisher-associated official SDK bytes; a local font-runtime build is not claimed.",
     "mimeParser": "The provided-source CLI reproduces the exact raw MIME closure from pinned Proton source. Immutable compiler configuration snapshots and matching application/compiler/platform pins preserve public-source rebuilding.",

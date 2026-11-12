@@ -62,7 +62,33 @@ function client(options) {
     }
     throw fail('form-write-unconfirmed', `${label} creation is not confirmed. ${writeError?.message ?? 'SharePoint did not return matching persisted data.'} Review the existing form setup before explicitly retrying.`);
   }
-  return { ...session, createAndConfirm };
+  async function checkRuntimeAsset(manifest) {
+    const loader = manifest.loaderConfig, resource = loader?.scriptResources?.[loader.entryModuleId];
+    let address;
+    try {
+      if (resource?.type !== 'path' || typeof resource.path !== 'string' || !resource.path || !Array.isArray(loader.internalModuleBaseUrls) || typeof loader.internalModuleBaseUrls[0] !== 'string') throw new Error();
+      const base = loader.internalModuleBaseUrls[0].replace(/\/?$/, '/');
+      address = new URL(resource.path, base);
+      if (address.protocol !== 'https:' || address.username || address.password || address.hash) throw new Error();
+    } catch { throw fail('form-runtime-invalid', 'The installed form runtime has an invalid script location.'); }
+    // Catalog scripts use the current reader's permissions even when component
+    // discovery succeeds. Check again on every Send. Public CDN script loading
+    // remains SPFx's responsibility; it need not allow a CORS fetch probe.
+    if (address.origin !== session.site.origin) return;
+    assertTarget();
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetchImpl(address.href, { credentials: 'same-origin', mode: 'same-origin', redirect: 'error', cache: 'no-store', signal: controller.signal });
+      assertTarget();
+      try {
+        if (!response.ok || response.redirected || response.url && response.url !== address.href || !/^(?:application|text)\/(?:javascript|ecmascript)(?:\s*;|$)/i.test(response.headers.get('Content-Type') ?? '')) throw new Error();
+      } finally { await response.body?.cancel(); }
+    } catch (error) {
+      if (error.code === 'target-changed') throw error;
+      throw fail('form-runtime-inaccessible', 'The installed form runtime script is unavailable to your account. Ask the site administrator to check access to its app assets, or retry after a temporary service error. No form setup was changed.');
+    } finally { clearTimeout(timer); }
+  }
+  return { ...session, createAndConfirm, checkRuntimeAsset };
 }
 
 async function installedRuntime(connection) {
@@ -80,6 +106,7 @@ async function installedRuntime(connection) {
   let manifest;
   try { manifest = JSON.parse(matching[0].Manifest); } catch { throw fail('form-runtime-invalid', 'The installed form runtime manifest is invalid.'); }
   if (typeof manifest?.id !== 'string' || manifest.id.toLowerCase() !== FORM_COMPONENT_ID || manifest.componentType !== 'WebPart' || manifest.manifestVersion !== 2) throw fail('form-runtime-invalid', 'The installed form runtime is incompatible.');
+  await connection.checkRuntimeAsset(manifest);
 }
 
 function ownedList(value, specification, expectedId) {

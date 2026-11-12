@@ -1844,7 +1844,7 @@
     "newSourceArchiveBytes": 31894675
   },
   "runtimeImportEvidence": {
-    "method": "Actual current JS missing-function abort bodies/import table correlated independently with current WASM import descriptors, plus final generated em++ compile/archive/link Makefiles and reproduced delivered-source build outputs. A repository or host-tool dependency alone is not treated as incorporated implementation. Full redacted final review is pinned by finalCompileTrace.",
+    "method": "Actual current JS missing-function abort bodies/import table correlated independently with current WASM import descriptors, plus final generated em++ compile/archive/link Makefiles and reproduced delivered-source build outputs. A repository or host-tool dependency alone is not treated as incorporated implementation. Full redacted final review is pinned by finalCompileTrace. Current evenOdd fill/stroke amendment retained the independently reviewed155 imports/96 abort stubs/71 crypto/zero HEIF profile; amended converter reproduction uses cached compiler layers as stated in its proof.",
     "artifacts": [
       {
         "file": "x2t.js",
@@ -1853,8 +1853,8 @@
       },
       {
         "file": "x2t.wasm",
-        "bytes": 38867906,
-        "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+        "bytes": 38868040,
+        "sha256": "d0e9bb7cb0ffb7eae1bb7963b666c097b0aafedaab1c5de32960853dc50e9b72"
       }
     ],
     "wasmImportCount": 155,
@@ -3497,7 +3497,7 @@
     "finalCompileTrace": {
       "file": "provenance/converter/final-native-proof.json",
       "bytes": 23288,
-      "sha256": "3e911ea904e051c405c7b35aac88ab603cef496ca27feb5d0ede735c8654f56e"
+      "sha256": "d20dde4afab8f34628d862c20ebdbff614d2a2b0574aac3b6771125ce884d0ec"
     },
     "reviewHelper": {
       "file": "provenance/converter/review-native-inputs.mjs",

@@ -1,4 +1,4 @@
-# Corresponding source for 0.7.2
+# Corresponding source for 0.7.3
 
 The release distributes the combined Confluence and file importer under GNU AGPL version 3, with the original MIT core notice retained. Unchanged upstream additional notices, the original ONLYOFFICE logo, CC BY-SA graphical asset terms and dependency licenses accompany the extension. No trademark endorsement is implied.
 
@@ -48,4 +48,4 @@ The component runs with the reader's current SharePoint permissions and does not
 
 The maintainer release gate verifies every source archive's size and SHA-256, official source/build associations, exact runtime hashes, editable catalog material, retained notices, full regression tests and an offline installation of the Store ZIP. `node scripts/source-release.mjs --check --source-dir DIR` checks collected source inputs; repeat `--source-dir` for multiple directories. The installed extension links to the same public source archive through **Licenses and source**.
 
-Fresh-source byte-for-byte reproduction is established for the Word JavaScript bundles, locally patched converter outputs and PDF drawing engine, subject to the recorded toolchain/cache limits. The font WASM retains verified official origin and publisher-associated source; a local font-runtime build is not claimed. Version 0.7.2 was published on GitHub after owner approval on 2026-11-11. Later documentation corrections do not replace the frozen release tag or source archive; see the [0.7.2 release guide](docs/releases/0.7.2.md). GitHub publication does not establish Chrome Web Store approval or compatibility with every tenant.
+Fresh-source byte-for-byte reproduction is established for the Word JavaScript bundles, locally patched converter outputs and PDF drawing engine, subject to the recorded toolchain/cache limits. The font WASM retains verified official origin and publisher-associated source; a local font-runtime build is not claimed. Version 0.7.3 is being prepared for owner review with JZB Apps branding and a verified current form companion package. It has not been published or submitted. The previously published 0.7.2 tag and source archive remain frozen; see the [0.7.2 release guide](docs/releases/0.7.2.md). GitHub publication does not establish Chrome Web Store approval or compatibility with every tenant.

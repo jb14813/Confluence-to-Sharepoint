@@ -22,3 +22,6 @@ The 16/32/48 icons have 0/1/2 pixels of padding; the 128 icon has 16 pixels; the
 
 These assets belong to the file-import feature. The standard Confluence
 extension's toolbar icon and main logo are maintained separately.
+## Publisher wordmark
+
+The original JZB Apps wordmark is copied unchanged from `https://jzbapps.com/assets/jzbapps-logo.webp` for the first-party publisher link. SHA-256: `09f649a29547aa6ec16db23e650aa1aaa6954ab62229ba0499a619e273715fd1`. The product icons remain separate. Required upstream logos and notices are retained.

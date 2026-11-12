@@ -1,6 +1,6 @@
 {
-  "scope": "Actual maintained cumulative065 applicator against complete23-file foundation; full output bytes equal approved snapshots. Wrong last preexisting input refuses atomically before any writes.",
-  "manifestSha256": "8d31495d960b2e5c623d7f9563fcaa7def15093a8b8ad966c335d55aee8476be",
+  "scope": "Current cumulative evenOdd fill/stroke patch; exact23-file input/output hashes, wrong last input fails atomically before writes.",
+  "manifestSha256": "c8ef2c911dc47be1bd2eb5f9b0adc46930eb81314798dc95d6ec0926f8659921",
   "applicatorSha256": "efb54231b6e542ceadf8f0bfd9ce6d045e485345e2f172bba63b4d6ee47a8eca",
   "positiveExit": 0,
   "completeSourceFilesVerified": 23,

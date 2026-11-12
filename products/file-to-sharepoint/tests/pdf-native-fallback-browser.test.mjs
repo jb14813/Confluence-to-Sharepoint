@@ -60,8 +60,8 @@ window.run=async({name,base64,abortAt=null,timeoutMs=30000})=>{
       profile:result.pdfLayout,nativeText:result.pdfText.pages.map(page=>page.text).join('\n'),editableText:root.body.textContent,
       readingOrder:adapted.preview.readingOrder,drawings:adapted.preview.drawings,sourceHash:adapted.model.sourceFileHash,
       blocking:adapted.model.warnings.filter(w=>w.blocking),warnings:adapted.model.warnings.map(w=>w.code),
-      assets,pictureSlots:root.querySelectorAll('.c2sPicture').length,officeUnchanged:unchanged===JSON.stringify(result.officeDocument)};
-  }catch(error){return {error:{code:error.code,name:error.name,message:error.message},calls:state.calls,workers:state.workers,terminated:state.terminated,frames:document.querySelectorAll('iframe').length};}
+      assets,pictureSlots:root.querySelectorAll('.c2sPicture').length,officeUnchanged:unchanged===JSON.stringify(result.officeDocument),formDefinition:adapted.formDefinition};
+  }catch(error){return {error:{code:error.code,name:error.name,message:error.message,stack:error.stack},calls:state.calls,workers:state.workers,terminated:state.terminated,frames:document.querySelectorAll('iframe').length};}
   finally{active=null;}
 };`;
 
@@ -129,6 +129,11 @@ test('real strict MV3 native2 refusal retries native4 with editable content, bou
     assert.equal(recovery.error,undefined,JSON.stringify(recovery.error));assert.deepEqual(ends(recovery).map(call=>call.request),[2,null]);
     assert.ok(ends(recovery).every(call=>call.code===0));assert.equal(recovery.profile.textAssociationType,2);assert.equal(recovery.profile.nativeTables.textAssociationType,undefined);
     assert.deepEqual(recovery.blocking,[]);assert.equal(recovery.officeUnchanged,true);
+    const boxed=await invoke('readonly-multiline.pdf',await readFile(new URL('./fixtures/pdf-evenodd-stroke/readonly-multiline.pdf',import.meta.url)));
+    assert.equal(boxed.error,undefined,JSON.stringify(boxed.error));assert.deepEqual(boxed.blocking,[]);assert.equal(boxed.officeUnchanged,true);
+    assert.equal(boxed.profile.nativeDrawings.sourcePaintCount,5,'Outer box plus two separately verified fill/stroke pairs');
+    assert.ok(boxed.editableText.includes('Read-only and multiline validation'));assert.ok(boxed.editableText.includes('Reference (read-only)'));assert.ok(boxed.editableText.includes('Notes (required)'));
+    assert.equal(boxed.formDefinition.fields.length,2);assert.ok(boxed.formDefinition.fields.some(field=>field.readOnly));assert.ok(boxed.formDefinition.fields.some(field=>field.required&&field.multiline));
     assert.deepEqual(external,[]);assert.deepEqual(pageErrors,[]);
   }finally{
     await context.close();

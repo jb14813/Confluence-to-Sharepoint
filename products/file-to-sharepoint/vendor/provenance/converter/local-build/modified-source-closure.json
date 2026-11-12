@@ -76,8 +76,8 @@
     {
       "file": "DocxRenderer/src/logic/Page.cpp",
       "before": "816865185fa6084d9cb5145067ad3b6c72c57fb0b53e4f20bcaa9057dd67d1cd",
-      "after": "605330a12448de86407cc18463b045cd8e28cfc92d2507a1b9de49d6a8412968",
-      "bytes": 135144
+      "after": "21fb4765000ca9984d0f016915fde662343d6e3aef8d36189175183746bda493",
+      "bytes": 135425
     },
     {
       "file": "DocxRenderer/src/logic/Page.h",
@@ -256,8 +256,8 @@
     {
       "file": "PdfFile/SrcReader/RendererOutputDev.cpp",
       "before": "0a1f3ac5b2b21f6ef748f261fd2e29485096e5c763809a5d226df7e54ecdb0cf",
-      "after": "80ebac58e3fec702761c961c2e90c275fa972d18664308fd9ac5d0db6ce1a6da",
-      "bytes": 132407
+      "after": "43de2c5caf27b48650dbe067441b420f1632d885ec0ec56626d57cbd6a10ac2e",
+      "bytes": 132693
     },
     {
       "file": "PdfFile/SrcReader/RendererOutputDev.h",

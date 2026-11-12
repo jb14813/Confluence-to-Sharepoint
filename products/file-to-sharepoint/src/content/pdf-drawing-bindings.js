@@ -58,9 +58,12 @@ export function bindPdfDrawings(value,document,{pages,nativeTables,pdfText,verif
           // proof tied to this exact ledger/model and stable docPr identity.
           // Runtime extX/extY may be zero until layout; serialized xfrm and
           // paraDrawing extents retain the real native codec values.
+          // The anchor subtracts world coordinates; the picture uses its own
+          // width/height. Verify each independently against the exact native
+          // truncation boundary rather than requiring identical rounding.
           if(graphic.blipFill?.rasterImageId!==(verifiedAliases===undefined?`image${drawing.imageId}.png`:pdfDrawingAliasName(verifiedAliases,value,document,docPrId))||!crop||Object.keys(crop).length!==4||crop.l!==0||crop.t!==0||crop.r!==100||crop.b!==100||
-            !extent||!node.extent||!['cx','cy'].every((key,index)=>Number.isSafeInteger(extent[key])&&extent[key]>0&&node.extent[key]===extent[key]&&
-              derivedExtent(extent[key],rep[index?'pixelHeight':'pixelWidth']*914400/rep.dpi))||
+            !extent||!node.extent||!['cx','cy'].every((key,index)=>[extent[key],node.extent[key]].every(actual=>Number.isSafeInteger(actual)&&actual>0&&
+              derivedExtent(actual,rep[index?'pixelHeight':'pixelWidth']*914400/rep.dpi)))||
             xfrm.rot!=null&&xfrm.rot!==0||xfrm.flipH!=null&&xfrm.flipH!==false||xfrm.flipV!=null&&xfrm.flipV!==false)fail();
         }
         const sources=drawing.sourceIds.map(id=>page.sourcePaints[id-1]);

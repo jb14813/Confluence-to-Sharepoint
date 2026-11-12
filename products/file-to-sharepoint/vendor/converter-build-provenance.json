@@ -2186,13 +2186,13 @@
       },
       {
         "file": "scripts/converter-runtime-inputs/pdf-native-drawings-v2.json",
-        "bytes": 179705,
-        "sha256": "8d31495d960b2e5c623d7f9563fcaa7def15093a8b8ad966c335d55aee8476be"
+        "bytes": 180629,
+        "sha256": "c8ef2c911dc47be1bd2eb5f9b0adc46930eb81314798dc95d6ec0926f8659921"
       },
       {
         "file": "scripts/converter-runtime-inputs/pdf-native-drawings-v2.patch",
-        "bytes": 139310,
-        "sha256": "b8cc2cff65f5b640ba6fc4ccb7dc43ac0dfda713e1d4749d1b125a6d95ac89cb"
+        "bytes": 139914,
+        "sha256": "b22e4ecd5be1bb45b640b25649ca0e85d3f3fdd85e3ec9314c74514401bdfebe"
       },
       {
         "file": "scripts/converter-runtime-inputs/pdf-native-layout.json",
@@ -2287,7 +2287,7 @@
       {
         "file": "vendor/provenance/converter/final-native-proof.json",
         "bytes": 23288,
-        "sha256": "3e911ea904e051c405c7b35aac88ab603cef496ca27feb5d0ede735c8654f56e"
+        "sha256": "d20dde4afab8f34628d862c20ebdbff614d2a2b0574aac3b6771125ce884d0ec"
       },
       {
         "file": "vendor/provenance/converter/local-build/compiler-hashes.txt",
@@ -2321,13 +2321,13 @@
       },
       {
         "file": "vendor/provenance/converter/local-build/modified-source-closure.json",
-        "bytes": 11944,
-        "sha256": "c2206c94e26da54434feda436fb0c8295da638780f04cf0c5395654495b9a69e"
+        "bytes": 11945,
+        "sha256": "5b5d4ea58d3b16200043308bf6a668797df116cc45d9567f803dab01c5a02b2b"
       },
       {
         "file": "vendor/provenance/converter/local-build/native-source-reproduction.json",
-        "bytes": 13837,
-        "sha256": "c28066e0286ad7de2c9d7f57e196ad6167cdb2fb7cca1dd2c0c9e1219c1203b5"
+        "bytes": 1913,
+        "sha256": "e9b0e144d90e691dbe527b70c2f415ee7b8eb773c0ab688224b15064fc01e899"
       },
       {
         "file": "vendor/provenance/converter/local-build/ooxmlsignature.Makefile",
@@ -2343,8 +2343,8 @@
       },
       {
         "file": "vendor/provenance/converter/local-build/source-guard-verification.json",
-        "bytes": 529,
-        "sha256": "a957639409506491cf3409885b3ed32a673e2cb9ea4ee529fe6d75ef01d35421"
+        "bytes": 468,
+        "sha256": "64dc60c68554e57ed40adb2fad019c1a00f5a10ccb02e73b2cda3da369353b76"
       },
       {
         "file": "vendor/provenance/converter/local-build/source-selection.json",
@@ -2403,7 +2403,8 @@
       "Preserve native drawing paths/clips and verified cell figures; fix straight/premultiplied alpha and source image identity.",
       "Preserve original BMP/TIFF dimensions, TIFF straight alpha and orientation; retain the established native XHTML/CSS profile. Disable unsupported HEIF in the Emscripten image profile.",
       "Retain table enum2 and the established normal paragraph enum4 fallback, signaled by verified native sidecar metadata; distinct/clipped source paints do not fold.",
-      "Use release flags without QA profiling, metrics observers or alternate order scans; force every core/native compilation stage uncached for independent reproduction."
+      "Use release flags without QA profiling, metrics observers or alternate order scans; current reproduction record explicitly distinguishes cached compiler replay from historical uncached builds.",
+      "Split combined evenOdd fill/stroke through existing parsed-path operations in original paint order and keep those paints separate for the established fill-only raster proof."
     ],
     "command": "node products/file-to-sharepoint/scripts/build-converter-runtime.mjs --offline (Docker buildx on Linux or WSL; source-only input selection and pinned compiler distributions)",
     "hostPackageManifest": "vendor/provenance/converter/local-build/host-packages.txt",
@@ -2473,8 +2474,8 @@
     },
     {
       "file": "x2t.wasm",
-      "bytes": 38867906,
-      "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+      "bytes": 38868040,
+      "sha256": "d0e9bb7cb0ffb7eae1bb7963b666c097b0aafedaab1c5de32960853dc50e9b72"
     }
   ],
   "validation": {
@@ -2482,7 +2483,7 @@
     "pixelRegression": {
       "passed": true,
       "evidenceFile": "provenance/converter/pixel-regression.json",
-      "evidenceSha256": "74a8ba0a23bc91020115661c6ac224647eeec07c29b9e5eede21bb8ded0ee199",
+      "evidenceSha256": "65eda99d854efdc020f1748b82736e7c055e7ca89abdc4029567141fdf9d63da",
       "cases": [
         {
           "name": "image-opaque.pdf",
@@ -2645,11 +2646,11 @@
           ]
         }
       ],
-      "method": "All eight established independent image-reference cases passed again in the46-case strict offline MV3 adopted clean converter/reader acceptance; source PNG, IJG CLI and pre-export capture calibration metadata remains historical and unchanged."
+      "method": "Current staged native runtime, strict offline MV3 browser; independent original source PNG comparisons retain dimensions and exact decoded pixels."
     },
     "reproduction": {
       "status": "outputs-reproduced",
-      "method": "Two independently prepared pinned188-archive preferred-source contexts; all24294 files and symlinks exact. Both clean builds force the same30 native stages to execute on a four-CPU8GiB single-step worker with core RUN network=none. Toolchain, dependency and Emscripten system/port caches may be reused; no converter/core/graphics/PDF/DocxRenderer objects or archives are source inputs. Raw executables are compared without normalization.",
+      "method": "Current maintained188-archive source-only preparation built the changed native source. A second fresh source preparation replayed cached Docker compiler layers and exported all six raw outputs byte-identically. This is cached recipe/output reproduction, not a second uncached full compilation. Historical065 full uncached reproduction is retained separately in private validation evidence.",
       "outputs": [
         {
           "file": "x2t.js",
@@ -2658,12 +2659,12 @@
         },
         {
           "file": "x2t.wasm",
-          "bytes": 38867906,
-          "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+          "bytes": 38868040,
+          "sha256": "d0e9bb7cb0ffb7eae1bb7963b666c097b0aafedaab1c5de32960853dc50e9b72"
         }
       ],
       "proofFile": "provenance/converter/local-build/native-source-reproduction.json",
-      "proofSha256": "c28066e0286ad7de2c9d7f57e196ad6167cdb2fb7cca1dd2c0c9e1219c1203b5"
+      "proofSha256": "e9b0e144d90e691dbe527b70c2f415ee7b8eb773c0ab688224b15064fc01e899"
     },
     "referenceProducer": {
       "file": "provenance/converter/pixel-reference-provenance.json",
@@ -2678,7 +2679,7 @@
         "sha256": "1e93ce64882d63b9758e4969edb8c20e3e644bc0328553fc94757892cfebc947"
       }
     },
-    "nativeRuntime": {
+    "historicalNativeRuntime": {
       "focusedNativeStatusesExact": 39,
       "successfulRawZipPayloadsExact": 36,
       "sdkEncodedAndFullRgbaAssetsExact": 321,
@@ -2686,7 +2687,16 @@
       "strictOfflineMv3TestsPassed": 46,
       "sourceClosureFile": "provenance/converter/local-build/modified-source-closure.json",
       "sourceGuardFile": "provenance/converter/local-build/source-guard-verification.json",
-      "offlineMv3ProofFile": "provenance/drawing/native-runtime-validation.json"
+      "offlineMv3ProofFile": "provenance/drawing/native-runtime-validation.json",
+      "scope": "Historical065 native/drawing acceptance; not relabeled as current amended runtime."
+    },
+    "nativeRuntime": {
+      "scope": "Current native amendment regression:2 native conversion controls,1 full MV3 fallback/recovery test,21 strict MV3 engine tests including8 exact source-image pixel comparisons. Full application/release and live SharePoint checks remain separate.",
+      "nativePaintControlsPassed": 2,
+      "offlineEngineTestsPassed": 21,
+      "fullAdapterFallbackTestPassed": true,
+      "sourceClosureFile": "provenance/converter/local-build/modified-source-closure.json",
+      "sourceGuardFile": "provenance/converter/local-build/source-guard-verification.json"
     }
   },
   "fidelity": {

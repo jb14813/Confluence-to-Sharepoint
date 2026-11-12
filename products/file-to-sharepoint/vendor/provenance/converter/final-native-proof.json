@@ -9,8 +9,8 @@
     },
     {
       "file": "x2t.wasm",
-      "bytes": 38867906,
-      "sha256": "ddfddc86f1419c27ea420c2a33fc1e5be7bb799d8c8867a93cb44ee241fa85e6"
+      "bytes": 38868040,
+      "sha256": "d0e9bb7cb0ffb7eae1bb7963b666c097b0aafedaab1c5de32960853dc50e9b72"
     }
   ],
   "wasmImportCount": 155,

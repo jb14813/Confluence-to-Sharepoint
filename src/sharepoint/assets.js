@@ -438,13 +438,31 @@ export function createAssetClient({ siteUrl, fetchImpl = globalThis.fetch,
         return rootExisting;
       }
       let rootWriteError;
-      try {
-        await request(`web/lists(guid'${library.listId}')/RootFolder/Files/add(url='${odataPath(filename)}',overwrite=false)`, {
-          method: 'POST', digest, body: bytes, format: 'none', size: bytes.length
-        });
-      } catch (error) {
-        if (!uncertain(error)) throw error;
-        rootWriteError = error;
+      for (let attempt = 0; ; attempt++) {
+        rootWriteError = undefined;
+        try {
+          await request(`web/lists(guid'${library.listId}')/RootFolder/Files/add(url='${odataPath(filename)}',overwrite=false)`, {
+            method: 'POST', digest, body: bytes, format: 'none', size: bytes.length
+          });
+        } catch (error) {
+          if (!uncertain(error)) throw error;
+          rootWriteError = error;
+          if ([429, 503].includes(error.status) && attempt < 2) {
+            let confirmed;
+            try { confirmed = await verifiedFile(rootPath, bytes, asset, hash); }
+            catch (verificationError) {
+              if (verificationError.code === 'asset-collision') throw verificationError;
+              throw fail('upload-unconfirmed', 'Image upload could not be confirmed. Inspect the asset library before retrying.');
+            }
+            if (confirmed) {
+              if (folderRefused) await hint('remember', folderPath);
+              return confirmed;
+            }
+            await new Promise(resolve => setTimeout(resolve, error.retryAfter ?? 1000 * 2 ** attempt));
+            continue;
+          }
+        }
+        break;
       }
       let rootConfirmed;
       try { rootConfirmed = await verifiedFile(rootPath, bytes, asset, hash); }

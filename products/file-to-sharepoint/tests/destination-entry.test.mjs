@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const SITE = 'https://tenant.sharepoint.com/sites/Review', OTHER = 'https://tenant.sharepoint.com/sites/Other';
 const componentId = 'f104fa11-c9e8-43d6-8c5a-3f7b70f31ab1';
+const runtimeAsset='https://tenant.sharepoint.com/sites/appcatalog/ClientSideAssets/form/form.js';
 const definitionListId = '45bc5c89-20db-4890-93f0-bc91c36aed73', responseListId = 'a4b9d3d7-3fd5-437b-b071-bab06d358bc1';
 const definition = { version: 1, id: 'd'.repeat(64), title: 'Prepared form', fields: [{ id: 'f_4444444444444444', sourceName: 'request', kind: 'text', label: 'Request', value: '', required: true, readOnly: false }] };
 const formBlock = () => ({ type: 'form', formId: definition.id, definitionListId, responseListId });
@@ -28,15 +29,16 @@ before(async () => {
 
 function fixture() {
   const definitions = new Map([[SITE, []], [OTHER, []]]), calls = [];
-  let listener, denyDefinitionReads = false, runtimePresent = true;
+  let listener, denyDefinitionReads = false, runtimePresent = true, denyAsset = false;
   const context = vm.createContext({ URL, AbortController, setTimeout, clearTimeout,
     location: { href: `${SITE}/SitePages/Home.aspx` }, selectedSite: SITE,
     chrome: { runtime: { id: 'extension', onMessage: { addListener(value) { listener = value; } } } },
     fetch: async (address, init = {}) => {
+      if(address===runtimeAsset)return new Response('/* form runtime */',{status:denyAsset?403:200,headers:{'Content-Type':'application/javascript'}});
       const site = [SITE, OTHER].find(value => address.startsWith(`${value}/_api/`)); assert.ok(site, address);
       const url = new URL(address), resource = decodeURIComponent(url.pathname.slice(new URL(`${site}/_api/`).pathname.length));
       calls.push({ site, resource, method: init.method ?? 'GET' });
-      if (resource === 'web/GetClientSideWebParts') return reply({ value: runtimePresent ? [{ Id: componentId, Manifest: JSON.stringify({ id: componentId, componentType: 'WebPart', manifestVersion: 2 }) }] : [] });
+      if (resource === 'web/GetClientSideWebParts') return reply({ value: runtimePresent ? [{ Id: componentId, Manifest: JSON.stringify({ id: componentId, componentType: 'WebPart', manifestVersion: 2, loaderConfig:{internalModuleBaseUrls:[runtimeAsset.slice(0,runtimeAsset.lastIndexOf('/'))],entryModuleId:'form',scriptResources:{form:{type:'path',path:'form.js'}}} }) }] : [] });
       if (resource === 'contextinfo') return reply({ FormDigestValue: 'digest', FormDigestTimeoutSeconds: 1800 });
       const kind = resource.includes(definitionListId) ? 'definitions' : resource.includes(responseListId) ? 'responses' : null;
       if (resource === 'web/lists') {
@@ -59,7 +61,7 @@ function fixture() {
     return [text('Title', 255), ...(kind === 'definitions' ? [text('FormId', 64, { Indexed: true, EnforceUniqueValues: true }), note('DefinitionJson')] : [text('SubmissionId', 36, { Indexed: true, EnforceUniqueValues: true }), text('FormId', 64, { Indexed: true }), { ...common, InternalName: 'DefinitionVersion', TypeAsString: 'Number', FieldTypeKind: 9, DisplayFormat: 0 }, note('ResponseJson')])];
   }
   vm.runInContext(bundled, context);
-  return { context, calls, definitions, denyReads: () => { denyDefinitionReads = true; }, removeRuntime: () => { runtimePresent = false; },
+  return { context, calls, definitions, denyReads: () => { denyDefinitionReads = true; }, removeRuntime: () => { runtimePresent = false; }, revokeAsset: () => { denyAsset = true; },
     move: site => { context.selectedSite = site; context.location.href = `${site}/SitePages/Home.aspx`; },
     prepare: async () => {
       context.messageJson = JSON.stringify({ channel: 'file-form', action: 'prepare', siteUrl: context.selectedSite, definition });
@@ -116,4 +118,9 @@ test('changed form list references cannot reuse the prepared context', async () 
   const f = fixture(); await f.prepare(); f.calls.length = 0;
   await assert.rejects(f.before(SITE, { ...formBlock(), responseListId: 'd4d4ae83-75db-4d4e-ab93-c63429999b47' }), /prepared/i);
   assert.equal(f.calls.length, 0);
+});
+
+test('revoked catalog script access after preparation stops the pre-write hook without repairing permissions',async()=>{
+ const f=fixture();await f.prepare();assert.equal(f.writes().length,1);f.revokeAsset();
+ await assert.rejects(f.before(SITE),{code:'form-runtime-inaccessible'});assert.equal(f.writes().length,1);
 });
